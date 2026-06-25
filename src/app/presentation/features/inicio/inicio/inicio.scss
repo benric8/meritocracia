@@ -1,0 +1,343 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  color: var(--mc-text);
+
+  // Paleta granate sobre los botones Material (sin !important, vía tokens).
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mc-primary),
+      filled-label-text-color: #ffffff,
+      outlined-label-text-color: var(--mc-primary),
+      outlined-outline-color: var(--mc-primary),
+    )
+  );
+}
+
+.inicio {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Tarjetas Material: borde y sombra coherentes con el mockup */
+.welcome-card,
+.stat-card,
+.card {
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+  background: var(--mc-surface);
+}
+
+/* ---------- Tarjeta de bienvenida ---------- */
+.welcome-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+  padding: 32px;
+  overflow: hidden;
+}
+
+.welcome-emblem {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mc-primary);
+  color: #fff;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.welcome-body {
+  flex: 1;
+  min-width: 0;
+  z-index: 1;
+}
+
+.welcome-eyebrow {
+  margin: 0 0 2px;
+  font-size: 15px;
+  color: var(--mc-text-muted);
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--mc-primary);
+}
+
+.welcome-divider {
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin: 12px 0 16px;
+  background: var(--mc-primary);
+  border-radius: 2px;
+}
+
+.welcome-text {
+  margin: 0;
+  max-width: 620px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mc-text-muted);
+}
+
+.welcome-watermark {
+  position: absolute;
+  right: 24px;
+  bottom: -16px;
+  color: var(--mc-primary);
+  opacity: 0.06;
+  pointer-events: none;
+
+  mat-icon {
+    font-size: 180px;
+    width: 180px;
+    height: 180px;
+  }
+}
+
+/* ---------- Estadísticas (Administrador) ---------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--mc-text-muted);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--mc-primary);
+  line-height: 1.1;
+}
+
+/* ---------- Grid de tarjetas ---------- */
+.inicio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+
+  mat-icon {
+    color: var(--mc-primary);
+  }
+}
+
+.card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mc-text);
+}
+
+.card-subtitle {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mc-text-muted);
+}
+
+.card-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--mc-text-muted);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--mc-text-muted);
+  }
+}
+
+/* ---------- Zona de carga PDF ---------- */
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--mc-primary-p20);
+  border: 2px dashed var(--mc-primary-light);
+  border-radius: var(--mc-radius);
+}
+
+.upload-icon mat-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  color: var(--mc-primary);
+}
+
+.upload-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+}
+
+/* ---------- Lista de documentos ---------- */
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fafbfc;
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius);
+}
+
+.doc-icon {
+  flex-shrink: 0;
+  color: var(--mc-primary);
+}
+
+.doc-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mc-text);
+}
+
+.doc-date {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--mc-text-muted);
+}
+
+.doc-item button {
+  flex-shrink: 0;
+}
+
+/* ---------- Accesos rápidos ---------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.quick-action {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    border-color: var(--mc-primary);
+    box-shadow: var(--mc-shadow);
+    transform: translateY(-2px);
+  }
+}
+
+.quick-action-icon {
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--mc-primary-p20);
+  color: var(--mc-primary);
+
+  mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.quick-action-title {
+  margin: 0;
+  align-self: end;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mc-primary);
+}
+
+.quick-action-text {
+  margin: 0;
+  align-self: start;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--mc-text-muted);
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+  .inicio-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcome-divider {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

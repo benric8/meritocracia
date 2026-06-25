@@ -1,0 +1,100 @@
+<div class="login-page">
+  <!-- Panel de marca institucional -->
+  <aside class="login-brand">
+    <div class="login-brand-content">
+      <div class="brand-logo">
+        <mat-icon>account_balance</mat-icon>
+      </div>
+      <h1 class="brand-title">PODER JUDICIAL<br />DEL PERÚ</h1>
+      <span class="brand-divider"></span>
+      <mat-icon class="brand-courthouse">balance</mat-icon>
+      <h2 class="brand-platform">Plataforma de Valoración de Méritos</h2>
+      <p class="brand-desc">
+        Valoración de méritos para la selección de Jueces Superiores Titulares y Supremos
+      </p>
+    </div>
+  </aside>
+
+  <!-- Panel del formulario -->
+  <main class="login-panel">
+    <form class="login-card" [formGroup]="form" (ngSubmit)="iniciar()" novalidate>
+      <div class="login-card-icon">
+        <mat-icon>balance</mat-icon>
+      </div>
+
+      <h2 class="login-title">Iniciar sesión</h2>
+      <p class="login-subtitle">Ingrese sus credenciales para continuar</p>
+
+      <!-- Campo: Usuario -->
+      <div class="login-field">
+        <label for="usuario">Usuario</label>
+        <div
+          class="input-wrap"
+          [class.is-invalid]="form.controls.usuario.touched && form.controls.usuario.invalid"
+        >
+          <mat-icon class="field-icon">person</mat-icon>
+          <input
+            id="usuario"
+            type="text"
+            formControlName="usuario"
+            placeholder="Ingrese su usuario"
+            autocomplete="username"
+          />
+        </div>
+        @if (form.controls.usuario.touched && form.controls.usuario.invalid) {
+          <span class="field-error">El usuario es obligatorio.</span>
+        }
+      </div>
+
+      <!-- Campo: Contraseña -->
+      <div class="login-field">
+        <label for="clave">Contraseña</label>
+        <div
+          class="input-wrap"
+          [class.is-invalid]="form.controls.clave.touched && form.controls.clave.invalid"
+        >
+          <mat-icon class="field-icon">lock</mat-icon>
+          <input
+            id="clave"
+            [type]="mostrarClave() ? 'text' : 'password'"
+            formControlName="clave"
+            placeholder="Ingrese su contraseña"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="toggle-pass"
+            (click)="alternarClave()"
+            [attr.aria-label]="mostrarClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <mat-icon>{{ mostrarClave() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </div>
+        @if (form.controls.clave.touched && form.controls.clave.invalid) {
+          <span class="field-error">La contraseña es obligatoria.</span>
+        }
+      </div>
+
+      <a class="login-forgot" href="#" (click)="$event.preventDefault()">¿Olvidó su contraseña?</a>
+
+      <!-- Botones reglamentarios -->
+      <button type="submit" class="login-btn login-btn-primary">
+        <span class="btn-label">Iniciar</span>
+        <mat-icon class="btn-arrow">arrow_forward</mat-icon>
+      </button>
+
+      <button type="button" class="login-btn login-btn-secondary" (click)="limpiar()">
+        <mat-icon class="btn-icon-left">cleaning_services</mat-icon>
+        <span class="btn-label">Limpiar</span>
+      </button>
+    </form>
+
+    <footer class="login-footer">
+      <span class="footer-url">
+        <mat-icon>public</mat-icon>
+        www.pj.gob.pe
+      </span>
+      <span class="footer-inst">Poder Judicial del Perú</span>
+    </footer>
+  </main>
+</div>

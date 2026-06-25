@@ -1,0 +1,129 @@
+<section class="inicio">
+  <!-- Bienvenida (común a todos los perfiles) -->
+  <mat-card class="welcome-card" appearance="outlined">
+    <div class="welcome-emblem">
+      <mat-icon>balance</mat-icon>
+    </div>
+    <div class="welcome-body">
+      <p class="welcome-eyebrow">Bienvenido(a) a la plataforma</p>
+      <h1 class="welcome-title">Valoración de Méritos</h1>
+      <span class="welcome-divider"></span>
+      <p class="welcome-text">
+        Plataforma institucional del Poder Judicial del Perú que permite gestionar de
+        manera transparente, eficiente y segura los procesos de valoración de méritos
+        del personal jurisdiccional y administrativo, conforme a la normativa vigente.
+      </p>
+    </div>
+    <div class="welcome-watermark" aria-hidden="true">
+      <mat-icon>account_balance</mat-icon>
+    </div>
+  </mat-card>
+
+  <!-- Estadísticas (solo Administrador) -->
+  @if (esAdmin()) {
+    <div class="stats-grid">
+      @for (stat of estadisticas(); track stat.etiqueta) {
+        <mat-card class="stat-card" appearance="outlined">
+          <span class="stat-label">{{ stat.etiqueta }}</span>
+          <span class="stat-value">{{ stat.valor }}</span>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <div class="inicio-grid">
+    <!-- Resoluciones y lineamientos -->
+    <mat-card class="card" appearance="outlined">
+      <mat-card-content>
+        <div class="card-head">
+          <mat-icon>description</mat-icon>
+          <h2 class="card-title">Resoluciones y Lineamientos</h2>
+        </div>
+
+        @if (esAdmin()) {
+          <p class="card-subtitle">
+            Cargue documentos PDF de resoluciones y lineamientos del área usuaria para
+            consulta del equipo.
+          </p>
+
+          <div class="upload-zone">
+            <div class="upload-icon">
+              <mat-icon>cloud_upload</mat-icon>
+            </div>
+            <p class="upload-text">Arrastre archivos PDF aquí o seleccione desde su equipo</p>
+            <button matButton="filled" type="button">
+              <mat-icon>upload</mat-icon>
+              Subir resolución
+            </button>
+          </div>
+
+          <div class="doc-list">
+            @for (doc of documentos(); track doc.nombre) {
+              <div class="doc-item">
+                <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
+                <div class="doc-meta">
+                  <span class="doc-name">{{ doc.nombre }}</span>
+                  <span class="doc-date">{{ doc.fecha }}</span>
+                </div>
+                <button matButton="outlined" type="button">Reemplazar</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="card-subtitle">
+            Consulte y descargue los documentos institucionales publicados por el
+            administrador.
+          </p>
+
+          <div class="doc-list">
+            @for (doc of documentos(); track doc.nombre) {
+              <div class="doc-item">
+                <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
+                <div class="doc-meta">
+                  <span class="doc-name">{{ doc.nombre }}</span>
+                  <span class="doc-date">{{ doc.fecha }}</span>
+                </div>
+                <button matButton="filled" type="button">
+                  <mat-icon>download</mat-icon>
+                  Descargar
+                </button>
+              </div>
+            }
+          </div>
+
+          <p class="card-note">
+            <mat-icon>info</mat-icon>
+            Solo los archivos en formato PDF serán publicados.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Accesos rápidos -->
+    <mat-card class="card" appearance="outlined">
+      <mat-card-content>
+        <div class="card-head">
+          <mat-icon>bolt</mat-icon>
+          <h2 class="card-title">
+            {{ esAdmin() ? 'Accesos administrativos' : 'Mis tareas frecuentes' }}
+          </h2>
+        </div>
+        <p class="card-subtitle">
+          Acceda rápidamente a las funciones más utilizadas de la plataforma.
+        </p>
+
+        <div class="quick-actions">
+          @for (acceso of (esAdmin() ? accesosAdmin() : accesosRegistrador()); track acceso.ruta) {
+            <a class="quick-action" matRipple [routerLink]="acceso.ruta">
+              <span class="quick-action-icon">
+                <mat-icon>{{ acceso.icono }}</mat-icon>
+              </span>
+              <span class="quick-action-title">{{ acceso.titulo }}</span>
+              <span class="quick-action-text">{{ acceso.descripcion }}</span>
+            </a>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
