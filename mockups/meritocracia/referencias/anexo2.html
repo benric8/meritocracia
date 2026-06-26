@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuadro de Méritos de Jueces Superiores Titulares</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #0f172a;
+            --brand-blue: #1d4ed8;
+            --brand-light: #eff6ff;
+            --gray-light: #f8fafc;
+            --border: #cbd5e1;
+            --score-bg: #fef2f2;
+            --score-text: #991b1b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .report-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header institucional */
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .title-area h1 {
+            font-size: 22px;
+            color: var(--primary);
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .title-area p {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .badge-date {
+            background-color: var(--brand-light);
+            color: var(--brand-blue);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Buscador */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            width: 320px;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+        }
+
+        /* Contenedor e Tabla */
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        /* Estilos de Cabecera */
+        th {
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+        }
+
+        .cat-header {
+            background-color: #334155;
+            color: #ffffff;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .sub-header {
+            background-color: #f8fafc;
+            color: #475569;
+            font-size: 11px;
+        }
+
+        /* Cabeceras rotadas ligeramente para mejorar lectura vertical sin romper espacio */
+        .vertical-text {
+            max-width: 45px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            padding: 15px 5px !important;
+            font-size: 10px;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        /* Columnas con divisiones fuertes */
+        .col-divider {
+            border-left: 2.5px solid #94a3b8;
+        }
+
+        /* Celdas de datos */
+        td {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Diseños específicos de celdas */
+        .judge-name {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .district-label {
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .total-score {
+            background-color: var(--score-bg);
+            color: var(--score-text);
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .zero-value {
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-card">
+    <div class="report-header">
+        <div class="title-area">
+            <h1>Cuadro de Méritos de Jueces Superiores Titulares (2024)</h1>
+            <p>Poder Judicial del Perú — Evaluación de Desempeño Magistral</p>
+        </div>
+        <div>
+            Fecha de Valoración: <span class="badge-date">31/12/2024</span>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="judgeSearch" class="search-bar" placeholder="Buscar magistrado por nombre...">
+    </div>
+
+    <div class="table-wrapper">
+        <table id="meritTable">
+            <thead>
+                <tr class="cat-header">
+                    <th colspan="3">Información del Magistrado</th>
+                    <th colspan="2" class="col-divider">Especialidad</th>
+                    <th colspan="13" class="col-divider">Rubros de Valoración</th>
+                    <th class="col-divider">Resultado</th>
+                    <th colspan="3" class="col-divider">Desempate</th>
+                </tr>
+                <tr class="sub-header">
+                    <th style="width: 50px;">N° Orden</th>
+                    <th>Apellidos y Nombres</th>
+                    <th>Distrito Judicial</th>
+                    
+                    <th class="col-divider">Primera</th>
+                    <th>Segunda</th>
+                    
+                    <th class="vertical-text col-divider">Antigüedad en Cargo</th>
+                    <th class="vertical-text">Grados y Títulos</th>
+                    <th class="vertical-text">Estudios AMAG</th>
+                    <th class="vertical-text">Doctorado / Maestría</th>
+                    <th class="vertical-text">Pasantías</th>
+                    <th class="vertical-text">Cursos Especialización</th>
+                    <th class="vertical-text">Expositor / Panelista</th>
+                    <th class="vertical-text">Eventos Académicos</th>
+                    <th class="vertical-text">Ofimática</th>
+                    <th class="vertical-text">Idiomas</th>
+                    <th class="vertical-text">Publicaciones Jurídicas</th>
+                    <th class="vertical-text">Distinciones / Condecoraciones</th>
+                    <th class="vertical-text">Docencia Universitaria</th>
+                    
+                    <th class="col-divider">Puntaje Total</th>
+                    
+                    <th class="col-divider">Criterio I</th>
+                    <th>Criterio II</th>
+                    <th>Criterio III</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="font-bold">1°</td>
+                    <td class="text-left judge-name">CAMPOS BARRANZUELA EDHIN</td>
+                    <td><span class="district-label">ANCASH</span></td>
+                    <td class="col-divider font-bold">PENAL</td>
+                    <td>CIVIL</td>
+                    <td class="col-divider">8.500</td>
+                    <td>17.000</td>
+                    <td>8.000</td>
+                    <td class="zero-value">0.000</td>
+                    <td>1.500</td>
+                    <td>3.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>3.000</td>
+                    <td>3.000</td>
+                    <td>3.000</td>
+                    <td class="total-score col-divider">55.000</td>
+                    <td class="col-divider">46.500</td>
+                    <td class="zero-value">0.000</td>
+                    <td>248</td>
+                </tr>
+                <tr>
+                    <td class="font-bold">2°</td>
+                    <td class="text-left judge-name">LLAP UNCHON DE LORA LILLY DEL ROSARIO</td>
+                    <td><span class="district-label">LA LIBERTAD</span></td>
+                    <td class="col-divider font-bold">CIVIL</td>
+                    <td>LABORAL</td>
+                    <td class="col-divider">10.500</td>
+                    <td>17.000</td>
+                    <td>6.000</td>
+                    <td>1.500</td>
+                    <td class="zero-value">0.000</td>
+                    <td>3.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>1.500</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>3.000</td>
+                    <td>3.000</td>
+                    <td class="total-score col-divider">53.500</td>
+                    <td class="col-divider">43.000</td>
+                    <td class="zero-value">0.000</td>
+                    <td>208</td>
+                </tr>
+                <tr>
+                    <td class="font-bold">3°</td>
+                    <td class="text-left judge-name">PAREDES INFANZON JELIO</td>
+                    <td><span class="district-label">AYACUCHO</span></td>
+                    <td class="col-divider font-bold">LABORAL</td>
+                    <td>PENAL</td>
+                    <td class="col-divider">12.000</td>
+                    <td>17.000</td>
+                    <td>6.000</td>
+                    <td>1.500</td>
+                    <td class="zero-value">0.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td>2.000</td>
+                    <td class="zero-value">0.000</td>
+                    <td>1.500</td>
+                    <td>3.000</td>
+                    <td>3.000</td>
+                    <td>3.000</td>
+                    <td class="total-score col-divider">53.000</td>
+                    <td class="col-divider">41.000</td>
+                    <td class="zero-value">0.000</td>
+                    <td>95</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // JS para la barra de búsqueda reactiva
+    document.getElementById('judgeSearch').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#meritTable tbody tr');
+        
+        rows.forEach(row => {
+            const nameCell = row.cells[1].textContent.toLowerCase();
+            if (nameCell.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

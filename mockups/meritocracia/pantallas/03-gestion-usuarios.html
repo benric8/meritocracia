@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 03 — Gestión de Usuarios | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body>
+<div class="mockup-frame">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info">
+          <strong>Admin Sistema</strong>
+          <span>Administrador · Gerencia de Informática</span>
+        </div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon">
+          <img src="../assets/icons/logout.svg" width="16" height="16" alt="" />
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item active" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="rf-banner">
+          <strong>RF004</strong>
+          <p>Lista de usuarios con N°, nombre, cargo y dependencia. Acciones: restablecer contraseña y habilitar/deshabilitar. Formulario de registro con función (Administrador o Usuario Registrador).</p>
+        </div>
+
+        <div class="toolbar">
+          <div class="page-header" style="margin-bottom: 0;">
+            <h1>Gestión de Usuarios</h1>
+            <p>Registro, habilitación y restablecimiento de contraseñas</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-with-icon" id="btn-crear-usuario">
+            <img src="../assets/icons/plus-white.svg" width="16" height="16" alt="" />
+            Crear usuario
+          </button>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Nombre y Apellido</th>
+                  <th>Cargo</th>
+                  <th>Dependencia</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Carlos Mendoza Ruiz</td>
+                  <td>Analista</td>
+                  <td>Subgerencia Registros Laborales</td>
+                  <td>
+                    <button class="icon-btn" title="Restablecer contraseña">
+                      <img src="../assets/icons/key.svg" width="18" height="18" alt="" />
+                    </button>
+                    <button class="icon-btn" title="Deshabilitar usuario">
+                      <img src="../assets/icons/pause.svg" width="18" height="18" alt="" />
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Ana Torres Vidal</td>
+                  <td>Especialista</td>
+                  <td>Equipo Cuadro de Méritos</td>
+                  <td>
+                    <button class="icon-btn" title="Restablecer contraseña">
+                      <img src="../assets/icons/key.svg" width="18" height="18" alt="" />
+                    </button>
+                    <button class="icon-btn" title="Deshabilitar usuario">
+                      <img src="../assets/icons/pause.svg" width="18" height="18" alt="" />
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Luis Herrera Díaz</td>
+                  <td>Asistente</td>
+                  <td>Gerencia de RR.HH.</td>
+                  <td>
+                    <button class="icon-btn" title="Restablecer contraseña">
+                      <img src="../assets/icons/key.svg" width="18" height="18" alt="" />
+                    </button>
+                    <button class="icon-btn" title="Habilitar usuario">
+                      <img src="../assets/icons/play.svg" width="18" height="18" alt="" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card usuario-registro-panel" id="usuario-registro-panel" aria-hidden="true">
+          <div class="card-title">Registrar usuario</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reg-nombres">Nombres y apellidos</label>
+              <input class="input" id="reg-nombres" type="text" placeholder="Ej. Juan Pérez García" />
+            </div>
+            <div class="form-group">
+              <label for="reg-codigo">Código de usuario</label>
+              <input class="input" id="reg-codigo" type="text" placeholder="USR001" />
+            </div>
+            <div class="form-group">
+              <label for="reg-funcion">Función</label>
+              <select class="select" id="reg-funcion">
+                <option value="">Seleccione...</option>
+                <option>Administrador</option>
+                <option>Usuario Registrador</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reg-cargo">Cargo</label>
+              <input class="input" id="reg-cargo" type="text" placeholder="Ej. Analista" />
+            </div>
+            <div class="form-group">
+              <label for="reg-dependencia">Dependencia</label>
+              <input class="input" id="reg-dependencia" type="text" placeholder="Ej. Subgerencia Registros Laborales" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-with-icon" id="btn-limpiar-usuario">
+              <img src="../assets/icons/broom.svg" width="16" height="16" alt="" />
+              Limpiar
+            </button>
+            <button type="button" class="btn btn-primary btn-with-icon" id="btn-guardar-usuario">
+              <img src="../assets/icons/save.svg" width="16" height="16" alt="" />
+              Guardar
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+  <script>
+    (function () {
+      var panel = document.getElementById('usuario-registro-panel');
+      var crearBtn = document.getElementById('btn-crear-usuario');
+      var limpiarBtn = document.getElementById('btn-limpiar-usuario');
+      var guardarBtn = document.getElementById('btn-guardar-usuario');
+      var fields = ['reg-nombres', 'reg-codigo', 'reg-funcion', 'reg-cargo', 'reg-dependencia'];
+
+      function showPanel() {
+        panel.classList.add('is-visible');
+        panel.setAttribute('aria-hidden', 'false');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        document.getElementById('reg-nombres').focus();
+      }
+
+      function clearForm() {
+        fields.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) {
+            el.value = '';
+          }
+        });
+      }
+
+      crearBtn.addEventListener('click', showPanel);
+
+      limpiarBtn.addEventListener('click', function () {
+        clearForm();
+      });
+
+      guardarBtn.addEventListener('click', function () {
+        clearForm();
+        panel.classList.remove('is-visible');
+        panel.setAttribute('aria-hidden', 'true');
+      });
+    })();
+  </script>
+</body>
+</html>

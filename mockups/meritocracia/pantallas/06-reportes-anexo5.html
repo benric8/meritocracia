@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup f — Carpeta personal de méritos | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand"><img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" /><span>Valoración de Méritos</span></div>
+      <div class="user-area"><div class="user-info"><strong>Ana Torres Vidal</strong><span>Usuario Registrador · Equipo Cuadro de Méritos</span></div><button class="btn btn-ghost btn-sm">Cambiar contraseña</button><button class="btn btn-ghost btn-sm btn-with-icon"><img src="../assets/icons/logout.svg" width="16" height="16" alt="" /> Cerrar sesión</button></div>
+    </header>
+    <div class="app-body">
+      <aside class="sidebar" data-profile="registrador">
+        <div class="sidebar-profile"><span class="profile-chip profile-chip--reg">Usuario Registrador</span></div>
+        <a class="nav-item" href="02-dashboard-registrador.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Carpeta Personal de Méritos">
+            <a class="nav-sub-item" href="04-ficha-valoracion.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Nuevo registro</span></a>
+            <a class="nav-sub-item" href="05-consulta-meritos.html"><img class="nav-sub-icon" src="../assets/icons/search.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Consulta</span></a>
+          </nav>
+        </div>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item active" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+      <main class="main-content">
+        <div class="rf-banner"><strong>RF007 — f — Carpeta personal de méritos</strong><p>Generación de Carpeta Personal de Méritos por juez. El PDF se produce en el servidor según el modelo del Anexo 05 (13.4).</p></div>
+        <div class="anexo-toolbar">
+          <div>
+            <span class="report-section-tag">f — Carpeta personal de méritos</span>
+            <h2>CARPETA PERSONAL DE MÉRITOS DEL JUEZ</h2>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Busque al juez y genere el reporte en PDF (sin vista previa HTML en pantalla)</p>
+          </div>
+        </div>
+
+        <div class="review-demo-callout">
+          <span>Use el botón de demostración para ver el flujo completo sin escribir datos.</span>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-demo-juez">Probar con ejemplo</button>
+        </div>
+
+        <div class="card anexo-juez-busqueda">
+          <div class="card-title">Buscar juez</div>
+          <div class="anexo-juez-busqueda-form">
+            <div class="form-group">
+              <label for="busca-dni">DNI</label>
+              <input class="input" id="busca-dni" type="text" placeholder="Ej. 12345678" />
+            </div>
+            <div class="form-group">
+              <label for="busca-apellidos">Apellidos</label>
+              <input class="input" id="busca-apellidos" type="text" placeholder="Ej. ESPINOZA" />
+            </div>
+            <div class="form-group">
+              <label for="busca-nombres">Nombres</label>
+              <input class="input" id="busca-nombres" type="text" placeholder="Ej. RENE EDGAR" />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-buscar-juez"><img src="../assets/icons/search.svg" width="16" height="16" alt="" /> Buscar</button>
+          </div>
+        </div>
+
+        <div class="anexo-juez-empty" id="anexo-juez-empty">
+          Ingrese al menos un criterio (DNI, apellidos o nombres) y pulse <strong>Buscar</strong> para habilitar la generación del reporte.
+        </div>
+
+        <div class="anexo-juez-resultado" id="anexo-juez-resultado">
+          <div class="anexo-juez-resultado-card">
+            <div class="anexo-juez-resultado-head">
+              <div>
+                <h3>Juez encontrado</h3>
+                <p>Confirme los datos e inicie la generación del PDF</p>
+              </div>
+              <span class="badge badge-vigente">Activo</span>
+            </div>
+            <div class="anexo-juez-resultado-grid">
+              <div><label>Apellidos y nombres</label><strong>ESPINOZA AVENDAÑO, RENE EDGAR</strong></div>
+              <div><label>DNI</label><strong>12345678</strong></div>
+              <div><label>Distrito judicial</label><strong>HUANCAVELICA</strong></div>
+              <div><label>Despacho judicial</label><strong>1° Juzgado Penal</strong></div>
+              <div><label>Cargo / condición</label><strong>Juez Superior (Titular)</strong></div>
+              <div><label>Especialidad laboral</label><strong>CIVIL</strong></div>
+              <div><label>Documentos registrados</label><strong>24 ítems</strong></div>
+            </div>
+            <div class="anexo-juez-acciones">
+              <button type="button" class="btn btn-primary btn-with-icon" id="btn-generar-pdf"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Generar PDF</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-limpiar">Limpiar búsqueda</button>
+            </div>
+            <p class="anexo-pdf-nota">El documento se genera en el servidor con la plantilla oficial del Anexo 05 (2 páginas) y se abre en el visor PDF del navegador. Incluye datos personales, laborales, foto y documentos por rubro I–IX.</p>
+          </div>
+
+          <div class="anexo-pdf-viewer-mock" id="anexo-pdf-viewer">
+            <div class="anexo-pdf-viewer-mock-bar">
+              <span>carpeta-personal-espinoza-avendano.pdf</span>
+              <span>Mockup — visor del navegador</span>
+            </div>
+            <div class="anexo-pdf-viewer-mock-body">
+              <img src="../assets/icons/file-pdf.svg" width="48" height="48" alt="" />
+              <p><strong>PDF generado por el backend</strong></p>
+              <p>Carpeta Personal de Méritos del Juez<br />Pág. 1 de 2 — datos personales, laborales y rubros I–V<br />Pág. 2 de 2 — rubros V.2–IX</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="anexo-checklist">
+          <span>Búsqueda DNI / apellidos / nombres</span>
+          <span>Resumen del juez encontrado</span>
+          <span>PDF generado en servidor</span>
+          <span>Sin vista previa HTML</span>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    var empty = document.getElementById('anexo-juez-empty');
+    var resultado = document.getElementById('anexo-juez-resultado');
+    var viewer = document.getElementById('anexo-pdf-viewer');
+
+    document.getElementById('btn-buscar-juez').addEventListener('click', function () {
+      var dni = document.getElementById('busca-dni').value.trim();
+      var apellidos = document.getElementById('busca-apellidos').value.trim();
+      var nombres = document.getElementById('busca-nombres').value.trim();
+      if (!dni && !apellidos && !nombres) return;
+      empty.style.display = 'none';
+      resultado.classList.add('is-visible');
+      viewer.classList.remove('is-visible');
+    });
+
+    document.getElementById('btn-limpiar').addEventListener('click', function () {
+      document.getElementById('busca-dni').value = '';
+      document.getElementById('busca-apellidos').value = '';
+      document.getElementById('busca-nombres').value = '';
+      resultado.classList.remove('is-visible');
+      viewer.classList.remove('is-visible');
+      empty.style.display = '';
+    });
+
+    document.getElementById('btn-generar-pdf').addEventListener('click', function () {
+      viewer.classList.add('is-visible');
+      viewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 02 — Inicio (Administrador) | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body>
+<div class="mockup-frame">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info">
+          <strong>María López García</strong>
+          <span>Analista · Gerencia de RR.HH.</span>
+        </div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon">
+          <img src="../assets/icons/logout.svg" width="16" height="16" alt="" />
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item active" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="rf-banner">
+          <strong>RF003</strong>
+          <p>Página principal con título de la plataforma, descripción institucional y gestión de resoluciones en PDF (solo Administrador puede cargar; el Registrador solo descarga).</p>
+        </div>
+
+        <div class="page-header">
+          <h1>Plataforma de Valoración de Méritos</h1>
+          <p>Centralización y valoración de méritos de Jueces Superiores Titulares y Supremos — Equipo Cuadro de Méritos y Antigüedad, Subgerencia de Registros Laborales.</p>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="label">Fichas activas</div>
+            <div class="value">248</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Jueces Supremos</div>
+            <div class="value">36</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Superiores Titulares</div>
+            <div class="value">212</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Resoluciones y lineamientos institucionales</div>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+              Cargue documentos PDF de resoluciones y lineamientos del área usuaria para consulta del equipo.
+            </p>
+            <div class="upload-zone" style="padding: 24px;">
+              <div class="upload-zone-icon">
+                <img src="../assets/icons/upload-cloud.svg" width="40" height="40" alt="" />
+              </div>
+              Arrastre archivos PDF aquí o seleccione desde su equipo<br />
+              <button class="btn btn-primary btn-sm btn-with-icon" style="margin-top: 12px;">
+                <img src="../assets/icons/upload.svg" width="16" height="16" alt="" />
+                Subir resolución
+              </button>
+            </div>
+            <div class="doc-list">
+              <div class="doc-item">
+                <img src="../assets/icons/file-pdf.svg" alt="" />
+                <div class="doc-meta">
+                  <div class="doc-name">R.A. N° 031-2013-CE-PJ — Producción jurisdiccional</div>
+                  <div class="doc-date">Publicado 12/03/2026 · 1.2 MB</div>
+                </div>
+                <button class="btn btn-secondary btn-sm">Reemplazar</button>
+              </div>
+              <div class="doc-item">
+                <img src="../assets/icons/file-pdf.svg" alt="" />
+                <div class="doc-meta">
+                  <div class="doc-name">Lineamientos de valoración 2026 — Cuadro de Méritos</div>
+                  <div class="doc-date">Publicado 05/04/2026 · 890 KB</div>
+                </div>
+                <button class="btn btn-secondary btn-sm">Reemplazar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Accesos administrativos</div>
+            <div class="quick-actions" style="grid-template-columns: 1fr;">
+              <a class="quick-action" href="03-gestion-usuarios.html" style="text-decoration: none; color: inherit;">
+                <div class="qa-icon">
+                  <img src="../assets/icons/users.svg" width="40" height="40" alt="" />
+                </div>
+                <h3>Gestión de usuarios</h3>
+                <p>Registrar, habilitar y restablecer contraseñas</p>
+              </a>
+              <a class="quick-action" href="07-admin-asignacion.html" style="text-decoration: none; color: inherit;">
+                <div class="qa-icon">
+                  <img src="../assets/icons/folder.svg" width="40" height="40" alt="" />
+                </div>
+                <h3>Asignación de registradores</h3>
+                <p>Vincular registradores y suplentes a magistrados</p>
+              </a>
+              <a class="quick-action" href="06-reportes.html" style="text-decoration: none; color: inherit;">
+                <div class="qa-icon">
+                  <img src="../assets/icons/chart-line.svg" width="40" height="40" alt="" />
+                </div>
+                <h3>Reportes y anexos</h3>
+                <p>Gráficos, cuadros y exportación PDF/Excel</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

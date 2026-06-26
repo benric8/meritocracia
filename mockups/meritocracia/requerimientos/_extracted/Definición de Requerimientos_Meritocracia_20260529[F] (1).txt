@@ -1,0 +1,1065 @@
+--- PAGE 1 ---
+ 
+GERENCIA DE INFORMÁTICA 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+DEFINICIÓN DE REQUERIMIENTOS 
+  
+SDSI-VMERIT-JSS-P-004-2026 
+ 
+Proyecto de Implementación de una Plataforma Web para 
+el proceso de Valoración de Méritos de Jueces 
+Superiores Titulares y Supremos del Poder Judicial 
+ 
+Abril, 2026 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Nombres y Apellidos / Cargo Firma Fecha 
+ 
+Elaborado por 
+ 
+Ing. Milagros Huertas Soria  23/04/2026 
+ 
+Revisado por 
+ 
+ 
+Ing. Giovanna Mata Aedo 
+ 
+ 23/04/2026 
+ 
+Aprobado por 
+ 
+ 
+Dra. Hillary Gordon Benites 
+ 
+ 23/04/2026 
+ 
+
+--- PAGE 2 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 2 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+ 
+INDICE 
+ 
+ 
+1. INFORMACIÓN DEL PROYECTO .............................................................................................. 5 
+1.1. Situación actual ..................................................................................................................... 5 
+1.2. Diagrama de contexto ........................................................................................................... 5 
+2. REQUERIMIENTOS FUNCIONALES ......................................................................................... 6 
+2.1. RF001: Perfiles y permisos del aplicativo ............................................................................. 6 
+2.2. RF002: Accesos y gestión de usuario ................................................................................... 6 
+2.3. RF003: Página principal y navegación .................................................................................. 6 
+2.4. RF004: Modulo de Gestión de Usuarios ............................................................................... 7 
+2.5. RF005: Modulo de configuración de factores de evaluación y criterios de desempate  ........ 7 
+2.6. RF006: Modulo de Gestión de la Carpeta Personal de Méritos.......................................... 10 
+2.7. RF007: Módulo de Reportes ............................................................................................... 14 
+2.8. RF008: Integración de datos ............................................................................................... 15 
+2.9. RF009: Administración, seguridad y auditoría .................................................................... 15 
+3. REQUERIMIENTOS NO FUNCIONALES ................................................................................. 16 
+3.1. RFN001: Normativa y Estándares ....................................................................................... 16 
+3.2. RNF002: Arquitectura de Software ..................................................................................... 16 
+3.3. RNF003: Stack de Desarrollo .............................................................................................. 16 
+3.4. RNF004: Gestión de Versionamiento de Fuentes .............................................................. 16 
+3.5. RNF005: Auditoría de Datos ............................................................................................... 16 
+3.6. RNF006: Optimización de Archivos .................................................................................... 16 
+4. REQUERIMIENTOS DE VALIDACIÓN ..................................................................................... 16 
+4.1. RV001: Validación de puntajes ........................................................................................... 16 
+5. REQUERIMIENTOS DE INTERFACE ....................................................................................... 16 
+5.1. RI001: Exportación .............................................................................................................. 16 
+6. REQUERIMIENTOS DE CARGA INICIAL DE DATOS Y/O MIGRACIÓN DE DATOS  ............ 17 
+6.1. RCI001: Insertar los registros iniciales para la funcionalidad de la aplicación  ................... 17 
+7. REQUERIMIENTOS DE INFRAESTRUCTURA........................................................................ 17 
+7.1. RIF001: Servidor de aplicaciones (backend) ...................................................................... 17 
+7.2. RIF002: Servidor web (frontend) ......................................................................................... 17 
+7.3. RIF003: Base de datos ........................................................................................................ 17 
+7.4. RIF004: Conectividad .......................................................................................................... 17 
+7.5. RIF005: Servidor de archivos (file server) ........................................................................... 17 
+8. REQUERIMIENTOS DE SEGURIDAD ...................................................................................... 18 
+8.1. RS001: Requerimiento de seguridad .................................................................................. 18 
+9. REQUERIMIENTOS DE CAPACITACIÓN AL USUARIO ......................................................... 18 
+
+--- PAGE 3 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 3 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+9.1. RCU001: Capacitación al usuario final en el funcionamiento del aplicativo  ....................... 18 
+9.2. RCU002: El sistema debe contar con manuales de usuario estructurados adecuadamente.
+ 18 
+10. REQUERIMIENTOS DE ENTREGABLES ................................................................................ 18 
+11. REQUERIMIENTOS DE GARANTÍA, SOPORTE Y MANTENIMIENTO .................................. 18 
+12. REQUERIMIENTOS ADICIONALES ......................................................................................... 19 
+13. REQUERIMIENTOS DE IMPLANTACIÓN ................................................................................. 19 
+14. GLOSARIO DE TÉRMINOS ...................................................................................................... 19 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- PAGE 4 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 4 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+ 
+HISTORIAL DE VERSIONES 
+ 
+ 
+Fecha de 
+Elaboración Versión Elaborado 
+por Descripción Revisado por Fecha de 
+Revisión 
+      
+      
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- PAGE 5 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 5 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+Código SDSI-VMERIT-JSS-P-004-2026 
+Sistema / Módulo / 
+Aplicación 
+Proyecto de Implementación de una Plataforma Web para el proceso de 
+Valoración de Méritos de Jueces Superiores Titulares y Supremos del 
+Poder Judicial 
+Documento(s) 
+asociado(s) Solicitud de Usuario 
+ 
+1. INFORMACIÓN DEL PROYECTO 
+1.1. Situación actual 
+Actualmente, el Equipo de Trabajo de Cuadro de Méritos y Antigüedad, adscrito 
+a la Subgerencia de Registros Laborales de la Gerencia de Recursos Humanos, 
+realiza el proceso de valoración y consolidación de méritos mediante el uso de 
+hojas de cálculo. Si bi en dichas herramientas permiten efectuar el cálculo 
+técnico del puntaje conforme a los criterios establecidos, su utilización se limita 
+a un entorno operativo básico que no cuenta con una infraestructura de datos 
+centralizada ni con mecanismos formales de gestión documental. 
+ 
+Esta situación genera restricciones en cuanto a la administración integral de la 
+información, la custodia institucional de los registros y la trazabilidad histórica 
+de los datos procesados. Asimismo, al tratarse de archivos independientes, se 
+incrementa el riesgo de duplicidad, inconsistencias, pérdida de información o 
+alteraciones no controladas, lo que dificulta la auditoría y verificación posterior 
+de los resultados. 
+ 
+Adicionalmente, el uso de hojas de cálculo como herramienta principal no 
+garantiza el cumplimiento de estándares de seguridad, control de accesos, 
+respaldo automatizado y control de versiones requeridos para el tratamiento de 
+información sensible a nivel i nstitucional y nacional. En consecuencia, se 
+evidencia la necesidad de implementar una solución tecnológica que permita 
+centralizar, estructurar y asegurar la información, fortaleciendo la transparencia, 
+confiabilidad y eficiencia del proceso de valoración de méritos. 
+  
+1.2. Diagrama de contexto 
+ 
+ 
+
+
+--- PAGE 6 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 6 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+2. REQUERIMIENTOS FUNCIONALES 
+2.1. RF001: Perfiles y permisos del aplicativo 
+- El aplicativo deberá contar con los siguientes perfiles y podrán realizar las 
+siguientes acciones: 
+• Perfil Administrador 
+Podrá visualizar y gestionar los siguientes menús: 
+- Inicio 
+- Gestión de Usuario 
+- Gestión de la Carpeta Personal de Méritos 
+- Reportes 
+ 
+• Usuario Registrador 
+Podrá visualizar y gestionar los siguientes menús: 
+- Inicio 
+- Gestión de la Carpeta Personal de Méritos 
+- Reportes 
+2.2. RF002: Accesos y gestión de usuario  
+- El aplicativo web deberá ser accesible a través de una URL institucional del 
+Poder Judicial, disponible para el Equipo de Trabajo de Cuadro de Méritos 
+y Antigüedad de la Subgerencia de Registros Laborales de la Gerencia de 
+Recursos Humanos de la Gerencia General de Poder Judicial. 
+- El sistema debe disponer de una pantalla de Autenticación (Login) que 
+solicite usuario y contraseña para ingresar, validando el perfil asignado.  
+- El sistema debe incluir botones de "Iniciar" para procesar las credenciales y 
+"Limpiar" para restablecer los campos del formulario de acceso.  
+- El sistema deberá permitir cerrar sesión de forma segura desde cualquier 
+ventana.  
+- El sistema, con perfil Administrador, deberá tener la opción de restaurar 
+contraseña. 
+ 
+2.3. RF003: Página principal y navegación 
+- El sistema deberá presentar una página principal con el titulo de la 
+plataforma web y una breve descripción de la finalidad (indicada por el área 
+usuaria) 
+- El sistema debe mostrar en la cabecera el nombre del usuario  logueado, 
+cargo, además se mostrará la funcionalidad de "Cambiar contraseña"  y 
+Cerrar sesión. 
+- El sistema deberá tener con una barra de menús visible de: 
+• Inicio, (Solo para perfil de Administrador) deberá permitir cargar 
+información en pdf de Resoluciones y/o lineamientos propios del área 
+usuaria. (Solo para perfil usuario registrador) deberá permitir descargar 
+la información en formato pdf. 
+• Gestión de usuario (Solo para perfil de Administrador), permitirá 
+registrar, restaurar contraseña y deshabilitar / habilitar usuarios. 
+• Gestión de la Carpeta Personal de Méritos , contiene dos submenús 
+Nuevo registro y Consulta. 
+
+--- PAGE 7 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 7 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+• Reportes (Anexo 1, Anexo 2, Anexo 3, Anexo 4 y Anexo 5), permitiendo 
+descargar en PDF y excel. 
+  
+2.4. RF004: Modulo de Gestión de Usuarios 
+- Deberá mostrar una lista con los perfiles registrados mostrando lo siguiente: 
+N°, Nombre y Apellido, Cargo, Dependencia, asimismo, iconos de 
+restablecer contraseña y deshabilitar / habilitar usuarios) 
+- Deberá mostrar un botón  “Crear usuario” y se visualice el formulario de 
+registro donde incluya: 
+• Nombres y apellidos 
+• Código de usuario  
+• Función (Desglosable: Administrador o Usuario Registrador) 
+- Al final del formulario de registro, se deberá mostrar un botón de Limpiar y 
+Guardar. 
+ 
+2.5. RF005: Modulo de configuración de rubros de valoración  y criterios de 
+desempate 
+- II. Antigüedad en el cargo 
+ 
+Criterios de aplicación para los casos de empate entre dos o más jueces 
+(precedencia) en el Cuadro de Antigüedad 
+ 
+El aplicativo web deberá ser capaz de registrar la fecha de inicio y fin del 
+periodo laborado como Juez en el nivel inmediato anterior titular, primer 
+criterio para el caso de desempates. 
+ 
+El aplicativo web deberá ser capaz de registrar la fecha de inicio y fin, tiempo 
+total, cargo, órgano jurisdiccional y documento de el o los periodos 
+desempeñados como Juez en el nivel titular actual (provisionalidades); así 
+como, el cálculo de la suma del  tiempo total de todos los periodos de 
+provisionalidad, segundo criterio para el caso de desempates. 
+ 
+El aplicativo web deberá ser capaz de registrar la fecha de colegiatura y 
+cálculo de años de colegiatura, teniendo en cuenta la fecha de valoración (si 
+existe empate en año, se ordenará de acuerdo a la fecha de colegiatura), 
+tercer criterio para el caso de desempates. 
+ 
+El aplicativo web deberá ser capaz de registrar la hora de juramento 
+(visualizada en el Acta de Juramento, ante la JNJ o quien haga sus veces, 
+en el cargo titular actual valorado), cuarto criterio para el caso de 
+desempates. 
+ 
+ 
+
+
+--- PAGE 8 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 8 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+- III. Grados Académicos y títulos profesionales 
+ 
+ 
+ 
+- V. Estudios de perfeccionamiento 
+ 
+ 
+ 
+- V.2 Pasantía 
+Las Pasantías a valorar serán aquellas realízalas en los últimos cinco (5) 
+años a la fecha de valoración. 
+ 
+ 
+ 
+- V.3 Cursos d Especialización, postgrado, diplomados 
+Los Cursos de especialización, postgrado, diplomados  a valorar, serán 
+aquellas realízalas en los últimos cinco (5) años a la fecha de valoración. 
+ 
+ 
+ 
+ 
+- V.4 Certámenes académicos en calidad de Expositor, Ponente, Panelista 
+Los Certámenes académicos en calidad de expositor, ponente, panelista  a 
+valorar, serán aquellas realízalas en los últimos cinco (5) años a la fecha de 
+valoración. 
+ 
+ 
+
+
+--- PAGE 9 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 9 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+ 
+- V.5 Asistencia a eventos académicos en entidades de prestigio y del 
+quehacer jurídico 
+Las Asistencias a eventos académicos  a valorar, serán aquellas realízalas 
+en los últimos cinco (5) años a la fecha de valoración. 
+ 
+ 
+ 
+- V.6 Estudios de Ofimática: Mostrar las opciones de (Básico, intermedio, 
+avanzado) 
+Los estudios de ofimática no tienen periodo de vigencia. 
+ 
+ 
+ 
+- V.7 Idioma nativo o extranjero 
+Los idiomas no tienen periodo de vigencia. 
+ 
+ 
+ 
+- VI. Publicaciones de índole Jurídico 
+Los libros no tienen periodo de vigencia, los artículos a valorar serán los  
+publicados en los últimos cinco (5) años a la fecha de valoración. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+--- PAGE 10 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 10 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+- VII. Distinciones y condecoraciones 
+Cabe preciar que, las acreditaciones de no contar con medidas 
+disciplinarias, deben ser de los últimos siete (7) años a la fecha de 
+valoración. 
+ 
+- VIII. Docencia universitaria 
+La docencia universitaria a valorar debe ser la realizada durante los últimos 
+siete (7) años a la fecha de valoración. 
+ 
+ 
+- IX. Deméritos 
+Determinación del puntaje total de los rubros y sub rubros de 
+valoración para el Cuadro de Méritos  
+ 
+Cada rubro y sub rubro, de acuerdo a los criterios definidos en la Tabla de 
+Puntajes, debe calcular el sub total para luego realizarse la suma total, 
+restándole el puntaje de valor negativo del rubro de deméritos.  
+ 
+Criterios de aplicación para los casos de empate entre dos o más 
+jueces en el Cuadro de Méritos 
+ 
+El primer criterio, consiste en el ordenamiento de mayor a menor, del 
+producto de la suma de los puntajes de todos los rubros y sub rubros, 
+excepto el puntaje por antigüedad.   
+ 
+El segundo criterio, es el ordenamiento del puntaje registrado en el rubro de 
+deméritos, ordenados de menor a mayor por ser valores negativos. 
+ 
+El tercer criterio, consiste en el ordenamiento (de menor a mayor) de 
+acuerdo a la posición obtenida en el cuadro de antigüedad (previamente 
+elaborado).  
+ 
+2.6. RF006: Modulo de Gestión de la Carpeta Personal de Méritos  
+- Para perfil administrador: Se deberá mostrar la siguiente información: 
+
+
+--- PAGE 11 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 11 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+ 
+Código de 
+Usuario 
+Registrador 
+Nombre de 
+Magistrado 
+DNI 
+Magistrado 
+Código de Usuario 
+Registrador Suplente 
+Observación 
+   Desglosable: Código 
+de Usuario 
+Registrado 
+ 
+Desglosable: 
+Licencia 
+Vacaciones 
+Descanso 
+medico 
+Permiso 
+personal 
+ 
+- Para Usuario Registrador: Deberá mostrar un submenú de Nuevo registro 
+y Consulta, que incluya lo siguiente: 
+ 
+• Nuevo Registro 
+ 
+- Deberá dirigir a una ventana con el título “ FICHA DE 
+VALORACIÓN DE MÉRITOS”, que incluirá: 
+ 
+Nivel (con un desglosable para seleccionar juez supremo o juez 
+superior titular). 
+ 
+Datos Personales del Juez 
+ 
+El aplicativo web deberá ser capaz de registrar los siguientes 
+“Datos personales”: DNI, apellidos y nombres completo, fecha 
+de nacimiento, edad (calcul o automático), sexo (menú 
+desplegable). 
+  
+El aplicativo web deberá ser  capaz de utilizar el servicio de 
+SIGA para que al ingresar el DNI, podamos obtener los nombres 
+apellidos (Con campos que permitan editar) y foto del 
+magistrado. 
+ 
+A continuación, se deberá mostrar dos columnas con unas 
+etiquetas que diga “ RUBROS DE VALORACION ” y otra 
+“PUNTAJE” para registrar la información y puntajes asignados.  
+Al finalizar cada registro deberá tener la opción de limpiar y 
+guardar. 
+ 
+A. Producción Jurisdiccional 
+ 
+En este rubro se debe mostrar un a etiqueta  que diga lo 
+siguiente: “PRODUCCIÓN JURISDICCIONAL (Suspendido 
+mediante la R.A.031-2013-CE-PJ)”. 
+ 
+B. Antigüedad en el cargo 
+ 
+El aplicativo web deberá ser capaz de registrar los siguientes 
+datos: Distrito judicial (Integrado con el SIGA), cargo actual, 
+
+--- PAGE 12 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 12 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+fecha de juramentación, hora de juramentación, fecha de 
+cese, fecha de reincorporación, fecha de valoración, tiempo 
+total (años, meses y días) , más un campo en donde se 
+registra el puntaje de acuerdo a los años totales 
+determinados. 
+ 
+Primera especialidad (menú desplegable), Segunda 
+especialidad (menú desplegable).  
+ 
+C. Grados Académicos y títulos profesionales 
+ 
+Deberá mostrar un botón “Añadir” solicitando lo siguiente: El 
+aplicativo web deberá ser capaz de registrar los siguientes 
+datos del rubro “ Grado y Títulos ”: Nivel de grado/titulo, 
+universidad, país, fecha de obtención del título, especialidad, 
+mención, observación por registro, puntaje según tabla de 
+valoración.  
+ 
+D. Estudios de Preparación en la Academia de la 
+Magistratura 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Amag”: Tipo del Curso Amag  
+(Habilitante, PROFA, Ascenso) , nota del curso amag , 
+descripción del curso, año del curso.  
+ 
+E. Estudios de perfeccionamiento 
+ 
+E.1 Estudios de Doctorado y/o Maestría  
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Estudios de Doctorado y 
+Maestría”: nombre de estudios, universidad, país, 
+especialidad (jurídico/ no jurídico) , mención, condición 
+académica, numero de semestre, año de inicio del 
+semestre, año fin del semestre, notas por semestre, 
+promedio por semestre, puntaje según tabla de 
+valoración. 
+ 
+E.2 Pasantía 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Pasantía”: tipo, institución, 
+nota del curso de pasantía, lugar, fecha de inicio, fecha 
+fin, jurídico, especialidad de derecho, mención, horas, 
+realizado en, puntaje según tabla de valoración. 
+ 
+ 
+ 
+ 
+
+--- PAGE 13 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 13 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+E.3 Cursos d Especialización, postgrado, diplomados 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “Cursos de especialización, 
+postgrado, diplomados ”: tipo de curso, orden 
+(jurídico/no jurídico), nombre del curso, institución, nota 
+del curso, lugar, fecha de inicio, fecha fin, especialidad, 
+realizado en, curso con sesiones(si/no), tiempo en 
+horas, puntaje según tabla de valoración.  
+ 
+E.4 Certámenes académicos en calidad de Expositor, 
+Ponente, Panelista  
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Certámenes académicos 
+en calidad de expositor, ponente, panelista”: tipo de 
+certamen, tipo de participación, orden (jurídico/no 
+jurídico), especialidad, tema, institución, lugar, fecha de 
+inicio del certamen, fecha fin del certamen, modalidad, 
+realizado en, puntaje según tabla de valoración. 
+ 
+E.5 Asistencia a eventos académicos en entidades de 
+prestigio y del quehacer jurídico  
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Asistencia a eventos 
+académicos”: tipo de evento, tipo de participación, 
+orden (jurídico/no jurídico), especialidad, tema, 
+institución, lugar, fecha de inicio del evento, fecha fin del 
+evento, modalidad, descripción del documento, ámbito 
+del certamen académico, puntaje según tabla de 
+valoración.  
+ 
+E.6 Estudios de Ofimática: Mostrar las opciones de  
+(Básico, intermedio, avanzado) 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Estudios de ofimática ”: 
+nombre del curso, institución, duración en horas, nivel, 
+descripción del documento, fecha de obtención, puntaje 
+según tabla de valoración.  
+   
+F. Idioma nativo o extranjero 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “Idiomas”: tipo de idioma, idioma, 
+centro de estudios, duración(meses), descripción del 
+documento, Fecha de obtención, puntaje según tabla de 
+valoración. 
+ 
+
+--- PAGE 14 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 14 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+G. Publicaciones de índole Jurídico  
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Publicaciones”: tipo de 
+publicación (libro/artículo), título de la publicación, editorial, 
+número de páginas, numero de edición, auspicio, país, 
+años, orden (jurídico/no jurídico), especialidad en derecho, 
+institución, fecha de publicación, puntaje según tabla de 
+valoración. 
+           
+H. Distinciones y condecoraciones 
+ 
+El aplicativo web deberá ser capaz de registrar los siguientes 
+datos del rubro “ Distinciones y condecoraciones”: tipo de 
+distinción, descripción de la distinción, fecha de distinción, 
+descripción de documento, institución, país, año, ámbito, 
+puntaje según tabla de valoración. 
+  
+I. Docencia universitaria 
+   
+El aplicativo web deberá ser capaz de registrar los siguientes 
+datos del rubro “ Docencia universitaria ”: descripción de 
+documento, universidad, horas semanales, fecha de inicio, 
+fecha fin, orden (jurídico/no jurídico), especialidad, materia, 
+categoría, condición, puntaje según tabla de valoración.  
+ 
+J. Deméritos 
+ 
+El aplicativo web deberá ser capaz de registrar los 
+siguientes datos del rubro “ Deméritos”: tipo de medida 
+disciplinaria ( amonestación/multa/suspensión), cantidad, 
+descripción del documento, año de valoración, observación 
+por registro, puntaje según tabla de valoración. 
+ 
+• Submenú Consulta 
+ 
+- Deberá mostrar filtros por DNI, Apellido y Nombres 
+- Deberá mostrar una lista con los registros ingresados y una 
+columna con nombre estado y desglosable (activo, inactivo). 
+- Deberá mostrar un icono de actualizar/editar 
+ 
+2.7. RF007: Módulo de Reportes 
+ 
+Deberá mostrar los siguientes submenús: 
+ 
+a. Gráficos de Rubros de valorización 
+ 
+
+--- PAGE 15 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 15 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+- Deberá mostrar filtros para ver cada grafico de barras de toda la 
+información ingresada en el formato. Por ejemplo: Grado y 
+Títulos, grafico de cuantos cuentan con títulos y cuantos no, 
+cantidad de Estudios de Doctorado y Maestría, consulta de 
+jueces por distrito Judicial, consulta por sexo, consulta por 
+especialidad laboral, consulta por edad (Rangos de edad 35-20, 
+51-55, 56 -60, 61 -65 y 66 -70), cuantos cuentan con medidas 
+disciplinarias y cuantos no. 
+- El aplicativo web deberá permitir la consulta de jueces cesantes 
+(campo de activo / inactivo), mostrando un gráfico de barras. 
+- El aplicativo web deberá permitir la consulta de documentos 
+próximo a caducar/cesar. 
+- El aplicativo web deberá permitir la consulta de documentos 
+caducados y no caducados.  
+b. Cuadro de Antigüedad de Jueces Supremos Titulares. Organizada de 
+mayor a menor en base al puntaje total obtenido, considerando las 
+columnas, con la aplicación de los correspondientes criterios de 
+desempate, según el cuadro adjunto en el Anexo 01. 
+c. Cuadro de Méritos de Jueces Superiores Titulares. Organizada de mayor 
+a menor en base al puntaje total obtenido, considerando las columnas, 
+con la aplicación de los correspondientes criterios de desempate, según 
+el cuadro adjunto en el Anexo 02. 
+d. Cuadro de Antigüedad de Jueces Superiores Titulares. Organizada de 
+mayor a menor en base al puntaje total obtenido, considerando las 
+columnas, con la aplicación de los correspondientes criterios de 
+desempate, según el cuadro adjunto en el Anexo 03. 
+e. Reporte de Ficha de valoración de méritos. El reporte debe permitir 
+generar la ficha, conteniendo los datos personales y rubros de valoración 
+según al cuadro adjunto en el Anexo 04. 
+f. Reporte de Carpeta Personal de Méritos. El reporte debe permitir 
+generar el reporte de documentos contenidos y registrados de cada juez, 
+según modelo propuesto en el Anexo 05. 
+ 
+2.8. RF008: Integración de datos  
+El sistema deberá integrarse con el servicio de SIGA, a fin de obtener y validar 
+información de los magistrados, garantizando la interoperabilidad y consistencia 
+de los datos. 
+ 
+2.9. RF009: Administración, seguridad y auditoría 
+- Debido al manejo de información sensible de los altos funcionarios, la 
+plataforma debe cumplir con la Ley de Protección de Datos Personales y 
+contar con estándares de cifrado. 
+- El sistema deberá almacenar toda la información en una base de datos 
+centralizada y segura, permitiendo su posterior explotación estadística. 
+- El sistema deberá permitir, según a cada perfil creado la consulta, descarga 
+y visualización de evidencias. 
+ 
+
+--- PAGE 16 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 16 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+3. REQUERIMIENTOS NO FUNCIONALES 
+3.1. RFN001: Normativa y Estándares 
+El desarrollo del aplicativo deberá regirse estrictamente por la Resolución 
+Administrativa N° 105 -2022-CE-PJ, cumpliendo con los estándares de lenguajes 
+indicados en la R.A. N° 304 y los lineamientos de la Subgerencia de Desarrollo de 
+Sistemas de Información. 
+ 
+3.2. RNF002: Arquitectura de Software 
+El sistema deberá ser construido bajo una Arquitectura Hexagonal, desacoplando el 
+núcleo del negocio (dominio) de los adaptadores de entrada (controladores web) y 
+salida (persistencia), facilitando la mantenibilidad y testabilidad. 
+ 
+3.3. RNF003: Stack de Desarrollo 
+El código fuente deberá implementarse utilizando Java 21 con Spring Boot 3.5.4 (o 
+superior) para el backend, y Angular 20 para el frontend, asegurando el uso de las 
+últimas características de seguridad y rendimiento. 
+ 
+3.4. RNF004: Gestión de Versionamiento de Fuentes 
+El versionamiento del código fuente se realizará en GitLab, respetando la estrategia de 
+ramas y los lineamientos establecidos por la subgerencia de desarrollo de sistema de 
+información. 
+ 
+3.5. RNF005: Auditoría de Datos 
+El diseño de base de datos debe aplicar la nomenclatura institucional e incluir en todas 
+las tablas transaccionales los campos de auditoría estándar: usuario de creación, fecha 
+de creación, usuario de modificación y fecha de modificación. 
+ 
+3.6. RNF006: Optimización de Archivos 
+El almacenamiento definitivo de las evidencias digitales (fotos, videos, documentos) no 
+debe realizarse en el sistema de archivos local del servidor de aplicaciones, sino que 
+debe transferirse a un repositorio remoto mediante el protocolo seguro SFTP, 
+gestionando las credenciales de conexión de forma segura. 
+ 
+4. REQUERIMIENTOS DE VALIDACIÓN 
+4.1. RV001: Validación de puntajes 
+El sistema no debe permitir puntajes fuera del rango establecido, referente a 
+cada rubro. 
+ 
+5. REQUERIMIENTOS DE INTERFACE 
+5.1. RI001: Exportación 
+El sistema debe permitir exportar los reportes a formatos PDF y Excel 
+
+--- PAGE 17 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 17 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+ 
+6. REQUERIMIENTOS DE CARGA INICIAL DE DATOS Y/O MIGRACIÓN DE 
+DATOS 
+6.1. RCI001: Insertar los registros iniciales para la funcionalidad de la 
+aplicación  
+Insertar los registros de carga inicial que sean necesarios para la  
+operatividad de las funcionalidades de la página web. 
+ 
+7. REQUERIMIENTOS DE INFRAESTRUCTURA 
+7.1. RIF001: Servidor de aplicaciones (backend) 
+El componente de servicios (API Backend) deberá desplegarse sobre un 
+servidor de aplicaciones JBoss EAP 8  (compatible con Java 21), 
+configurado en alta disponibilidad según la arquitectura existente del 
+Poder Judicial 
+ 
+7.2. RIF002: Servidor web (frontend) 
+El componente de interfaz de usuario (Cliente Web Angular) deberá 
+desplegarse sobre un servidor Apache HTTP Server, configurado para 
+manejar el enrutamiento de la aplicación de Meritocracia y servir los 
+archivos estáticos optimizados. 
+ 
+7.3. RIF003: Base de datos 
+Se requiere la creación de  tablespace, esquemas y asignación de 
+espacio en el motor de base de datos postgres  18, con capacidad para 
+soportar el almacenamiento de metadatos.  
+ 
+7.4. RIF004: Conectividad 
+Se deben habilitar los puertos y reglas de firewall necesarios para la 
+comunicación entre el servidor Apache (Capa Web), el servidor JBoss 
+(Capa de Aplicación) y el servidor de Base de Datos. 
+ 
+7.5. RIF005: Servidor de archivos (file server) 
+Se debe disponer de un servidor de archivos  Excel y/o PDF  de 
+almacenamiento dedicado con el servicio SFTP habilitado , cuyo valor 
+promedio será de 1 GB al año. 
+ 
+
+--- PAGE 18 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 18 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+8. REQUERIMIENTOS DE SEGURIDAD 
+8.1. RS001: Requerimiento de seguridad  
+El sistema debe garantizar la protección de los datos personales, conforme a la 
+normativa vigente, implementando mecanismos de seguridad que aseguren la 
+confidencialidad, integridad y disponibilidad de la información. 
+ 
+9. REQUERIMIENTOS DE CAPACITACIÓN AL USUARIO 
+9.1. RCU001: Capacitación al usuario final en el funcionamiento del aplicativo 
+La SDSI, debe realizar la capacitación a los usuarios finales en el manejo del 
+aplicativo. 
+ 
+9.2. RCU002: El sistema debe contar con manuales de usuario estructurados 
+adecuadamente. 
+Se debe contar con el Manual de usuario para facilitar al usuario en el uso del 
+aplicativo. 
+ 
+10. REQUERIMIENTOS DE ENTREGABLES 
+ 
+N° ENTREGABLE 
+1 Definición de Requerimientos 
+2 Acta de constitución 
+3 Plan de Gestión de Proyectos 
+4 Cronograma 
+5 Modelo de Software 
+6 Diseño del Sistema de Información 
+7 Acta de aceptación de usuario 
+8 Inicialización de Datos 
+9 Software Producido 
+10 Cartilla de Instalación y Configuración 
+11 Cartilla del Sistema 
+12 Cartilla de Usuario 
+13 Acta de Pase a Pruebas 
+ 
+11. REQUERIMIENTOS DE GARANTÍA, SOPORTE Y MANTENIMIENTO 
+El Sistema debe contar con el soporte y mantenimiento respectivo en el caso de 
+errores, fallas y/o requerimientos los cuales deben ser atendidos según la prioridad 
+establecida en el Catálogo de Servicios de la Gerencia de Informática. 
+ 
+
+--- PAGE 19 ---
+ 
+DEFINICIÓN DE REQUERIMIENTOS Versión 
+x.x 
+ 
+Página 19 de 19 
+El uso de este formato es de carácter obligatorio por parte del usuario de las diferentes Unidades Orgánicas del Poder Judicial  al definir 
+los requerimientos de  un proyecto, ello en cumplimiento de la  R.A N° 047-2022-GG-PJ y  R.A N° 105-2022-GG-PJ que aprueba  a los 
+procedimientos para la gestión, desarrollo, mantenimiento, control de versiones, aseguramiento de la calidad e implantación d e sistemas 
+informáticos 
+ 
+12. REQUERIMIENTOS ADICIONALES 
+No aplica 
+ 
+13. REQUERIMIENTOS DE IMPLANTACIÓN                                                                    
+Para la Puesta a Producción del Aplicativo se debe contar con personal de la  
+Gerencia de Tecnologías de Información que se encargue del monitoreo inicial del 
+producto y absuelva las dudas del usuario para el correcto uso del sistema. 
+ 
+14. GLOSARIO DE TÉRMINOS 
+ 
+N° TÉRMINO DESCRIPCIÓN 
+1 Meritocracia 
+Sistema de valoración de méritos del Juez, los méritos son de 
+orden académicos, profesionales, laboral y de conducta 
+funcional.  
+2 Carpeta Personal de 
+Méritos 
+Conjunto estructurado de información que sustentan la 
+trayectoria profesional, académica y disciplinaria de un 
+magistrado. 
+3 Usuario 
+Administrador 
+Perfil del sistema con privilegios para gestionar usuarios y 
+supervisar el funcionamiento general del aplicativo. 
+4 Usuario Registrador Perfil encargado de ingresar, actualizar y gestionar la 
+información de los magistrados en el sistema. 
+5 SIGA Sistema Integrado de Gestión Administrativa que permite la 
+consulta de datos personales mediante servicios de 
+interoperabilidad. 
+6 Interoperabilidad Capacidad del sistema para interactuar e intercambiar 
+información con otros sistemas institucionales de manera segura 
+y eficiente. 
+7 Autenticación Proceso mediante el cual el sistema valida la identidad de un 
+usuario para permitir el acceso. 
+8 Autorización Proceso mediante el cual se determinan los permisos o accesos 
+que tiene un usuario dentro del sistema. 
+9 Deméritos 
+ 
+Registro de sanciones o medidas disciplinarias que afectan 
+negativamente la evaluación del magistrado. 
+10 Puntaje Valor numérico asignado a cada criterio de evaluación dentro del 
+sistema de meritocracia. 
+11 Cuadro de Méritos 
+ 
+Ranking de magistrados ordenado en función del puntaje total 
+obtenido en la evaluación de méritos. 
+12 Cuadro de 
+Antigüedad 
+Ordenamiento de magistrados basado en el tiempo de servicio y 
+criterios de precedencia establecidos. 
+ 
+ 

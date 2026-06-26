@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mockups Meritocracia PJ — Índice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/meritocracia.css" />
+  <style>
+    body {
+      background: var(--background);
+      padding: 48px;
+      align-items: stretch;
+      justify-content: center;
+    }
+    .index-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .index-wrap h1 {
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .index-wrap > p {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .mockup-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mockup-list a {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+    .mockup-list .preview {
+      width: 120px;
+      height: 75px;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--background);
+    }
+    .mockup-list a:hover {
+      border-color: var(--primary);
+    }
+    .mockup-list .rf {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .figma-steps {
+      margin-top: 40px;
+      padding: 24px;
+      background: var(--primary-p20);
+      border-radius: var(--radius-lg);
+      border-left: 4px solid var(--primary);
+    }
+    .figma-steps h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+    .figma-steps ol {
+      margin-left: 20px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="index-wrap">
+    <h1>Mockups HTML — Plataforma Meritocracia PJ</h1>
+    <p>
+      Proyecto SDSI-VMERIT-JSS-P-004-2026 · Marco 1440×900 px · Colores institucionales #8b0000<br />
+      Diseño alineado al documento de requerimientos (RF001–RF009) · Perfiles Administrador y Usuario Registrador
+    </p>
+
+    <section class="review-guide">
+      <h2>Guía de revisión</h2>
+      <p>Elija un flujo para recorrer las pantallas en orden. En cada pantalla use la barra inferior para avanzar o retroceder. Los botones de exportación y búsqueda muestran una simulación interactiva.</p>
+      <div class="review-flow-cards">
+        <a class="review-flow-card" href="pantallas/01-login.html?flow=admin">
+          <strong>Flujo Administrador</strong>
+          <span>Login, inicio, usuarios, asignación de carpetas y reportes a–d (cuadros completos).</span>
+          <em>8 pantallas · Comenzar →</em>
+        </a>
+        <a class="review-flow-card" href="pantallas/01-login.html?flow=registrador">
+          <strong>Flujo Registrador</strong>
+          <span>Login, inicio, reportes e–f (ficha y carpeta por juez) con exportación PDF y Excel.</span>
+          <em>4 pantallas · Comenzar →</em>
+        </a>
+      </div>
+    </section>
+
+    <p class="mockup-list-section-title">Todas las pantallas</p>
+    <ul class="mockup-list">
+      <li>
+        <a href="pantallas/01-login.html?flow=admin">
+          <img class="preview" src="images/mockup-01-login.png" alt="Vista previa login" />
+          <span><strong>01 — Login</strong><br /><span class="rf">RF002 · Iniciar / Limpiar · URL institucional</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/02-dashboard.html?flow=admin">
+          <img class="preview" src="images/mockup-02-dashboard-inicio.png" alt="Vista previa dashboard admin" />
+          <span><strong>02 — Inicio (Administrador)</strong><br /><span class="rf">RF003 · Carga de resoluciones PDF</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/02-dashboard-registrador.html">
+          <img class="preview" src="images/mockup-02-dashboard-inicio.png" alt="Vista previa dashboard registrador" />
+          <span><strong>02b — Inicio (Registrador)</strong><br /><span class="rf">RF003 · Descarga de resoluciones PDF</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/03-gestion-usuarios.html">
+          <img class="preview" src="images/mockup-03-gestion-usuarios.png" alt="Vista previa usuarios" />
+          <span><strong>03 — Gestión de Usuarios</strong><br /><span class="rf">RF004 · Solo Administrador</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/04-ficha-valoracion.html">
+          <img class="preview" src="images/mockup-04-ficha-valoracion-meritos.png" alt="Vista previa ficha" />
+          <span><strong>04 — Ficha de Valoración</strong><br /><span class="rf">RF006 · Todos los rubros en una vista (acordeón)</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/05-consulta-meritos.html?flow=ficha">
+          <img class="preview" src="images/mockup-05-consulta-meritos.png" alt="Vista previa consulta" />
+          <span><strong>05 — Consulta</strong><br /><span class="rf">RF006 · Filtros DNI / apellidos / nombres</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Vista previa reportes" />
+          <span><strong>06a — Gráficos de rubros de valoración</strong><br /><span class="rf">RF007 — a</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes-anexo1.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Anexo 1" />
+          <span><strong>06b — Antigüedad de jueces supremos</strong><br /><span class="rf">RF007 — b</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes-anexo2.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Anexo 2" />
+          <span><strong>06c — Méritos de jueces superiores</strong><br /><span class="rf">RF007 — c</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes-anexo3.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Anexo 3" />
+          <span><strong>06d — Antigüedad de jueces superiores</strong><br /><span class="rf">RF007 — d</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes-anexo4.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Anexo 4" />
+          <span><strong>06e — Ficha de valoración de méritos</strong><br /><span class="rf">RF007 — e</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/06-reportes-anexo5.html?flow=reportes">
+          <img class="preview" src="images/mockup-06-reportes.png" alt="Anexo 5" />
+          <span><strong>06f — Carpeta personal de méritos</strong><br /><span class="rf">RF007 — f</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/07-admin-asignacion.html">
+          <img class="preview" src="images/mockup-07-admin-asignacion-registradores.png" alt="Vista previa asignación" />
+          <span><strong>07 — Carpeta Personal (Admin)</strong><br /><span class="rf">RF006 · 5 columnas asignación registradores</span></span>
+          <span>→</span>
+        </a>
+      </li>
+      <li>
+        <a href="pantallas/08-modal-grado-academico.html">
+          <img class="preview" src="images/mockup-08-modal-rubro-grados-academicos.png" alt="Vista previa modal" />
+          <span><strong>08 — Modal rubro C</strong><br /><span class="rf">RF006 · Grados académicos y títulos</span></span>
+          <span>→</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>

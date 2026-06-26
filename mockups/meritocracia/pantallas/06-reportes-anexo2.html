@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup c — Méritos de jueces superiores | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand"><img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" /><span>Valoración de Méritos</span></div>
+      <div class="user-area"><div class="user-info"><strong>María López García</strong><span>Analista · Gerencia de RR.HH.</span></div><button class="btn btn-ghost btn-sm">Cambiar contraseña</button><button class="btn btn-ghost btn-sm btn-with-icon"><img src="../assets/icons/logout.svg" width="16" height="16" alt="" /> Cerrar sesión</button></div>
+    </header>
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item active" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+      <main class="main-content">
+        <div class="rf-banner"><strong>RF007 — c — Méritos de jueces superiores</strong><p>Cuadro de Méritos de Jueces Superiores Titulares. Columnas de rubros de valoración y criterios de desempate según documento de requerimiento.</p></div>
+        <div class="anexo-toolbar">
+          <div>
+            <span class="report-section-tag">c — Méritos de jueces superiores</span>
+            <h2>CUADRO DE MÉRITOS DE JUECES SUPERIORES TITULARES</h2>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Fuente: requerimiento 9.3.2 — orden de mayor a menor puntaje total</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <button class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Generar PDF</button>
+            <button class="btn btn-secondary btn-sm btn-with-icon"><img src="../assets/icons/file-excel.svg" width="16" height="16" alt="" /> Generar Excel</button>
+          </div>
+        </div>
+        <div class="anexo-meta-bar">
+          <span>Poder Judicial del Perú — Evaluación de desempeño magistral</span>
+          <span>Fecha de valoración: <span class="anexo-date-badge">31/12/2024</span></span>
+        </div>
+        <div class="anexo-desempate"><strong>Criterios de desempate (Anexo 02 — PDF):</strong> Primera — suma de rubros excepto antigüedad · Segunda — puntaje de deméritos (menor valor negativo) · Tercera — posición en cuadro de antigüedad (Anexo 03).</div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div class="anexo-report-wrap">
+            <table class="anexo-report-table" id="anexo2-table">
+              <thead>
+                <tr>
+                  <th colspan="3" class="anexo-th-l1">Información del magistrado</th>
+                  <th colspan="2" class="anexo-th-l1 anexo-col-split">Especialidad</th>
+                  <th colspan="14" class="anexo-th-l1 anexo-col-split">Rubros de valoración</th>
+                  <th class="anexo-th-l1 anexo-col-split">Resultado</th>
+                  <th colspan="3" class="anexo-th-l1 anexo-col-split">Criterios de desempate</th>
+                </tr>
+                <tr>
+                  <th class="anexo-th-l2">N° orden</th>
+                  <th class="anexo-th-l2">Apellidos y nombres</th>
+                  <th class="anexo-th-l2">Distrito judicial</th>
+                  <th class="anexo-th-l2 anexo-col-split">Primera</th>
+                  <th class="anexo-th-l2">Segunda</th>
+                  <th class="anexo-th-vertical anexo-col-split">Puntaje según antigüedad en el cargo</th>
+                  <th class="anexo-th-vertical">Grados académicos y títulos profesionales</th>
+                  <th class="anexo-th-vertical">Estudios de preparación en la AMAG</th>
+                  <th class="anexo-th-vertical">Doctorado y/o maestría</th>
+                  <th class="anexo-th-vertical">Pasantía</th>
+                  <th class="anexo-th-vertical">Curso de especialización (presenciales)</th>
+                  <th class="anexo-th-vertical">Participación expositor, ponente, panelista</th>
+                  <th class="anexo-th-vertical">Asistencia eventos académicos</th>
+                  <th class="anexo-th-vertical">Ofimática</th>
+                  <th class="anexo-th-vertical">Idiomas</th>
+                  <th class="anexo-th-vertical">Publicaciones de índole jurídica</th>
+                  <th class="anexo-th-vertical">Distinciones y condecoraciones</th>
+                  <th class="anexo-th-vertical">Docencia universitaria</th>
+                  <th class="anexo-th-vertical">Deméritos (-)</th>
+                  <th class="anexo-th-l2 anexo-col-split">Puntaje total<br><small>(sumatoria)</small></th>
+                  <th class="anexo-th-l2 anexo-col-split">Primera</th>
+                  <th class="anexo-th-l2">Segunda</th>
+                  <th class="anexo-th-l2">Tercera</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1°</strong></td>
+                  <td class="anexo-cell-name">CAMPOS BARRANZUELA, EDHIN</td>
+                  <td><span class="anexo-badge-district">ANCASH</span></td>
+                  <td class="anexo-col-split"><strong>PENAL</strong></td>
+                  <td>CIVIL</td>
+                  <td class="anexo-col-split">8.500</td>
+                  <td>17.000</td>
+                  <td>8.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>1.500</td>
+                  <td>3.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td class="anexo-cell-score-total anexo-col-split">55.000</td>
+                  <td class="anexo-col-split">46.500</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>248</td>
+                </tr>
+                <tr>
+                  <td><strong>2°</strong></td>
+                  <td class="anexo-cell-name">LLAP UNCHÓN DE LORA, LILLY DEL ROSARIO</td>
+                  <td><span class="anexo-badge-district">LA LIBERTAD</span></td>
+                  <td class="anexo-col-split"><strong>CIVIL</strong></td>
+                  <td>LABORAL</td>
+                  <td class="anexo-col-split">10.500</td>
+                  <td>17.000</td>
+                  <td>6.000</td>
+                  <td>1.500</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>3.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>1.500</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td class="anexo-cell-score-total anexo-col-split">53.500</td>
+                  <td class="anexo-col-split">43.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>208</td>
+                </tr>
+                <tr>
+                  <td><strong>3°</strong></td>
+                  <td class="anexo-cell-name">PAREDES INFANZÓN, JELIO</td>
+                  <td><span class="anexo-badge-district">AYACUCHO</span></td>
+                  <td class="anexo-col-split"><strong>LABORAL</strong></td>
+                  <td>PENAL</td>
+                  <td class="anexo-col-split">12.000</td>
+                  <td>17.000</td>
+                  <td>6.000</td>
+                  <td>1.500</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td>2.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>1.500</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td>3.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td class="anexo-cell-score-total anexo-col-split">53.000</td>
+                  <td class="anexo-col-split">41.000</td>
+                  <td class="anexo-cell-empty">0.000</td>
+                  <td>95</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="anexo-checklist">
+          <span>Orden mayor → menor puntaje total</span>
+          <span>14 rubros + deméritos</span>
+          <span>Especialidades primera y segunda</span>
+          <span>Puntaje total y tres criterios de desempate</span>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 08 — Modal Grado Académico | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+  <style>
+    body { align-items: center; }
+    .mockup-frame { position: relative; min-height: var(--frame-height); }
+    .page-dimmed { filter: blur(2px); opacity: 0.35; pointer-events: none; }
+  </style>
+</head>
+<body>
+<div class="mockup-frame page-dimmed">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+    </header>
+    <div class="app-body">
+      <aside class="sidebar" data-profile="registrador">
+        <div class="sidebar-profile"><span class="profile-chip profile-chip--reg">Usuario Registrador</span></div>
+        <a class="nav-item" href="02-dashboard-registrador.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Carpeta Personal de Méritos">
+            <a class="nav-sub-item active" href="04-ficha-valoracion.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Nuevo registro</span></a>
+            <a class="nav-sub-item" href="05-consulta-meritos.html"><img class="nav-sub-icon" src="../assets/icons/search.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Consulta</span></a>
+          </nav>
+        </div>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+      <main class="main-content"><h1>Ficha de valoración (fondo)</h1></main>
+    </div>
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        Rubro C — Grados académicos y títulos profesionales
+        <a class="modal-close" href="04-ficha-valoracion.html" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </a>
+      </div>
+      <div class="modal-body">
+        <div class="rf-banner" style="margin-bottom: 20px;">
+          <strong>RF006 · C</strong>
+          <p>Registro de nivel de grado/título, universidad, país, fecha de obtención, especialidad, mención, observación y puntaje según tabla de valoración.</p>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nivel de grado / título</label>
+            <select class="select">
+              <option>Doctorado</option>
+              <option>Maestría</option>
+              <option>Licenciatura</option>
+              <option>Bachiller</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Universidad</label>
+            <div class="universidad-combobox" data-universidad-combobox>
+              <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+              <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <input class="input" type="text" value="Perú" />
+          </div>
+          <div class="form-group">
+            <label>Fecha obtención del título</label>
+            <input class="input" type="date" />
+          </div>
+          <div class="form-group">
+            <label>Especialidad</label>
+            <input class="input" type="text" placeholder="Derecho" />
+          </div>
+          <div class="form-group">
+            <label>Mención</label>
+            <input class="input" type="text" placeholder="Opcional" />
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Observación por registro</label>
+            <input class="input" type="text" placeholder="Notas adicionales del registrador" />
+          </div>
+          <div class="form-group">
+            <label>Puntaje según tabla de valoración</label>
+            <input class="input" type="text" value="4.50" readonly style="background: var(--primary-p20); font-weight: 700; color: var(--primary);" />
+            <span class="hint">Calculado automáticamente — RV001</span>
+          </div>
+        </div>
+        <div class="upload-zone">
+          <div class="upload-zone-icon">
+            <img src="../assets/icons/upload-cloud.svg" width="40" height="40" alt="" />
+          </div>
+          Adjuntar evidencia documental del título<br />
+          <small>PDF, JPG — almacenamiento seguro vía SFTP (RNF006)</small>
+        </div>
+      </div>
+      <div class="form-actions" style="padding: 16px 24px; margin: 0;">
+        <a class="btn btn-secondary btn-with-icon" href="04-ficha-valoracion.html">
+          <img src="../assets/icons/close.svg" width="16" height="16" alt="" />
+          Cancelar
+        </a>
+        <button class="btn btn-secondary btn-with-icon">
+          <img src="../assets/icons/broom.svg" width="16" height="16" alt="" />
+          Limpiar
+        </button>
+        <button class="btn btn-primary btn-with-icon">
+          <img src="../assets/icons/save.svg" width="16" height="16" alt="" />
+          Guardar registro
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

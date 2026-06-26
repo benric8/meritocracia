@@ -1,0 +1,571 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 06a — Gráficos RF007 | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info"><strong>María López García</strong><span>Analista · Gerencia de RR.HH.</span></div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon"><img src="../assets/icons/logout.svg" width="16" height="16" alt="" /> Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item active" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="rf-banner">
+          <strong>RF007 — a — Gráficos de rubros de valoración</strong>
+          <p>Estadísticas por rubros, consultas de jueces cesantes y reportes de vigencia documental según RF007. Exportación PDF (RI001).</p>
+        </div>
+
+        <div class="report-content-header report-content-header--compact">
+          <div>
+            <span class="report-section-tag">a — Gráficos de rubros de valoración</span>
+            <h2>Gráficos y consultas de valoración</h2>
+            <p>Seleccione una pestaña y exporte cada reporte en PDF desde la cabecera de la consulta activa.</p>
+          </div>
+        </div>
+
+        <div class="report-layout report-layout--tabs">
+          <nav class="report-tabnav" aria-label="Consultas RF007-a">
+            <div class="report-tabnav-inner">
+              <span class="report-tabnav-group">Estadísticas</span>
+              <button type="button" class="report-tab active" data-panel="rubros" title="Grados, estudios, distrito, sexo, edad y deméritos">Gráficos por rubros</button>
+              <span class="report-tabnav-divider" aria-hidden="true"></span>
+              <span class="report-tabnav-group">Consultas</span>
+              <button type="button" class="report-tab" data-panel="cesantes" title="Activo / inactivo — listado detallado">Jueces cesantes</button>
+              <button type="button" class="report-tab" data-panel="proximos" title="Documentos por vencer o cesar">Próximos a caducar</button>
+              <button type="button" class="report-tab" data-panel="vigencia" title="Estado documental de la carpeta">Caducados y vigentes</button>
+            </div>
+          </nav>
+
+          <div class="report-panels">
+
+        <!-- Bloque 1: Gráficos estadísticos por rubros -->
+        <section class="report-panel is-active" id="panel-rubros" data-panel="rubros">
+        <div class="report-section" id="reporte-rubros">
+          <div class="report-consulta-header">
+            <div>
+              <span class="report-section-tag">Estadísticas</span>
+              <h3>Gráficos de barras por rubros de valoración</h3>
+              <p>Filtros para analizar la información registrada en las fichas: grados, estudios, distrito, sexo, especialidad, edad y deméritos.</p>
+            </div>
+            <div class="report-consulta-actions">
+              <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Descargar PDF</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="filter-section">
+              <div class="filter-section-label">Filtros de análisis</div>
+              <span class="chip active">Grados y títulos (con / sin)</span>
+              <span class="chip">Doctorado y maestría</span>
+              <span class="chip">Distrito judicial</span>
+              <span class="chip">Sexo</span>
+              <span class="chip">Especialidad laboral</span>
+              <span class="chip">Medidas disciplinarias (con / sin)</span>
+            </div>
+            <div class="filter-section" style="margin-bottom:0;">
+              <div class="filter-section-label">Rangos de edad</div>
+              <div class="age-ranges">
+                <span class="chip active">35–50</span>
+                <span class="chip">51–55</span>
+                <span class="chip">56–60</span>
+                <span class="chip">61–65</span>
+                <span class="chip">66–70</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid" style="margin-top:16px;">
+            <div class="card chart-card">
+              <div class="card-title">Grados y títulos — con título / sin título</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:78%;"></div>
+                <div class="chart-bar alt" style="height:24%;"></div>
+              </div>
+              <div class="chart-legend"><span><i class="primary"></i> Con título (186)</span><span><i class="alt"></i> Sin título (62)</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Estudios de doctorado y maestría</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:42%;"></div>
+                <div class="chart-bar" style="height:68%;"></div>
+                <div class="chart-bar alt" style="height:31%;"></div>
+              </div>
+              <div class="chart-legend"><span><i class="primary"></i> Doctorado (42)</span><span><i class="primary"></i> Maestría (98)</span><span><i class="alt"></i> Ninguno (108)</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Consulta por distrito judicial</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:90%;"></div>
+                <div class="chart-bar" style="height:55%;"></div>
+                <div class="chart-bar alt" style="height:38%;"></div>
+              </div>
+              <div class="chart-legend"><span>Lima</span><span>Arequipa</span><span>Cusco</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Consulta por sexo</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:62%;"></div>
+                <div class="chart-bar alt" style="height:58%;"></div>
+              </div>
+              <div class="chart-legend"><span><i class="primary"></i> Masculino (142)</span><span><i class="alt"></i> Femenino (106)</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Consulta por especialidad laboral</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:70%;"></div>
+                <div class="chart-bar" style="height:45%;"></div>
+                <div class="chart-bar alt" style="height:52%;"></div>
+              </div>
+              <div class="chart-legend"><span>Civil</span><span>Penal</span><span>Laboral</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Consulta por rango de edad</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar" style="height:35%;"></div>
+                <div class="chart-bar" style="height:55%;"></div>
+                <div class="chart-bar" style="height:72%;"></div>
+                <div class="chart-bar alt" style="height:48%;"></div>
+              </div>
+              <div class="chart-legend"><span>35–50</span><span>51–55</span><span>56–60</span><span>61–65</span></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-title">Medidas disciplinarias — con / sin</div>
+              <div class="chart-placeholder">
+                <div class="chart-bar alt" style="height:18%;"></div>
+                <div class="chart-bar" style="height:88%;"></div>
+              </div>
+              <div class="chart-legend"><span><i class="alt"></i> Con medida (24)</span><span><i class="primary"></i> Sin medida (224)</span></div>
+            </div>
+          </div>
+        </div>
+        </section>
+
+        <!-- Bloque 2: Jueces cesantes -->
+        <section class="report-panel" id="panel-cesantes" data-panel="cesantes">
+        <div class="report-section" id="reporte-cesantes">
+          <div class="report-consulta-header">
+            <div>
+              <span class="report-section-tag">Consulta</span>
+              <h3>Consulta de jueces cesantes (activo / inactivo)</h3>
+              <p>Reporte detallado del estado del magistrado en la ficha con listado exportable de cada juez.</p>
+            </div>
+            <div class="report-consulta-actions">
+              <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Descargar PDF</button>
+            </div>
+          </div>
+
+          <div class="report-filter-bar">
+            <div class="form-group">
+              <label for="filtro-estado-mag">Estado del magistrado</label>
+              <select class="select" id="filtro-estado-mag">
+                <option>Todos</option>
+                <option selected>Activo</option>
+                <option>Inactivo / cesante</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-nivel-mag">Nivel</label>
+              <select class="select" id="filtro-nivel-mag">
+                <option selected>Todos</option>
+                <option>Juez Supremo</option>
+                <option>Juez Superior Titular</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-distrito-mag">Distrito judicial</label>
+              <select class="select" id="filtro-distrito-mag">
+                <option selected>Todos</option>
+                <option>Lima</option>
+                <option>Arequipa</option>
+                <option>Cusco</option>
+              </select> 
+            </div>
+            <button class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/search.svg" width="16" height="16" alt="" /> Consultar</button>
+          </div>
+
+          <div class="report-summary-kpis">
+            <div class="report-kpi"><strong>231</strong><span>Activos</span></div>
+            <div class="report-kpi"><strong>17</strong><span>Inactivos / cesantes</span></div>
+            <div class="report-kpi"><strong>248</strong><span>Total registros</span></div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap">
+              <table class="doc-report-table">
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>DNI</th>
+                      <th>Apellidos y nombres</th>
+                      <th>Nivel</th>
+                      <th>Distrito judicial</th>
+                      <th>Estado</th>
+                      <th>Fecha de cese</th>
+                      <th>Observación</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>12345678</td>
+                      <td>García López, Pedro Juan</td>
+                      <td>Superior Titular</td>
+                      <td>Lima</td>
+                      <td><span class="badge-vigencia badge-vigencia--activo">Activo</span></td>
+                      <td>—</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>87654321</td>
+                      <td>Martínez Silva, Rosa Elena</td>
+                      <td>Juez Supremo</td>
+                      <td>Lima</td>
+                      <td><span class="badge-vigencia badge-vigencia--activo">Activo</span></td>
+                      <td>—</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>11223344</td>
+                      <td>Ramos Castro, Jorge Luis</td>
+                      <td>Superior Titular</td>
+                      <td>Arequipa</td>
+                      <td><span class="badge-vigencia badge-vigencia--inactivo">Inactivo</span></td>
+                      <td>15/08/2024</td>
+                      <td>Cese por jubilación</td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>99887766</td>
+                      <td>Vega Torres, Carmen Lucía</td>
+                      <td>Superior Titular</td>
+                      <td>Cusco</td>
+                      <td><span class="badge-vigencia badge-vigencia--inactivo">Inactivo</span></td>
+                      <td>02/01/2025</td>
+                      <td>Cese en el cargo</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- Bloque 3: Documentos próximos a caducar -->
+        <section class="report-panel" id="panel-proximos" data-panel="proximos">
+        <div class="report-section" id="reporte-proximos-caducar">
+          <div class="report-consulta-header">
+            <div>
+              <span class="report-section-tag">Consulta</span>
+              <h3>Consulta de documentos próximos a caducar o cesar</h3>
+              <p>Listado de documentos registrados en la ficha cuya vigencia está por vencer. Permite identificar acciones preventivas antes del vencimiento.</p>
+            </div>
+            <div class="report-consulta-actions">
+              <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Descargar PDF</button>
+            </div>
+          </div>
+
+          <div class="report-filter-bar">
+            <div class="form-group">
+              <label for="filtro-dias">Vence en los próximos</label>
+              <select class="select" id="filtro-dias">
+                <option>30 días</option>
+                <option selected>90 días</option>
+                <option>180 días</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-rubro-prox">Rubro</label>
+              <select class="select" id="filtro-rubro-prox">
+                <option selected>Todos</option>
+                <option>V — Perfeccionamiento</option>
+                <option>VI — Publicaciones</option>
+                <option>VII — Distinciones</option>
+                <option>VIII — Docencia</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-tipo-doc">Tipo de documento</label>
+              <select class="select" id="filtro-tipo-doc">
+                <option selected>Todos</option>
+                <option>Diplomado</option>
+                <option>Pasantía</option>
+                <option>Certificado de evento</option>
+                <option>Artículo publicado</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/search.svg" width="16" height="16" alt="" /> Consultar</button>
+          </div>
+
+          <div class="report-summary-kpis">
+            <div class="report-kpi"><strong>38</strong><span>Próximos 90 días</span></div>
+            <div class="report-kpi"><strong>21</strong><span>Próximos 180 días</span></div>
+            <div class="report-kpi"><strong>59</strong><span>Total en alerta</span></div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap">
+              <table class="doc-report-table">
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Magistrado</th>
+                    <th>DNI</th>
+                    <th>Rubro</th>
+                    <th>Tipo de documento</th>
+                    <th>Descripción</th>
+                    <th>Fecha fin vigencia</th>
+                    <th>Días restantes</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>ESPINOZA AVENDAÑO, RENE EDGAR</td>
+                    <td>12345678</td>
+                    <td>V.3 Diplomados</td>
+                    <td>Diplomado</td>
+                    <td>Diplomado en gestión judicial</td>
+                    <td>28/06/2026</td>
+                    <td><strong>19</strong></td>
+                    <td><span class="badge-vigencia badge-vigencia--proximo">Próximo a caducar</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>García López, Pedro Juan</td>
+                    <td>87654321</td>
+                    <td>V.2 Pasantía</td>
+                    <td>Pasantía</td>
+                    <td>Pasantía en Corte IDH</td>
+                    <td>15/08/2026</td>
+                    <td><strong>67</strong></td>
+                    <td><span class="badge-vigencia badge-vigencia--proximo">Próximo a caducar</span></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Martínez Silva, Rosa Elena</td>
+                    <td>11223344</td>
+                    <td>VI Publicaciones</td>
+                    <td>Artículo</td>
+                    <td>Artículo en Revista de Derecho</td>
+                    <td>30/09/2026</td>
+                    <td><strong>113</strong></td>
+                    <td><span class="badge-vigencia badge-vigencia--proximo">Próximo a cesar</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </section>
+
+        <!-- Bloque 4: Documentos caducados y no caducados -->
+        <section class="report-panel" id="panel-vigencia" data-panel="vigencia">
+        <div class="report-section" id="reporte-vigencia-docs">
+          <div class="report-consulta-header">
+            <div>
+              <span class="report-section-tag">Consulta</span>
+              <h3>Consulta de documentos caducados y no caducados</h3>
+              <p>Reporte de vigencia documental de toda la carpeta: documentos vigentes y documentos ya caducados, con trazabilidad por magistrado y rubro.</p>
+            </div>
+            <div class="report-consulta-actions">
+              <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Descargar PDF</button>
+            </div>
+          </div>
+
+          <div class="report-filter-bar">
+            <div class="form-group">
+              <label for="filtro-vigencia">Estado de vigencia</label>
+              <select class="select" id="filtro-vigencia">
+                <option selected>Todos</option>
+                <option>No caducado (vigente)</option>
+                <option>Caducado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-rubro-vig">Rubro</label>
+              <select class="select" id="filtro-rubro-vig">
+                <option selected>Todos</option>
+                <option>V — Perfeccionamiento</option>
+                <option>VI — Publicaciones</option>
+                <option>VII — Distinciones</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filtro-magistrado">Magistrado (DNI o apellidos)</label>
+              <input class="input" id="filtro-magistrado" type="text" placeholder="Buscar..." />
+            </div>
+            <button class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/search.svg" width="16" height="16" alt="" /> Consultar</button>
+          </div>
+
+          <div class="report-summary-kpis">
+            <div class="report-kpi"><strong>412</strong><span>No caducados (vigentes)</span></div>
+            <div class="report-kpi"><strong>45</strong><span>Caducados</span></div>
+            <div class="report-kpi"><strong>457</strong><span>Total documentos</span></div>
+          </div>
+
+          <p class="report-subsection-title">Documentos caducados</p>
+          <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+            <div class="table-wrap">
+              <table class="doc-report-table">
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Magistrado</th>
+                    <th>DNI</th>
+                    <th>Rubro</th>
+                    <th>Tipo de documento</th>
+                    <th>Fecha fin vigencia</th>
+                    <th>Días vencidos</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Ramos Castro, Jorge Luis</td>
+                    <td>11223344</td>
+                    <td>V.5 Eventos académicos</td>
+                    <td>Certificado asistencia</td>
+                    <td>10/12/2024</td>
+                    <td>182</td>
+                    <td><span class="badge-vigencia badge-vigencia--caducado">Caducado</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Vega Torres, Carmen Lucía</td>
+                    <td>99887766</td>
+                    <td>V.3 Diplomados</td>
+                    <td>Diplomado</td>
+                    <td>05/03/2025</td>
+                    <td>97</td>
+                    <td><span class="badge-vigencia badge-vigencia--caducado">Caducado</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="report-subsection-title">Documentos no caducados (vigentes)</p>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap">
+              <table class="doc-report-table">
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Magistrado</th>
+                    <th>DNI</th>
+                    <th>Rubro</th>
+                    <th>Tipo de documento</th>
+                    <th>Fecha fin vigencia</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>ESPINOZA AVENDAÑO, RENE EDGAR</td>
+                    <td>12345678</td>
+                    <td>C Grados académicos</td>
+                    <td>Título universitario</td>
+                    <td>—</td>
+                    <td><span class="badge-vigencia badge-vigencia--vigente">No caducado</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>García López, Pedro Juan</td>
+                    <td>87654321</td>
+                    <td>V.2 Pasantía</td>
+                    <td>Pasantía</td>
+                    <td>15/08/2027</td>
+                    <td><span class="badge-vigencia badge-vigencia--vigente">No caducado</span></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Martínez Silva, Rosa Elena</td>
+                    <td>44556677</td>
+                    <td>VIII Docencia</td>
+                    <td>Constancia docente</td>
+                    <td>31/12/2026</td>
+                    <td><span class="badge-vigencia badge-vigencia--vigente">No caducado</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </section>
+
+          </div><!-- /.report-panels -->
+        </div><!-- /.report-layout -->
+
+        <div class="card">
+          <div class="card-title">Cobertura RF007 — submenú a</div>
+          <div class="rf006-checklist" style="grid-template-columns:repeat(2,1fr);">
+            <span>Gráficos de barras por rubro</span>
+            <span>Grados, doctorado, distrito, sexo, especialidad, edad</span>
+            <span>Medidas disciplinarias (sí / no)</span>
+            <span>Reporte jueces cesantes (activo / inactivo)</span>
+            <span>Reporte documentos próximos a caducar</span>
+            <span>Reporte documentos caducados / no caducados</span>
+            <span>Exportar PDF</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+  <script>
+    (function () {
+      var items = document.querySelectorAll('.report-tabnav .report-tab[data-panel]');
+      var panels = document.querySelectorAll('.report-panel[data-panel]');
+
+      items.forEach(function (item) {
+        item.addEventListener('click', function () {
+          var id = item.getAttribute('data-panel');
+          items.forEach(function (el) { el.classList.remove('active'); });
+          panels.forEach(function (el) { el.classList.remove('is-active'); });
+          item.classList.add('active');
+          var panel = document.getElementById('panel-' + id);
+          if (panel) {
+            panel.classList.add('is-active');
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

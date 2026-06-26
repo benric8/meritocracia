@@ -1,0 +1,51 @@
+// =============================================================
+// Design tokens — Meritocracia PJ
+// Fuente de verdad de la paleta (extraída del mockup 02-dashboard).
+// Se exponen como variables SCSS (uso en cálculos/compilación) y
+// como CSS custom properties globales (--mc-*) para los componentes.
+// =============================================================
+
+// --- Variables SCSS ---
+$color-primary: #8b0000;
+$color-primary-dark: #6d0000;
+$color-primary-light: #ecd0c8;
+$color-primary-p20: #f9f1ea;
+$color-secondary: #932304;
+$color-tertiary: #79b0e0;
+
+$color-surface: #ffffff;
+$color-background: #f4f6f8;
+$color-border: #e2e8f0;
+$color-text: #1e293b;
+$color-text-muted: #64748b;
+
+$color-success: #29af87;
+$color-warning: #dca565;
+$color-error: #e55454;
+
+$radius: 8px;
+$radius-lg: 12px;
+
+// --- CSS custom properties globales ---
+:root {
+  --mc-primary: #{$color-primary};
+  --mc-primary-dark: #{$color-primary-dark};
+  --mc-primary-light: #{$color-primary-light};
+  --mc-primary-p20: #{$color-primary-p20};
+  --mc-secondary: #{$color-secondary};
+  --mc-tertiary: #{$color-tertiary};
+
+  --mc-surface: #{$color-surface};
+  --mc-background: #{$color-background};
+  --mc-border: #{$color-border};
+  --mc-text: #{$color-text};
+  --mc-text-muted: #{$color-text-muted};
+
+  --mc-success: #{$color-success};
+  --mc-warning: #{$color-warning};
+  --mc-error: #{$color-error};
+
+  --mc-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06);
+  --mc-radius: #{$radius};
+  --mc-radius-lg: #{$radius-lg};
+}

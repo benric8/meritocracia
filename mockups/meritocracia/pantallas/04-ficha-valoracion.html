@@ -1,0 +1,905 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 04 — Ficha Valoración RF006 completa | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+  <style>
+    .ficha-layout--full {
+      grid-template-columns: 1fr;
+    }
+
+    .ficha-rubros-panel .rubros-column-header {
+      grid-template-columns: 1fr 120px;
+    }
+
+    .ficha-rubros-panel .accordion-header {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ficha-rubros-panel .accordion-header-title {
+      min-width: 0;
+    }
+
+    .ficha-rubros-panel .accordion-header > .rubro-score,
+    .ficha-rubros-panel .accordion-header > .rubro-sub-actions {
+      justify-self: end;
+    }
+
+    .ficha-rubros-panel .accordion-header .rubro-sub-actions {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .ficha-rubros-panel .rubro-sub-header {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ficha-rubros-panel .rubro-sub-header > .rubro-sub-actions {
+      justify-self: end;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .sticky-footer--ficha {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ficha-footer-total span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .ficha-footer-total strong {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .magistrado-datos {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .magistrado-datos-row--sig {
+      grid-template-columns: minmax(220px, 300px) minmax(200px, 1fr);
+    }
+
+    .magistrado-datos-row--identidad {
+      grid-template-columns: 1fr;
+    }
+
+    .magistrado-datos-row--demografia {
+      grid-template-columns: minmax(160px, 200px) 100px minmax(120px, 160px);
+    }
+
+    .magistrado-dni-search {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .magistrado-dni-search .input {
+      flex: 1;
+      min-width: 0;
+    }
+  </style>
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info">
+          <strong>Ana Torres Vidal</strong>
+          <span>Usuario Registrador · Equipo Cuadro de Méritos</span>
+        </div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon">
+          <img src="../assets/icons/logout.svg" width="16" height="16" alt="" />
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="registrador">
+        <div class="sidebar-profile"><span class="profile-chip profile-chip--reg">Usuario Registrador</span></div>
+        <a class="nav-item" href="02-dashboard-registrador.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Carpeta Personal de Méritos">
+            <a class="nav-sub-item active" href="04-ficha-valoracion.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Nuevo registro</span></a>
+            <a class="nav-sub-item" href="05-consulta-meritos.html"><img class="nav-sub-icon" src="../assets/icons/search.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Consulta</span></a>
+          </nav>
+        </div>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="breadcrumb">Carpeta Personal de Méritos / <span>Nuevo registro</span></div>
+
+       
+
+        <div class="rf-banner">
+          <strong>RF006 — Nuevo registro</strong>
+          <p>Mockup de trazabilidad: todos los campos del requerimiento están representados en pantalla. El usuario validador puede revisar rubro por rubro sin interpretar el documento.</p>
+        </div>
+
+        <div class="page-header">
+          <h1>FICHA DE VALORACIÓN DE MÉRITOS</h1>
+          <p>Nivel, datos personales (SIGA) y rubros A–J con puntaje por rubro. El total se muestra al pie de la ficha.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Nivel y datos personales del juez</div>
+          <div class="magistrado-header">
+            <div class="photo-placeholder">
+              <img src="../assets/icons/user-photo.svg" width="48" height="48" alt="" />
+              <span>Foto SIGA</span>
+            </div>
+            <div class="magistrado-datos">
+              <div class="form-row form-row--dense magistrado-datos-row--sig">
+                <div class="form-group">
+                  <label for="magistrado-dni">DNI</label>
+                  <div class="magistrado-dni-search">
+                    <input class="input" id="magistrado-dni" value="12345678" maxlength="8" inputmode="numeric" />
+                    <button class="btn btn-primary btn-sm btn-with-icon" type="button" title="Buscar en SIGA">
+                      <img src="../assets/icons/search.svg" width="16" height="16" alt="" />
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-nivel">Nivel</label>
+                  <select class="select" id="magistrado-nivel">
+                    <option>Juez Superior Titular</option>
+                    <option>Juez Supremo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row form-row--dense magistrado-datos-row--identidad">
+                <div class="form-group">
+                  <label for="magistrado-nombres">Apellidos y nombres completos</label>
+                  <input class="input" id="magistrado-nombres" value="García López, Pedro Juan" />
+                </div>
+              </div>
+              <div class="form-row form-row--dense magistrado-datos-row--demografia">
+                <div class="form-group">
+                  <label for="magistrado-fecha-nac">Fecha de nacimiento</label>
+                  <input class="input" id="magistrado-fecha-nac" type="date" value="1975-03-15" />
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-edad">Edad</label>
+                  <input class="input" id="magistrado-edad" value="51" readonly style="background:#f1f5f9;" />
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-sexo">Sexo</label>
+                  <select class="select" id="magistrado-sexo"><option>Masculino</option><option>Femenino</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ficha-layout ficha-layout--full">
+          <div class="ficha-rubros-panel">
+            <div class="rubros-column-header">
+              <span>Rubros de valoración</span>
+              <span>Puntaje</span>
+            </div>
+
+            <!-- A -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">A</span> Producción jurisdiccional</span>
+                <span class="rubro-score">0.00</span>
+              </div>
+              <div class="accordion-body">
+                <div class="suspended-note">PRODUCCIÓN JURISDICCIONAL (Suspendido mediante la R.A.031-2013-CE-PJ)</div>
+              </div>
+            </div>
+
+            <!-- B -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">B</span> Antigüedad en el cargo</span>
+                <span class="rubro-score">18.50</span>
+              </div>
+              <div class="accordion-body">
+                <div class="antiguedad-block">
+                  <span class="antiguedad-block-criterion">Antigüedad en el cargo</span>
+                  <h3 class="antiguedad-block-title">Datos generales y titularidad actual</h3>
+                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración. La <strong>hora de juramento</strong> corresponde al 4.º criterio de desempate (Acta de Juramento ante la JNJ).</p>
+                  <div class="form-row form-row--dense">
+                    <div class="form-group"><label>Distrito judicial (SIGA)</label><select class="select"><option>Huancavelica</option><option>Lima</option></select></div>
+                    <div class="form-group"><label>Cargo titular actual</label><input class="input" value="Juez Superior Titular" /></div>
+                    <div class="form-group"><label>Primera especialidad</label><select class="select"><option>Civil</option></select></div>
+                    <div class="form-group"><label>Segunda especialidad</label><select class="select"><option>— Ninguna —</option></select></div>
+                    <div class="form-group"><label>Fecha juramentación (cargo titular actual)</label><input class="input" type="date" value="2013-04-09" /></div>
+                    <div class="form-group"><label>Hora de juramento <small style="font-weight:400;color:var(--text-muted);">(Acta de Juramento — JNJ)</small></label><input class="input" type="time" value="11:15" title="4.º criterio de desempate" /></div>
+                    <div class="form-group"><label>Fecha de cese</label><input class="input" type="date" /></div>
+                    <div class="form-group"><label>Fecha de reincorporación</label><input class="input" type="date" /></div>
+                    <div class="form-group"><label>Fecha de valoración</label><input class="input" type="date" value="2024-12-31" /></div>
+                    <div class="form-group"><label>Tiempo total en cargo titular</label><input class="input" value="11 aa 8 mm 22 dd" readonly style="background:#f1f5f9;" /></div>
+                    <div class="form-group"><label>Puntaje según años totales</label><input class="input" value="18.50" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                  </div>
+                </div>
+
+                <div class="antiguedad-block">
+                  <span class="antiguedad-block-criterion">1.er criterio de desempate</span>
+                  <h3 class="antiguedad-block-title">Periodo en el nivel inmediato anterior titular</h3>
+                  <p class="antiguedad-block-hint">Registrar la fecha de inicio y fin del periodo laborado como Juez en el nivel inmediato anterior titular.</p>
+                  <div class="form-row form-row--dense">
+                    <div class="form-group"><label>Nivel inmediato anterior</label><input class="input" value="Juez Especializado Titular" /></div>
+                    <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" value="2003-11-18" /></div>
+                    <div class="form-group"><label>Fecha fin</label><input class="input" type="date" value="2013-04-08" /></div>
+                    <div class="form-group"><label>Tiempo total del periodo</label><input class="input" value="9 aa 4 mm 21 dd" readonly style="background:#f1f5f9;" /></div>
+                  </div>
+                </div>
+
+                <div class="antiguedad-block">
+                  <span class="antiguedad-block-criterion">2.º criterio de desempate</span>
+                  <h3 class="antiguedad-block-title">Provisionalidades en el nivel titular actual</h3>
+                  <p class="antiguedad-block-hint">Registrar fecha de inicio y fin, tiempo total, cargo, órgano jurisdiccional y documento de cada periodo como Juez en el nivel titular actual (provisionalidades).</p>
+                  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-add-provisionalidad" data-target="provisionalidad-form-panel">
+                      <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir provisionalidad
+                    </button>
+                  </div>
+                  <table class="rubro-records">
+                    <thead>
+                      <tr>
+                        <th>Fecha inicio</th>
+                        <th>Fecha fin</th>
+                        <th>Tiempo total</th>
+                        <th>Cargo</th>
+                        <th>Órgano jurisdiccional</th>
+                        <th>Documento</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>03/03/2009</td>
+                        <td>09/04/2013</td>
+                        <td>4 aa 1 mm 6 dd</td>
+                        <td>Juez Superior (Prov.)</td>
+                        <td>Corte Superior de Huancavelica</td>
+                        <td>Resolución N.° 041-2009-PJ</td>
+                        <td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="card provisionalidad-form-panel" id="provisionalidad-form-panel" aria-hidden="true">
+                    <div class="rubro-add-form-title"><span>Nueva provisionalidad</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Tiempo total (auto)</label><input class="input" readonly style="background:#f1f5f9;" /></div>
+                      <div class="form-group"><label>Cargo</label><input class="input" placeholder="Ej. Juez Superior (Prov.)" /></div>
+                      <div class="form-group"><label>Órgano jurisdiccional</label><input class="input" /></div>
+                      <div class="form-group"><label>Documento sustentatorio</label><input class="input" placeholder="Resolución, acto administrativo, etc." /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm btn-cancel-provisionalidad">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar periodo</button>
+                    </div>
+                  </div>
+                  <div class="antiguedad-total-row">
+                    <div class="form-group"><label>Suma total de provisionalidades</label><input class="input" value="4 aa 1 mm 6 dd" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                  </div>
+                </div>
+
+                <div class="antiguedad-block">
+                  <span class="antiguedad-block-criterion">3.er criterio de desempate</span>
+                  <h3 class="antiguedad-block-title">Colegiatura</h3>
+                  <p class="antiguedad-block-hint">Registrar la fecha de colegiatura y el cálculo de años de colegiatura a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua.</p>
+                  <div class="form-row form-row--dense">
+                    <div class="form-group"><label>Fecha de colegiatura</label><input class="input" type="date" value="1996-10-16" /></div>
+                    <div class="form-group"><label>Años de colegiatura </label><input class="input" value="28 años" readonly style="background:#f1f5f9;" /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">C</span> Grados académicos y títulos profesionales</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">12.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead>
+                    <tr><th>Nivel</th><th>Universidad</th><th>Especialidad</th><th>Fecha título</th><th>Puntaje</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Maestría</td>
+                      <td>UNMSM</td>
+                      <td>Derecho</td>
+                      <td>15/06/2010</td>
+                      <td><strong>8.00</strong></td>
+                      <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                    <tr>
+                      <td>Licenciatura</td>
+                      <td>PUCP</td>
+                      <td>Derecho</td>
+                      <td>20/12/1998</td>
+                      <td><strong>4.00</strong></td>
+                      <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Grados académicos y títulos</span><span>RF006 · Rubro C</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Nivel de grado / título</label><select class="select"><option>Doctorado</option><option>Maestría</option><option>Licenciatura</option></select></div>
+                  <div class="form-group">
+                    <label>Universidad</label>
+                    <div class="universidad-combobox" data-universidad-combobox>
+                      <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+                      <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                    </div>
+                  </div>
+                  <div class="form-group"><label>País</label><input class="input" value="Perú" /></div>
+                  <div class="form-group"><label>Fecha de obtención del título</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Especialidad</label><input class="input" placeholder="Derecho" /></div>
+                  <div class="form-group"><label>Mención</label><input class="input" /></div>
+                  <div class="form-group"><label>Observación por registro</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla de valoración</label><input class="input" readonly style="background:var(--primary-p20);font-weight:600;" placeholder="Auto" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <a class="btn btn-secondary btn-sm" href="08-modal-grado-academico.html">Vista modal</a>
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- D -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">D</span> Estudios de preparación AMAG</span>
+                <span class="rubro-score">8.00</span>
+              </div>
+              <div class="accordion-body">
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo del curso AMAG</label><select class="select"><option>Habilitante</option><option>PROFA</option><option>Ascenso</option></select></div>
+                  <div class="form-group"><label>Nota del curso AMAG</label><input class="input" value="16.5" /></div>
+                  <div class="form-group"><label>Descripción del curso</label><input class="input" value="Curso de habilitación judicial" /></div>
+                  <div class="form-group"><label>Año del curso</label><input class="input" value="2005" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" value="8.00" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- E -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">E</span> Estudios de perfeccionamiento</span>
+                <span class="rubro-score">15.25</span>
+              </div>
+              <div class="accordion-nested" id="rubro-e-nested">
+
+                <!-- E.1 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span>Estudios de doctorado y/o maestría</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.1 Doctorado y/o Maestría</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Nombre de estudios</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label>Universidad</label>
+                        <div class="universidad-combobox" data-universidad-combobox>
+                          <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+                          <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                        </div>
+                      </div>
+                      <div class="form-group"><label>País</label><input class="input" /></div>
+                      <div class="form-group"><label>Especialidad</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Mención</label><input class="input" /></div>
+                      <div class="form-group"><label>Condición académica</label><input class="input" /></div>
+                      <div class="form-group"><label>Número de semestre</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Año inicio del semestre</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Año fin del semestre</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Notas por semestre</label><input class="input" placeholder="Ej. 16, 17, 15" /></div>
+                      <div class="form-group"><label>Promedio por semestre</label><input class="input" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.2 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span>Pasantía</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.2 Pasantía</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Tipo</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Nota del curso de pasantía</label><input class="input" /></div>
+                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Jurídico</label><select class="select"><option>Sí</option><option>No</option></select></div>
+                      <div class="form-group"><label>Especialidad de derecho</label><input class="input" /></div>
+                      <div class="form-group"><label>Mención</label><input class="input" /></div>
+                      <div class="form-group"><label>Horas</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.3 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.3</span> Especialización, postgrado y diplomados</span>
+                    <div class="rubro-sub-actions">
+                      <span class="rubro-score">6.50</span>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-records">
+                    <table class="rubro-records">
+                      <thead>
+                        <tr><th>Curso</th><th>Institución</th><th>Horas</th><th>Puntaje</th><th></th></tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Diplomado en arbitraje</td>
+                          <td>CIAR</td>
+                          <td>120 h</td>
+                          <td><strong>6.50</strong></td>
+                          <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.3 Especialización / postgrado / diplomados</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Tipo de curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Nombre del curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Nota del curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
+                      <div class="form-group"><label>Curso con sesiones (sí/no)</label><select class="select"><option>Sí</option><option>No</option></select></div>
+                      <div class="form-group"><label>Tiempo en horas</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.4 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span>Certámenes académicos</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.4 Certámenes académicos</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Tipo de certamen</label><input class="input" /></div>
+                      <div class="form-group"><label>Tipo de participación</label><input class="input" /></div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Tema</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label>Fecha inicio certamen</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin certamen</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Modalidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.5 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span>Asistencia a eventos académicos</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.5 Asistencia a eventos académicos</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Tipo de evento</label><input class="input" /></div>
+                      <div class="form-group"><label>Tipo de participación</label><input class="input" /></div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Tema</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label>Fecha inicio evento</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin evento</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Modalidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                      <div class="form-group"><label>Ámbito del certamen académico</label><input class="input" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.6 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span>Estudios de ofimática</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.6 Estudios de ofimática</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Nombre del curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Duración en horas</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Nivel</label><select class="select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div>
+                      <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                      <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- F -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">F</span> Idioma nativo o extranjero</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">3.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Idioma</th><th>Centro</th><th>Duración</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Inglés</td><td>Instituto Británico</td><td>18 meses</td><td><strong>3.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Idioma nativo o extranjero</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de idioma</label><select class="select"><option>Nativo</option><option>Extranjero</option></select></div>
+                  <div class="form-group"><label>Idioma</label><input class="input" placeholder="Inglés" /></div>
+                  <div class="form-group"><label>Centro de estudios</label><input class="input" /></div>
+                  <div class="form-group"><label>Duración (meses)</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- G -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">G</span> Publicaciones de índole jurídico</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">5.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Tipo</th><th>Título</th><th>Editorial</th><th>Fecha</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Artículo</td><td>La tutela judicial efectiva</td><td>Rev. Jurídica</td><td>2022</td><td><strong>5.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Publicaciones de índole jurídico</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de publicación</label><select class="select"><option>Libro</option><option>Artículo</option></select></div>
+                  <div class="form-group"><label>Título de la publicación</label><input class="input" /></div>
+                  <div class="form-group"><label>Editorial</label><input class="input" /></div>
+                  <div class="form-group"><label>Número de páginas</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Número de edición</label><input class="input" /></div>
+                  <div class="form-group"><label>Auspicio</label><input class="input" /></div>
+                  <div class="form-group"><label>País</label><input class="input" /></div>
+                  <div class="form-group"><label>Años</label><input class="input" /></div>
+                  <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                  <div class="form-group"><label>Especialidad en derecho</label><input class="input" /></div>
+                  <div class="form-group"><label>Institución</label><input class="input" /></div>
+                  <div class="form-group"><label>Fecha de publicación</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- H -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">H</span> Distinciones y condecoraciones</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">2.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Distinción</th><th>Institución</th><th>Fecha</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Orden del Sol</td><td>Estado Peruano</td><td>2018</td><td><strong>2.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Distinciones y condecoraciones</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de distinción</label><input class="input" /></div>
+                  <div class="form-group"><label>Descripción de la distinción</label><input class="input" /></div>
+                  <div class="form-group"><label>Fecha de distinción</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group"><label>Institución</label><input class="input" /></div>
+                  <div class="form-group"><label>País</label><input class="input" /></div>
+                  <div class="form-group"><label>Año</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Ámbito</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- I -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">I</span> Docencia universitaria</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">12.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Universidad</th><th>Materia</th><th>Periodo</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Universidad de Lima</td><td>Derecho Procesal</td><td>2022–2024</td><td><strong>12.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Docencia universitaria</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group">
+                    <label>Universidad</label>
+                    <div class="universidad-combobox" data-universidad-combobox>
+                      <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+                      <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                    </div>
+                  </div>
+                  <div class="form-group"><label>Horas semanales</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                  <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                  <div class="form-group"><label>Materia</label><input class="input" /></div>
+                  <div class="form-group"><label>Categoría</label><input class="input" /></div>
+                  <div class="form-group"><label>Condición</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- J -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">J</span> Deméritos</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score negative">-2.00</span>
+                  <button type="button" class="btn btn-secondary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Medida</th><th>Año</th><th>Observación</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Amonestación</td><td>2024</td><td>Expediente disciplinario</td><td style="color:var(--error);"><strong>-2.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Deméritos</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de medida disciplinaria</label><select class="select"><option>Amonestación</option><option>Multa</option><option>Suspensión</option></select></div>
+                  <div class="form-group"><label>Cantidad</label><input class="input" type="number" value="1" /></div>
+                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group"><label>Año de valoración</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Observación por registro</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla (negativo)</label><input class="input" readonly style="background:#fee2e2;color:var(--error);font-weight:600;" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky-footer sticky-footer--ficha">
+          <div class="ficha-footer-total">
+            <span>Puntaje total de la ficha</span>
+            <strong>73.75</strong>
+          </div>
+          <div style="display:flex;gap:12px;">
+          <button class="btn btn-secondary btn-with-icon" type="button">
+            <img src="../assets/icons/broom.svg" width="16" height="16" alt="" /> Limpiar
+          </button>
+          <button class="btn btn-primary btn-with-icon" type="button">
+            <img src="../assets/icons/save.svg" width="16" height="16" alt="" /> Guardar
+          </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var addables = document.querySelectorAll('.rubro-addable');
+
+      function closeAll(except) {
+        addables.forEach(function (el) {
+          if (el !== except) {
+            el.classList.remove('is-form-open');
+          }
+        });
+      }
+
+      addables.forEach(function (el) {
+        var addBtn = el.querySelector('.rubro-add-btn');
+        var cancelBtn = el.querySelector('.rubro-cancel-btn');
+        var form = el.querySelector('.rubro-sub-form');
+
+        if (!addBtn || !form) return;
+
+        addBtn.addEventListener('click', function () {
+          var willOpen = !el.classList.contains('is-form-open');
+          closeAll(willOpen ? el : null);
+          el.classList.toggle('is-form-open', willOpen);
+          if (willOpen) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', function () {
+            el.classList.remove('is-form-open');
+          });
+        }
+      });
+    })();
+  </script>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

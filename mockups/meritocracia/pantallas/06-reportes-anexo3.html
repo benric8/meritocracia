@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup d — Antigüedad de jueces superiores | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand"><img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" /><span>Valoración de Méritos</span></div>
+      <div class="user-area"><div class="user-info"><strong>María López García</strong><span>Analista · Gerencia de RR.HH.</span></div><button class="btn btn-ghost btn-sm">Cambiar contraseña</button><button class="btn btn-ghost btn-sm btn-with-icon"><img src="../assets/icons/logout.svg" width="16" height="16" alt="" /> Cerrar sesión</button></div>
+    </header>
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item active" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+      <main class="main-content">
+        <div class="rf-banner"><strong>RF007 — d — Antigüedad de jueces superiores</strong><p>Cuadro de Antigüedad de Jueces Superiores Titulares. Estructura completa con titularidad, reincorporación y criterios de desempate avanzados.</p></div>
+        <div class="anexo-toolbar">
+          <div>
+            <span class="report-section-tag">d — Antigüedad de jueces superiores</span>
+            <h2>CUADRO DE ANTIGÜEDAD DE JUECES SUPERIORES TITULARES</h2>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Fuente: requerimiento 9.3.3 — orden de mayor a menor antigüedad (T1 + R1)</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <button class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /> Generar PDF</button>
+            <button class="btn btn-secondary btn-sm btn-with-icon"><img src="../assets/icons/file-excel.svg" width="16" height="16" alt="" /> Generar Excel</button>
+          </div>
+        </div>
+        <div class="anexo-meta-bar">
+          <span>Poder Judicial del Perú — Escalafón y criterios de desempate oficiales</span>
+          <span>Fecha de valoración: <span class="anexo-date-badge">31/12/2024</span></span>
+        </div>
+        <div class="anexo-desempate"><strong>Criterios de desempate (Anexo 03 — PDF):</strong> Periodo como Juez Especializado Titular · Provisionalidad en el nivel actual · Fecha y años de colegiatura · Hora de juramentación · Puntos (Pts.).</div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div class="anexo-report-wrap">
+            <table class="anexo-report-table" id="anexo3-table">
+              <thead>
+                <tr>
+                  <th colspan="4" class="anexo-th-l1">Información general</th>
+                  <th colspan="6" class="anexo-th-l1 anexo-col-split">Antigüedad en el cargo de Juez Superior Titular</th>
+                  <th colspan="9" class="anexo-th-l1 anexo-col-split">Criterios de desempate</th>
+                </tr>
+                <tr>
+                  <th rowspan="3" class="anexo-th-l2">N° orden</th>
+                  <th rowspan="3" class="anexo-th-l2">Apellidos y nombres</th>
+                  <th rowspan="3" class="anexo-th-l2">F. nacimiento</th>
+                  <th rowspan="3" class="anexo-th-l2">Distrito judicial</th>
+                  <th colspan="3" class="anexo-th-l3 anexo-col-split">Titularidad (T1)</th>
+                  <th colspan="2" class="anexo-th-l3">Reincorporación (R1)</th>
+                  <th rowspan="3" class="anexo-th-l2" style="background:var(--primary);color:#fff;">TOTAL<br><small>(T1 + R1)</small></th>
+                  <th colspan="3" class="anexo-th-l3 anexo-col-split">Juez especializado titular</th>
+                  <th colspan="3" class="anexo-th-l3">Provisionalidad nivel actual</th>
+                  <th rowspan="3" class="anexo-th-l2 anexo-col-split">Colegiatura<br><small>(fecha / años)</small></th>
+                  <th rowspan="3" class="anexo-th-l2">Hora<br><small>juramentación</small></th>
+                  <th rowspan="3" class="anexo-th-l2">Pts.</th>
+                </tr>
+                <tr>
+                  <th colspan="2" class="anexo-th-l4 anexo-col-split"><small>Desde juramento hasta valoración</small></th>
+                  <th rowspan="2" class="anexo-th-l4">Total<br><small>(aa-mm-dd)</small></th>
+                  <th colspan="2" class="anexo-th-l4"><small>Desde reinc. hasta valoración</small></th>
+                  <th colspan="2" class="anexo-th-l4 anexo-col-split"><small>Rango de fechas</small></th>
+                  <th rowspan="2" class="anexo-th-l4">Total<br><small>(aa-mm-dd)</small></th>
+                  <th colspan="2" class="anexo-th-l4"><small>Rango de fechas</small></th>
+                  <th rowspan="2" class="anexo-th-l4">Cant.<br><small>per.</small></th>
+                </tr>
+                <tr class="anexo-th-l4">
+                  <th class="anexo-col-split">Acta juramento</th>
+                  <th>Fecha cese</th>
+                  <th>Fecha reinc.</th>
+                  <th>Total</th>
+                  <th class="anexo-col-split">Inicio</th>
+                  <th>Fin</th>
+                  <th>Inicio</th>
+                  <th>Fin</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1°</strong></td>
+                  <td class="anexo-cell-name">VINATEA MEDINA, RICARDO GUILLERMO</td>
+                  <td>06/08/1955</td>
+                  <td><span class="anexo-badge-district">LIMA</span></td>
+                  <td class="anexo-col-split">19/07/1990</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><strong>34 — 5 — 13</strong></td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><span class="anexo-cell-total-main">34 — 5 — 13</span></td>
+                  <td class="anexo-col-split anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-col-split">04/01/1980<br><strong>44 años</strong></td>
+                  <td>11:30:00</td>
+                  <td><strong>12.000</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>2°</strong></td>
+                  <td class="anexo-cell-name">MARROQUÍN MOGROVEJO, NIMER ROBERTO</td>
+                  <td>13/05/1959</td>
+                  <td><span class="anexo-badge-district">AREQUIPA</span></td>
+                  <td class="anexo-col-split">23/07/1990</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><strong>34 — 5 — 9</strong></td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><span class="anexo-cell-total-main">34 — 5 — 9</span></td>
+                  <td class="anexo-col-split anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-col-split">14/09/1982<br><strong>42 años</strong></td>
+                  <td>0:00:00</td>
+                  <td><strong>12.000</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>3°</strong></td>
+                  <td class="anexo-cell-name">BACA CABRERA, ARACELI DENYSE</td>
+                  <td>28/01/1959</td>
+                  <td><span class="anexo-badge-district">LIMA</span></td>
+                  <td class="anexo-col-split">05/05/1994</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><strong>30 — 7 — 27</strong></td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td class="anexo-cell-empty">—</td>
+                  <td><span class="anexo-cell-total-main">30 — 7 — 27</span></td>
+                  <td class="anexo-col-split">19/08/1988</td>
+                  <td>04/05/1994</td>
+                  <td><span class="anexo-cell-total">5 — 8 — 16</span></td>
+                  <td>12/04/1993</td>
+                  <td>04/05/1994</td>
+                  <td><strong>1</strong></td>
+                  <td class="anexo-col-split">27/04/1983<br><strong>41 años</strong></td>
+                  <td>12:01:00</td>
+                  <td><strong>12.000</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="anexo-checklist">
+          <span>Titularidad T1 + reincorporación R1</span>
+          <span>Juez especializado titular</span>
+          <span>Provisionalidades y colegiatura</span>
+          <span>Hora juramentación y Pts.</span>
+          <span>Orden mayor → menor antigüedad</span>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

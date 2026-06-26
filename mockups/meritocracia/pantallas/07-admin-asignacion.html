@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 07 — Asignación Registradores | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+  <style>
+    .asignacion-table td {
+      vertical-align: middle;
+    }
+
+    .asignacion-table .cell-muted {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .asignacion-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .asignacion-badge--obs {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .asignacion-actions {
+      white-space: nowrap;
+    }
+
+    .modal-overlay.is-hidden {
+      display: none;
+    }
+
+    .modal-context {
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .modal-context strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: #fafafa;
+    }
+
+    .mockup-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      padding: 12px 20px;
+      background: #0f172a;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      animation: toastIn 0.2s ease;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, 8px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+  </style>
+</head>
+<body>
+<div class="mockup-frame">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info">
+          <strong>Admin Sistema</strong>
+          <span>Administrador</span>
+        </div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon">
+          <img src="../assets/icons/logout.svg" width="16" height="16" alt="" />
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="admin">
+        <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
+        <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
+        <a class="nav-item active" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="breadcrumb">Carpeta Personal de Méritos / <span>Asignación de registradores</span></div>
+
+        <div class="rf-banner">
+          <strong>RF006 — Perfil Administrador</strong>
+          <p>Consulte las asignaciones de registradores por magistrado. Use el botón <em>Asignar registrador secundario</em> en cada fila para definir el suplente y la observación en un cuadro de diálogo.</p>
+        </div>
+
+        <div class="page-header">
+          <h1>Gestión de la Carpeta Personal de Méritos</h1>
+          <p>Vista administrador — consulta de asignaciones y registro de registrador secundario</p>
+        </div>
+
+        <div class="card">
+          <div class="filter-bar">
+            <div class="form-group">
+              <label>DNI magistrado</label>
+              <input class="input" placeholder="Buscar por DNI..." />
+            </div>
+            <div class="form-group">
+              <label>Nombre magistrado</label>
+              <input class="input" placeholder="Apellidos o nombres..." />
+            </div>
+            <button type="button" class="btn btn-primary btn-with-icon">
+              <img src="../assets/icons/search.svg" width="16" height="16" alt="" />
+              Buscar
+            </button>
+          </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="table-wrap">
+            <table class="asignacion-table">
+              <thead>
+                <tr>
+                  <th>Código registrador titular</th>
+                  <th>Nombre de magistrado</th>
+                  <th>DNI magistrado</th>
+                  <th>Código registrador secundario</th>
+                  <th>Observación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="asignacion-tbody">
+                <tr data-row="0">
+                  <td>REG001 — Ana Torres</td>
+                  <td>García López, Pedro Juan</td>
+                  <td>12345678</td>
+                  <td class="cell-suplente">REG002 — Luis Herrera</td>
+                  <td class="cell-observacion"><span class="asignacion-badge asignacion-badge--obs">Vacaciones</span></td>
+                  <td class="asignacion-actions">
+                    <button type="button" class="btn btn-secondary btn-sm btn-asignar-suplente" data-magistrado="García López, Pedro Juan" data-dni="12345678" data-titular="REG001 — Ana Torres">
+                      Cambiar registrador secundario
+                    </button>
+                  </td>
+                </tr>
+                <tr data-row="1">
+                  <td>REG001 — Ana Torres</td>
+                  <td>Martínez Silva, Rosa Elena</td>
+                  <td>87654321</td>
+                  <td class="cell-suplente cell-muted">Sin asignar</td>
+                  <td class="cell-observacion cell-muted">—</td>
+                  <td class="asignacion-actions">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-asignar-suplente" data-magistrado="Martínez Silva, Rosa Elena" data-dni="87654321" data-titular="REG001 — Ana Torres">
+                      <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" />
+                      Asignar registrador secundario
+                    </button>
+                  </td>
+                </tr>
+                <tr data-row="2">
+                  <td>REG002 — Luis Herrera</td>
+                  <td>Ramos Castro, Jorge Luis</td>
+                  <td>11223344</td>
+                  <td class="cell-suplente">REG001 — Ana Torres</td>
+                  <td class="cell-observacion"><span class="asignacion-badge asignacion-badge--obs">Descanso médico</span></td>
+                  <td class="asignacion-actions">
+                    <button type="button" class="btn btn-secondary btn-sm btn-asignar-suplente" data-magistrado="Ramos Castro, Jorge Luis" data-dni="11223344" data-titular="REG002 — Luis Herrera">
+                      Cambiar registrador secundario
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay is-hidden" id="modal-suplente" role="dialog" aria-modal="true" aria-labelledby="modal-suplente-title">
+    <div class="modal">
+      <div class="modal-header" id="modal-suplente-title">
+        Asignar registrador secundario
+        <button type="button" class="modal-close" id="modal-suplente-close" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-context" id="modal-suplente-context">
+          <strong id="modal-magistrado-nombre">—</strong>
+          <span>DNI: <span id="modal-magistrado-dni">—</span></span><br />
+          <span>Registrador titular: <span id="modal-registrador-titular">—</span></span>
+        </div>
+        <div class="form-group">
+          <label for="modal-suplente-select">Registrador secundario (suplente)</label>
+          <select class="select" id="modal-suplente-select">
+            <option value="">— Seleccione un registrador —</option>
+            <option value="REG001 — Ana Torres">REG001 — Ana Torres</option>
+            <option value="REG002 — Luis Herrera">REG002 — Luis Herrera</option>
+            <option value="REG003 — Carmen Vega">REG003 — Carmen Vega</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="modal-observacion-select">Observación</label>
+          <select class="select" id="modal-observacion-select">
+            <option value="">— Seleccione observación —</option>
+            <option value="Licencia">Licencia</option>
+            <option value="Vacaciones">Vacaciones</option>
+            <option value="Descanso médico">Descanso médico</option>
+            <option value="Permiso personal">Permiso personal</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="modal-suplente-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="modal-suplente-guardar">
+          <img src="../assets/icons/save.svg" width="16" height="16" alt="" />
+          Guardar asignación
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/mockup-review.js" defer></script>
+  <script>
+    (function () {
+      var modal = document.getElementById('modal-suplente');
+      var activeRow = null;
+      var magistradoEl = document.getElementById('modal-magistrado-nombre');
+      var dniEl = document.getElementById('modal-magistrado-dni');
+      var titularEl = document.getElementById('modal-registrador-titular');
+      var suplenteSelect = document.getElementById('modal-suplente-select');
+      var observacionSelect = document.getElementById('modal-observacion-select');
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function openModal(btn) {
+        activeRow = btn.closest('tr');
+        magistradoEl.textContent = btn.getAttribute('data-magistrado');
+        dniEl.textContent = btn.getAttribute('data-dni');
+        titularEl.textContent = btn.getAttribute('data-titular');
+
+        var suplenteCell = activeRow.querySelector('.cell-suplente');
+        var obsCell = activeRow.querySelector('.cell-observacion');
+        var currentSuplente = suplenteCell && !suplenteCell.classList.contains('cell-muted')
+          ? suplenteCell.textContent.trim() : '';
+        var currentObs = obsCell && obsCell.querySelector('.asignacion-badge')
+          ? obsCell.querySelector('.asignacion-badge').textContent.trim() : '';
+
+        suplenteSelect.value = currentSuplente;
+        observacionSelect.value = currentObs;
+
+        modal.classList.remove('is-hidden');
+        suplenteSelect.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('is-hidden');
+        activeRow = null;
+        suplenteSelect.value = '';
+        observacionSelect.value = '';
+      }
+
+      function guardarAsignacion() {
+        if (!activeRow) return;
+
+        var suplente = suplenteSelect.value;
+        var observacion = observacionSelect.value;
+
+        if (!suplente) {
+          showToast('Seleccione un registrador secundario.');
+          suplenteSelect.focus();
+          return;
+        }
+        if (!observacion) {
+          showToast('Seleccione una observación.');
+          observacionSelect.focus();
+          return;
+        }
+
+        var suplenteCell = activeRow.querySelector('.cell-suplente');
+        var obsCell = activeRow.querySelector('.cell-observacion');
+        var actionBtn = activeRow.querySelector('.btn-asignar-suplente');
+
+        suplenteCell.textContent = suplente;
+        suplenteCell.classList.remove('cell-muted');
+        obsCell.innerHTML = '<span class="asignacion-badge asignacion-badge--obs">' + observacion + '</span>';
+        obsCell.classList.remove('cell-muted');
+
+        if (actionBtn) {
+          actionBtn.className = 'btn btn-secondary btn-sm btn-asignar-suplente';
+          actionBtn.innerHTML = 'Cambiar registrador secundario';
+        }
+
+        closeModal();
+        showToast('Registrador secundario asignado correctamente (simulación).');
+      }
+
+      document.querySelectorAll('.btn-asignar-suplente').forEach(function (btn) {
+        btn.addEventListener('click', function () { openModal(btn); });
+      });
+
+      document.getElementById('modal-suplente-close').addEventListener('click', closeModal);
+      document.getElementById('modal-suplente-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-suplente-guardar').addEventListener('click', guardarAsignacion);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+    })();
+  </script>
+</body>
+</html>
