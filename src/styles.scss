@@ -14,7 +14,7 @@ html {
   color-scheme: light;
 
   // Tema base de Material 3 (colores, tipografía y densidad).
-  // Se usa la paleta roja/azul institucional.
+  // Se usa la paleta roja/azul institucional. 
   @include mat.theme(
     (
       color: (

@@ -1,11 +1,8 @@
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { constantes } from '../../../domain/commons/constants';
+import { PerfilUsuario } from '../../../domain/commons/auth-mappers';
 
-// =========================================================================
-// 1. DEFINICIÓN DE ROLES (Basado estrictamente en el requerimiento del PJ)
-// =========================================================================
-// El documento exige dos perfiles: 'Administrador' y 'Usuario Registrador'
-export type PerfilUsuario = 'Administrador' | 'Usuario Registrador' | null;
+export type { PerfilUsuario };
 
 // =========================================================================
 // 2. EL ESTADO (La estructura de los datos que queremos recordar)
@@ -83,9 +80,11 @@ export const AuthStore = signalStore(
      */
     cerrarSesion() {
       localStorage.removeItem(constantes.JWT_TOKEN);
+      localStorage.removeItem(constantes.JWT_TOKEN_NIVEL);
       localStorage.removeItem(constantes.USUARIO_CODIGO);
       localStorage.removeItem(constantes.USUARIO);
       localStorage.removeItem(constantes.USUARIO_PERFIL);
+      localStorage.removeItem(constantes.USUARIO_OPCIONES);
 
       patchState(store, {
         usuario: null,

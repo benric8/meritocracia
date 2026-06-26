@@ -1,8 +1,15 @@
+import { Util } from '../app/domain/commons/util';
 export const environment = {
-  production: false,
-  urlApi: 'https://api.ejemplo.gob.pe/',
-  encrypPassword: 'cambiar-en-produccion-16+',
-  encryptSalt: 'cambiar-salt-produccion',
-  tokenCaptcha: '',
-  linkExterno: 'www.ejemplo.gob.pe',
+  production: true,
+  urlApi: Util.v1,
+  tokenCaptcha: Util.v2,
+  codigoCliente: Util.v3,
+  codigoRol: Util.v4,
+  usuarioConsumo: Util.v5,
+  claveUsuarioConsumo: Util.v6,
+  idGoogleAnalitics: Util.v7,
+  linkInterno: Util.v8,
+  linkExterno: Util.v9,
+  encrypPassword:"bqR2KdGgcr4YAemywPlHQu0H4Vh3tg77",
+    encryptSalt:"GPMG6hX6MhgYXT8qcrCAiylPg0LTcOFN",
 };

@@ -22,6 +22,7 @@
         <mat-icon>balance</mat-icon>
       </div>
 
+      @if (paso() === 'credenciales') {
       <h2 class="login-title">Iniciar sesión</h2>
       <p class="login-subtitle">Ingrese sus credenciales para continuar</p>
 
@@ -77,16 +78,43 @@
 
       <a class="login-forgot" href="#" (click)="$event.preventDefault()">¿Olvidó su contraseña?</a>
 
-      <!-- Botones reglamentarios -->
-      <button type="submit" class="login-btn login-btn-primary">
-        <span class="btn-label">Iniciar</span>
+      <button type="submit" class="login-btn login-btn-primary" [disabled]="cargando()">
+        <span class="btn-label">{{ cargando() ? 'Validando...' : 'Iniciar' }}</span>
         <mat-icon class="btn-arrow">arrow_forward</mat-icon>
       </button>
 
-      <button type="button" class="login-btn login-btn-secondary" (click)="limpiar()">
+      <button type="button" class="login-btn login-btn-secondary" (click)="limpiar()" [disabled]="cargando()">
         <mat-icon class="btn-icon-left">cleaning_services</mat-icon>
         <span class="btn-label">Limpiar</span>
       </button>
+      } @else {
+      <h2 class="login-title">Seleccione su perfil</h2>
+      <p class="login-subtitle">Su usuario tiene más de un perfil asignado</p>
+
+      <div class="perfil-lista">
+        @for (perfil of perfilesDisponibles(); track perfil.idPerfil) {
+          <button
+            type="button"
+            class="perfil-opcion"
+            [disabled]="cargando()"
+            (click)="seleccionarPerfil(perfil)"
+          >
+            <mat-icon>badge</mat-icon>
+            <span class="perfil-nombre">{{ perfil.nombre }}</span>
+            <span class="perfil-rol">{{ perfil.rol }}</span>
+          </button>
+        }
+      </div>
+
+      <button type="button" class="login-btn login-btn-secondary" (click)="volverACredenciales()" [disabled]="cargando()">
+        <mat-icon class="btn-icon-left">arrow_back</mat-icon>
+        <span class="btn-label">Volver</span>
+      </button>
+      }
+
+      @if (error()) {
+        <p class="login-error" role="alert">{{ error() }}</p>
+      }
     </form>
 
     <footer class="login-footer">

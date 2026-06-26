@@ -10,6 +10,9 @@ export const constantes = {
     USUARIO_OPCIONES: 'USR_PWS_OP',
     USUARIO_PERFIL: 'USR_PWS_PE',
     USUARIO_SALA: 'USR_PWS_SALA',
+    AUDITORIA_IP: 'AUD_IP',
+    AUDITORIA_PC: 'AUD_PC',
+    AUDITORIA_MAC: 'AUD_MAC',
     RES_COD_EXITO: '0000',
     RES_COD_NO_DATA: '-1', //0000
 
@@ -26,7 +29,25 @@ export const tokenNiveles ={
   NIVEL_OPCIONES: 'PW_TOKEN_OPCIONES_PERFIL'
 }
 
-export const urlsGlobal = ['/autenticacion'];
+// Rutas públicas: el interceptor NO les adjunta el header Authorization.
+// 'api/authenticate' usa credenciales de consumo en headers, no Bearer.
+export const urlsGlobal = ['/autenticacion', 'api/authenticate'];
+
+// Endpoints del backend (relativos a environment.urlApi).
+export const endpoints = {
+  TOKEN_BASICO: 'api/authenticate',
+  LOGIN: 'authenticate/login',
+  OPCIONES: 'authenticate/opciones',
+};
+
+// Valores por defecto de auditoría (RNF005).
+// TEMPORAL: el navegador no puede obtener IP/PC/MAC reales; idealmente el
+// backend los captura desde la petición. Se usan constantes hasta entonces.
+export const auditoriaDefault = {
+  IP: '172.34.12.71',
+  PC: 'pc-oruizb',
+  MAC: 'aa-bb-cc-dd-ee-ff',
+};
 
 export const mensajes = {
   MSG_RESP_NO_DATA: 'No se encontraron datos en la respuesta',
