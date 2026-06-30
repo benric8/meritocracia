@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard, invitadoGuard } from './infrastructure/security/guards/auth.guard';
+import { rolGuard } from './infrastructure/security/guards/rol.guard';
 
 export const routes: Routes = [
   // Redirección inicial hacia el Login
@@ -9,6 +11,7 @@ export const routes: Routes = [
   // ==========================================
   {
     path: 'login',
+    canActivate: [invitadoGuard],
     loadComponent: () => import('./presentation/features/autenticacion/components/login/login').then(m => m.Login)
   },
 
@@ -18,8 +21,8 @@ export const routes: Routes = [
   {
     path: '',
     // El Layout envolverá todas las pantallas internas mostrando la cabecera y el menú (RF003)
+    canActivate: [authGuard],
     loadComponent: () => import('./presentation/layouts/main-layout/main-layout').then(m => m.MainLayout),
-    // canActivate: [authGuard], // Descomentarás esto cuando hagamos la seguridad
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       
@@ -32,7 +35,7 @@ export const routes: Routes = [
       // 2. Módulo: Gestión de Usuarios (RF004 - Solo Administrador)
       {
         path: 'usuarios',
-        // Aquí luego agregaremos un Guard de roles (canActivate: [roleGuard])
+        canActivate: [rolGuard(['Administrador'])],
         loadComponent: () => import('./presentation/features/usuarios/usuarios/usuarios').then(m => m.Usuarios)
       },
 

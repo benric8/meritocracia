@@ -29,17 +29,6 @@ export const tokenNiveles ={
   NIVEL_OPCIONES: 'PW_TOKEN_OPCIONES_PERFIL'
 }
 
-// Rutas públicas: el interceptor NO les adjunta el header Authorization.
-// 'api/authenticate' usa credenciales de consumo en headers, no Bearer.
-export const urlsGlobal = ['/autenticacion', 'api/authenticate'];
-
-// Endpoints del backend (relativos a environment.urlApi).
-export const endpoints = {
-  TOKEN_BASICO: 'api/authenticate',
-  LOGIN: 'authenticate/login',
-  OPCIONES: 'authenticate/opciones',
-};
-
 // Valores por defecto de auditoría (RNF005).
 // TEMPORAL: el navegador no puede obtener IP/PC/MAC reales; idealmente el
 // backend los captura desde la petición. Se usan constantes hasta entonces.

@@ -11,7 +11,7 @@ export interface CabecerasAuditoria {
   mac: string;
 }
 
-/**
+/** 
  * Resuelve las cabeceras X-Request-* de auditoría para cada petición autenticada.
  *
  * Importante (limitación del navegador):

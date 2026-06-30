@@ -2,34 +2,25 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { constantes, endpoints, tokenNiveles } from '../../../domain/commons/constants';
+import { constantes, tokenNiveles } from '../../../domain/commons/constants';
+import { AutenticacionPort } from '../../../domain/ports/autenticacion.port';
 import { Util } from '../../../domain/commons/util';
 import { LoginResponse } from '../../../domain/dto/remote/LoginResponse.dto';
 import { OpcionesResponse } from '../../../domain/dto/remote/OpcionesResponse.dto';
 import { tokenResponse } from '../../../domain/dto/remote/tokenResponse.dto';
-import { AuditoriaContextService } from './auditoria-context.service';
+import { authEndpoints } from '../../api/auth-api.constants';
+import { AuditoriaContextService } from '../../security/services/auditoria-context.service';
 
 /**
- * Servicio de autenticación (adaptador de salida HTTP).
- *
- * Tres niveles de token:
- *  - NIVEL_AUTH     -> handshake (api/authenticate)
- *  - NIVEL_LOGIN    -> login usuario/clave
- *  - NIVEL_OPCIONES -> menú y permisos por perfil
+ * Adaptador HTTP de salida: implementa AutenticacionPort contra el backend Spring Boot.
  */
 @Injectable({ providedIn: 'root' })
-export class AutenticacionService {
+export class AutenticacionHttpAdapter implements AutenticacionPort {
   private readonly http = inject(HttpClient);
   private readonly auditoriaContext = inject(AuditoriaContextService);
   private readonly baseUrl = environment.urlApi;
-
-  /** Margen de seguridad (ms) para considerar expirado el token básico antes de tiempo. */
   private readonly margenExpiracionMs = 5000;
 
-  /**
-   * NIVEL_AUTH — Genera (o regenera) el token básico de handshake.
-   * Idóneo para precargar al entrar a la pantalla de login.
-   */
   generarTokenBasico(): Observable<tokenResponse> {
     const headers = new HttpHeaders({
       username: Util.v5,
@@ -38,19 +29,14 @@ export class AutenticacionService {
     });
 
     return this.http
-      .post<tokenResponse>(`${this.baseUrl}${endpoints.TOKEN_BASICO}`, null, { headers })
+      .post<tokenResponse>(`${this.baseUrl}${authEndpoints.TOKEN_BASICO}`, null, { headers })
       .pipe(tap((respuesta) => this.persistirTokenBasico(respuesta)));
   }
 
-  /**
-   * Garantiza un token básico válido: reutiliza el vigente o genera uno nuevo
-   * si no existe o ya expiró. Evita rehacer el handshake innecesariamente.
-   */
   asegurarTokenBasico(): Observable<unknown> {
     return this.tokenBasicoVigente() ? of(null) : this.generarTokenBasico();
   }
 
-  /** Indica si el token básico actual sigue siendo válido según su ventana `exps`. */
   tokenBasicoVigente(): boolean {
     const token = localStorage.getItem(constantes.JWT_TOKEN);
     const nivel = localStorage.getItem(constantes.JWT_TOKEN_NIVEL);
@@ -67,18 +53,13 @@ export class AutenticacionService {
     return Date.now() < generadoEnMs + expsSeg * 1000 - this.margenExpiracionMs;
   }
 
-  /**
-   * NIVEL_LOGIN — Autentica usuario/clave. Garantiza primero el token básico
-   * (lo regenera si expiró), por lo que es seguro llamarlo aunque el handshake
-   * inicial se haya hecho hace rato.
-   */
   login(usuario: string, clave: string, aplicaCaptcha: string = constantes.INDICADOR_NO): Observable<LoginResponse> {
     const body = { usuario, clave, aplicaCaptcha };
 
     return this.asegurarTokenBasico().pipe(
       switchMap(() => this.auditoriaContext.obtenerCabecerasHttp(usuario)),
       switchMap((headers) =>
-        this.http.post<LoginResponse>(`${this.baseUrl}${endpoints.LOGIN}`, body, { headers })
+        this.http.post<LoginResponse>(`${this.baseUrl}${authEndpoints.LOGIN}`, body, { headers })
       ),
       tap((respuesta) => this.persistirTokenLogin(respuesta))
     );
@@ -89,7 +70,7 @@ export class AutenticacionService {
 
     return this.auditoriaContext.obtenerCabecerasHttp(usuario).pipe(
       switchMap((headers) =>
-        this.http.post<OpcionesResponse>(`${this.baseUrl}${endpoints.OPCIONES}`, body, { headers })
+        this.http.post<OpcionesResponse>(`${this.baseUrl}${authEndpoints.OPCIONES}`, body, { headers })
       ),
       tap((respuesta) => this.persistirTokenOpciones(respuesta))
     );

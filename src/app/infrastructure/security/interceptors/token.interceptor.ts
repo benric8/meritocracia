@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { constantes, urlsGlobal } from '../../../domain/commons/constants';
+import { constantes } from '../../../domain/commons/constants';
+import { urlsGlobal } from '../../api/auth-api.constants';
 
 /**
  * Inyecta el token JWT (Authorization: Bearer ...) ÚNICAMENTE en las peticiones

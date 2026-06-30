@@ -4,11 +4,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
-import { mapearPerfilUsuario, nombreCompletoPersona } from '../../../../../domain/commons/auth-mappers';
-import { constantes } from '../../../../../domain/commons/constants';
-import { Perfil, Usuario, LoginResponse } from '../../../../../domain/dto/remote/LoginResponse.dto';
-import { AutenticacionService } from '../../../../../infrastructure/security/services/autenticacion.service';
-import { AuthStore } from '../../../../../infrastructure/security/stores/auth.store';
+import { CompletarSesionPerfilUseCase } from '../../../../../application/use-cases/completar-sesion-perfil.use-case';
+import { IniciarSesionUseCase } from '../../../../../application/use-cases/iniciar-sesion.use-case';
+import { PrecargarTokenBasicoUseCase } from '../../../../../application/use-cases/precargar-token-basico.use-case';
+import { ResultadoInicioSesion } from '../../../../../domain/models/resultado-inicio-sesion.model';
+import { PersonaModel } from '../../../../../domain/models/Persona.model';
+import { Perfil } from '../../../../../domain/dto/remote/LoginResponse.dto';
 
 type PasoLogin = 'credenciales' | 'perfil';
 
@@ -21,21 +22,21 @@ type PasoLogin = 'credenciales' | 'perfil';
 })
 export class Login implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly authStore = inject(AuthStore);
-  private readonly autenticacionService = inject(AutenticacionService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly precargarTokenBasico = inject(PrecargarTokenBasicoUseCase);
+  private readonly iniciarSesion = inject(IniciarSesionUseCase);
+  private readonly completarSesionPerfil = inject(CompletarSesionPerfilUseCase);
 
   protected readonly mostrarClave = signal(false);
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly paso = signal<PasoLogin>('credenciales');
   protected readonly perfilesDisponibles = signal<Perfil[]>([]);
-  /** Indica si el handshake (token básico) ya está disponible. */
   protected readonly listoParaIngresar = signal(false);
 
   private usuarioLogin = '';
-  private datosUsuario = signal<Usuario | null>(null);
+  private personaLogin?: PersonaModel;
 
   protected readonly form = this.fb.nonNullable.group({
     usuario: ['', [Validators.required]],
@@ -43,20 +44,11 @@ export class Login implements OnInit {
   });
 
   ngOnInit(): void {
-    this.precargarTokenBasico();
-  }
-
-  /**
-   * Genera el token básico al entrar al login, para que al pulsar "Iniciar"
-   * solo se ejecute la llamada que depende del usuario (login).
-   */
-  private precargarTokenBasico(): void {
-    this.autenticacionService
-      .asegurarTokenBasico()
+    this.precargarTokenBasico
+      .ejecutar()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.listoParaIngresar.set(true),
-        // Si el handshake falla aquí, no bloqueamos: login() lo reintenta.
         error: () => this.listoParaIngresar.set(true),
       });
   }
@@ -76,14 +68,14 @@ export class Login implements OnInit {
     this.error.set(null);
     this.cargando.set(true);
 
-    this.autenticacionService
-      .login(this.usuarioLogin, clave)
+    this.iniciarSesion
+      .ejecutar(this.usuarioLogin, clave)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.cargando.set(false))
       )
       .subscribe({
-        next: (respuesta) => this.procesarLogin(respuesta),
+        next: (resultado) => this.procesarResultadoInicio(resultado),
         error: () => this.error.set('No se pudo conectar con el servidor. Intente nuevamente.'),
       });
   }
@@ -92,16 +84,24 @@ export class Login implements OnInit {
     this.error.set(null);
     this.cargando.set(true);
 
-    this.autenticacionService
-      .opciones(this.usuarioLogin, perfil.idPerfil)
-      .pipe(finalize(() => this.cargando.set(false)))
+    this.completarSesionPerfil
+      .ejecutar({
+        usuario: this.usuarioLogin,
+        idPerfil: perfil.idPerfil,
+        rol: perfil.rol,
+        persona: this.personaLogin,
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargando.set(false))
+      )
       .subscribe({
-        next: (respuesta) => {
-          if (respuesta.codigo !== constantes.RES_COD_EXITO) {
-            this.error.set(respuesta.descripcion || 'No se pudieron cargar las opciones del perfil.');
+        next: (resultado) => {
+          if (!resultado.exito) {
+            this.error.set(resultado.mensaje ?? 'No se pudieron cargar las opciones del perfil.');
             return;
           }
-          this.abrirSesion(perfil.rol || respuesta.data.rol);
+          this.router.navigate(['/inicio']);
         },
         error: () => this.error.set('No se pudieron cargar las opciones del perfil.'),
       });
@@ -121,48 +121,20 @@ export class Login implements OnInit {
     this.perfilesDisponibles.set([]);
   }
 
-  private procesarLogin(respuesta: LoginResponse): void {
-    if (respuesta.codigo !== constantes.RES_COD_EXITO || !respuesta.data) {
-      this.error.set(respuesta.descripcion || 'Credenciales inválidas.');
-      return;
+  private procesarResultadoInicio(resultado: ResultadoInicioSesion): void {
+    switch (resultado.tipo) {
+      case 'error':
+      case 'sin_perfiles':
+        this.error.set(resultado.mensaje);
+        break;
+      case 'sesion_completa':
+        this.router.navigate(['/inicio']);
+        break;
+      case 'seleccion_perfil':
+        this.personaLogin = resultado.datosUsuario.persona;
+        this.perfilesDisponibles.set(resultado.perfiles);
+        this.paso.set('perfil');
+        break;
     }
-
-    this.datosUsuario.set(respuesta.data);
-    const perfiles = respuesta.data.perfiles ?? [];
-    if (perfiles.length === 0) {
-      this.error.set('El usuario no tiene perfiles asignados.');
-      return;
-    }
-
-    if (perfiles.length === 1) {
-      this.cargando.set(true);
-      this.autenticacionService
-        .opciones(this.usuarioLogin, perfiles[0].idPerfil)
-        .pipe(finalize(() => this.cargando.set(false)))
-        .subscribe({
-          next: (respOpciones) => {
-            if (respOpciones.codigo !== constantes.RES_COD_EXITO) {
-              this.error.set(respOpciones.descripcion || 'No se pudieron cargar las opciones del perfil.');
-              return;
-            }
-            this.abrirSesion(perfiles[0].rol || respOpciones.data.rol);
-          },
-          error: () => this.error.set('No se pudieron cargar las opciones del perfil.'),
-        });
-      return;
-    }
-
-    this.perfilesDisponibles.set(perfiles);
-    this.paso.set('perfil');
-  }
-
-  private abrirSesion(rol: string): void {
-    const perfil = mapearPerfilUsuario(rol);
-    const persona = this.datosUsuario()?.persona;
-    const nombre = persona ? nombreCompletoPersona(persona) : this.usuarioLogin;
-    const token = localStorage.getItem(constantes.JWT_TOKEN) ?? '';
-
-    this.authStore.establecerSesion(this.usuarioLogin, nombre, perfil, token);
-    this.router.navigate(['/inicio']);
   }
 }
