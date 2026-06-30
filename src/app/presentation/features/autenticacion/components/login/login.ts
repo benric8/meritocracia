@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,17 +19,20 @@ type PasoLogin = 'credenciales' | 'perfil';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class Login {
+export class Login implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authStore = inject(AuthStore);
   private readonly autenticacionService = inject(AutenticacionService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly mostrarClave = signal(false);
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly paso = signal<PasoLogin>('credenciales');
   protected readonly perfilesDisponibles = signal<Perfil[]>([]);
+  /** Indica si el handshake (token básico) ya está disponible. */
+  protected readonly listoParaIngresar = signal(false);
 
   private usuarioLogin = '';
   private datosUsuario = signal<Usuario | null>(null);
@@ -37,6 +41,25 @@ export class Login {
     usuario: ['', [Validators.required]],
     clave: ['', [Validators.required]],
   });
+
+  ngOnInit(): void {
+    this.precargarTokenBasico();
+  }
+
+  /**
+   * Genera el token básico al entrar al login, para que al pulsar "Iniciar"
+   * solo se ejecute la llamada que depende del usuario (login).
+   */
+  private precargarTokenBasico(): void {
+    this.autenticacionService
+      .asegurarTokenBasico()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.listoParaIngresar.set(true),
+        // Si el handshake falla aquí, no bloqueamos: login() lo reintenta.
+        error: () => this.listoParaIngresar.set(true),
+      });
+  }
 
   protected alternarClave(): void {
     this.mostrarClave.update((valor) => !valor);
@@ -54,8 +77,11 @@ export class Login {
     this.cargando.set(true);
 
     this.autenticacionService
-      .autenticar(this.usuarioLogin, clave)
-      .pipe(finalize(() => this.cargando.set(false)))
+      .login(this.usuarioLogin, clave)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargando.set(false))
+      )
       .subscribe({
         next: (respuesta) => this.procesarLogin(respuesta),
         error: () => this.error.set('No se pudo conectar con el servidor. Intente nuevamente.'),

@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, switchMap, tap } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { constantes, endpoints, tokenNiveles } from '../../../domain/commons/constants';
 import { Util } from '../../../domain/commons/util';
@@ -23,6 +23,13 @@ export class AutenticacionService {
   private readonly auditoriaContext = inject(AuditoriaContextService);
   private readonly baseUrl = environment.urlApi;
 
+  /** Margen de seguridad (ms) para considerar expirado el token básico antes de tiempo. */
+  private readonly margenExpiracionMs = 5000;
+
+  /**
+   * NIVEL_AUTH — Genera (o regenera) el token básico de handshake.
+   * Idóneo para precargar al entrar a la pantalla de login.
+   */
   generarTokenBasico(): Observable<tokenResponse> {
     const headers = new HttpHeaders({
       username: Util.v5,
@@ -35,10 +42,41 @@ export class AutenticacionService {
       .pipe(tap((respuesta) => this.persistirTokenBasico(respuesta)));
   }
 
+  /**
+   * Garantiza un token básico válido: reutiliza el vigente o genera uno nuevo
+   * si no existe o ya expiró. Evita rehacer el handshake innecesariamente.
+   */
+  asegurarTokenBasico(): Observable<unknown> {
+    return this.tokenBasicoVigente() ? of(null) : this.generarTokenBasico();
+  }
+
+  /** Indica si el token básico actual sigue siendo válido según su ventana `exps`. */
+  tokenBasicoVigente(): boolean {
+    const token = localStorage.getItem(constantes.JWT_TOKEN);
+    const nivel = localStorage.getItem(constantes.JWT_TOKEN_NIVEL);
+    if (!token || nivel !== tokenNiveles.NIVEL_AUTH) {
+      return false;
+    }
+
+    const expsSeg = Number(localStorage.getItem(constantes.TOKEN_VALID_SEC));
+    const generadoEnMs = Number(localStorage.getItem(constantes.DATETIME_NEW_TOKEN));
+    if (!expsSeg || !generadoEnMs) {
+      return false;
+    }
+
+    return Date.now() < generadoEnMs + expsSeg * 1000 - this.margenExpiracionMs;
+  }
+
+  /**
+   * NIVEL_LOGIN — Autentica usuario/clave. Garantiza primero el token básico
+   * (lo regenera si expiró), por lo que es seguro llamarlo aunque el handshake
+   * inicial se haya hecho hace rato.
+   */
   login(usuario: string, clave: string, aplicaCaptcha: string = constantes.INDICADOR_NO): Observable<LoginResponse> {
     const body = { usuario, clave, aplicaCaptcha };
 
-    return this.auditoriaContext.obtenerCabecerasHttp(usuario).pipe(
+    return this.asegurarTokenBasico().pipe(
+      switchMap(() => this.auditoriaContext.obtenerCabecerasHttp(usuario)),
       switchMap((headers) =>
         this.http.post<LoginResponse>(`${this.baseUrl}${endpoints.LOGIN}`, body, { headers })
       ),
@@ -55,10 +93,6 @@ export class AutenticacionService {
       ),
       tap((respuesta) => this.persistirTokenOpciones(respuesta))
     );
-  }
-
-  autenticar(usuario: string, clave: string): Observable<LoginResponse> {
-    return this.generarTokenBasico().pipe(switchMap(() => this.login(usuario, clave)));
   }
 
   private persistirTokenBasico(respuesta: tokenResponse): void {

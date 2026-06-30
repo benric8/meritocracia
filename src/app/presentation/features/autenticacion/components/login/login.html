@@ -78,8 +78,8 @@
 
       <a class="login-forgot" href="#" (click)="$event.preventDefault()">¿Olvidó su contraseña?</a>
 
-      <button type="submit" class="login-btn login-btn-primary" [disabled]="cargando()">
-        <span class="btn-label">{{ cargando() ? 'Validando...' : 'Iniciar' }}</span>
+      <button type="submit" class="login-btn login-btn-primary" [disabled]="cargando() || !listoParaIngresar()">
+        <span class="btn-label">{{ cargando() ? 'Validando...' : (listoParaIngresar() ? 'Iniciar' : 'Preparando...') }}</span>
         <mat-icon class="btn-arrow">arrow_forward</mat-icon>
       </button>
 
