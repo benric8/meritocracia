@@ -1,7 +1,8 @@
 import { HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { auditoriaDefault, constantes } from '../../../domain/commons/constants';
+import { SESION_PORT } from '../../../domain/ports/sesion.port';
 
 export interface CabecerasAuditoria {
   usuarioAplicativo: string;
@@ -26,8 +27,21 @@ export interface CabecerasAuditoria {
  */
 @Injectable({ providedIn: 'root' })
 export class AuditoriaContextService {
-  obtenerCabecerasHttp(usuarioSesion: string): Observable<HttpHeaders> {
-    return of(this.aHttpHeaders(this.construirContexto(usuarioSesion)));
+  private readonly sesion = inject(SESION_PORT);
+  /** Usuario explícito para la siguiente petición (p. ej. login antes de abrir sesión). */
+  private usuarioPeticion: string | null = null;
+
+  establecerUsuarioPeticion(usuario: string): void {
+    this.usuarioPeticion = usuario;
+  }
+
+  limpiarUsuarioPeticion(): void {
+    this.usuarioPeticion = null;
+  }
+
+  obtenerCabecerasHttp(usuarioSesion?: string): Observable<HttpHeaders> {
+    const usuario = usuarioSesion ?? this.usuarioPeticion ?? this.sesion.getUsuarioCodigo() ?? 'SISTEMA';
+    return of(this.aHttpHeaders(this.construirContexto(usuario)));
   }
 
   private construirContexto(usuarioSesion: string): CabecerasAuditoria {

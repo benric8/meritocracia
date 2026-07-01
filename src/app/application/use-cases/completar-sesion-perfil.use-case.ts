@@ -4,12 +4,14 @@ import { mapearPerfilUsuario, nombreCompletoPersona } from '../../domain/commons
 import { constantes } from '../../domain/commons/constants';
 import { PersonaModel } from '../../domain/models/Persona.model';
 import { AUTENTICACION_PORT } from '../../domain/ports/autenticacion.port';
+import { SESION_PORT } from '../../domain/ports/sesion.port';
 import { AuthStore } from '../../infrastructure/security/stores/auth.store';
 
 export interface CompletarSesionPerfilParams {
   usuario: string;
   idPerfil: number;
   rol?: string;
+  nombrePerfil?: string;
   persona?: PersonaModel;
 }
 
@@ -25,6 +27,7 @@ export interface CompletarSesionPerfilResultado {
 export class CompletarSesionPerfilUseCase {
   private readonly autenticacion = inject(AUTENTICACION_PORT);
   private readonly authStore = inject(AuthStore);
+  private readonly sesion = inject(SESION_PORT);
 
   ejecutar(params: CompletarSesionPerfilParams): Observable<CompletarSesionPerfilResultado> {
     return this.autenticacion.opciones(params.usuario, params.idPerfil).pipe(
@@ -37,9 +40,9 @@ export class CompletarSesionPerfilUseCase {
         }
 
         const rol = params.rol || respuesta.data.rol;
-        const perfil = mapearPerfilUsuario(rol);
+        const perfil = mapearPerfilUsuario(rol, params.nombrePerfil);
         const nombre = params.persona ? nombreCompletoPersona(params.persona) : params.usuario;
-        const token = localStorage.getItem(constantes.JWT_TOKEN) ?? '';
+        const token = this.sesion.getToken() ?? '';
 
         this.authStore.establecerSesion(params.usuario, nombre, perfil, token, respuesta.data.opciones);
 

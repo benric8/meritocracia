@@ -9,9 +9,7 @@
       <h1 class="welcome-title">Valoración de Méritos</h1>
       <span class="welcome-divider"></span>
       <p class="welcome-text">
-        Plataforma institucional del Poder Judicial del Perú que permite gestionar de
-        manera transparente, eficiente y segura los procesos de valoración de méritos
-        del personal jurisdiccional y administrativo, conforme a la normativa vigente.
+        {{ textoBienvenida() }}
       </p>
     </div>
     <div class="welcome-watermark" aria-hidden="true">
@@ -105,7 +103,7 @@
         <div class="card-head">
           <mat-icon>bolt</mat-icon>
           <h2 class="card-title">
-            {{ esAdmin() ? 'Accesos administrativos' : 'Mis tareas frecuentes' }}
+            {{ tituloAccesos() }}
           </h2>
         </div>
         <p class="card-subtitle">
@@ -113,7 +111,7 @@
         </p>
 
         <div class="quick-actions">
-          @for (acceso of (esAdmin() ? accesosAdmin() : accesosRegistrador()); track acceso.ruta) {
+          @for (acceso of accesosRapidos(); track acceso.ruta) {
             <a class="quick-action" matRipple [routerLink]="acceso.ruta">
               <span class="quick-action-icon">
                 <mat-icon>{{ acceso.icono }}</mat-icon>

@@ -9,6 +9,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthStore } from '../../../infrastructure/security/stores/auth.store';
 import { construirArbolMenu, MenuItem } from './menu.model';
+import { construirMenuPorDefecto } from './menu-por-defecto';
 
 @Component({
   selector: 'app-main-layout',
@@ -42,33 +43,8 @@ export class MainLayout {
     if (opciones && opciones.length > 0) {
       return construirArbolMenu(opciones);
     }
-    return this.menuPorDefecto();
+    return construirMenuPorDefecto(this.authStore.perfil());
   });
-
-  private menuPorDefecto(): MenuItem[] {
-    const items: MenuItem[] = [
-      { id: 'inicio', label: 'Inicio', icon: 'home', url: '/inicio', children: [] },
-    ];
-
-    if (this.authStore.perfil() === 'Administrador') {
-      items.push({ id: 'usuarios', label: 'Gestión de Usuarios', icon: 'people', url: '/usuarios', children: [] });
-    }
-
-    items.push({
-      id: 'carpeta-meritos',
-      label: 'Carpeta de Méritos',
-      icon: 'folder_shared',
-      url: null,
-      children: [
-        { id: 'meritos-nuevo', label: 'Nuevo Registro', icon: 'add_circle', url: '/carpeta-meritos/nuevo', children: [] },
-        { id: 'meritos-consulta', label: 'Consulta', icon: 'search', url: '/carpeta-meritos/consulta', children: [] },
-      ],
-    });
-
-    items.push({ id: 'reportes', label: 'Reportes', icon: 'bar_chart', url: '/reportes', children: [] });
-
-    return items;
-  }
 
   onCambiarPassword() {
     // Lógica para abrir modal o redirigir a cambio de contraseña (RF003)

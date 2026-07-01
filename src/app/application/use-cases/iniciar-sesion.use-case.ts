@@ -38,6 +38,7 @@ export class IniciarSesionUseCase {
               usuario,
               idPerfil: perfiles[0].idPerfil,
               rol: perfiles[0].rol,
+              nombrePerfil: perfiles[0].nombre,
               persona: respuesta.data.persona,
             })
             .pipe(

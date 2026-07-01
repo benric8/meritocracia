@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
+import { tokenNiveles } from './domain/commons/constants';
 import { authGuard, invitadoGuard } from './infrastructure/security/guards/auth.guard';
 import { rolGuard } from './infrastructure/security/guards/rol.guard';
+import { tokenNivelGuard } from './infrastructure/security/guards/token-nivel.guard';
+import { permisoRutaGuard } from './infrastructure/security/guards/permiso-ruta.guard';
 
 export const routes: Routes = [
   // Redirección inicial hacia el Login
@@ -21,7 +24,8 @@ export const routes: Routes = [
   {
     path: '',
     // El Layout envolverá todas las pantallas internas mostrando la cabecera y el menú (RF003)
-    canActivate: [authGuard],
+    canActivate: [authGuard, tokenNivelGuard(tokenNiveles.NIVEL_OPCIONES)],
+    canActivateChild: [permisoRutaGuard],
     loadComponent: () => import('./presentation/layouts/main-layout/main-layout').then(m => m.MainLayout),
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },

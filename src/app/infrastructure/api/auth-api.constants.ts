@@ -6,4 +6,5 @@ export const authEndpoints = {
   TOKEN_BASICO: 'api/authenticate',
   LOGIN: 'authenticate/login',
   OPCIONES: 'authenticate/opciones',
+  REFRESH: 'seguridad/refresh',
 } as const;

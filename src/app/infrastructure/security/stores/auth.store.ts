@@ -1,120 +1,218 @@
+import { inject } from '@angular/core';
+
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import { constantes } from '../../../domain/commons/constants';
-import { PerfilUsuario } from '../../../domain/commons/auth-mappers';
+
+import { constantes, tokenNiveles } from '../../../domain/commons/constants';
+
+import { mapearPerfilUsuario, PerfilUsuario } from '../../../domain/commons/auth-mappers';
+
 import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
+
+import { SESION_PORT } from '../../../domain/ports/sesion.port';
+
+import { descifrarValorSesionAlmacenado } from '../encryption/session-field-crypto.service';
+
+
 
 export type { PerfilUsuario };
 
-// =========================================================================
-// 2. EL ESTADO (La estructura de los datos que queremos recordar)
-// =========================================================================
+
+
 export interface AuthState {
-  usuario: string | null;        // El código de usuario (ej: 'mhuertas')
-  nombreCompleto: string | null; // Nombre completo del trabajador judicial
-  perfil: PerfilUsuario;         // El rol asignado para controlar los menús
-  token: string | null;          // El token JWT que nos dará el backend (Spring Boot)
-  autenticado: boolean;          // Un interruptor: true si inició sesión, false si no
-  opciones: MenuOpcion[];        // Opciones de menú autorizadas por perfil (RF001/RF003)
+
+  usuario: string | null;
+
+  nombreCompleto: string | null;
+
+  perfil: PerfilUsuario;
+
+  token: string | null;
+
+  autenticado: boolean;
+
+  opciones: MenuOpcion[];
+
 }
 
-function leerOpciones(): MenuOpcion[] {
-  try {
-    const crudo = localStorage.getItem(constantes.USUARIO_OPCIONES);
-    return crudo ? (JSON.parse(crudo) as MenuOpcion[]) : [];
-  } catch {
-    return [];
-  }
-}
 
-// =========================================================================
-// 3. ESTADO INICIAL — se hidrata desde el almacenamiento del navegador
-// =========================================================================
-// Así la sesión sobrevive a una recarga de página (F5) mientras el token siga
-// guardado. Cuando integremos el backend, aquí también podríamos validar la
-// expiración del token (constantes.TOKEN_VALID_SEC).
+
 function leerEstadoInicial(): AuthState {
+
   const token = localStorage.getItem(constantes.JWT_TOKEN);
 
-  if (!token) {
-    return {
-      usuario: null,
-      nombreCompleto: null,
-      perfil: null,
-      token: null,
-      autenticado: false,
-      opciones: [],
-    };
+  const nivel = descifrarValorSesionAlmacenado(localStorage.getItem(constantes.JWT_TOKEN_NIVEL));
+
+  const perfilCrudo = localStorage.getItem(constantes.USUARIO_PERFIL);
+
+
+
+  let opciones: MenuOpcion[] = [];
+
+  try {
+
+    const crudo = localStorage.getItem(constantes.USUARIO_OPCIONES);
+
+    opciones = crudo ? (JSON.parse(crudo) as MenuOpcion[]) : [];
+
+  } catch {
+
+    opciones = [];
+
   }
 
+
+
+  const perfil = mapearPerfilUsuario(perfilCrudo);
+
+
+
+  if (!token || nivel !== tokenNiveles.NIVEL_OPCIONES || !perfil) {
+
+    return {
+
+      usuario: null,
+
+      nombreCompleto: null,
+
+      perfil: null,
+
+      token: null,
+
+      autenticado: false,
+
+      opciones: [],
+
+    };
+
+  }
+
+
+
   return {
+
     token,
-    usuario: localStorage.getItem(constantes.USUARIO_CODIGO),
-    nombreCompleto: localStorage.getItem(constantes.USUARIO),
-    perfil: (localStorage.getItem(constantes.USUARIO_PERFIL) as PerfilUsuario) ?? null,
+
+    usuario: descifrarValorSesionAlmacenado(localStorage.getItem(constantes.USUARIO_CODIGO)),
+
+    nombreCompleto: descifrarValorSesionAlmacenado(localStorage.getItem(constantes.USUARIO)),
+
+    perfil,
+
     autenticado: true,
-    opciones: leerOpciones(),
+
+    opciones,
+
   };
+
 }
 
-// =========================================================================
-// 4. EL ALMACÉN (El Store hecho con Signals)
-// =========================================================================
+
+
 export const AuthStore = signalStore(
-  // Almacén GLOBAL: cualquier pantalla o guard puede leerlo.
+
   { providedIn: 'root' },
 
-  // Estado inicial leído del navegador (persistencia entre recargas).
   withState<AuthState>(leerEstadoInicial()),
 
-  withMethods((store) => ({
-    /**
-     * Guarda los datos del usuario en el almacén y en el navegador
-     * cuando el Login sea exitoso.
-     */
-    establecerSesion(
-      usuario: string,
-      nombre: string,
-      perfil: PerfilUsuario,
-      token: string,
-      opciones: MenuOpcion[] = []
-    ) {
-      localStorage.setItem(constantes.JWT_TOKEN, token);
-      localStorage.setItem(constantes.USUARIO_CODIGO, usuario);
-      localStorage.setItem(constantes.USUARIO, nombre);
-      localStorage.setItem(constantes.USUARIO_OPCIONES, JSON.stringify(opciones));
-      if (perfil) {
-        localStorage.setItem(constantes.USUARIO_PERFIL, perfil);
-      }
+  withMethods((store) => {
 
-      patchState(store, {
-        usuario,
-        nombreCompleto: nombre,
-        perfil,
-        token,
-        autenticado: true,
-        opciones,
-      });
-    },
+    const sesion = inject(SESION_PORT);
 
-    /**
-     * Limpia el almacén y el navegador (Cerrar Sesión).
-     */
-    cerrarSesion() {
-      localStorage.removeItem(constantes.JWT_TOKEN);
-      localStorage.removeItem(constantes.JWT_TOKEN_NIVEL);
-      localStorage.removeItem(constantes.USUARIO_CODIGO);
-      localStorage.removeItem(constantes.USUARIO);
-      localStorage.removeItem(constantes.USUARIO_PERFIL);
-      localStorage.removeItem(constantes.USUARIO_OPCIONES);
 
-      patchState(store, {
-        usuario: null,
-        nombreCompleto: null,
-        perfil: null,
-        token: null,
-        autenticado: false,
-        opciones: [],
-      });
-    },
-  }))
+
+    return {
+
+      establecerSesion(
+
+        usuario: string,
+
+        nombre: string,
+
+        perfil: PerfilUsuario | string,
+
+        token: string,
+
+        opciones: MenuOpcion[] = []
+
+      ) {
+
+        const perfilNormalizado = mapearPerfilUsuario(perfil);
+
+        sesion.setToken(token);
+
+        sesion.setTokenNivel(tokenNiveles.NIVEL_OPCIONES);
+
+        sesion.setUsuarioCodigo(usuario);
+
+        sesion.setNombreCompleto(nombre);
+
+        sesion.setOpciones(opciones);
+
+        if (perfilNormalizado) {
+
+          sesion.setPerfilAlmacenado(perfilNormalizado);
+
+        }
+
+
+ 
+        patchState(store, {
+
+          usuario,
+
+          nombreCompleto: nombre,
+
+          perfil: perfilNormalizado,
+
+          token,
+
+          autenticado: true,
+
+          opciones,
+
+        });
+
+      },
+
+
+
+      cerrarSesion() {
+
+        sesion.limpiarSesion();
+
+
+
+        patchState(store, {
+
+          usuario: null,
+
+          nombreCompleto: null,
+
+          perfil: null,
+
+          token: null,
+
+          autenticado: false,
+
+          opciones: [],
+
+        });
+
+      },
+
+
+
+      actualizarToken(token: string) {
+
+        sesion.setToken(token);
+
+        patchState(store, { token });
+
+      },
+
+    };
+
+  })
+
 );
+

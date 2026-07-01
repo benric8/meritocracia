@@ -89,6 +89,7 @@ export class Login implements OnInit {
         usuario: this.usuarioLogin,
         idPerfil: perfil.idPerfil,
         rol: perfil.rol,
+        nombrePerfil: perfil.nombre,
         persona: this.personaLogin,
       })
       .pipe(
