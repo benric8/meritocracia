@@ -1,53 +1,245 @@
-    .sidenav-container { height: 100vh; }
-    .sidenav { width: 264px; background-color: var(--mc-surface); color: var(--mc-text); border-right: 1px solid var(--mc-border); }
-    .content-container { display: flex; flex-direction: column; height: 100vh; }
-    .header-toolbar { display: flex; align-items: center; justify-content: space-between; background-color: var(--mc-primary) !important; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .header-toolbar mat-icon { color: #fff; }
-    .title-app { font-weight: 500; }
-    .spacer { flex: 1 1 auto; }
+@use '@angular/material' as mat;
 
-    /* Logo Section — franja de marca unificada con el header */
-    .logo-section { display: flex; align-items: center; box-sizing: border-box; padding: 0 20px; background-color: var(--mc-primary); color: #fff; height: 64px; }
-    .logo-icon { margin-right: 10px; color: #fff; }
-    .logo-text { font-weight: bold; font-size: 1.1rem; letter-spacing: 1px; }
+:host {
+  display: block;
 
-    /* Chip de perfil */
-    .sidebar-profile { padding: 16px 16px 12px; border-bottom: 1px solid var(--mc-border); }
-    .profile-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; background: var(--mc-primary-p20); color: var(--mc-primary); }
-    .profile-chip mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--mc-primary),
+      container-text-color: #ffffff,
+    )
+  );
 
-    /* Etiqueta de sección */
-    .nav-section-label { padding: 14px 20px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mc-text-muted); }
+  @include mat.expansion-overrides(
+    (
+      container-background-color: transparent,
+      container-text-color: var(--mc-text),
+      container-shape: 0,
+      container-elevation-shadow: none,
+      header-collapsed-state-height: 46px,
+      header-expanded-state-height: 46px,
+      header-hover-state-layer-color: var(--mc-primary-p20),
+      header-text-color: var(--mc-text),
+    )
+  );
+}
 
-    /* Navegación lateral — ítems full-width con indicador de borde */
-    mat-nav-list { padding-top: 0; }
-    mat-nav-list a { color: var(--mc-text); height: 46px; margin: 0; border-radius: 0; border-left: 3px solid transparent; font-size: 14px; transition: background 0.15s ease, border-color 0.15s ease; }
-    mat-nav-list a:hover { background-color: var(--mc-primary-p20); }
-    mat-nav-list mat-icon { color: var(--mc-text-muted) !important; }
-    .active-link { background-color: var(--mc-primary-p20) !important; color: var(--mc-primary) !important; border-left-color: var(--mc-primary); font-weight: 600; }
-    .active-link mat-icon { color: var(--mc-primary) !important; }
+.sidenav-container {
+  height: 100vh;
+}
 
-    /* Menú colapsable */
-    .menu-expansion { background: transparent !important; color: var(--mc-text) !important; margin: 0; box-shadow: none !important; border-radius: 0 !important; }
-    ::ng-deep .menu-expansion .mat-expansion-panel-body { padding: 0 !important; }
-    ::ng-deep .expansion-header { padding: 0 20px !important; height: 46px !important; border-left: 3px solid transparent; }
-    ::ng-deep .expansion-header:hover { background-color: var(--mc-primary-p20) !important; }
-    ::ng-deep .expansion-header mat-panel-title { color: var(--mc-text) !important; font-size: 14px; display: flex; align-items: center; }
-    .menu-icon-inline { margin-right: 16px; font-size: 24px; width: 24px; height: 24px; color: var(--mc-text-muted); }
+.sidenav {
+  width: 264px;
+  background-color: var(--mc-surface);
+  color: var(--mc-text);
+  border-right: 1px solid var(--mc-border);
 
-    /* Sub-ítems del menú colapsable */
-    .sub-menu-list { padding-top: 0; }
-    .sub-menu-list a { height: 42px; font-size: 13px; padding-left: 28px; border-left: 3px solid transparent; color: var(--mc-text-muted); }
-    .sub-menu-list a:hover { background-color: var(--mc-primary-p20); color: var(--mc-text); }
-    .sub-menu-list .active-link { color: var(--mc-primary) !important; }
-    .sub-menu-list mat-icon { color: var(--mc-text-muted) !important; }
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0,
+    )
+  );
+}
 
-    /* Información de Usuario */
-    .user-info { display: flex; align-items: center; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; color: #fff; }
-    .user-info:hover { background: rgba(255,255,255,0.12); }
-    .user-details { display: flex; flex-direction: column; text-align: right; margin-right: 10px; }
-    .username { font-size: 0.9rem; font-weight: 500; line-height: 1.2; }
-    .role { font-size: 0.75rem; color: rgba(255,255,255,0.85); }
+.content-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-    /* Área de Trabajo */
-    .main-workspace { padding: 24px; flex: 1; overflow-y: auto; background-color: var(--mc-background); }
+.header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-toolbar mat-icon {
+  color: #fff;
+}
+
+.title-app {
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Logo Section — franja de marca unificada con el header */
+.logo-section {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 20px;
+  background-color: var(--mc-primary);
+  color: #fff;
+  height: 64px;
+}
+
+.logo-icon {
+  margin-right: 10px;
+  color: #fff;
+}
+
+.logo-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+/* Chip de perfil*/
+.sidebar-profile {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--mc-primary-p20);
+  color: var(--mc-primary);
+}
+
+.profile-chip mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* Etiqueta de sección */
+.nav-section-label {
+  padding: 14px 20px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mc-text-muted);
+}
+
+/* Navegación lateral — ítems full-width con indicador de borde */
+mat-nav-list {
+  padding-top: 0;
+
+  @include mat.list-overrides(
+    (
+      list-item-leading-icon-color: var(--mc-text-muted),
+      list-item-label-text-color: var(--mc-text),
+      list-item-hover-state-layer-color: var(--mc-primary-p20),
+      list-item-one-line-container-height: 46px,
+    )
+  );
+
+  a {
+    margin: 0;
+    border-radius: 0;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  a.active-link {
+    --mat-list-list-item-label-text-color: var(--mc-primary);
+    --mat-list-list-item-leading-icon-color: var(--mc-primary);
+    background-color: var(--mc-primary-p20);
+    border-left-color: var(--mc-primary);
+    font-weight: 600;
+  }
+}
+
+/* Menú colapsable */
+.menu-expansion {
+  margin: 0;
+}
+
+.expansion-header {
+  padding: 0 20px;
+  border-left: 3px solid transparent;
+}
+
+.menu-icon-inline {
+  margin-right: 16px; 
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--mc-text-muted);
+}
+
+/* Sub-ítems del menú colapsable */
+.sub-menu-list {
+  padding-top: 0;
+
+  @include mat.list-overrides(
+    (
+      list-item-leading-icon-color: var(--mc-text-muted),
+      list-item-label-text-color: var(--mc-text-muted),
+      list-item-hover-state-layer-color: var(--mc-primary-p20),
+      list-item-one-line-container-height: 42px,
+    )
+  );
+
+  a {
+    font-size: 13px;
+    padding-left: 28px;
+    border-left: 3px solid transparent;
+  }
+
+  a:hover {
+    --mat-list-list-item-label-text-color: var(--mc-text);
+  }
+
+  a.active-link {
+    --mat-list-list-item-label-text-color: var(--mc-primary);
+    background-color: var(--mc-primary-p20);
+    border-left-color: var(--mc-primary);
+  }
+}
+
+/* Información de Usuario */
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: background 0.2s;
+  color: #fff;
+}
+
+.user-info:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.username {
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.role {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Área de Trabajo */
+.main-workspace {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--mc-background);
+}

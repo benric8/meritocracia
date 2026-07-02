@@ -31,9 +31,14 @@ html {
 body {
   margin: 0;
   height: 100%;
-  
+
   // Usamos los tokens personalizados de tu proyecto (--mc-*)
   background-color: var(--mc-background);
   color: var(--mc-text);
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Panel interno del menú colapsable: sin token público en Material, scoped al layout.
+app-main-layout .menu-expansion .mat-expansion-panel-body {
+  padding: 0;
 }
