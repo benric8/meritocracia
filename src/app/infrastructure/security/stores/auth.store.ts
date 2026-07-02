@@ -4,7 +4,7 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 
 import { constantes, tokenNiveles } from '../../../domain/commons/constants';
 
-import { mapearPerfilUsuario, PerfilUsuario } from '../../../domain/commons/auth-mappers';
+import { normalizarPerfil, PerfilUsuario, resolverPerfilUsuario } from '../../../domain/commons/auth-mappers';
 
 import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
 
@@ -26,6 +26,8 @@ export interface AuthState {
 
   perfil: PerfilUsuario;
 
+  idPerfil: number | null;
+
   token: string | null;
 
   autenticado: boolean;
@@ -43,6 +45,10 @@ function leerEstadoInicial(): AuthState {
   const nivel = descifrarValorSesionAlmacenado(localStorage.getItem(constantes.JWT_TOKEN_NIVEL));
 
   const perfilCrudo = localStorage.getItem(constantes.USUARIO_PERFIL);
+
+  const idPerfilCrudo = localStorage.getItem(constantes.USUARIO_ID_PERFIL);
+
+  const idPerfil = idPerfilCrudo ? Number(idPerfilCrudo) : null;
 
 
 
@@ -62,7 +68,13 @@ function leerEstadoInicial(): AuthState {
 
 
 
-  const perfil = mapearPerfilUsuario(perfilCrudo);
+  const perfil = resolverPerfilUsuario({
+
+    idPerfil: Number.isFinite(idPerfil) ? idPerfil : null,
+
+    nombrePerfil: perfilCrudo,
+
+  });
 
 
 
@@ -75,6 +87,8 @@ function leerEstadoInicial(): AuthState {
       nombreCompleto: null,
 
       perfil: null,
+
+      idPerfil: null,
 
       token: null,
 
@@ -97,6 +111,8 @@ function leerEstadoInicial(): AuthState {
     nombreCompleto: descifrarValorSesionAlmacenado(localStorage.getItem(constantes.USUARIO)),
 
     perfil,
+
+    idPerfil: Number.isFinite(idPerfil) ? idPerfil : null,
 
     autenticado: true,
 
@@ -132,11 +148,23 @@ export const AuthStore = signalStore(
 
         token: string,
 
-        opciones: MenuOpcion[] = []
+        opciones: MenuOpcion[] = [],
+
+        idPerfil?: number | null
 
       ) {
 
-        const perfilNormalizado = mapearPerfilUsuario(perfil);
+        const perfilNormalizado =
+
+          resolverPerfilUsuario({
+
+            idPerfil,
+
+            rol: typeof perfil === 'string' ? perfil : null,
+
+            nombrePerfil: typeof perfil === 'string' ? perfil : null,
+
+          }) ?? normalizarPerfil(perfil);
 
         sesion.setToken(token);
 
@@ -154,6 +182,12 @@ export const AuthStore = signalStore(
 
         }
 
+        if (idPerfil != null && Number.isFinite(idPerfil)) {
+
+          sesion.setIdPerfilAlmacenado(idPerfil);
+
+        }
+
 
  
         patchState(store, {
@@ -163,6 +197,8 @@ export const AuthStore = signalStore(
           nombreCompleto: nombre,
 
           perfil: perfilNormalizado,
+
+          idPerfil: idPerfil != null && Number.isFinite(idPerfil) ? idPerfil : null,
 
           token,
 
@@ -189,6 +225,8 @@ export const AuthStore = signalStore(
           nombreCompleto: null,
 
           perfil: null,
+
+          idPerfil: null,
 
           token: null,
 

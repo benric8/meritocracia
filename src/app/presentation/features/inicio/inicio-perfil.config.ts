@@ -1,4 +1,4 @@
-import { PerfilUsuario, esPerfilAdministrador } from '../../../domain/commons/auth-mappers';
+import { PERFILES, PerfilUsuario, PerfilUsuarioConocido } from '../../../domain/commons/auth-mappers';
 
 export interface AccesoRapidoInicio {
   icono: string;
@@ -7,13 +7,12 @@ export interface AccesoRapidoInicio {
   ruta: string;
 }
 
-export const TEXTO_BIENVENIDA_ADMIN =  'Plataforma institucional del Poder Judicial del Perú que centraliza y valora los méritos de Jueces Superiores Titulares y Supremos — Equipo Cuadro de Méritos y Antigüedad.';
-
-export const TEXTO_BIENVENIDA_REGISTRADOR =
-  'Registro y actualización de fichas de valoración de magistrados asignados, conforme a la normativa vigente y lineamientos del área usuaria.';
-
-export function textoBienvenidaPorPerfil(perfil: PerfilUsuario): string {
-  return esPerfilAdministrador(perfil) ? TEXTO_BIENVENIDA_ADMIN : TEXTO_BIENVENIDA_REGISTRADOR;
+export interface ConfigInicioPerfil {
+  textoBienvenida: string;
+  tituloAccesosRapidos: string;
+  accesosRapidos: AccesoRapidoInicio[];
+  mostrarEstadisticas: boolean;
+  puedeGestionarResoluciones: boolean;
 }
 
 export const ACCESOS_RAPIDOS_ADMIN: AccesoRapidoInicio[] = [
@@ -52,10 +51,44 @@ export const ACCESOS_RAPIDOS_REGISTRADOR: AccesoRapidoInicio[] = [
   },
 ];
 
+/**
+ * Configuración de inicio por perfil.
+ * Para escalar: añadir una entrada con la clave del nuevo perfil en PERFILES.
+ */
+export const CONFIG_INICIO_POR_PERFIL: Record<PerfilUsuarioConocido, ConfigInicioPerfil> = {
+  [PERFILES.ADMIN]: {
+    textoBienvenida:
+      'Plataforma institucional del Poder Judicial del Perú que centraliza y valora los méritos de Jueces Superiores Titulares y Supremos — Equipo Cuadro de Méritos y Antigüedad.',
+    tituloAccesosRapidos: 'Accesos administrativos',
+    accesosRapidos: ACCESOS_RAPIDOS_ADMIN,
+    mostrarEstadisticas: true,
+    puedeGestionarResoluciones: true,
+  },
+  [PERFILES.REGISTRADOR]: {
+    textoBienvenida:
+      'Registro y actualización de fichas de valoración de magistrados asignados, conforme a la normativa vigente y lineamientos del área usuaria.',
+    tituloAccesosRapidos: 'Mis tareas frecuentes',
+    accesosRapidos: ACCESOS_RAPIDOS_REGISTRADOR,
+    mostrarEstadisticas: false,
+    puedeGestionarResoluciones: false,
+  },
+};
+
+export function configInicioPorPerfil(perfil: PerfilUsuario): ConfigInicioPerfil | null {
+  if (!perfil) {
+    return null;
+  }
+  return CONFIG_INICIO_POR_PERFIL[perfil] ?? null;
+}
+
+export function textoBienvenidaPorPerfil(perfil: PerfilUsuario): string {
+  return configInicioPorPerfil(perfil)?.textoBienvenida ?? '';
+}
+
 export function accesosRapidosPorPerfil(perfil: PerfilUsuario): AccesoRapidoInicio[] {
-  return esPerfilAdministrador(perfil) ? ACCESOS_RAPIDOS_ADMIN : ACCESOS_RAPIDOS_REGISTRADOR;
+  return configInicioPorPerfil(perfil)?.accesosRapidos ?? [];
 }
 
 export function tituloAccesosRapidos(perfil: PerfilUsuario): string {
-  return esPerfilAdministrador(perfil) ? 'Accesos administrativos' : 'Mis tareas frecuentes';
+  return configInicioPorPerfil(perfil)?.tituloAccesosRapidos ?? 'Accesos rápidos';
 }

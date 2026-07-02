@@ -1,27 +1,28 @@
+import { PERFILES } from '../../../domain/commons/auth-mappers';
 import {
   ACCESOS_RAPIDOS_ADMIN,
   ACCESOS_RAPIDOS_REGISTRADOR,
   accesosRapidosPorPerfil,
+  configInicioPorPerfil,
   textoBienvenidaPorPerfil,
   tituloAccesosRapidos,
 } from './inicio-perfil.config';
-import { esPerfilAdministrador } from '../../../domain/commons/auth-mappers';
 
 describe('inicio-perfil.config', () => {
-  it('identifica administrador', () => {
-    expect(esPerfilAdministrador('Administrador')).toBe(true);
-    expect(esPerfilAdministrador('Usuario Registrador')).toBe(false);
-    expect(esPerfilAdministrador(null)).toBe(false);
+  it('define configuración para cada perfil conocido', () => {
+    expect(configInicioPorPerfil(PERFILES.ADMIN)).toBeTruthy();
+    expect(configInicioPorPerfil(PERFILES.REGISTRADOR)).toBeTruthy();
+    expect(configInicioPorPerfil(null)).toBeNull();
   });
 
   it('asigna accesos rápidos distintos por perfil', () => {
-    expect(accesosRapidosPorPerfil('Administrador')).toEqual(ACCESOS_RAPIDOS_ADMIN);
-    expect(accesosRapidosPorPerfil('Usuario Registrador')).toEqual(ACCESOS_RAPIDOS_REGISTRADOR);
+    expect(accesosRapidosPorPerfil(PERFILES.ADMIN)).toEqual(ACCESOS_RAPIDOS_ADMIN);
+    expect(accesosRapidosPorPerfil(PERFILES.REGISTRADOR)).toEqual(ACCESOS_RAPIDOS_REGISTRADOR);
   });
 
   it('admin tiene gestión de usuarios; registrador no', () => {
-    const rutasAdmin = accesosRapidosPorPerfil('Administrador').map((a) => a.ruta);
-    const rutasReg = accesosRapidosPorPerfil('Usuario Registrador').map((a) => a.ruta);
+    const rutasAdmin = accesosRapidosPorPerfil(PERFILES.ADMIN).map((a) => a.ruta);
+    const rutasReg = accesosRapidosPorPerfil(PERFILES.REGISTRADOR).map((a) => a.ruta);
 
     expect(rutasAdmin).toContain('/usuarios');
     expect(rutasReg).not.toContain('/usuarios');
@@ -30,9 +31,16 @@ describe('inicio-perfil.config', () => {
   });
 
   it('define textos distintos de bienvenida y título de accesos', () => {
-    expect(textoBienvenidaPorPerfil('Administrador')).toContain('centraliza');
-    expect(textoBienvenidaPorPerfil('Usuario Registrador')).toContain('fichas');
-    expect(tituloAccesosRapidos('Administrador')).toBe('Accesos administrativos');
-    expect(tituloAccesosRapidos('Usuario Registrador')).toBe('Mis tareas frecuentes');
+    expect(textoBienvenidaPorPerfil(PERFILES.ADMIN)).toContain('centraliza');
+    expect(textoBienvenidaPorPerfil(PERFILES.REGISTRADOR)).toContain('fichas');
+    expect(tituloAccesosRapidos(PERFILES.ADMIN)).toBe('Accesos administrativos');
+    expect(tituloAccesosRapidos(PERFILES.REGISTRADOR)).toBe('Mis tareas frecuentes');
+  });
+
+  it('habilita estadísticas y gestión de resoluciones solo para administrador', () => {
+    expect(configInicioPorPerfil(PERFILES.ADMIN)?.mostrarEstadisticas).toBe(true);
+    expect(configInicioPorPerfil(PERFILES.ADMIN)?.puedeGestionarResoluciones).toBe(true);
+    expect(configInicioPorPerfil(PERFILES.REGISTRADOR)?.mostrarEstadisticas).toBe(false);
+    expect(configInicioPorPerfil(PERFILES.REGISTRADOR)?.puedeGestionarResoluciones).toBe(false);
   });
 });

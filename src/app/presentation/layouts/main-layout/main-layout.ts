@@ -8,8 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthStore } from '../../../infrastructure/security/stores/auth.store';
-import { construirArbolMenu, MenuItem } from './menu.model';
-import { construirMenuPorDefecto } from './menu-por-defecto';
+import { construirArbolMenu, MENU_MINIMO, MenuItem } from './menu.model';
 
 @Component({
   selector: 'app-main-layout',
@@ -34,16 +33,15 @@ export class MainLayout {
   private router = inject(Router);
 
   /**
-   * Menú lateral reactivo. Si el backend devolvió opciones (RF001), se arma
-   * dinámicamente desde el store; si no, se usa un menú estático por perfil
-   * como respaldo para no dejar la navegación vacía.
+   * Menú lateral desde las opciones del backend (RF003).
+   * Sin opciones válidas solo se muestra Inicio hasta que el usuario reingrese.
    */
   public readonly menuItems = computed<MenuItem[]>(() => {
     const opciones = this.authStore.opciones();
-    if (opciones && opciones.length > 0) {
-      return construirArbolMenu(opciones);
+    if (!opciones?.length) {
+      return MENU_MINIMO;
     }
-    return construirMenuPorDefecto(this.authStore.perfil());
+    return construirArbolMenu(opciones);
   });
 
   onCambiarPassword() {

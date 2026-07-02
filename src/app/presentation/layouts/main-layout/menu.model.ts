@@ -11,6 +11,11 @@ export interface MenuItem {
   children: MenuItem[];
 }
 
+/** Menú mínimo cuando no hay opciones del backend (sesión degradada o en recuperación). */
+export const MENU_MINIMO: MenuItem[] = [
+  { id: 'inicio', label: 'Inicio', icon: 'home', url: '/inicio', children: [] },
+];
+
 /** Normaliza la url del backend: '#' o vacío => nodo padre (sin ruta). */
 function normalizarUrl(url: string | null | undefined): string | null {
   if (!url || url.trim() === '' || url.trim() === '#') {

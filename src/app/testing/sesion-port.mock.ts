@@ -20,6 +20,8 @@ export function crearSesionPortMock(): SesionPort {
     setNombreCompleto: () => undefined,
     getPerfilAlmacenado: () => null,
     setPerfilAlmacenado: () => undefined,
+    getIdPerfilAlmacenado: () => null,
+    setIdPerfilAlmacenado: () => undefined,
     getOpciones: () => [],
     setOpciones: () => undefined,
     limpiarSesion: () => undefined,

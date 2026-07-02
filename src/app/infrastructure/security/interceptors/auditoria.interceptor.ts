@@ -8,7 +8,7 @@ import { AuditoriaContextService } from '../services/auditoria-context.service';
 
 /**
  * Interceptor global de auditoría (RNF005): adjunta cabeceras X-Request-* a la API propia.
- * Sin llamadas externas (IP/PC/MAC); usa valores de sesión o constantes por defecto.
+ * La IP pública se resuelve vía `AuditoriaContextService` / `PublicIpService`.
  */
 export const auditoriaInterceptor: HttpInterceptorFn = (req, next) => {
   const esApiPropia = req.url.startsWith(environment.urlApi);

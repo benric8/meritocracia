@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { mapearPerfilUsuario, nombreCompletoPersona } from '../../domain/commons/auth-mappers';
+import { resolverPerfilUsuario, nombreCompletoPersona } from '../../domain/commons/auth-mappers';
 import { constantes } from '../../domain/commons/constants';
 import { PersonaModel } from '../../domain/models/Persona.model';
 import { AUTENTICACION_PORT } from '../../domain/ports/autenticacion.port';
@@ -40,11 +40,38 @@ export class CompletarSesionPerfilUseCase {
         }
 
         const rol = params.rol || respuesta.data.rol;
-        const perfil = mapearPerfilUsuario(rol, params.nombrePerfil);
+        const perfil = resolverPerfilUsuario({
+          idPerfil: params.idPerfil,
+          rol,
+          nombrePerfil: params.nombrePerfil,
+        });
+
+        if (!perfil) {
+          return {
+            exito: false,
+            mensaje: 'El perfil seleccionado no está configurado en el sistema.',
+          };
+        }
+
+        const opciones = respuesta.data.opciones ?? [];
+        if (!opciones.length) {
+          return {
+            exito: false,
+            mensaje: 'El perfil no tiene opciones de menú asignadas. Contacte al administrador.',
+          };
+        }
+
         const nombre = params.persona ? nombreCompletoPersona(params.persona) : params.usuario;
         const token = this.sesion.getToken() ?? '';
 
-        this.authStore.establecerSesion(params.usuario, nombre, perfil, token, respuesta.data.opciones);
+        this.authStore.establecerSesion(
+          params.usuario,
+          nombre,
+          perfil,
+          token,
+          opciones,
+          params.idPerfil
+        );
 
         return { exito: true };
       })

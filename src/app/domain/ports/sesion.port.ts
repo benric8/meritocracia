@@ -31,6 +31,8 @@ export interface SesionPort {
   setNombreCompleto(nombre: string): void;
   getPerfilAlmacenado(): string | null;
   setPerfilAlmacenado(perfil: string): void;
+  getIdPerfilAlmacenado(): number | null;
+  setIdPerfilAlmacenado(idPerfil: number): void;
   getOpciones(): MenuOpcion[];
   setOpciones(opciones: MenuOpcion[]): void;
 

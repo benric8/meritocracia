@@ -1,7 +1,9 @@
 import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { auditoriaDefault, constantes } from '../../../domain/commons/constants';
+import { AuditoriaRequest } from '../../../domain/dto/remote/AuditoriaRequest.dto';
+import { PublicIpService } from '../../network/public-ip.service';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 
 export interface CabecerasAuditoria {
@@ -12,22 +14,15 @@ export interface CabecerasAuditoria {
   mac: string;
 }
 
-/** 
- * Resuelve las cabeceras X-Request-* de auditoría para cada petición autenticada.
- *
- * Importante (limitación del navegador):
- * - La IP pública, el nombre del equipo (PC) y la MAC NO son accesibles de forma
- *   fiable desde un navegador. Lo correcto es que el BACKEND los capture desde la
- *   conexión entrante (RemoteAddr / X-Forwarded-For). Por eso este servicio NO
- *   hace llamadas a servicios externos (evita errores de CORS/preflight y la red
- *   corporativa cerrada).
- * - Lo único confiable desde el front es el usuario de sesión.
- * - IP/PC/MAC usan valores constantes por defecto (auditoriaDefault), con
- *   posibilidad de override vía `sessionStorage` si el entorno los inyecta.
+/**
+ * Resuelve las cabeceras X-Request-* de auditoría (RNF005) para cada petición autenticada.
+ * La IP pública se obtiene vía `PublicIpService` (Cloudflare/ipify) con fallback a constantes.
+ * PC/MAC siguen usando valores por defecto u override en sessionStorage.
  */
 @Injectable({ providedIn: 'root' })
 export class AuditoriaContextService {
   private readonly sesion = inject(SESION_PORT);
+  private readonly publicIp = inject(PublicIpService);
   /** Usuario explícito para la siguiente petición (p. ej. login antes de abrir sesión). */
   private usuarioPeticion: string | null = null;
 
@@ -41,14 +36,31 @@ export class AuditoriaContextService {
 
   obtenerCabecerasHttp(usuarioSesion?: string): Observable<HttpHeaders> {
     const usuario = usuarioSesion ?? this.usuarioPeticion ?? this.sesion.getUsuarioCodigo() ?? 'SISTEMA';
-    return of(this.aHttpHeaders(this.construirContexto(usuario)));
+    return this.publicIp.obtenerIpPublica().pipe(
+      map((ip) => this.aHttpHeaders(this.construirContexto(usuario, ip)))
+    );
   }
 
-  private construirContexto(usuarioSesion: string): CabecerasAuditoria {
+  construirAuditoriaRequest(usuarioSesion?: string): Observable<AuditoriaRequest> {
+    const usuario = usuarioSesion ?? this.usuarioPeticion ?? this.sesion.getUsuarioCodigo() ?? 'SISTEMA';
+    return this.publicIp.obtenerIpPublica().pipe(
+      map((ip) => {
+        const ctx = this.construirContexto(usuario, ip);
+        return {
+          usuario: ctx.usuarioAplicativo,
+          nombrePc: ctx.pc,
+          numeroIp: ctx.ip,
+          direccionMac: ctx.mac,
+        };
+      })
+    );
+  }
+
+  private construirContexto(usuarioSesion: string, ipPublica: string): CabecerasAuditoria {
     return {
       usuarioAplicativo: usuarioSesion,
       usuarioRed: usuarioSesion,
-      ip: sessionStorage.getItem(constantes.AUDITORIA_IP) ?? auditoriaDefault.IP,
+      ip: ipPublica,
       pc: sessionStorage.getItem(constantes.AUDITORIA_PC) ?? auditoriaDefault.PC,
       mac: sessionStorage.getItem(constantes.AUDITORIA_MAC) ?? auditoriaDefault.MAC,
     };

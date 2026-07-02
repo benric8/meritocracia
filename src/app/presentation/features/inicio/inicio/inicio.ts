@@ -5,9 +5,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthStore } from '../../../../infrastructure/security/stores/auth.store';
-import { esPerfilAdministrador } from '../../../../domain/commons/auth-mappers';
 import {
   accesosRapidosPorPerfil,
+  configInicioPorPerfil,
   textoBienvenidaPorPerfil,
   tituloAccesosRapidos,
 } from '../inicio-perfil.config';
@@ -32,7 +32,11 @@ interface Estadistica {
 export class Inicio {
   private readonly authStore = inject(AuthStore);
 
-  protected readonly esAdmin = computed(() => esPerfilAdministrador(this.authStore.perfil()));
+  protected readonly configInicio = computed(() => configInicioPorPerfil(this.authStore.perfil()));
+  protected readonly mostrarEstadisticas = computed(() => this.configInicio()?.mostrarEstadisticas ?? false);
+  protected readonly puedeGestionarResoluciones = computed(
+    () => this.configInicio()?.puedeGestionarResoluciones ?? false
+  );
   protected readonly textoBienvenida = computed(() => textoBienvenidaPorPerfil(this.authStore.perfil()));
   protected readonly tituloAccesos = computed(() => tituloAccesosRapidos(this.authStore.perfil()));
   protected readonly accesosRapidos = computed(() => accesosRapidosPorPerfil(this.authStore.perfil()));

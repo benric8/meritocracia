@@ -17,8 +17,8 @@
     </div>
   </mat-card>
 
-  <!-- Estadísticas (solo Administrador) -->
-  @if (esAdmin()) {
+  <!-- Estadísticas (según configuración del perfil)-->
+  @if (mostrarEstadisticas()) {
     <div class="stats-grid">
       @for (stat of estadisticas(); track stat.etiqueta) {
         <mat-card class="stat-card" appearance="outlined">
@@ -38,7 +38,7 @@
           <h2 class="card-title">Resoluciones y Lineamientos</h2>
         </div>
 
-        @if (esAdmin()) {
+        @if (puedeGestionarResoluciones()) {
           <p class="card-subtitle">
             Cargue documentos PDF de resoluciones y lineamientos del área usuaria para
             consulta del equipo.

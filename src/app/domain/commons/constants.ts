@@ -9,6 +9,7 @@ export const constantes = {
     USUARIO_CODIGO: 'USR_PWS_CO',
     USUARIO_OPCIONES: 'USR_PWS_OP',
     USUARIO_PERFIL: 'USR_PWS_PE',
+    USUARIO_ID_PERFIL: 'USR_PWS_PI',
     USUARIO_SALA: 'USR_PWS_SALA',
     AUDITORIA_IP: 'AUD_IP',
     AUDITORIA_PC: 'AUD_PC',
@@ -29,9 +30,8 @@ export const tokenNiveles ={
   NIVEL_OPCIONES: 'PW_TOKEN_OPCIONES_PERFIL'
 }
 
-// Valores por defecto de auditoría (RNF005).
-// TEMPORAL: el navegador no puede obtener IP/PC/MAC reales; idealmente el
-// backend los captura desde la petición. Se usan constantes hasta entonces.
+// Valores por defecto de auditoría (RNF005) cuando no hay override en sessionStorage
+// ni respuesta de servicios externos de IP pública.
 export const auditoriaDefault = {
   IP: '172.34.12.71',
   PC: 'pc-oruizb',
