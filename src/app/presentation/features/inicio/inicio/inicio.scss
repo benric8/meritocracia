@@ -199,6 +199,67 @@
   background: var(--mc-primary-p20);
   border: 2px dashed var(--mc-primary-light);
   border-radius: var(--mc-radius);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.upload-zone--drag {
+  border-color: var(--mc-primary);
+  background: color-mix(in srgb, var(--mc-primary-p20) 70%, var(--mc-primary) 30%);
+}
+
+.upload-input {
+  display: none;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-field-full {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.form-feedback {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.form-feedback--error {
+  color: #b42318;
+}
+
+.form-feedback--ok {
+  color: #027a48;
+}
+
+.doc-estado {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+}
+
+.doc-estado--error {
+  color: #b42318;
+}
+
+.upload-text--file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .upload-icon mat-icon {
@@ -327,7 +388,8 @@
 /* ---------- Responsivo ---------- */
 @media (max-width: 900px) {
   .inicio-grid,
-  .stats-grid {
+  .stats-grid,
+  .form-grid {
     grid-template-columns: 1fr;
   }
 

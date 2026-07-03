@@ -61,7 +61,7 @@ export const CONFIG_INICIO_POR_PERFIL: Record<PerfilUsuarioConocido, ConfigInici
       'Plataforma institucional del Poder Judicial del Perú que centraliza y valora los méritos de Jueces Superiores Titulares y Supremos — Equipo Cuadro de Méritos y Antigüedad.',
     tituloAccesosRapidos: 'Accesos administrativos',
     accesosRapidos: ACCESOS_RAPIDOS_ADMIN,
-    mostrarEstadisticas: true,
+    mostrarEstadisticas: false,
     puedeGestionarResoluciones: true,
   },
   [PERFILES.REGISTRADOR]: {

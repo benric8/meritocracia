@@ -17,6 +17,7 @@
         { file: '02-dashboard.html', title: 'Página de inicio' },
         { file: '03-gestion-usuarios.html', title: 'Gestión de usuarios' },
         { file: '07-admin-asignacion.html', title: 'Asignación de carpetas' },
+        { file: '07-admin-fecha-valoracion.html', title: 'Fecha de valoración' },
         { file: '06-reportes.html', title: 'Gráficos de valoración' },
         { file: '06-reportes-anexo1.html', title: 'Antigüedad de jueces supremos' },
         { file: '06-reportes-anexo2.html', title: 'Méritos de jueces superiores' },
@@ -58,6 +59,7 @@
     '02-dashboard-registrador.html': 'registrador',
     '03-gestion-usuarios.html': 'admin',
     '07-admin-asignacion.html': 'admin',
+    '07-admin-fecha-valoracion.html': 'admin',
     '05-consulta-meritos.html': 'ficha',
     '06-reportes.html': 'reportes',
     '06-reportes-anexo1.html': 'reportes',
@@ -82,6 +84,7 @@
     '02-dashboard-registrador.html': 'Descargue resoluciones publicadas y acceda a los reportes desde el menú lateral.',
     '03-gestion-usuarios.html': 'Consulte la lista de usuarios. Pulse Crear usuario para abrir el formulario con nombres, código, función, cargo y dependencia.',
     '07-admin-asignacion.html': 'Asigne registradores a las carpetas personales de méritos de cada juez.',
+    '07-admin-fecha-valoracion.html': 'Consulte la fecha vigente y use Nueva fecha de valoración para registrar un cambio conservando el historial.',
     '05-consulta-meritos.html': 'Busque fichas por DNI, apellidos o nombres y acceda a editar o actualizar el registro.',
     '06-reportes.html': 'Cambie de pestaña y use Descargar PDF en la esquina superior derecha de cada consulta activa.',
     '06-reportes-anexo1.html': 'Revise el cuadro completo de antigüedad. Pulse Generar PDF o Excel para simular la descarga.',
@@ -317,12 +320,19 @@
     return html;
   }
 
-  function adminSidebarHtml(activeFile, mainActive) {
+  function adminSidebarHtml(activeFile, mainActive, carpetaSubActive) {
+    var carpetaOpen = mainActive === 'carpeta' || !!carpetaSubActive;
+    var carpetaCls = carpetaOpen ? 'nav-group is-open is-active' : 'nav-group is-collapsed';
     var html = '<aside class="sidebar" data-profile="admin">';
     html += '<div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>';
     html += '<a class="nav-item' + (mainActive === 'inicio' ? ' active' : '') + '" href="02-dashboard.html"><img class="icon-img" src="' + assetHref('assets/icons/home.svg') + '" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>';
     html += '<a class="nav-item' + (mainActive === 'gestion' ? ' active' : '') + '" href="03-gestion-usuarios.html"><img class="icon-img" src="' + assetHref('assets/icons/users.svg') + '" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>';
-    html += '<a class="nav-item' + (mainActive === 'carpeta' ? ' active' : '') + '" href="07-admin-asignacion.html"><img class="icon-img" src="' + assetHref('assets/icons/folder.svg') + '" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>';
+    html += '<div class="' + carpetaCls + '">';
+    html += '<div class="nav-group-head"><img class="icon-img" src="' + assetHref('assets/icons/folder.svg') + '" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="' + assetHref('assets/icons/chevron-down.svg') + '" width="16" height="16" alt="" /></div>';
+    html += '<nav class="nav-submenu" aria-label="Gestión de la Carpeta Personal de Méritos">';
+    html += '<a class="nav-sub-item' + (carpetaSubActive === 'asignacion' ? ' active' : '') + '" href="07-admin-asignacion.html"><img class="nav-sub-icon" src="' + assetHref('assets/icons/users.svg') + '" width="16" height="16" alt="" /><span class="nav-sub-label">Asignación</span></a>';
+    html += '<a class="nav-sub-item' + (carpetaSubActive === 'fecha' ? ' active' : '') + '" href="07-admin-fecha-valoracion.html"><img class="nav-sub-icon" src="' + assetHref('assets/icons/edit.svg') + '" width="16" height="16" alt="" /><span class="nav-sub-label">Fecha de valoración</span></a>';
+    html += '</nav></div>';
     html += reportSubmenuHtml(activeFile, !!activeFile);
     html += '</aside>';
     return html;

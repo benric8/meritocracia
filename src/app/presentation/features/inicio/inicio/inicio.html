@@ -1,5 +1,4 @@
 <section class="inicio">
-  <!-- Bienvenida (común a todos los perfiles) -->
   <mat-card class="welcome-card" appearance="outlined">
     <div class="welcome-emblem">
       <mat-icon>balance</mat-icon>
@@ -17,7 +16,6 @@
     </div>
   </mat-card>
 
-  <!-- Estadísticas (según configuración del perfil)-->
   @if (mostrarEstadisticas()) {
     <div class="stats-grid">
       @for (stat of estadisticas(); track stat.etiqueta) {
@@ -30,7 +28,6 @@
   }
 
   <div class="inicio-grid">
-    <!-- Resoluciones y lineamientos -->
     <mat-card class="card" appearance="outlined">
       <mat-card-content>
         <div class="card-head">
@@ -41,53 +38,140 @@
         @if (puedeGestionarResoluciones()) {
           <p class="card-subtitle">
             Cargue documentos PDF de resoluciones y lineamientos del área usuaria para
-            consulta del equipo.
+            consulta del equipo. Tamaño máximo: {{ tamanoMaximoEtiqueta }}.
           </p>
 
-          <div class="upload-zone">
-            <div class="upload-icon">
-              <mat-icon>cloud_upload</mat-icon>
-            </div>
-            <p class="upload-text">Arrastre archivos PDF aquí o seleccione desde su equipo</p>
-            <button matButton="filled" type="button">
-              <mat-icon>upload</mat-icon>
-              Subir resolución
-            </button>
-          </div>
+          <form class="upload-form" [formGroup]="formDocumento" (ngSubmit)="guardar()" novalidate>
+            <div
+              class="upload-zone"
+              [class.upload-zone--drag]="arrastrando()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+            >
+              <input
+                #inputArchivo
+                type="file"
+                accept="application/pdf,.pdf"
+                class="upload-input"
+                (change)="onArchivoSeleccionado($event)"
+              />
 
-          <div class="doc-list">
-            @for (doc of documentos(); track doc.nombre) {
-              <div class="doc-item">
-                <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
-                <div class="doc-meta">
-                  <span class="doc-name">{{ doc.nombre }}</span>
-                  <span class="doc-date">{{ doc.fecha }}</span>
-                </div>
-                <button matButton="outlined" type="button">Reemplazar</button>
+              <div class="upload-icon">
+                <mat-icon>cloud_upload</mat-icon>
               </div>
-            }
-          </div>
+
+              @if (archivoSeleccionado(); as archivo) {
+                <p class="upload-text upload-text--file">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  {{ archivo.name }} ({{ archivo.size | number }} bytes)
+                </p>
+              } @else {
+                <p class="upload-text">Arrastre un PDF aquí o selecciónelo desde su equipo</p>
+              }
+
+              <button matButton="outlined" type="button" (click)="abrirSelectorArchivo()">
+                <mat-icon>attach_file</mat-icon>
+                Seleccionar PDF
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Nombre del documento</mat-label>
+                <input matInput formControlName="nombre" maxlength="200" />
+                @if (formDocumento.controls.nombre.touched && formDocumento.controls.nombre.invalid) {
+                  <mat-error>El nombre es obligatorio</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Tipo</mat-label>
+                <mat-select formControlName="tipo">
+                  @for (tipo of tiposDocumento; track tipo[0]) {
+                    <mat-option [value]="tipo[0]">{{ tipo[1] }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button matButton="filled" type="submit" [disabled]="guardando()">
+                <mat-icon>{{ documentoEnEdicion() ? 'sync' : 'upload' }}</mat-icon>
+                {{ guardando() ? 'Guardando...' : (documentoEnEdicion() ? 'Reemplazar documento' : 'Publicar documento') }}
+              </button>
+
+              @if (documentoEnEdicion()) {
+                <button matButton="outlined" type="button" (click)="cancelarEdicion()" [disabled]="guardando()">
+                  Cancelar
+                </button>
+              }
+            </div>
+          </form>
+
+          @if (errorFormulario()) {
+            <p class="form-feedback form-feedback--error" role="alert">{{ errorFormulario() }}</p>
+          }
+          @if (mensajeExito()) {
+            <p class="form-feedback form-feedback--ok" role="status">{{ mensajeExito() }}</p>
+          }
+
+          @if (cargandoDocumentos()) {
+            <p class="doc-estado">Cargando documentos...</p>
+          } @else if (errorDocumentos()) {
+            <p class="doc-estado doc-estado--error" role="alert">{{ errorDocumentos() }}</p>
+          } @else {
+            <div class="doc-list">
+              @for (doc of documentos(); track doc.id) {
+                <div class="doc-item">
+                  <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
+                  <div class="doc-meta">
+                    <span class="doc-name">{{ doc.nombre }}</span>
+                    <span class="doc-date">
+                      {{ etiquetaTipo(doc.tipo) }} · Actualizado {{ fechaFormateada(doc.fechaPublicacion) }}
+                      · {{ doc.tamanoBytes | number }} bytes
+                    </span>
+                  </div>
+                  <button matButton="outlined" type="button" (click)="iniciarReemplazo(doc)">
+                    Reemplazar
+                  </button>
+                </div>
+              } @empty {
+                <p class="doc-estado">No hay documentos publicados.</p>
+              }
+            </div>
+          }
         } @else {
           <p class="card-subtitle">
             Consulte y descargue los documentos institucionales publicados por el
             administrador.
           </p>
 
-          <div class="doc-list">
-            @for (doc of documentos(); track doc.nombre) {
-              <div class="doc-item">
-                <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
-                <div class="doc-meta">
-                  <span class="doc-name">{{ doc.nombre }}</span>
-                  <span class="doc-date">{{ doc.fecha }}</span>
+          @if (cargandoDocumentos()) {
+            <p class="doc-estado">Cargando documentos...</p>
+          } @else if (errorDocumentos()) {
+            <p class="doc-estado doc-estado--error" role="alert">{{ errorDocumentos() }}</p>
+          } @else {
+            <div class="doc-list">
+              @for (doc of documentos(); track doc.id) {
+                <div class="doc-item">
+                  <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
+                  <div class="doc-meta">
+                    <span class="doc-name">{{ doc.nombre }}</span>
+                    <span class="doc-date">
+                      {{ etiquetaTipo(doc.tipo) }} · {{ fechaFormateada(doc.fechaPublicacion) }}
+                    </span>
+                  </div>
+                  <button matButton="filled" type="button" (click)="descargar(doc)">
+                    <mat-icon>download</mat-icon>
+                    Descargar
+                  </button>
                 </div>
-                <button matButton="filled" type="button">
-                  <mat-icon>download</mat-icon>
-                  Descargar
-                </button>
-              </div>
-            }
-          </div>
+              } @empty {
+                <p class="doc-estado">No hay documentos disponibles.</p>
+              }
+            </div>
+          }
 
           <p class="card-note">
             <mat-icon>info</mat-icon>
@@ -97,7 +181,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Accesos rápidos -->
     <mat-card class="card" appearance="outlined">
       <mat-card-content>
         <div class="card-head">

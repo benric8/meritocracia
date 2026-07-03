@@ -1,0 +1,102 @@
+/**
+ * Paleta preview — Granate #880000 + crema, dorado y grises cálidos.
+ * Enlazar DESPUÉS de meritocracia.css en un mockup concreto para comparar.
+ */
+:root {
+  --primary: #880000;
+  --primary-dark: #6a0000;
+  --primary-light: #ecd0c8;
+  --primary-p20: #f5ede6;
+  --primary-soft: #faf6f2;
+
+  --accent-gold: #b8860b;
+  --accent-gold-light: #f5e6c8;
+  --accent-gold-muted: #c4956a;
+
+  --secondary: #a0522d;
+  --tertiary: #79b0e0;
+
+  --surface: #ffffff;
+  --background: #faf6f2;
+  --border: #e8ddd6;
+
+  --text: #2c2420;
+  --text-muted: #6b5e58;
+
+  --success: #4a7c59;
+  --success-bg: #e8f0ea;
+  --warning: #c4956a;
+  --error: #c0392b;
+
+  --shadow: 0 1px 3px rgba(44, 36, 32, 0.08), 0 4px 12px rgba(44, 36, 32, 0.06);
+}
+
+body {
+  background: #e8ddd6;
+}
+
+.mockup-frame {
+  background: var(--background);
+}
+
+/* Tablas — encabezado con tinte dorado suave */
+thead th {
+  background: linear-gradient(180deg, var(--primary-p20) 0%, var(--accent-gold-light) 100%);
+  border-bottom-color: var(--accent-gold-muted);
+}
+
+/* Badges de estado */
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.badge-muted {
+  background: #ede6e1;
+  color: var(--text-muted);
+}
+
+.badge-warning {
+  background: var(--accent-gold-light);
+  color: #7a5c1e;
+}
+
+/* Banner RF — borde dorado institucional */
+.rf-banner {
+  background: linear-gradient(90deg, var(--primary-p20), var(--surface));
+  border-color: var(--accent-gold-muted);
+  border-left: 4px solid var(--accent-gold);
+}
+
+/* Chip de perfil */
+.profile-chip {
+  background: var(--primary-p20);
+  color: var(--primary);
+  border: 1px solid var(--primary-light);
+}
+
+/* Botón primario — hover más profundo */
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+/* Inputs — foco cálido */
+.input:focus,
+.select:focus {
+  border-color: var(--accent-gold-muted);
+  box-shadow: 0 0 0 3px var(--accent-gold-light);
+}
+
+/* Submenú activo — línea dorada */
+.nav-sub-item.active {
+  color: var(--primary);
+}
+
+.nav-submenu::before {
+  background: linear-gradient(
+    to bottom,
+    var(--border) 0%,
+    var(--accent-gold-muted) 50%,
+    var(--border) 100%
+  );
+}

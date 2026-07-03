@@ -12,4 +12,8 @@ export const environment = {
   linkExterno: Util.v9,
   encrypPassword:"bqR2KdGgcr4YAemywPlHQu0H4Vh3tg77",
     encryptSalt:"GPMG6hX6MhgYXT8qcrCAiylPg0LTcOFN",
+  documentosInstitucionales: {
+    maxTamanoBytes: 5 * 1024 * 1024,
+    mimePermitido: 'application/pdf',
+  },
 };

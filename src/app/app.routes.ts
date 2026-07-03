@@ -45,21 +45,31 @@ export const routes: Routes = [
 
       // 3. Módulo: Gestión de la Carpeta Personal de Méritos (RF006)
       {
-        path: 'carpeta-meritos',
+        path: 'meritos',
         children: [
           { path: '', redirectTo: 'consulta', pathMatch: 'full' },
           {
-            path: 'nuevo', // Submenú: Nuevo registro
-            loadComponent: () => import('./presentation/features/meritos/registro/registro').then(m => m.Registro)
+            path: 'registro',
+            loadComponent: () => import('./presentation/features/meritos/registro/registro').then(m => m.Registro),
           },
           {
-            path: 'consulta', // Submenú: Consulta
-            loadComponent: () => import('./presentation/features/meritos/consulta/consulta').then(m => m.Consulta)
-          }
-        ]
+            path: 'consulta',
+            loadComponent: () => import('./presentation/features/meritos/consulta/consulta').then(m => m.Consulta),
+          },
+          {
+            path: 'asignacion',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () => import('./presentation/features/meritos/asignacion/asignacion').then(m => m.Asignacion),
+          },
+          {
+            path: 'fecha',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () => import('./presentation/features/meritos/fecha/fecha').then(m => m.Fecha),
+          },
+        ],
       },
 
-      // 4. Módulo: Reportes (RF007)
+      // 4. Módulo: Reportes(RF007)
       {
         path: 'reportes',
         loadComponent: () => import('./presentation/features/reportes/reportes/reportes').then(m => m.Reportes)

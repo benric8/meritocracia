@@ -37,8 +37,8 @@ describe('inicio-perfil.config', () => {
     expect(tituloAccesosRapidos(PERFILES.REGISTRADOR)).toBe('Mis tareas frecuentes');
   });
 
-  it('habilita estadísticas y gestión de resoluciones solo para administrador', () => {
-    expect(configInicioPorPerfil(PERFILES.ADMIN)?.mostrarEstadisticas).toBe(true);
+  it('habilita gestión de documentos solo para administrador', () => {
+    expect(configInicioPorPerfil(PERFILES.ADMIN)?.mostrarEstadisticas).toBe(false);
     expect(configInicioPorPerfil(PERFILES.ADMIN)?.puedeGestionarResoluciones).toBe(true);
     expect(configInicioPorPerfil(PERFILES.REGISTRADOR)?.mostrarEstadisticas).toBe(false);
     expect(configInicioPorPerfil(PERFILES.REGISTRADOR)?.puedeGestionarResoluciones).toBe(false);

@@ -6,6 +6,7 @@
   <title>Mockup 07 — Asignación Registradores | Meritocracia PJ</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/meritocracia.css" />
+  <link rel="stylesheet" href="../css/meritocracia-palette-880000.css" />
   <style>
     .asignacion-table td {
       vertical-align: middle;
@@ -22,13 +23,13 @@
       border-radius: 12px;
       font-size: 11px;
       font-weight: 600;
-      background: #e0f2fe;
-      color: #0369a1;
+      background: var(--accent-gold-light);
+      color: #7a5c1e;
     }
 
     .asignacion-badge--obs {
-      background: #fef3c7;
-      color: #92400e;
+      background: var(--primary-p20);
+      color: var(--secondary);
     }
 
     .asignacion-actions {
@@ -42,7 +43,7 @@
     .modal-context {
       padding: 12px 14px;
       margin-bottom: 16px;
-      background: #f8fafc;
+      background: var(--primary-soft);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       font-size: 13px;
@@ -110,7 +111,13 @@
         <div class="sidebar-profile"><span class="profile-chip">Perfil Administrador</span></div>
         <a class="nav-item" href="02-dashboard.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
         <a class="nav-item" href="03-gestion-usuarios.html"><img class="icon-img" src="../assets/icons/users.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de Usuario</span></a>
-        <a class="nav-item active" href="07-admin-asignacion.html"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Gestión de la Carpeta Personal de Méritos">
+            <a class="nav-sub-item active" href="07-admin-asignacion.html"><img class="nav-sub-icon" src="../assets/icons/users.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Asignación</span></a>
+            <a class="nav-sub-item" href="07-admin-fecha-valoracion.html"><img class="nav-sub-icon" src="../assets/icons/edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Fecha de valoración</span></a>
+          </nav>
+        </div>
         <div class="nav-group is-collapsed">
           <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
           <nav class="nav-submenu" aria-label="Reportes">
@@ -130,6 +137,7 @@
         <div class="rf-banner">
           <strong>RF006 — Perfil Administrador</strong>
           <p>Consulte las asignaciones de registradores por magistrado. Use el botón <em>Asignar registrador secundario</em> en cada fila para definir el suplente y la observación en un cuadro de diálogo.</p>
+          <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);"><strong style="color: var(--accent-gold);">Preview paleta</strong> — Granate <code style="font-size: 11px;">#880000</code> + crema, dorado y grises cálidos.</p>
         </div>
 
         <div class="page-header">
