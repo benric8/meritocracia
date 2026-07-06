@@ -1,16 +1,10 @@
 import { inject } from '@angular/core';
-
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-
-import { constantes, tokenNiveles } from '../../../domain/commons/constants';
-
+import { tokenNiveles } from '../../../domain/commons/constants';
 import { normalizarPerfil, PerfilUsuario, resolverPerfilUsuario } from '../../../domain/commons/auth-mappers';
-
 import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
-
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
-
-import { descifrarValorSesionAlmacenado } from '../encryption/session-field-crypto.service';
+import { leerSesionPersistida } from '../session/session-persistencia';
 
 
 
@@ -39,87 +33,7 @@ export interface AuthState {
 
 
 function leerEstadoInicial(): AuthState {
-
-  const token = localStorage.getItem(constantes.JWT_TOKEN);
-
-  const nivel = descifrarValorSesionAlmacenado(localStorage.getItem(constantes.JWT_TOKEN_NIVEL));
-
-  const perfilCrudo = localStorage.getItem(constantes.USUARIO_PERFIL);
-
-  const idPerfilCrudo = localStorage.getItem(constantes.USUARIO_ID_PERFIL);
-
-  const idPerfil = idPerfilCrudo ? Number(idPerfilCrudo) : null;
-
-
-
-  let opciones: MenuOpcion[] = [];
-
-  try {
-
-    const crudo = localStorage.getItem(constantes.USUARIO_OPCIONES);
-
-    opciones = crudo ? (JSON.parse(crudo) as MenuOpcion[]) : [];
-
-  } catch {
-
-    opciones = [];
-
-  }
-
-
-
-  const perfil = resolverPerfilUsuario({
-
-    idPerfil: Number.isFinite(idPerfil) ? idPerfil : null,
-
-    nombrePerfil: perfilCrudo,
-
-  });
-
-
-
-  if (!token || nivel !== tokenNiveles.NIVEL_OPCIONES || !perfil) {
-
-    return {
-
-      usuario: null,
-
-      nombreCompleto: null,
-
-      perfil: null,
-
-      idPerfil: null,
-
-      token: null,
-
-      autenticado: false,
-
-      opciones: [],
-
-    };
-
-  }
-
-
-
-  return {
-
-    token,
-
-    usuario: descifrarValorSesionAlmacenado(localStorage.getItem(constantes.USUARIO_CODIGO)),
-
-    nombreCompleto: descifrarValorSesionAlmacenado(localStorage.getItem(constantes.USUARIO)),
-
-    perfil,
-
-    idPerfil: Number.isFinite(idPerfil) ? idPerfil : null,
-
-    autenticado: true,
-
-    opciones,
-
-  };
-
+  return leerSesionPersistida();
 }
 
 

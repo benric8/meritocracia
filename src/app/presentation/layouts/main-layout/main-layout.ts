@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthStore } from '../../../infrastructure/security/stores/auth.store';
+import { SessionVigenciaService } from '../../../infrastructure/security/session/session-vigencia.service';
 import { construirArbolMenu, MENU_MINIMO, MenuItem } from './menu.model';
 
 @Component({
@@ -30,6 +31,7 @@ import { construirArbolMenu, MENU_MINIMO, MenuItem } from './menu.model';
 export class MainLayout {
   // Inyectamos el Store Reactivo (Signals) y el Enrutador
   public authStore = inject(AuthStore);
+  private readonly sessionVigencia = inject(SessionVigenciaService);
   private router = inject(Router);
 
   /**
@@ -50,8 +52,7 @@ export class MainLayout {
   }
 
   onCerrarSesion() {
-    // RF002: El sistema deberá permitir cerrar sesión de forma segura
-    this.authStore.cerrarSesion();
-    this.router.navigate(['/login']);
+    this.sessionVigencia.cerrarSesionManual();
+    void this.router.navigate(['/login']);
   }
 }

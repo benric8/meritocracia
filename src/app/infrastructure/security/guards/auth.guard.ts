@@ -1,32 +1,16 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { AuthStore } from '../stores/auth.store';
+import { CanActivateFn } from '@angular/router';
+import { SessionVigenciaService } from '../session/session-vigencia.service';
 
-/**
- * Protege la zona privada: si no hay sesión activa, redirige al login.
- */
+/** Protege la zona privada: exige sesión vigente dentro de la ventana exps + refs. */
 export const authGuard: CanActivateFn = () => {
-  const authStore = inject(AuthStore);
-  const router = inject(Router);
-
-  if (authStore.autenticado()) {
-    return true;
-  }
-
-  return router.createUrlTree(['/login']);
+  return inject(SessionVigenciaService).resolverAccesoZonaPrivada();
 };
 
 /**
- * Protege la pantalla de login: si el usuario ya tiene sesión activa,
- * lo redirige al inicio para que no vuelva a autenticarse.
+ * Pantalla de login: redirige al inicio solo si la sesión persistida sigue vigente.
+ * Si expiró, limpia el almacenamiento y permite ingresar credenciales.
  */
 export const invitadoGuard: CanActivateFn = () => {
-  const authStore = inject(AuthStore);
-  const router = inject(Router);
-
-  if (authStore.autenticado()) {
-    return router.createUrlTree(['/inicio']);
-  }
-
-  return true;
+  return inject(SessionVigenciaService).resolverAccesoLogin();
 };

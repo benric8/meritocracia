@@ -1,6 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 
 import { constantes } from '../../../domain/commons/constants';
+import {
+  segundosTranscurridos,
+  tokenVigente,
+  ventanaRefreshVigente,
+} from '../../../domain/commons/session-timers';
 
 import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
 
@@ -71,25 +76,12 @@ export class SessionStorageAdapter implements SesionPort {
 
 
   getSegundosDesdeGeneracion(): number {
-
     const generadoEn = localStorage.getItem(constantes.DATETIME_NEW_TOKEN);
-
     if (!generadoEn) {
-
       return -1;
-
     }
-
     const generadoMs = Number(generadoEn);
-
-    if (!generadoMs) {
-
-      return -1;
-
-    }
-
-    return Math.floor((Date.now() - generadoMs) / 1000);
-
+    return segundosTranscurridos(Number.isFinite(generadoMs) ? generadoMs : null);
   }
 
 
@@ -115,39 +107,15 @@ export class SessionStorageAdapter implements SesionPort {
 
 
   isTokenVigente(margenSeg = 5): boolean {
-
-    const transcurrido = this.getSegundosDesdeGeneracion();
-
-    const exps = this.getExpsSeg();
-
-    if (transcurrido < 0 || exps < 0) {
-
-      return false;
-
-    }
-
-    return transcurrido < exps - margenSeg;
-
+    return tokenVigente(this.getSegundosDesdeGeneracion(), this.getExpsSeg(), margenSeg);
   }
 
-
-
   isVentanaRefreshVigente(): boolean {
-
-    const transcurrido = this.getSegundosDesdeGeneracion();
-
-    const exps = this.getExpsSeg();
-
-    const refs = this.getRefsSeg();
-
-    if (transcurrido < 0 || exps < 0 || refs < 0) {
-
-      return false;
-
-    }
-
-    return transcurrido < exps + refs;
-
+    return ventanaRefreshVigente(
+      this.getSegundosDesdeGeneracion(),
+      this.getExpsSeg(),
+      this.getRefsSeg()
+    );
   }
 
 

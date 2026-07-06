@@ -73,6 +73,6 @@ export class TokenRefreshService {
 
   cerrarSesionPorExpiracion(): void {
     this.authStore.cerrarSesion();
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 }

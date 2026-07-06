@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 import { CompletarSesionPerfilUseCase } from '../../../../../application/use-cases/completar-sesion-perfil.use-case';
 import { IniciarSesionUseCase } from '../../../../../application/use-cases/iniciar-sesion.use-case';
 import { PrecargarTokenBasicoUseCase } from '../../../../../application/use-cases/precargar-token-basico.use-case';
+import { SessionVigenciaService } from '../../../../../infrastructure/security/session/session-vigencia.service';
 import { ResultadoInicioSesion } from '../../../../../domain/models/resultado-inicio-sesion.model';
 import { PersonaModel } from '../../../../../domain/models/Persona.model';
 import { Perfil } from '../../../../../domain/dto/remote/LoginResponse.dto';
@@ -27,6 +28,7 @@ export class Login implements OnInit {
   private readonly precargarTokenBasico = inject(PrecargarTokenBasicoUseCase);
   private readonly iniciarSesion = inject(IniciarSesionUseCase);
   private readonly completarSesionPerfil = inject(CompletarSesionPerfilUseCase);
+  private readonly sessionVigencia = inject(SessionVigenciaService);
 
   protected readonly mostrarClave = signal(false);
   protected readonly cargando = signal(false);
@@ -102,7 +104,7 @@ export class Login implements OnInit {
             this.error.set(resultado.mensaje ?? 'No se pudieron cargar las opciones del perfil.');
             return;
           }
-          this.router.navigate(['/inicio']);
+          this.entrarAInicio();
         },
         error: () => this.error.set('No se pudieron cargar las opciones del perfil.'),
       });
@@ -129,7 +131,7 @@ export class Login implements OnInit {
         this.error.set(resultado.mensaje);
         break;
       case 'sesion_completa':
-        this.router.navigate(['/inicio']);
+        this.entrarAInicio();
         break;
       case 'seleccion_perfil':
         this.personaLogin = resultado.datosUsuario.persona;
@@ -137,5 +139,10 @@ export class Login implements OnInit {
         this.paso.set('perfil');
         break;
     }
+  }
+
+  private entrarAInicio(): void {
+    this.sessionVigencia.iniciarMonitoreo();
+    void this.router.navigate(['/inicio']);
   }
 }

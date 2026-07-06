@@ -13,6 +13,7 @@ import { SessionStorageAdapter } from './infrastructure/adapters/storage/session
 import { PublicIpService } from './infrastructure/network/public-ip.service';
 import { auditoriaInterceptor } from './infrastructure/security/interceptors/auditoria.interceptor';
 import { sessionInterceptor } from './infrastructure/security/interceptors/session.interceptor';
+import { prepararVigenciaSesion } from './infrastructure/security/session/session-app.initializer';
 
 function precargarIpPublica(): Promise<string> {
   const publicIp = inject(PublicIpService);
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAppInitializer(precargarIpPublica),
+    provideAppInitializer(prepararVigenciaSesion),
     provideHttpClient(withInterceptors([auditoriaInterceptor, sessionInterceptor])),
     { provide: SESION_PORT, useClass: SessionStorageAdapter },
     { provide: AUTENTICACION_PORT, useClass: AutenticacionHttpAdapter },
