@@ -7,7 +7,8 @@ import { SubirDocumentoPeticion } from '../../../domain/models/documento-institu
  */
 export function crearFormDataDocumento(peticion: SubirDocumentoPeticion): FormData {
   const formData = new FormData();
-  formData.append('data', peticion.nombre.trim());
+  formData.append('nombre', peticion.nombre.trim());
+  formData.append('tipo', peticion.tipo.trim());
   formData.append('archivo', peticion.archivo, peticion.archivo.name);
   return formData;
 }

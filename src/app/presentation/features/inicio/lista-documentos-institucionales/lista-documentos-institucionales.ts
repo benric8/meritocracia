@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +23,12 @@ import {
 } from '../../../../domain/models/documento-institucional.model';
 import { PAGINACION_POR_DEFECTO } from '../../../../domain/models/paginacion.model';
 
+interface VistaPreviaActiva {
+  titulo: string;
+  url: SafeResourceUrl | null;
+  cargando: boolean;
+}
+
 @Component({
   selector: 'app-lista-documentos-institucionales',
   standalone: true,
@@ -32,8 +39,11 @@ import { PAGINACION_POR_DEFECTO } from '../../../../domain/models/paginacion.mod
 })
 export class ListaDocumentosInstitucionales implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly listarDocumentos = inject(ListarDocumentosInstitucionalesUseCase);
   private readonly descargarDocumento = inject(DescargarDocumentoInstitucionalUseCase);
+
+  private blobVistaPrevia: string | null = null;
 
   readonly permitirReemplazo = input(false);
   readonly solicitarReemplazo = output<DocumentoInstitucional>();
@@ -45,6 +55,12 @@ export class ListaDocumentosInstitucionales implements OnInit {
   protected readonly opcionesTamanioPagina = [5, 10, 20];
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly vistaPrevia = signal<VistaPreviaActiva | null>(null);
+  protected readonly previsualizandoId = signal<string | null>(null);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.cerrarVistaPrevia());
+  }
 
   ngOnInit(): void {
     this.cargar();
@@ -70,6 +86,43 @@ export class ListaDocumentosInstitucionales implements OnInit {
         next: (blob) => this.dispararDescarga(blob, documento.nombreArchivo),
         error: () => this.error.set('No se pudo descargar el documento.'),
       });
+  }
+
+  protected verVistaPrevia(documento: DocumentoInstitucional): void {
+    this.error.set(null);
+    this.previsualizandoId.set(documento.id);
+    this.vistaPrevia.set({
+      titulo: documento.nombreArchivo,
+      url: null,
+      cargando: true,
+    });
+
+    this.descargarDocumento
+      .ejecutar(documento.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.previsualizandoId.set(null))
+      )
+      .subscribe({
+        next: (blob) => {
+          this.revocarBlobVistaPrevia();
+          this.blobVistaPrevia = URL.createObjectURL(blob);
+          this.vistaPrevia.set({
+            titulo: documento.nombreArchivo,
+            url: this.sanitizer.bypassSecurityTrustResourceUrl(this.blobVistaPrevia),
+            cargando: false,
+          });
+        },
+        error: () => {
+          this.cerrarVistaPrevia();
+          this.error.set('No se pudo cargar la vista previa del documento.');
+        },
+      });
+  }
+
+  protected cerrarVistaPrevia(): void {
+    this.revocarBlobVistaPrevia();
+    this.vistaPrevia.set(null);
   }
 
   protected etiquetaTipo(tipo: TipoDocumentoInstitucional): string {
@@ -116,5 +169,12 @@ export class ListaDocumentosInstitucionales implements OnInit {
     enlace.download = nombreArchivo.endsWith('.pdf') ? nombreArchivo : `${nombreArchivo}.pdf`;
     enlace.click();
     URL.revokeObjectURL(url);
+  }
+
+  private revocarBlobVistaPrevia(): void {
+    if (this.blobVistaPrevia) {
+      URL.revokeObjectURL(this.blobVistaPrevia);
+      this.blobVistaPrevia = null;
+    }
   }
 }

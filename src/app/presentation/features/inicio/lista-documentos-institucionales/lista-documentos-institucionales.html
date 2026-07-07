@@ -20,16 +20,29 @@
             </span>
           </div>
 
-          @if (permitirReemplazo()) {
-            <button matButton="outlined" type="button" (click)="solicitarReemplazo.emit(doc)">
-              Reemplazar
+          <div class="doc-item-actions">
+            <button
+              matIconButton
+              type="button"
+              class="doc-btn-preview"
+              aria-label="Vista previa de {{ doc.nombreArchivo }}"
+              [disabled]="previsualizandoId() === doc.id"
+              (click)="verVistaPrevia(doc)"
+            >
+              <mat-icon>visibility</mat-icon>
             </button>
-          } @else {
-            <button matButton="filled" type="button" (click)="descargar(doc)">
-              <mat-icon>download</mat-icon>
-              Descargar
-            </button>
-          }
+
+            @if (permitirReemplazo()) {
+              <button matButton="outlined" type="button" (click)="solicitarReemplazo.emit(doc)">
+                Reemplazar
+              </button>
+            } @else {
+              <button matButton="filled" type="button" (click)="descargar(doc)">
+                <mat-icon>download</mat-icon>
+                Descargar
+              </button>
+            }
+          </div>
         </div>
       } @empty {
         <p class="doc-estado">
@@ -58,3 +71,39 @@
     </div>
   }
 </section>
+
+@if (vistaPrevia(); as preview) {
+  <div
+    class="doc-preview-backdrop"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'Vista previa: ' + preview.titulo"
+    (click)="cerrarVistaPrevia()"
+  >
+    <div class="doc-preview-panel" (click)="$event.stopPropagation()">
+      <header class="doc-preview-header">
+        <h3 class="doc-preview-title">{{ preview.titulo }}</h3>
+        <button
+          matIconButton
+          type="button"
+          aria-label="Cerrar vista previa"
+          (click)="cerrarVistaPrevia()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="doc-preview-body">
+        @if (preview.cargando) {
+          <p class="doc-preview-estado">Cargando vista previa...</p>
+        } @else if (preview.url) {
+          <iframe
+            class="doc-preview-frame"
+            [src]="preview.url"
+            title="Vista previa del documento PDF"
+          ></iframe>
+        }
+      </div>
+    </div>
+  </div>
+}
