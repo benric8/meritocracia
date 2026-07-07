@@ -1,6 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { switchMap } from 'rxjs';
+import { switchMap, catchError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { urlsGlobal } from '../../api/auth-api.constants';
@@ -34,6 +34,7 @@ export const auditoriaInterceptor: HttpInterceptorFn = (req, next) => {
         },
       });
       return next(peticion);
-    })
+    }),
+    catchError(() => next(req))
   );
 };

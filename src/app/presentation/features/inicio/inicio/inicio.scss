@@ -246,16 +246,6 @@
   color: #027a48;
 }
 
-.doc-estado {
-  margin-top: 16px;
-  font-size: 13px;
-  color: var(--mc-text-muted);
-}
-
-.doc-estado--error {
-  color: #b42318;
-}
-
 .upload-text--file {
   display: inline-flex;
   align-items: center;
@@ -273,52 +263,6 @@
   margin: 0;
   font-size: 13px;
   color: var(--mc-text-muted);
-}
-
-/* ---------- Lista de documentos ---------- */
-.doc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.doc-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: #fafbfc;
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-radius);
-}
-
-.doc-icon {
-  flex-shrink: 0;
-  color: var(--mc-primary);
-}
-
-.doc-meta {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.doc-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--mc-text);
-}
-
-.doc-date {
-  margin-top: 2px;
-  font-size: 11px;
-  color: var(--mc-text-muted);
-}
-
-.doc-item button {
-  flex-shrink: 0;
 }
 
 /* ---------- Accesos rápidos ---------- */

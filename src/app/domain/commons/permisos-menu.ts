@@ -1,4 +1,4 @@
-import { MenuOpcion } from '../dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../infrastructure/dto/remote/OpcionesResponse.dto';
 
 /** Normaliza rutas del menú/backend para comparación (`/modulo/sub`). */
 export function normalizarRutaMenu(ruta: string | null | undefined): string {

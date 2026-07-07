@@ -7,16 +7,21 @@ import { AuthStore } from '../../../../infrastructure/security/stores/auth.store
 import { crearSesionPortMock } from '../../../../testing/sesion-port.mock';
 import { Inicio } from './inicio';
 
-const documentosMock = [
-  {
-    id: '1',
-    nombre: 'Doc prueba',
-    tipo: 'RESOLUCION' as const,
-    nombreArchivo: 'doc.pdf',
-    tamanoBytes: 1000,
-    fechaPublicacion: new Date().toISOString(),
-  },
-];
+const documentosMock = {
+  elementos: [
+    {
+      id: '1',
+      tipo: 'RESOLUCION' as const,
+      nombreArchivo: 'doc.pdf',
+      fechaPublicacion: new Date().toISOString(),
+      usuarioPublicacion: 'admin',
+    },
+  ],
+  totalRegistros: 1,
+  totalPaginas: 1,
+  paginaActual: 1,
+  tamanioPagina: 5,
+};
 
 describe('Inicio por perfil', () => {
   let fixture: ComponentFixture<Inicio>;
@@ -33,8 +38,8 @@ describe('Inicio por perfil', () => {
           provide: DOCUMENTOS_INSTITUCIONALES_PORT,
           useValue: {
             listar: () => of(documentosMock),
-            subir: () => of(documentosMock[0]),
-            reemplazar: () => of(documentosMock[0]),
+            subir: () => of(documentosMock.elementos[0]),
+            reemplazar: () => of(documentosMock.elementos[0]),
             descargar: () => of(new Blob(['pdf'], { type: 'application/pdf' })),
           },
         },

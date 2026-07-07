@@ -10,7 +10,7 @@ import { PrecargarTokenBasicoUseCase } from '../../../../../application/use-case
 import { SessionVigenciaService } from '../../../../../infrastructure/security/session/session-vigencia.service';
 import { ResultadoInicioSesion } from '../../../../../domain/models/resultado-inicio-sesion.model';
 import { PersonaModel } from '../../../../../domain/models/Persona.model';
-import { Perfil } from '../../../../../domain/dto/remote/LoginResponse.dto';
+import { Perfil } from '../../../../../infrastructure/dto/remote/LoginResponse.dto';
 
 type PasoLogin = 'credenciales' | 'perfil';
 

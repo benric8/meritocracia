@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { routes } from './app.routes';
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from './domain/ports/documentos-institucionales.port';
-import { DocumentosInstitucionalesMockAdapter } from './infrastructure/adapters/mock/documentos-institucionales-mock.adapter';
+import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
 import { AUTENTICACION_PORT } from './domain/ports/autenticacion.port';
 import { SESION_PORT } from './domain/ports/sesion.port';
 import { AutenticacionHttpAdapter } from './infrastructure/adapters/http/autenticacion-http.adapter';
@@ -30,6 +30,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([auditoriaInterceptor, sessionInterceptor])),
     { provide: SESION_PORT, useClass: SessionStorageAdapter },
     { provide: AUTENTICACION_PORT, useClass: AutenticacionHttpAdapter },
-    { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesMockAdapter },
+    { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },
   ]
 };

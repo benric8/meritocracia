@@ -1,4 +1,4 @@
-import { AuditoriaRequest } from '../dto/remote/AuditoriaRequest.dto';
+import { AuditoriaRequest } from '../../infrastructure/dto/remote/AuditoriaRequest.dto';
 
 export interface PersonaModel {
   id?: number | undefined | null;

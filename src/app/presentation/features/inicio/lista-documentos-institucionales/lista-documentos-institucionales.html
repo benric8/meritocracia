@@ -1,0 +1,60 @@
+<section class="doc-lista-bloque" [class.doc-lista-bloque--cargando]="cargando() && documentos().length > 0">
+  @if (cargando() && documentos().length === 0) {
+    <p class="doc-estado">Cargando documentos...</p>
+  } @else if (error()) {
+    <p class="doc-estado doc-estado--error" role="alert">{{ error() }}</p>
+  } @else {
+    <div class="doc-list">
+      @for (doc of documentos(); track doc.id) {
+        <div class="doc-item">
+          <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
+          <div class="doc-meta">
+            <span class="doc-name">{{ doc.nombreArchivo }}</span>
+            <span class="doc-date">
+              {{ etiquetaTipo(doc.tipo) }}
+              @if (permitirReemplazo()) {
+                · Actualizado {{ fechaFormateada(doc.fechaPublicacion) }}
+              } @else {
+                · {{ fechaFormateada(doc.fechaPublicacion) }}
+              }
+            </span>
+          </div>
+
+          @if (permitirReemplazo()) {
+            <button matButton="outlined" type="button" (click)="solicitarReemplazo.emit(doc)">
+              Reemplazar
+            </button>
+          } @else {
+            <button matButton="filled" type="button" (click)="descargar(doc)">
+              <mat-icon>download</mat-icon>
+              Descargar
+            </button>
+          }
+        </div>
+      } @empty {
+        <p class="doc-estado">
+          {{ permitirReemplazo() ? 'No hay documentos publicados.' : 'No hay documentos disponibles.' }}
+        </p>
+      }
+    </div>
+
+    @if (totalRegistros() > 0) {
+      <mat-paginator
+        class="doc-paginator"
+        [length]="totalRegistros()"
+        [pageIndex]="paginaActual() - 1"
+        [pageSize]="tamanioPagina()"
+        [pageSizeOptions]="opcionesTamanioPagina"
+        [disabled]="cargando()"
+        (page)="onPaginaCambiada($event)"
+        aria-label="Paginación de documentos"
+      />
+    }
+  }
+
+  @if (cargando() && documentos().length > 0) {
+    <div class="doc-lista-overlay" aria-live="polite" aria-busy="true">
+      <span class="doc-lista-overlay__texto">Actualizando listado...</span>
+    </div>
+  }
+</section>

@@ -1,4 +1,4 @@
-import { PersonaModel } from '../../models/Persona.model';
+import { PersonaModel } from '../../../domain/models/Persona.model';
 import { BaseResponse } from './BaseResponse,dto';
 
 export interface ListarPersonasResponse extends BaseResponse {

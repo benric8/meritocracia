@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { normalizarPerfil, PerfilUsuario, resolverPerfilUsuario } from '../../../domain/commons/auth-mappers';
-import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../dto/remote/OpcionesResponse.dto';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { leerSesionPersistida } from '../session/session-persistencia';
 
@@ -103,7 +103,7 @@ export const AuthStore = signalStore(
         }
 
 
- 
+
         patchState(store, {
 
           usuario,

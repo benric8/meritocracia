@@ -27,7 +27,7 @@ export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  if (refreshService.ventanaRefreshExpirada()) {
+  if (!esRefresh && refreshService.ventanaRefreshExpirada()) {
     refreshService.cerrarSesionPorExpiracion();
     return throwError(() => new Error('Sesión expirada por inactividad'));
   }

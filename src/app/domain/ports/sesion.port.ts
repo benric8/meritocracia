@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { MenuOpcion } from '../dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../infrastructure/dto/remote/OpcionesResponse.dto';
 
 /**
  * Puerto de persistencia de sesión (tokens, tiempos y datos de usuario).

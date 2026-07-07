@@ -1,5 +1,5 @@
 import { constantes } from '../../../domain/commons/constants';
-import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../../infrastructure/dto/remote/OpcionesResponse.dto';
 
 /** Modelo de presentación del menú lateral (árbol). */
 export interface MenuItem {

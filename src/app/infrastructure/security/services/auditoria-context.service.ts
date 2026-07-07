@@ -2,7 +2,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { auditoriaDefault, constantes } from '../../../domain/commons/constants';
-import { AuditoriaRequest } from '../../../domain/dto/remote/AuditoriaRequest.dto';
+import { AuditoriaRequest } from '../../dto/remote/AuditoriaRequest.dto';
 import { PublicIpService } from '../../network/public-ip.service';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 

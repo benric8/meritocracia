@@ -1,7 +1,7 @@
 import { constantes, tokenNiveles } from '../../../domain/commons/constants';
 import { normalizarPerfil, PerfilUsuario, resolverPerfilUsuario } from '../../../domain/commons/auth-mappers';
 import { ventanaRefreshVigente, segundosTranscurridos } from '../../../domain/commons/session-timers';
-import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../dto/remote/OpcionesResponse.dto';
 import { descifrarValorSesionAlmacenado } from '../encryption/session-field-crypto.service';
 import type { AuthState } from '../stores/auth.store';
 

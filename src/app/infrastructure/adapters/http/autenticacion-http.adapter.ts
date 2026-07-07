@@ -14,11 +14,11 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 
 import { Util } from '../../../domain/commons/util';
 
-import { LoginResponse } from '../../../domain/dto/remote/LoginResponse.dto';
+import { LoginResponse } from '../../dto/remote/LoginResponse.dto';
 
-import { OpcionesResponse } from '../../../domain/dto/remote/OpcionesResponse.dto';
+import { OpcionesResponse } from '../../dto/remote/OpcionesResponse.dto';
 
-import { tokenResponse } from '../../../domain/dto/remote/tokenResponse.dto';
+import { tokenResponse } from '../../dto/remote/tokenResponse.dto';
 
 import { authEndpoints } from '../../api/auth-api.constants';
 

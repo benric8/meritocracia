@@ -3,12 +3,10 @@ export type TipoDocumentoInstitucional = 'RESOLUCION' | 'LINEAMIENTO';
 
 export interface DocumentoInstitucional {
   id: string;
-  nombre: string;
   tipo: TipoDocumentoInstitucional;
   nombreArchivo: string;
-  tamanoBytes: number;
   fechaPublicacion: string;
-  usuarioPublicacion?: string;
+  usuarioPublicacion: string;
 }
 
 export interface SubirDocumentoPeticion {

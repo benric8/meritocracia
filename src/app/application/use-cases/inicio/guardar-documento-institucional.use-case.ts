@@ -6,6 +6,7 @@ import {
   SubirDocumentoPeticion,
 } from '../../../domain/models/documento-institucional.model';
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from '../../../domain/ports/documentos-institucionales.port';
+import { mensajeErrorHttp } from '../../../infrastructure/api/http-error.util';
 import { obtenerConfigDocumentosInstitucionales } from '../../../infrastructure/config/documentos-institucionales.config';
 
 export interface GuardarDocumentoInstitucionalResultado {
@@ -45,8 +46,11 @@ export class GuardarDocumentoInstitucionalUseCase {
 
     return operacion.pipe(
       map((documento) => ({ exito: true as const, documento })),
-      catchError((error: Error) =>
-        of({ exito: false as const, mensaje: error.message || 'No se pudo guardar el documento.' })
+      catchError((error: unknown) =>
+        of({
+          exito: false as const,
+          mensaje: mensajeErrorHttp(error, 'No se pudo guardar el documento.'),
+        })
       )
     );
   }

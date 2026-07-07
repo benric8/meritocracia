@@ -116,62 +116,17 @@
             <p class="form-feedback form-feedback--ok" role="status">{{ mensajeExito() }}</p>
           }
 
-          @if (cargandoDocumentos()) {
-            <p class="doc-estado">Cargando documentos...</p>
-          } @else if (errorDocumentos()) {
-            <p class="doc-estado doc-estado--error" role="alert">{{ errorDocumentos() }}</p>
-          } @else {
-            <div class="doc-list">
-              @for (doc of documentos(); track doc.id) {
-                <div class="doc-item">
-                  <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
-                  <div class="doc-meta">
-                    <span class="doc-name">{{ doc.nombre }}</span>
-                    <span class="doc-date">
-                      {{ etiquetaTipo(doc.tipo) }} · Actualizado {{ fechaFormateada(doc.fechaPublicacion) }}
-                      · {{ doc.tamanoBytes | number }} bytes
-                    </span>
-                  </div>
-                  <button matButton="outlined" type="button" (click)="iniciarReemplazo(doc)">
-                    Reemplazar
-                  </button>
-                </div>
-              } @empty {
-                <p class="doc-estado">No hay documentos publicados.</p>
-              }
-            </div>
-          }
+          <app-lista-documentos-institucionales
+            [permitirReemplazo]="true"
+            (solicitarReemplazo)="iniciarReemplazo($event)"
+          />
         } @else {
           <p class="card-subtitle">
             Consulte y descargue los documentos institucionales publicados por el
             administrador.
           </p>
 
-          @if (cargandoDocumentos()) {
-            <p class="doc-estado">Cargando documentos...</p>
-          } @else if (errorDocumentos()) {
-            <p class="doc-estado doc-estado--error" role="alert">{{ errorDocumentos() }}</p>
-          } @else {
-            <div class="doc-list">
-              @for (doc of documentos(); track doc.id) {
-                <div class="doc-item">
-                  <mat-icon class="doc-icon">picture_as_pdf</mat-icon>
-                  <div class="doc-meta">
-                    <span class="doc-name">{{ doc.nombre }}</span>
-                    <span class="doc-date">
-                      {{ etiquetaTipo(doc.tipo) }} · {{ fechaFormateada(doc.fechaPublicacion) }}
-                    </span>
-                  </div>
-                  <button matButton="filled" type="button" (click)="descargar(doc)">
-                    <mat-icon>download</mat-icon>
-                    Descargar
-                  </button>
-                </div>
-              } @empty {
-                <p class="doc-estado">No hay documentos disponibles.</p>
-              }
-            </div>
-          }
+          <app-lista-documentos-institucionales />
 
           <p class="card-note">
             <mat-icon>info</mat-icon>

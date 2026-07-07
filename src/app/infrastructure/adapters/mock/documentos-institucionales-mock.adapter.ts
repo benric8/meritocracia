@@ -4,6 +4,7 @@ import {
   DocumentoInstitucional,
   SubirDocumentoPeticion,
 } from '../../../domain/models/documento-institucional.model';
+import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/paginacion.model';
 import { DocumentosInstitucionalesPort } from '../../../domain/ports/documentos-institucionales.port';
 
 const STORAGE_KEY = 'MC_DOCS_INST_MOCK';
@@ -40,23 +41,19 @@ export class DocumentosInstitucionalesMockAdapter implements DocumentosInstituci
     return [
       {
         id: 'doc-seed-1',
-        nombre: 'R.A. N° 031-2013-CE-PJ — Producción jurisdiccional',
         tipo: 'RESOLUCION',
         nombreArchivo: 'ra-031-2013.pdf',
-        tamanoBytes: 1_250_000,
         fechaPublicacion: ahora,
         usuarioPublicacion: 'sistema',
-        contenidoBase64: this.pdfMinimoBase64(),
+        contenidoBase64: ''
       },
       {
         id: 'doc-seed-2',
-        nombre: 'Lineamientos de valoración 2026',
+        nombreArchivo: 'Lineamientos de valoración 2026',
         tipo: 'LINEAMIENTO',
-        nombreArchivo: 'lineamientos-2026.pdf',
-        tamanoBytes: 890_000,
         fechaPublicacion: ahora,
         usuarioPublicacion: 'sistema',
-        contenidoBase64: this.pdfMinimoBase64(),
+        contenidoBase64: ''
       },
     ];
   }
@@ -85,9 +82,20 @@ export class DocumentosInstitucionalesMockAdapter implements DocumentosInstituci
     });
   }
 
-  listar(): Observable<DocumentoInstitucional[]> {
+  listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<DocumentoInstitucional>> {
     const docs = this.leerAlmacen().map((d) => this.aPublico(d));
-    return of(docs).pipe(delay(LATENCIA_MS));
+    const inicio = (peticion.pagina - 1) * peticion.tamanio;
+    const elementos = docs.slice(inicio, inicio + peticion.tamanio);
+    const totalRegistros = docs.length;
+    const totalPaginas = Math.max(1, Math.ceil(totalRegistros / peticion.tamanio));
+
+    return of({
+      elementos,
+      totalRegistros,
+      totalPaginas,
+      paginaActual: peticion.pagina,
+      tamanioPagina: peticion.tamanio,
+    }).pipe(delay(LATENCIA_MS));
   }
 
   subir(peticion: SubirDocumentoPeticion, usuario: string): Observable<DocumentoInstitucional> {
@@ -96,10 +104,8 @@ export class DocumentosInstitucionalesMockAdapter implements DocumentosInstituci
         const documentos = this.leerAlmacen();
         const nuevo: DocumentoMockPersistido = {
           id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-          nombre: peticion.nombre.trim(),
+          nombreArchivo: peticion.nombre.trim(),
           tipo: peticion.tipo,
-          nombreArchivo: peticion.archivo.name,
-          tamanoBytes: peticion.archivo.size,
           fechaPublicacion: new Date().toISOString(),
           usuarioPublicacion: usuario,
           contenidoBase64,
@@ -127,10 +133,8 @@ export class DocumentosInstitucionalesMockAdapter implements DocumentosInstituci
       map((contenidoBase64) => {
         const actualizado: DocumentoMockPersistido = {
           ...documentos[indice],
-          nombre: peticion.nombre.trim(),
+          nombreArchivo: peticion.nombre.trim(),
           tipo: peticion.tipo,
-          nombreArchivo: peticion.archivo.name,
-          tamanoBytes: peticion.archivo.size,
           fechaPublicacion: new Date().toISOString(),
           usuarioPublicacion: usuario,
           contenidoBase64,

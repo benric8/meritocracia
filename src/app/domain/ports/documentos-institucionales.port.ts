@@ -4,13 +4,13 @@ import {
   DocumentoInstitucional,
   SubirDocumentoPeticion,
 } from '../models/documento-institucional.model';
+import { PeticionPaginada, ResultadoPaginado } from '../models/paginacion.model';
 
 /**
  * Puerto de salida: gestión de resoluciones y lineamientos (RF003).
- * Implementación mock hoy; sustituir por adaptador HTTP cuando el backend esté listo.
  */
 export interface DocumentosInstitucionalesPort {
-  listar(): Observable<DocumentoInstitucional[]>;
+  listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<DocumentoInstitucional>>;
   subir(peticion: SubirDocumentoPeticion, usuario: string): Observable<DocumentoInstitucional>;
   reemplazar(
     id: string,

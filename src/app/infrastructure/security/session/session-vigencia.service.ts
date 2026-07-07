@@ -28,6 +28,8 @@ export class SessionVigenciaService implements OnDestroy {
   private intervaloId: ReturnType<typeof setInterval> | null = null;
   private contadorAvisoId: ReturnType<typeof setInterval> | null = null;
   private avisoRenovacionAbierto = false;
+  private renovacionEnProgreso = false;
+  private sesionExpiradaNotificada = false;
 
   ngOnDestroy(): void {
     this.detenerMonitoreo();
@@ -86,8 +88,12 @@ export class SessionVigenciaService implements OnDestroy {
       return;
     }
 
+    if (this.avisoRenovacionAbierto) {
+      return;
+    }
+
     if (this.sesionCompletamenteExpirada()) {
-      this.mostrarSesionExpirada();
+      void this.mostrarSesionExpirada();
       return;
     }
 
@@ -125,19 +131,24 @@ export class SessionVigenciaService implements OnDestroy {
     this.avisoRenovacionAbierto = false;
     this.detenerContadorAviso();
 
-    if (this.sesionCompletamenteExpirada()) {
-      await this.mostrarSesionExpirada();
-      return;
-    }
-
     if (resultado.isConfirmed) {
-      await this.renovarSesion();
+      this.renovacionEnProgreso = true;
+      try {
+        await this.renovarSesion();
+      } finally {
+        this.renovacionEnProgreso = false;
+      }
       return;
     }
 
     if (resultado.isDenied) {
       this.finalizarSesion();
       await this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.sesionCompletamenteExpirada()) {
+      await this.mostrarSesionExpirada();
     }
   }
 
@@ -165,7 +176,9 @@ export class SessionVigenciaService implements OnDestroy {
 
       if (this.sesionCompletamenteExpirada()) {
         this.detenerContadorAviso();
-        Swal.close();
+        if (!this.renovacionEnProgreso) {
+          void this.mostrarSesionExpirada();
+        }
         return;
       }
 
@@ -180,19 +193,32 @@ export class SessionVigenciaService implements OnDestroy {
     }
   }
 
-  private async mostrarSesionExpirada(): Promise<void> {
+  private async mostrarSesionExpirada(detalle?: string): Promise<void> {
+    if (this.renovacionEnProgreso || this.sesionExpiradaNotificada) {
+      return;
+    }
+
+    this.sesionExpiradaNotificada = true;
     this.detenerMonitoreo();
+    this.avisoRenovacionAbierto = false;
 
     if (Swal.isVisible()) {
       const titulo = Swal.getTitle()?.textContent;
       if (titulo === mensajes.SWAL_TITLE_TOKEN_EXPIRA) {
         return;
       }
+      if (titulo === 'Atención') {
+        Swal.close();
+      }
     }
+
+    const html = detalle
+      ? `El aplicativo se cerrará en este momento.<br><br><small>${detalle}</small>`
+      : 'El aplicativo se cerrará en este momento.';
 
     await Swal.fire({
       title: mensajes.SWAL_TITLE_TOKEN_EXPIRA,
-      html: 'El aplicativo se cerrará en este momento.',
+      html,
       confirmButtonText: 'OK',
       allowOutsideClick: false,
     });
@@ -203,9 +229,12 @@ export class SessionVigenciaService implements OnDestroy {
 
   private async renovarSesion(): Promise<void> {
     try {
-      await firstValueFrom(this.tokenRefresh.refrescarToken());
-    } catch {
-      await this.mostrarSesionExpirada();
+      await firstValueFrom(this.tokenRefresh.refrescarSesionUsuario());
+      this.sesionExpiradaNotificada = false;
+      this.iniciarMonitoreo();
+    } catch (error) {
+      const detalle = error instanceof Error ? error.message : undefined;
+      await this.mostrarSesionExpirada(detalle);
     }
   }
 

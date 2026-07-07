@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -11,9 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { DescargarDocumentoInstitucionalUseCase } from '../../../../application/use-cases/inicio/descargar-documento-institucional.use-case';
 import { GuardarDocumentoInstitucionalUseCase } from '../../../../application/use-cases/inicio/guardar-documento-institucional.use-case';
-import { ListarDocumentosInstitucionalesUseCase } from '../../../../application/use-cases/inicio/listar-documentos-institucionales.use-case';
 import {
   formatearTamanoBytes,
   validarArchivoPdf,
@@ -31,6 +29,7 @@ import {
   textoBienvenidaPorPerfil,
   tituloAccesosRapidos,
 } from '../inicio-perfil.config';
+import { ListaDocumentosInstitucionales } from '../lista-documentos-institucionales/lista-documentos-institucionales';
 
 interface Estadistica {
   etiqueta: string;
@@ -51,19 +50,19 @@ interface Estadistica {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    ListaDocumentosInstitucionales,
   ],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
-export class Inicio implements OnInit {
+export class Inicio {
   private readonly authStore = inject(AuthStore);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly listarDocumentos = inject(ListarDocumentosInstitucionalesUseCase);
   private readonly guardarDocumento = inject(GuardarDocumentoInstitucionalUseCase);
-  private readonly descargarDocumento = inject(DescargarDocumentoInstitucionalUseCase);
 
   private readonly inputArchivo = viewChild<ElementRef<HTMLInputElement>>('inputArchivo');
+  private readonly listaDocumentos = viewChild(ListaDocumentosInstitucionales);
 
   protected readonly tiposDocumento = Object.entries(ETIQUETAS_TIPO_DOCUMENTO) as [
     TipoDocumentoInstitucional,
@@ -88,10 +87,7 @@ export class Inicio implements OnInit {
     { etiqueta: 'Superiores Titulares', valor: '212' },
   ]);
 
-  protected readonly documentos = signal<DocumentoInstitucional[]>([]);
-  protected readonly cargandoDocumentos = signal(false);
   protected readonly guardando = signal(false);
-  protected readonly errorDocumentos = signal<string | null>(null);
   protected readonly errorFormulario = signal<string | null>(null);
   protected readonly mensajeExito = signal<string | null>(null);
   protected readonly archivoSeleccionado = signal<File | null>(null);
@@ -102,22 +98,6 @@ export class Inicio implements OnInit {
     nombre: ['', [Validators.required, Validators.maxLength(200)]],
     tipo: ['RESOLUCION' as TipoDocumentoInstitucional, Validators.required],
   });
-
-  ngOnInit(): void {
-    this.cargarDocumentos();
-  }
-
-  protected etiquetaTipo(tipo: TipoDocumentoInstitucional): string {
-    return ETIQUETAS_TIPO_DOCUMENTO[tipo];
-  }
-
-  protected fechaFormateada(iso: string): string {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(new Date(iso));
-  }
 
   protected abrirSelectorArchivo(): void {
     this.inputArchivo()?.nativeElement.click();
@@ -157,7 +137,7 @@ export class Inicio implements OnInit {
     this.errorFormulario.set(null);
     this.mensajeExito.set(null);
     this.formDocumento.setValue({
-      nombre: documento.nombre,
+      nombre: documento.nombreArchivo,
       tipo: documento.tipo,
     });
   }
@@ -212,35 +192,9 @@ export class Inicio implements OnInit {
             edicion ? 'Documento reemplazado correctamente.' : 'Documento publicado correctamente.'
           );
           this.cancelarEdicion();
-          this.cargarDocumentos();
+          this.listaDocumentos()?.recargar(1);
         },
         error: () => this.errorFormulario.set('Ocurrió un error al guardar el documento.'),
-      });
-  }
-
-  protected descargar(documento: DocumentoInstitucional): void {
-    this.errorDocumentos.set(null);
-    this.descargarDocumento
-      .ejecutar(documento.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (blob) => this.dispararDescarga(blob, documento.nombreArchivo),
-        error: () => this.errorDocumentos.set('No se pudo descargar el documento.'),
-      });
-  }
-
-  private cargarDocumentos(): void {
-    this.cargandoDocumentos.set(true);
-    this.errorDocumentos.set(null);
-    this.listarDocumentos
-      .ejecutar()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.cargandoDocumentos.set(false))
-      )
-      .subscribe({
-        next: (lista) => this.documentos.set(lista),
-        error: () => this.errorDocumentos.set('No se pudieron cargar los documentos.'),
       });
   }
 
@@ -257,14 +211,5 @@ export class Inicio implements OnInit {
       const nombreSinExtension = archivo.name.replace(/\.pdf$/i, '');
       this.formDocumento.controls.nombre.setValue(nombreSinExtension);
     }
-  }
-
-  private dispararDescarga(blob: Blob, nombreArchivo: string): void {
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = nombreArchivo.endsWith('.pdf') ? nombreArchivo : `${nombreArchivo}.pdf`;
-    enlace.click();
-    URL.revokeObjectURL(url);
   }
 }

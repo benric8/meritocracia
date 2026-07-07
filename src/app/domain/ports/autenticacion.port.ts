@@ -1,8 +1,8 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoginResponse } from '../dto/remote/LoginResponse.dto';
-import { OpcionesResponse } from '../dto/remote/OpcionesResponse.dto';
-import { tokenResponse } from '../dto/remote/tokenResponse.dto';
+import { LoginResponse } from '../../infrastructure/dto/remote/LoginResponse.dto';
+import { OpcionesResponse } from '../../infrastructure/dto/remote/OpcionesResponse.dto';
+import { tokenResponse } from '../../infrastructure/dto/remote/tokenResponse.dto';
 
 /**
  * Puerto de salida (hexagonal): contrato de autenticación que el dominio

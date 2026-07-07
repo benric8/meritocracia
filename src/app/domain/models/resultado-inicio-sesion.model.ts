@@ -1,4 +1,4 @@
-import { Perfil, Usuario } from '../dto/remote/LoginResponse.dto';
+import { Perfil, Usuario } from '../../infrastructure/dto/remote/LoginResponse.dto';
 
 /** Resultado del caso de uso de inicio de sesión (credenciales). */
 export type ResultadoInicioSesion =

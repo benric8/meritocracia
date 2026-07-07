@@ -7,7 +7,7 @@ import {
   ventanaRefreshVigente,
 } from '../../../domain/commons/session-timers';
 
-import { MenuOpcion } from '../../../domain/dto/remote/OpcionesResponse.dto';
+import { MenuOpcion } from '../../dto/remote/OpcionesResponse.dto';
 
 import { SesionPort } from '../../../domain/ports/sesion.port';
 
