@@ -1,1 +1,31 @@
-<p>usuarios works!</p>
+<section class="usuarios">
+  <header class="usuarios__toolbar">
+    <div class="usuarios__encabezado">
+      <h1 class="usuarios__titulo">Gestión de Usuarios</h1>
+      <p class="usuarios__subtitulo">Registro, habilitación y restablecimiento de contraseñas</p>
+    </div>
+
+    <button matButton="filled" type="button" class="usuarios__crear" (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon>
+      Crear usuario
+    </button>
+  </header>
+
+  @if (mensajeExito(); as mensaje) {
+    <p class="usuarios__exito" role="status">{{ mensaje }}</p>
+  }
+
+  <app-lista-usuarios
+    [usuarios]="usuarios()"
+    [cargando]="cargando()"
+    (restablecerClave)="onRestablecerClave($event)"
+    (cambiarEstado)="onCambiarEstado($event)"
+  />
+
+  <app-formulario-registro-usuario
+    [abierto]="mostrarFormulario()"
+    [guardando]="guardando()"
+    (cerrar)="cerrarFormulario()"
+    (guardar)="onGuardarUsuario($event)"
+  />
+</section>

@@ -1,0 +1,78 @@
+import { PERFILES } from '../../../../domain/commons/auth-mappers';
+import { UsuarioGestion } from '../models/usuario-gestion.model';
+
+/** Datos de demostración hasta conectar el adapter HTTP de RF004. */
+export const USUARIOS_MOCK: UsuarioGestion[] = [
+  {
+    id: '1',
+    codigo: 'USR001',
+    nombreCompleto: 'Carlos Mendoza Ruiz',
+    cargo: 'Analista',
+    dependencia: 'Subgerencia Registros Laborales',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: true,
+  },
+  {
+    id: '2',
+    codigo: 'USR002',
+    nombreCompleto: 'Ana Torres Vidal',
+    cargo: 'Especialista',
+    dependencia: 'Equipo Cuadro de Méritos',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: true,
+  },
+  {
+    id: '3',
+    codigo: 'USR003',
+    nombreCompleto: 'Luis Herrera Díaz',
+    cargo: 'Asistente',
+    dependencia: 'Gerencia de RR.HH.',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: false,
+  },
+  {
+    id: '4',
+    codigo: 'USR004',
+    nombreCompleto: 'María Fernández López',
+    cargo: 'Jefa de Oficina',
+    dependencia: 'Gerencia de Informática',
+    funcion: PERFILES.ADMIN,
+    habilitado: true,
+  },
+  {
+    id: '5',
+    codigo: 'USR005',
+    nombreCompleto: 'Roberto Sánchez Vega',
+    cargo: 'Coordinador',
+    dependencia: 'Secretaría General',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: true,
+  },
+  {
+    id: '6',
+    codigo: 'USR006',
+    nombreCompleto: 'Patricia Gómez Ríos',
+    cargo: 'Analista Senior',
+    dependencia: 'Subgerencia Registros Laborales',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: true,
+  },
+  {
+    id: '7',
+    codigo: 'USR007',
+    nombreCompleto: 'Jorge Castillo Paredes',
+    cargo: 'Asistente Legal',
+    dependencia: 'Equipo Cuadro de Méritos',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: false,
+  },
+  {
+    id: '8',
+    codigo: 'USR008',
+    nombreCompleto: 'Sofía Ramírez Castro',
+    cargo: 'Especialista',
+    dependencia: 'Gerencia de RR.HH.',
+    funcion: PERFILES.REGISTRADOR,
+    habilitado: true,
+  },
+];

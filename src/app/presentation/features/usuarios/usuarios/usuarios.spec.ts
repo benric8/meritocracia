@@ -19,4 +19,9 @@ describe('Usuarios', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('muestra el encabezado de gestión de usuarios', () => {
+    const elemento: HTMLElement = fixture.nativeElement;
+    expect(elemento.querySelector('.usuarios__titulo')?.textContent).toContain('Gestión de Usuarios');
+  });
 });

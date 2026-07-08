@@ -1,0 +1,111 @@
+<section class="lista-usuarios" [class.lista-usuarios--cargando]="cargando()">
+  <div class="lista-usuarios__filtros">
+    <mat-form-field appearance="outline" class="lista-usuarios__busqueda">
+      <mat-label>Buscar usuario</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        type="search"
+        placeholder="Buscar por nombre, código o dependencia..."
+        [ngModel]="terminoBusqueda()"
+        (ngModelChange)="onBusquedaCambiada($event)"
+        [disabled]="cargando()"
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="lista-usuarios__tabla-card">
+    @if (cargando() && usuarios().length === 0) {
+      <p class="lista-usuarios__estado">Cargando usuarios...</p>
+    } @else {
+      <div class="lista-usuarios__tabla-wrap">
+        <table class="lista-usuarios__tabla">
+          <thead>
+            <tr>
+              <th scope="col">N°</th>
+              <th scope="col">Nombre y Apellido</th>
+              <th scope="col">Cargo</th>
+              <th scope="col">Dependencia</th>
+              <th scope="col">Perfil</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of usuariosPaginados(); track usuario.id; let i = $index) {
+              <tr>
+                <td>{{ numeroFila(i) }}</td>
+                <td>{{ usuario.nombreCompleto }}</td>
+                <td>{{ usuario.cargo }}</td>
+                <td>{{ usuario.dependencia }}</td>
+                <td>{{ usuario.funcion }}</td>
+                <td>
+                  <span
+                    class="lista-usuarios__estado-badge"
+                    [class.lista-usuarios__estado-badge--activo]="usuario.habilitado"
+                    [class.lista-usuarios__estado-badge--inactivo]="!usuario.habilitado"
+                  >
+                    {{ etiquetaEstado(usuario.habilitado) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="lista-usuarios__acciones">
+                    <button
+                      matIconButton
+                      type="button"
+                      class="lista-usuarios__accion"
+                      matTooltip="Restablecer contraseña"
+                      matTooltipPosition="above"
+                      [attr.aria-label]="'Restablecer contraseña de ' + usuario.nombreCompleto"
+                      [disabled]="cargando()"
+                      (click)="restablecerClave.emit(usuario)"
+                    >
+                      <mat-icon>vpn_key</mat-icon>
+                    </button>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="lista-usuarios__accion"
+                      [matTooltip]="tituloAccionEstado(usuario.habilitado)"
+                      matTooltipPosition="above"
+                      [attr.aria-label]="tituloAccionEstado(usuario.habilitado) + ' ' + usuario.nombreCompleto"
+                      [disabled]="cargando()"
+                      (click)="cambiarEstado.emit(usuario)"
+                    >
+                      <mat-icon>{{ iconoAccionEstado(usuario.habilitado) }}</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="lista-usuarios__vacio">
+                  {{ terminoBusqueda() ? 'No se encontraron usuarios con ese criterio.' : 'No hay usuarios registrados.' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalRegistros() > 0) {
+        <mat-paginator
+          class="lista-usuarios__paginador"
+          [length]="totalRegistros()"
+          [pageIndex]="paginaActual() - 1"
+          [pageSize]="tamanioPagina()"
+          [pageSizeOptions]="opcionesTamanioPagina"
+          [disabled]="cargando()"
+          (page)="onPaginaCambiada($event)"
+          aria-label="Paginación de usuarios"
+        />
+      }
+    }
+  </div>
+
+  @if (cargando() && usuarios().length > 0) {
+    <div class="lista-usuarios__overlay" aria-live="polite" aria-busy="true">
+      <span>Actualizando listado...</span>
+    </div>
+  }
+</section>

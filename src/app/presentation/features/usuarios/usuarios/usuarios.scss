@@ -1,0 +1,61 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  color: var(--mc-text);
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mc-primary),
+      filled-label-text-color: #ffffff,
+      outlined-label-text-color: var(--mc-primary),
+      outlined-outline-color: var(--mc-primary),
+    )
+  );
+}
+
+.usuarios {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.usuarios__toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.usuarios__encabezado {
+  min-width: 0;
+}
+
+.usuarios__titulo {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--mc-text);
+}
+
+.usuarios__subtitulo {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--mc-text-muted);
+}
+
+.usuarios__crear {
+  flex-shrink: 0;
+}
+
+.usuarios__exito {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #067647;
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  border-radius: var(--mc-radius);
+}
