@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
@@ -11,6 +11,13 @@ import { SessionVigenciaService } from '../../../../../infrastructure/security/s
 import { ResultadoInicioSesion } from '../../../../../domain/models/resultado-inicio-sesion.model';
 import { PersonaModel } from '../../../../../domain/models/Persona.model';
 import { Perfil } from '../../../../../infrastructure/dto/remote/LoginResponse.dto';
+import {
+  CampoCredencialesLogin,
+  CREDENCIALES_LOGIN,
+  mensajeErrorCampoLogin,
+  VALIDADORES_CLAVE_LOGIN,
+  VALIDADORES_USUARIO_LOGIN,
+} from '../../validators/credenciales-login.validators';
 
 type PasoLogin = 'credenciales' | 'perfil';
 
@@ -41,9 +48,11 @@ export class Login implements OnInit {
   private personaLogin?: PersonaModel;
 
   protected readonly form = this.fb.nonNullable.group({
-    usuario: ['', [Validators.required]],
-    clave: ['', [Validators.required]],
+    usuario: ['', VALIDADORES_USUARIO_LOGIN],
+    clave: ['', VALIDADORES_CLAVE_LOGIN],
   });
+
+  protected readonly limitesCredenciales = CREDENCIALES_LOGIN;
 
   ngOnInit(): void {
     this.precargarTokenBasico
@@ -57,6 +66,10 @@ export class Login implements OnInit {
 
   protected alternarClave(): void {
     this.mostrarClave.update((valor) => !valor);
+  }
+
+  protected mensajeError(campo: CampoCredencialesLogin): string | null {
+    return mensajeErrorCampoLogin(this.form.controls[campo], campo);
   }
 
   protected iniciar(): void {

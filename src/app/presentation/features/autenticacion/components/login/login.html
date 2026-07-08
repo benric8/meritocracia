@@ -40,10 +40,13 @@
             formControlName="usuario"
             placeholder="Ingrese su usuario"
             autocomplete="username"
+            [attr.maxlength]="limitesCredenciales.usuario.maxLength"
+            [attr.aria-describedby]="mensajeError('usuario') ? 'usuario-error' : null"
+            [attr.aria-invalid]="form.controls.usuario.touched && form.controls.usuario.invalid"
           />
         </div>
-        @if (form.controls.usuario.touched && form.controls.usuario.invalid) {
-          <span class="field-error">El usuario es obligatorio.</span>
+        @if (mensajeError('usuario'); as errorUsuario) {
+          <span id="usuario-error" class="field-error" role="alert">{{ errorUsuario }}</span>
         }
       </div>
 
@@ -61,6 +64,9 @@
             formControlName="clave"
             placeholder="Ingrese su contraseña"
             autocomplete="current-password"
+            [attr.maxlength]="limitesCredenciales.clave.maxLength"
+            [attr.aria-describedby]="mensajeError('clave') ? 'clave-error' : null"
+            [attr.aria-invalid]="form.controls.clave.touched && form.controls.clave.invalid"
           />
           <button
             type="button"
@@ -71,8 +77,8 @@
             <mat-icon>{{ mostrarClave() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </div>
-        @if (form.controls.clave.touched && form.controls.clave.invalid) {
-          <span class="field-error">La contraseña es obligatoria.</span>
+        @if (mensajeError('clave'); as errorClave) {
+          <span id="clave-error" class="field-error" role="alert">{{ errorClave }}</span>
         }
       </div>
 

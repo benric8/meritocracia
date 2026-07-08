@@ -84,7 +84,7 @@ export class ListaDocumentosInstitucionales implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (blob) => this.dispararDescarga(blob, documento.nombreArchivo),
-        error: () => this.error.set('No se pudo descargar el documento.'),
+        error: () => undefined,
       });
   }
 
@@ -115,7 +115,6 @@ export class ListaDocumentosInstitucionales implements OnInit {
         },
         error: () => {
           this.cerrarVistaPrevia();
-          this.error.set('No se pudo cargar la vista previa del documento.');
         },
       });
   }
@@ -158,7 +157,7 @@ export class ListaDocumentosInstitucionales implements OnInit {
             this.recargar(pagina - 1);
           }
         },
-        error: () => this.error.set('No se pudieron cargar los documentos.'),
+        error: () => undefined,
       });
   }
 

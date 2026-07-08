@@ -185,7 +185,9 @@ export class Inicio {
       .subscribe({
         next: (resultado) => {
           if (!resultado.exito) {
-            this.errorFormulario.set(resultado.mensaje ?? 'No se pudo guardar el documento.');
+            if (resultado.mensaje) {
+              this.errorFormulario.set(resultado.mensaje);
+            }
             return;
           }
           this.mensajeExito.set(

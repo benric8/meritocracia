@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { constantes, tokenNiveles } from '../../../domain/commons/constants';
+import { tokenNiveles } from '../../../domain/commons/constants';
 import {
   DocumentoInstitucional,
   SubirDocumentoPeticion,
@@ -11,6 +11,7 @@ import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/pagi
 import { DocumentosInstitucionalesPort } from '../../../domain/ports/documentos-institucionales.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
+import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constants';
 import {
   DocumentoInstitucionalResponse,
@@ -40,7 +41,7 @@ export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstituci
       )
       .pipe(
         map((respuesta) => {
-          this.validarExito(respuesta);
+          assertRespuestaExitosa(respuesta);
           return toResultadoPaginado(respuesta, toDocumentoInstitucional);
         })
       );
@@ -90,7 +91,7 @@ export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstituci
 
     return peticionHttp.pipe(
       map((respuesta) => {
-        this.validarExito(respuesta);
+        assertRespuestaExitosa(respuesta);
         return toDocumentoInstitucional(respuesta.data);
       })
     );
@@ -99,12 +100,6 @@ export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstituci
   private asegurarTokenOpciones(): void {
     if (this.sesion.getTokenNivel() !== tokenNiveles.NIVEL_OPCIONES) {
       throw new Error('Se requiere una sesión con perfil cargado para gestionar documentos.');
-    }
-  }
-
-  private validarExito(respuesta: { codigo: string; descripcion: string }): void {
-    if (respuesta.codigo !== constantes.RES_COD_EXITO) {
-      throw new Error(respuesta.descripcion || 'La operación fue rechazada por el servidor.');
     }
   }
 }
