@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PAGINACION_POR_DEFECTO } from '../../../../domain/models/paginacion.model';
-import { UsuarioGestion } from '../models/usuario-gestion.model';
+import { UsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
 
 @Component({
   selector: 'app-lista-usuarios',
@@ -35,13 +35,15 @@ import { UsuarioGestion } from '../models/usuario-gestion.model';
 export class ListaUsuarios {
   readonly usuarios = input<UsuarioGestion[]>([]);
   readonly cargando = input(false);
+  readonly totalRegistros = input(0);
+  readonly paginaActual = input(PAGINACION_POR_DEFECTO.pagina);
+  readonly tamanioPagina = input(PAGINACION_POR_DEFECTO.tamanio);
 
   readonly restablecerClave = output<UsuarioGestion>();
   readonly cambiarEstado = output<UsuarioGestion>();
+  readonly paginaCambiada = output<PageEvent>();
 
   protected readonly terminoBusqueda = signal('');
-  protected readonly paginaActual = signal(PAGINACION_POR_DEFECTO.pagina);
-  protected readonly tamanioPagina = signal(PAGINACION_POR_DEFECTO.tamanio);
   protected readonly opcionesTamanioPagina = [5, 8, 10, 20];
 
   protected readonly usuariosFiltrados = computed(() => {
@@ -62,21 +64,16 @@ export class ListaUsuarios {
     );
   });
 
-  protected readonly usuariosPaginados = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.tamanioPagina();
-    return this.usuariosFiltrados().slice(inicio, inicio + this.tamanioPagina());
-  });
-
-  protected readonly totalRegistros = computed(() => this.usuariosFiltrados().length);
+  protected readonly totalRegistrosVisibles = computed(() =>
+    this.terminoBusqueda().trim() ? this.usuariosFiltrados().length : this.totalRegistros()
+  );
 
   protected onBusquedaCambiada(valor: string): void {
     this.terminoBusqueda.set(valor);
-    this.paginaActual.set(1);
   }
 
   protected onPaginaCambiada(evento: PageEvent): void {
-    this.paginaActual.set(evento.pageIndex + 1);
-    this.tamanioPagina.set(evento.pageSize);
+    this.paginaCambiada.emit(evento);
   }
 
   protected numeroFila(indice: number): number {

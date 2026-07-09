@@ -102,6 +102,15 @@
       flex: 1;
       min-width: 0;
     }
+
+    .ficha-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: #fafafa;
+    }
   </style>
 </head>
 <body class="mockup-scroll-body">
@@ -241,19 +250,18 @@
                 <div class="antiguedad-block">
                   <span class="antiguedad-block-criterion">Antigüedad en el cargo</span>
                   <h3 class="antiguedad-block-title">Datos generales y titularidad actual</h3>
-                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración. La <strong>hora de juramento</strong> corresponde al 4.º criterio de desempate (Acta de Juramento ante la JNJ).</p>
+                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración.</p>
                   <div class="form-row form-row--dense">
                     <div class="form-group"><label>Distrito judicial (SIGA)</label><select class="select"><option>Huancavelica</option><option>Lima</option></select></div>
                     <div class="form-group"><label>Cargo titular actual</label><input class="input" value="Juez Superior Titular" /></div>
-                    <div class="form-group"><label>Primera especialidad</label><select class="select"><option>Civil</option></select></div>
-                    <div class="form-group"><label>Segunda especialidad</label><select class="select"><option>— Ninguna —</option></select></div>
                     <div class="form-group"><label>Fecha juramentación (cargo titular actual)</label><input class="input" type="date" value="2013-04-09" /></div>
-                    <div class="form-group"><label>Hora de juramento <small style="font-weight:400;color:var(--text-muted);">(Acta de Juramento — JNJ)</small></label><input class="input" type="time" value="11:15" title="4.º criterio de desempate" /></div>
                     <div class="form-group"><label>Fecha de cese</label><input class="input" type="date" /></div>
                     <div class="form-group"><label>Fecha de reincorporación</label><input class="input" type="date" /></div>
                     <div class="form-group"><label>Fecha de valoración</label><input class="input" type="date" value="2024-12-31" /></div>
                     <div class="form-group"><label>Tiempo total en cargo titular</label><input class="input" value="11 aa 8 mm 22 dd" readonly style="background:#f1f5f9;" /></div>
                     <div class="form-group"><label>Puntaje según años totales</label><input class="input" value="18.50" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                    <div class="form-group"><label>Primera especialidad</label><select class="select"><option>Civil</option></select></div>
+                    <div class="form-group"><label>Segunda especialidad</label><select class="select"><option>— Ninguna —</option></select></div>
                   </div>
                 </div>
 
@@ -262,7 +270,15 @@
                   <h3 class="antiguedad-block-title">Periodo en el nivel inmediato anterior titular</h3>
                   <p class="antiguedad-block-hint">Registrar la fecha de inicio y fin del periodo laborado como Juez en el nivel inmediato anterior titular.</p>
                   <div class="form-row form-row--dense">
-                    <div class="form-group"><label>Nivel inmediato anterior</label><input class="input" value="Juez Especializado Titular" /></div>
+                    <div class="form-group">
+                      <label for="nivel-inmediato-anterior">Nivel inmediato anterior</label>
+                      <select class="select" id="nivel-inmediato-anterior">
+                        <option>Juez supremo Titular</option>
+                        <option>Superior Titular</option>
+                        <option selected>Especializado</option>
+                        <option>Paz Letrado</option>
+                      </select>
+                    </div>
                     <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" value="2003-11-18" /></div>
                     <div class="form-group"><label>Fecha fin</label><input class="input" type="date" value="2013-04-08" /></div>
                     <div class="form-group"><label>Tiempo total del periodo</label><input class="input" value="9 aa 4 mm 21 dd" readonly style="background:#f1f5f9;" /></div>
@@ -295,7 +311,7 @@
                         <td>03/03/2009</td>
                         <td>09/04/2013</td>
                         <td>4 aa 1 mm 6 dd</td>
-                        <td>Juez Superior (Prov.)</td>
+                        <td>JUEZ SUPERIOR</td>
                         <td>Corte Superior de Huancavelica</td>
                         <td>Resolución N.° 041-2009-PJ</td>
                         <td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td>
@@ -308,7 +324,14 @@
                       <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Tiempo total (auto)</label><input class="input" readonly style="background:#f1f5f9;" /></div>
-                      <div class="form-group"><label>Cargo</label><input class="input" placeholder="Ej. Juez Superior (Prov.)" /></div>
+                      <div class="form-group">
+                        <label for="provisionalidad-cargo">Cargo</label>
+                        <select class="select" id="provisionalidad-cargo">
+                          <option>JUEZ SUPREMO</option>
+                          <option selected>JUEZ SUPERIOR</option>
+                          <option>JUEZ ESPECIALIZADO</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Órgano jurisdiccional</label><input class="input" /></div>
                       <div class="form-group"><label>Documento sustentatorio</label><input class="input" placeholder="Resolución, acto administrativo, etc." /></div>
                     </div>
@@ -322,13 +345,44 @@
                   </div>
                 </div>
 
-                <div class="antiguedad-block">
+                <div class="antiguedad-block" id="colegiatura-block">
                   <span class="antiguedad-block-criterion">3.er criterio de desempate</span>
                   <h3 class="antiguedad-block-title">Colegiatura</h3>
-                  <p class="antiguedad-block-hint">Registrar la fecha de colegiatura y el cálculo de años de colegiatura a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua.</p>
+                  <p class="antiguedad-block-hint">Registrar el colegio de abogados, la fecha de colegiatura y el cálculo de años a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua.</p>
+                  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-add-colegiatura">
+                      <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir colegiatura
+                    </button>
+                  </div>
+                  <table class="rubro-records" id="colegiatura-records">
+                    <thead>
+                      <tr>
+                        <th>Colegio de Abogados de</th>
+                        <th>Fecha de colegiatura</th>
+                        <th>Años de colegiatura</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="colegiatura-tbody">
+                      <tr data-colegio="LIMA" data-fecha="1996-10-16">
+                        <td>LIMA</td>
+                        <td>16/10/1996</td>
+                        <td>28 años</td>
+                        <td><button type="button" class="icon-btn btn-edit-colegiatura" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="antiguedad-block">
+                  <span class="antiguedad-block-criterion">4.º criterio de desempate</span>
+                  <h3 class="antiguedad-block-title">Hora de juramento</h3>
+                  <p class="antiguedad-block-hint">Registrar la hora consignada en el Acta de Juramento ante la JNJ (o quien haga sus veces) en el cargo titular actual valorado.</p>
                   <div class="form-row form-row--dense">
-                    <div class="form-group"><label>Fecha de colegiatura</label><input class="input" type="date" value="1996-10-16" /></div>
-                    <div class="form-group"><label>Años de colegiatura </label><input class="input" value="28 años" readonly style="background:#f1f5f9;" /></div>
+                    <div class="form-group">
+                      <label for="hora-juramento">Hora de juramento <small style="font-weight:400;color:var(--text-muted);">(Acta de Juramento — JNJ)</small></label>
+                      <input class="input" id="hora-juramento" type="time" value="11:15" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -397,19 +451,39 @@
             </div>
 
             <!-- D -->
-            <div class="accordion-item">
+            <div class="accordion-item" id="rubro-amag">
               <div class="accordion-header">
                 <span class="accordion-header-title"><span class="letter">D</span> Estudios de preparación AMAG</span>
-                <span class="rubro-score">8.00</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score" id="amag-rubro-score">8.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-add-amag">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
               </div>
               <div class="accordion-body">
-                <div class="form-row form-row--dense">
-                  <div class="form-group"><label>Tipo del curso AMAG</label><select class="select"><option>Habilitante</option><option>PROFA</option><option>Ascenso</option></select></div>
-                  <div class="form-group"><label>Nota del curso AMAG</label><input class="input" value="16.5" /></div>
-                  <div class="form-group"><label>Descripción del curso</label><input class="input" value="Curso de habilitación judicial" /></div>
-                  <div class="form-group"><label>Año del curso</label><input class="input" value="2005" /></div>
-                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" value="8.00" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
-                </div>
+                <table class="rubro-records" id="amag-records">
+                  <thead>
+                    <tr>
+                      <th>Tipo del curso AMAG</th>
+                      <th>Nota del curso</th>
+                      <th>Descripción del curso</th>
+                      <th>Año del curso</th>
+                      <th>Puntaje</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="amag-tbody">
+                    <tr data-tipo="Habilitante" data-nota="16.5" data-descripcion="Curso de habilitación judicial" data-anio="2005" data-puntaje="8.00">
+                      <td>Habilitante</td>
+                      <td>16.5</td>
+                      <td>Curso de habilitación judicial</td>
+                      <td>2005</td>
+                      <td><strong>8.00</strong></td>
+                      <td><button type="button" class="icon-btn btn-edit-amag" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -424,7 +498,7 @@
                 <!-- E.1 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span>Estudios de doctorado y/o maestría</span>
+                    <span><span class="sub-code">E.1</span> Estudios de doctorado y/o maestría</span>
                     <div class="rubro-sub-actions">
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
                         <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
@@ -434,7 +508,13 @@
                   <div class="rubro-sub-form">
                     <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.1 Doctorado y/o Maestría</span></div>
                     <div class="form-row form-row--dense">
-                      <div class="form-group"><label>Nombre de estudios</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e1-tipo-estudio">Tipo</label>
+                        <select class="select" id="e1-tipo-estudio">
+                          <option>Doctorado</option>
+                          <option>Maestría</option>
+                        </select>
+                      </div>
                       <div class="form-group">
                         <label>Universidad</label>
                         <div class="universidad-combobox" data-universidad-combobox>
@@ -445,7 +525,13 @@
                       <div class="form-group"><label>País</label><input class="input" /></div>
                       <div class="form-group"><label>Especialidad</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
                       <div class="form-group"><label>Mención</label><input class="input" /></div>
-                      <div class="form-group"><label>Condición académica</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e1-condicion-academica">Condición académica</label>
+                        <select class="select" id="e1-condicion-academica">
+                          <option>Estudiante</option>
+                          <option>Egresado</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Número de semestre</label><input class="input" type="number" /></div>
                       <div class="form-group"><label>Año inicio del semestre</label><input class="input" type="number" /></div>
                       <div class="form-group"><label>Año fin del semestre</label><input class="input" type="number" /></div>
@@ -463,7 +549,7 @@
                 <!-- E.2 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span>Pasantía</span>
+                    <span><span class="sub-code">E.2</span> Pasantía</span>
                     <div class="rubro-sub-actions">
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
                         <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
@@ -473,17 +559,20 @@
                   <div class="rubro-sub-form">
                     <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.2 Pasantía</span></div>
                     <div class="form-row form-row--dense">
-                      <div class="form-group"><label>Tipo</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e2-tipo-pasantia">Tipo de pasantía</label>
+                        <select class="select" id="e2-tipo-pasantia">
+                          <option>Nacional</option>
+                          <option>Internacional</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Institución</label><input class="input" /></div>
-                      <div class="form-group"><label>Nota del curso de pasantía</label><input class="input" /></div>
-                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label for="e2-pais">País</label><input class="input" id="e2-pais" /></div>
                       <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Jurídico</label><select class="select"><option>Sí</option><option>No</option></select></div>
-                      <div class="form-group"><label>Especialidad de derecho</label><input class="input" /></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
                       <div class="form-group"><label>Mención</label><input class="input" /></div>
-                      <div class="form-group"><label>Horas</label><input class="input" type="number" /></div>
-                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
                       <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                     </div>
                     <div class="rubro-sub-form-actions">
@@ -496,7 +585,7 @@
                 <!-- E.3 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span><span class="sub-code">E.3</span> Especialización, postgrado y diplomados</span>
+                    <span><span class="sub-code">E.3</span> Cursos de especialización, postgrado y diplomados</span>
                     <div class="rubro-sub-actions">
                       <span class="rubro-score">6.50</span>
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
@@ -521,19 +610,16 @@
                     </table>
                   </div>
                   <div class="rubro-sub-form">
-                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.3 Especialización / postgrado / diplomados</span></div>
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.3 Cursos de especialización, postgrado y diplomados</span></div>
                     <div class="form-row form-row--dense">
                       <div class="form-group"><label>Tipo de curso</label><input class="input" /></div>
                       <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
                       <div class="form-group"><label>Nombre del curso</label><input class="input" /></div>
                       <div class="form-group"><label>Institución</label><input class="input" /></div>
-                      <div class="form-group"><label>Nota del curso</label><input class="input" /></div>
-                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label for="e3-pais">País</label><input class="input" id="e3-pais" /></div>
                       <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Especialidad</label><input class="input" /></div>
-                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
-                      <div class="form-group"><label>Curso con sesiones (sí/no)</label><select class="select"><option>Sí</option><option>No</option></select></div>
                       <div class="form-group"><label>Tiempo en horas</label><input class="input" type="number" /></div>
                       <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                     </div>
@@ -547,7 +633,7 @@
                 <!-- E.4 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span>Certámenes académicos</span>
+                    <span><span class="sub-code">E.4</span> Certámenes académicos en calidad de expositor, ponente, panelista</span>
                     <div class="rubro-sub-actions">
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
                         <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
@@ -555,19 +641,50 @@
                     </div>
                   </div>
                   <div class="rubro-sub-form">
-                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.4 Certámenes académicos</span></div>
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.4 Certámenes académicos en calidad de expositor, ponente, panelista</span></div>
                     <div class="form-row form-row--dense">
-                      <div class="form-group"><label>Tipo de certamen</label><input class="input" /></div>
-                      <div class="form-group"><label>Tipo de participación</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e4-tipo-certamen">Tipo de certamen</label>
+                        <select class="select" id="e4-tipo-certamen">
+                          <option>COLOQUIO</option>
+                          <option>CONFERENCIA</option>
+                          <option>CONGRESO</option>
+                          <option>CURSOS</option>
+                          <option>ENCUENTRO</option>
+                          <option>FORO</option>
+                          <option>JORNADA</option>
+                          <option>MESA REDONDA</option>
+                          <option>PANEL</option>
+                          <option>SEMANA</option>
+                          <option>SEMINARIO</option>
+                          <option>SIMPOSIO</option>
+                          <option>TALLER</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="e4-tipo-participacion">Tipo de participación</label>
+                        <select class="select" id="e4-tipo-participacion">
+                          <option>Expositor</option>
+                          <option>Ponente</option>
+                          <option>Panelista</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
                       <div class="form-group"><label>Especialidad</label><input class="input" /></div>
                       <div class="form-group"><label>Tema</label><input class="input" /></div>
                       <div class="form-group"><label>Institución</label><input class="input" /></div>
-                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label for="e4-pais">País</label><input class="input" id="e4-pais" /></div>
                       <div class="form-group"><label>Fecha inicio certamen</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Fecha fin certamen</label><input class="input" type="date" /></div>
-                      <div class="form-group"><label>Modalidad</label><input class="input" /></div>
-                      <div class="form-group"><label>Realizado en</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e4-modalidad">Modalidad</label>
+                        <select class="select" id="e4-modalidad">
+                          <option>PRESENCIAL</option>
+                          <option>VIRTUAL</option>
+                          <option>SEMI PRESENCIAL</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                     </div>
                     <div class="rubro-sub-form-actions">
@@ -580,7 +697,7 @@
                 <!-- E.5 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span>Asistencia a eventos académicos</span>
+                    <span><span class="sub-code">E.5</span> Asistencia a eventos académicos en entidades de prestigio y del quehacer jurídico</span>
                     <div class="rubro-sub-actions">
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
                         <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
@@ -588,20 +705,50 @@
                     </div>
                   </div>
                   <div class="rubro-sub-form">
-                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.5 Asistencia a eventos académicos</span></div>
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.5 Asistencia a eventos académicos en entidades de prestigio y del quehacer jurídico</span></div>
                     <div class="form-row form-row--dense">
-                      <div class="form-group"><label>Tipo de evento</label><input class="input" /></div>
-                      <div class="form-group"><label>Tipo de participación</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e5-tipo-evento">Tipo de evento</label>
+                        <select class="select" id="e5-tipo-evento">
+                          <option>COLOQUIO</option>
+                          <option>CONFERENCIA</option>
+                          <option>CONGRESO</option>
+                          <option>CURSOS</option>
+                          <option>ENCUENTRO</option>
+                          <option>FORO</option>
+                          <option>JORNADA</option>
+                          <option>MESA REDONDA</option>
+                          <option>PANEL</option>
+                          <option>SEMANA</option>
+                          <option>SEMINARIO</option>
+                          <option>SIMPOSIO</option>
+                          <option>TALLER</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
                       <div class="form-group"><label>Especialidad</label><input class="input" /></div>
                       <div class="form-group"><label>Tema</label><input class="input" /></div>
                       <div class="form-group"><label>Institución</label><input class="input" /></div>
-                      <div class="form-group"><label>Lugar</label><input class="input" /></div>
+                      <div class="form-group"><label for="e5-pais">País</label><input class="input" id="e5-pais" /></div>
                       <div class="form-group"><label>Fecha inicio evento</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Fecha fin evento</label><input class="input" type="date" /></div>
-                      <div class="form-group"><label>Modalidad</label><input class="input" /></div>
-                      <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
-                      <div class="form-group"><label>Ámbito del certamen académico</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e5-modalidad">Modalidad</label>
+                        <select class="select" id="e5-modalidad">
+                          <option>PRESENCIAL</option>
+                          <option>VIRTUAL</option>
+                          <option>SEMI PRESENCIAL</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="e5-tipo-documento">Tipo de documento</label>
+                        <select class="select" id="e5-tipo-documento">
+                          <option>CERTIFICADO</option>
+                          <option>CONSTANCIA</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                     </div>
                     <div class="rubro-sub-form-actions">
@@ -614,7 +761,7 @@
                 <!-- E.6 -->
                 <div class="rubro-sub rubro-addable">
                   <div class="rubro-sub-header">
-                    <span>Estudios de ofimática</span>
+                    <span><span class="sub-code">E.6</span> Estudios de ofimática</span>
                     <div class="rubro-sub-actions">
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
                         <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
@@ -628,7 +775,14 @@
                       <div class="form-group"><label>Institución</label><input class="input" /></div>
                       <div class="form-group"><label>Duración en horas</label><input class="input" type="number" /></div>
                       <div class="form-group"><label>Nivel</label><select class="select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div>
-                      <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                      <div class="form-group">
+                        <label for="e6-tipo-documento">Tipo de documento</label>
+                        <select class="select" id="e6-tipo-documento">
+                          <option>constancia</option>
+                          <option>certificado</option>
+                          <option>otros</option>
+                        </select>
+                      </div>
                       <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
                       <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                     </div>
@@ -655,7 +809,7 @@
               </div>
               <div class="rubro-sub-records">
                 <table class="rubro-records">
-                  <thead><tr><th>Idioma</th><th>Centro</th><th>Duración</th><th>Puntaje</th><th></th></tr></thead>
+                  <thead><tr><th>Idioma</th><th>Institución</th><th>Duración</th><th>Puntaje</th><th></th></tr></thead>
                   <tbody>
                     <tr><td>Inglés</td><td>Instituto Británico</td><td>18 meses</td><td><strong>3.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
                   </tbody>
@@ -666,9 +820,24 @@
                 <div class="form-row form-row--dense">
                   <div class="form-group"><label>Tipo de idioma</label><select class="select"><option>Nativo</option><option>Extranjero</option></select></div>
                   <div class="form-group"><label>Idioma</label><input class="input" placeholder="Inglés" /></div>
-                  <div class="form-group"><label>Centro de estudios</label><input class="input" /></div>
+                  <div class="form-group"><label for="f-institucion">Institución</label><input class="input" id="f-institucion" /></div>
                   <div class="form-group"><label>Duración (meses)</label><input class="input" type="number" /></div>
-                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group">
+                    <label for="f-nivel">Nivel</label>
+                    <select class="select" id="f-nivel">
+                      <option>Básico</option>
+                      <option>Intermedio</option>
+                      <option>Avanzado</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="f-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="f-tipo-documento">
+                      <option>constancia</option>
+                      <option>certificado</option>
+                      <option>otros</option>
+                    </select>
+                  </div>
                   <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
                   <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                 </div>
@@ -708,7 +877,6 @@
                   <div class="form-group"><label>Número de edición</label><input class="input" /></div>
                   <div class="form-group"><label>Auspicio</label><input class="input" /></div>
                   <div class="form-group"><label>País</label><input class="input" /></div>
-                  <div class="form-group"><label>Años</label><input class="input" /></div>
                   <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
                   <div class="form-group"><label>Especialidad en derecho</label><input class="input" /></div>
                   <div class="form-group"><label>Institución</label><input class="input" /></div>
@@ -744,14 +912,21 @@
               <div class="rubro-sub-form">
                 <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Distinciones y condecoraciones</span></div>
                 <div class="form-row form-row--dense">
-                  <div class="form-group"><label>Tipo de distinción</label><input class="input" /></div>
+                  <div class="form-group">
+                    <label for="h-tipo-distincion">Tipo de distinción</label>
+                    <select class="select" id="h-tipo-distincion">
+                      <option>Importante por el quehacer jurisdiccional, otorgado por órgano colegiado mediante resolución y en reconocimiento a su quehacer judicial</option>
+                      <option>Elección de Presidente de Corte, Consejero, Designaciones ante la AMAG, Jefe de ODECMA</option>
+                      <option>Responsable de Unidad de ODECMA</option>
+                      <option>Acreditación de no contar con sanciones disciplinarias en los últimos 07 años (emitido por el CNM / OCMA / ODECMA)</option>
+                    </select>
+                  </div>
                   <div class="form-group"><label>Descripción de la distinción</label><input class="input" /></div>
                   <div class="form-group"><label>Fecha de distinción</label><input class="input" type="date" /></div>
-                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group"><label for="h-documento">Documento</label><input class="input" id="h-documento" /></div>
                   <div class="form-group"><label>Institución</label><input class="input" /></div>
                   <div class="form-group"><label>País</label><input class="input" /></div>
                   <div class="form-group"><label>Año</label><input class="input" type="number" /></div>
-                  <div class="form-group"><label>Ámbito</label><input class="input" /></div>
                   <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
                 </div>
                 <div class="rubro-sub-form-actions">
@@ -783,7 +958,19 @@
               <div class="rubro-sub-form">
                 <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Docencia universitaria</span></div>
                 <div class="form-row form-row--dense">
-                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group">
+                    <label for="i-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="i-tipo-documento">
+                      <option>CARTA</option>
+                      <option>CERTIFICADO</option>
+                      <option>CONSTANCIA</option>
+                      <option>CONTRATO</option>
+                      <option>DECLARACION JURADA</option>
+                      <option>OFICIO</option>
+                      <option>REPORTE</option>
+                      <option>OTROS</option>
+                    </select>
+                  </div>
                   <div class="form-group">
                     <label>Universidad</label>
                     <div class="universidad-combobox" data-universidad-combobox>
@@ -832,7 +1019,19 @@
                 <div class="form-row form-row--dense">
                   <div class="form-group"><label>Tipo de medida disciplinaria</label><select class="select"><option>Amonestación</option><option>Multa</option><option>Suspensión</option></select></div>
                   <div class="form-group"><label>Cantidad</label><input class="input" type="number" value="1" /></div>
-                  <div class="form-group"><label>Descripción del documento</label><input class="input" /></div>
+                  <div class="form-group">
+                    <label for="j-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="j-tipo-documento">
+                      <option>CARTA</option>
+                      <option>CERTIFICADO</option>
+                      <option>CONSTANCIA</option>
+                      <option>CONTRATO</option>
+                      <option>DECLARACION JURADA</option>
+                      <option>OFICIO</option>
+                      <option>REPORTE</option>
+                      <option>OTROS</option>
+                    </select>
+                  </div>
                   <div class="form-group"><label>Año de valoración</label><input class="input" type="number" /></div>
                   <div class="form-group"><label>Observación por registro</label><input class="input" /></div>
                   <div class="form-group"><label>Puntaje según tabla (negativo)</label><input class="input" readonly style="background:#fee2e2;color:var(--error);font-weight:600;" /></div>
@@ -863,6 +1062,458 @@
       </main>
     </div>
   </div>
+
+  <div class="modal-overlay is-hidden" id="modal-colegiatura" role="dialog" aria-modal="true" aria-labelledby="modal-colegiatura-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header" id="modal-colegiatura-title">
+        Registrar colegiatura
+        <button type="button" class="modal-close" id="modal-colegiatura-close" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="colegiatura-colegio-input">Colegio de Abogados de:</label>
+          <div class="universidad-combobox" id="colegiatura-colegio-combobox" data-colegio-combobox>
+            <input class="input universidad-combobox-input" id="colegiatura-colegio-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+            <div class="universidad-combobox-dropdown is-hidden" id="colegiatura-colegio-dropdown" role="listbox"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colegiatura-fecha">Fecha de colegiatura</label>
+          <input class="input" type="date" id="colegiatura-fecha" />
+        </div>
+        <div class="form-group">
+          <label for="colegiatura-anios">Años de colegiatura</label>
+          <input class="input" id="colegiatura-anios" value="—" readonly style="background:#f1f5f9;" />
+        </div>
+      </div>
+      <div class="ficha-modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="modal-colegiatura-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="modal-colegiatura-guardar">
+          <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar colegiatura
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay is-hidden" id="modal-amag" role="dialog" aria-modal="true" aria-labelledby="modal-amag-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header" id="modal-amag-title">
+        Registrar estudio de preparación AMAG
+        <button type="button" class="modal-close" id="modal-amag-close" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="amag-tipo">Tipo del curso AMAG</label>
+          <select class="select" id="amag-tipo">
+            <option>Habilitante</option>
+            <option>PROFA</option>
+            <option>Ascenso</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="amag-nota">Nota del curso AMAG</label>
+          <input class="input" id="amag-nota" type="number" step="0.1" min="0" max="20" placeholder="Ej. 16.5" />
+        </div>
+        <div class="form-group">
+          <label for="amag-descripcion">Descripción del curso</label>
+          <input class="input" id="amag-descripcion" placeholder="Ej. Curso de habilitación judicial" />
+        </div>
+        <div class="form-group">
+          <label for="amag-anio">Año del curso</label>
+          <input class="input" id="amag-anio" type="number" min="1950" max="2100" placeholder="Ej. 2005" />
+        </div>
+        <div class="form-group">
+          <label for="amag-puntaje">Puntaje según tabla</label>
+          <input class="input" id="amag-puntaje" value="—" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" />
+        </div>
+      </div>
+      <div class="ficha-modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="modal-amag-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="modal-amag-guardar">
+          <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar estudio AMAG
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var COLEGIOS_ABOGADOS = [
+        'AMAZONAS', 'ANCASH', 'APURIMAC', 'AREQUIPA', 'AYACUCHO', 'CAJAMARCA', 'CALLAO', 'CAÑETE',
+        'CUSCO', 'HUANCAVELICA', 'HUANUCO', 'HUAURA', 'ICA', 'JUNIN', 'LA LIBERTAD', 'LAMBAYEQUE',
+        'LIMA', 'LIMA ESTE', 'LIMA NORTE', 'LIMA SUR', 'LORETO', 'MADRE DE DIOS', 'MOQUEGUA', 'PASCO',
+        'PIURA', 'PUNO', 'SAN MARTIN', 'SANTA', 'SELVA CENTRAL', 'SULLANA', 'TACNA', 'TUMBES',
+        'UCAYALI', 'VENTANILLA'
+      ];
+
+      var modal = document.getElementById('modal-colegiatura');
+      var tbody = document.getElementById('colegiatura-tbody');
+      var colegioInput = document.getElementById('colegiatura-colegio-input');
+      var colegioDropdown = document.getElementById('colegiatura-colegio-dropdown');
+      var colegioCombo = document.getElementById('colegiatura-colegio-combobox');
+      var fechaInput = document.getElementById('colegiatura-fecha');
+      var aniosInput = document.getElementById('colegiatura-anios');
+      var editingRow = null;
+
+      function normalizeText(value) {
+        return (value || '').trim().toUpperCase();
+      }
+
+      function getFechaValoracion() {
+        var groups = document.querySelectorAll('.antiguedad-block .form-group');
+        for (var i = 0; i < groups.length; i++) {
+          var label = groups[i].querySelector('label');
+          if (label && label.textContent.trim() === 'Fecha de valoración') {
+            var input = groups[i].querySelector('input[type="date"]');
+            if (input && input.value) {
+              return input.value;
+            }
+          }
+        }
+        return '2024-12-31';
+      }
+
+      function formatDateDisplay(isoDate) {
+        var parts = isoDate.split('-');
+        if (parts.length !== 3) return isoDate;
+        return parts[2] + '/' + parts[1] + '/' + parts[0];
+      }
+
+      function calcularAniosColegiatura(fechaColegiatura) {
+        if (!fechaColegiatura) return '—';
+        var inicio = new Date(fechaColegiatura + 'T00:00:00');
+        var fin = new Date(getFechaValoracion() + 'T00:00:00');
+        if (isNaN(inicio.getTime()) || isNaN(fin.getTime()) || inicio > fin) return '—';
+        var anios = fin.getFullYear() - inicio.getFullYear();
+        var mesDiff = fin.getMonth() - inicio.getMonth();
+        var diaDiff = fin.getDate() - inicio.getDate();
+        if (mesDiff < 0 || (mesDiff === 0 && diaDiff < 0)) {
+          anios -= 1;
+        }
+        return anios + (anios === 1 ? ' año' : ' años');
+      }
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function closeColegioDropdown() {
+        colegioDropdown.classList.add('is-hidden');
+        colegioCombo.classList.remove('is-open');
+      }
+
+      function openColegioDropdown() {
+        colegioDropdown.classList.remove('is-hidden');
+        colegioCombo.classList.add('is-open');
+      }
+
+      function renderColegioOptions(filter) {
+        var query = normalizeText(filter);
+        var matches = COLEGIOS_ABOGADOS.filter(function (item) {
+          return !query || item.indexOf(query) !== -1;
+        });
+
+        if (!matches.length) {
+          colegioDropdown.innerHTML = '<div class="universidad-combobox-empty">No hay coincidencias en el catálogo.</div>';
+        } else {
+          colegioDropdown.innerHTML = matches.map(function (item) {
+            return '<button type="button" class="universidad-combobox-option" data-value="' + item + '">' + item + '</button>';
+          }).join('');
+        }
+
+        colegioDropdown.querySelectorAll('.universidad-combobox-option').forEach(function (btn) {
+          btn.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            colegioInput.value = btn.getAttribute('data-value');
+            colegioInput.classList.add('is-selected');
+            closeColegioDropdown();
+          });
+        });
+
+        openColegioDropdown();
+      }
+
+      function resetModal() {
+        colegioInput.value = '';
+        colegioInput.classList.remove('is-selected');
+        fechaInput.value = '';
+        aniosInput.value = '—';
+        editingRow = null;
+        closeColegioDropdown();
+      }
+
+      function openModal(row) {
+        resetModal();
+        editingRow = row || null;
+        if (row) {
+          colegioInput.value = row.getAttribute('data-colegio') || '';
+          fechaInput.value = row.getAttribute('data-fecha') || '';
+          if (colegioInput.value) {
+            colegioInput.classList.add('is-selected');
+          }
+        }
+        aniosInput.value = calcularAniosColegiatura(fechaInput.value);
+        modal.classList.remove('is-hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        colegioInput.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('is-hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        resetModal();
+      }
+
+      function isValidColegio(value) {
+        return COLEGIOS_ABOGADOS.indexOf(normalizeText(value)) !== -1;
+      }
+
+      function guardarColegiatura() {
+        var colegio = normalizeText(colegioInput.value);
+        var fecha = fechaInput.value;
+        var anios = calcularAniosColegiatura(fecha);
+
+        if (!isValidColegio(colegio)) {
+          showToast('Seleccione un colegio de abogados válido del catálogo.');
+          colegioInput.focus();
+          return;
+        }
+        if (!fecha) {
+          showToast('Ingrese la fecha de colegiatura.');
+          fechaInput.focus();
+          return;
+        }
+        if (anios === '—') {
+          showToast('La fecha de colegiatura no puede ser posterior a la fecha de valoración.');
+          fechaInput.focus();
+          return;
+        }
+
+        if (editingRow) {
+          editingRow.setAttribute('data-colegio', colegio);
+          editingRow.setAttribute('data-fecha', fecha);
+          editingRow.children[0].textContent = colegio;
+          editingRow.children[1].textContent = formatDateDisplay(fecha);
+          editingRow.children[2].textContent = anios;
+        } else {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-colegio', colegio);
+          tr.setAttribute('data-fecha', fecha);
+          tr.innerHTML =
+            '<td>' + colegio + '</td>' +
+            '<td>' + formatDateDisplay(fecha) + '</td>' +
+            '<td>' + anios + '</td>' +
+            '<td><button type="button" class="icon-btn btn-edit-colegiatura" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>';
+          tbody.appendChild(tr);
+        }
+
+        closeModal();
+        showToast('Colegiatura registrada correctamente (simulación).');
+      }
+
+      document.getElementById('btn-add-colegiatura').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('modal-colegiatura-close').addEventListener('click', closeModal);
+      document.getElementById('modal-colegiatura-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-colegiatura-guardar').addEventListener('click', guardarColegiatura);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      colegioInput.addEventListener('focus', function () {
+        renderColegioOptions(colegioInput.value);
+      });
+
+      colegioInput.addEventListener('input', function () {
+        colegioInput.classList.remove('is-selected');
+        renderColegioOptions(colegioInput.value);
+      });
+
+      colegioInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeColegioDropdown();
+        }
+      });
+
+      fechaInput.addEventListener('change', function () {
+        aniosInput.value = calcularAniosColegiatura(fechaInput.value);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('#colegiatura-colegio-combobox')) {
+          closeColegioDropdown();
+        }
+      });
+
+      tbody.addEventListener('click', function (e) {
+        var editBtn = e.target.closest('.btn-edit-colegiatura');
+        if (!editBtn) return;
+        openModal(editBtn.closest('tr'));
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var modal = document.getElementById('modal-amag');
+      var tbody = document.getElementById('amag-tbody');
+      var tipoInput = document.getElementById('amag-tipo');
+      var notaInput = document.getElementById('amag-nota');
+      var descripcionInput = document.getElementById('amag-descripcion');
+      var anioInput = document.getElementById('amag-anio');
+      var puntajeInput = document.getElementById('amag-puntaje');
+      var rubroScore = document.getElementById('amag-rubro-score');
+      var editingRow = null;
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function calcularPuntajeAmag() {
+        var nota = parseFloat(notaInput.value);
+        if (isNaN(nota) || nota < 11) return '0.00';
+        if (nota >= 18) return '10.00';
+        if (nota >= 16) return '8.00';
+        if (nota >= 14) return '6.00';
+        if (nota >= 12) return '4.00';
+        return '2.00';
+      }
+
+      function actualizarPuntajePreview() {
+        puntajeInput.value = notaInput.value ? calcularPuntajeAmag() : '—';
+      }
+
+      function actualizarRubroScore() {
+        var total = 0;
+        tbody.querySelectorAll('tr').forEach(function (row) {
+          var puntaje = parseFloat(row.getAttribute('data-puntaje') || '0');
+          if (!isNaN(puntaje)) total += puntaje;
+        });
+        rubroScore.textContent = total.toFixed(2);
+      }
+
+      function resetModal() {
+        tipoInput.selectedIndex = 0;
+        notaInput.value = '';
+        descripcionInput.value = '';
+        anioInput.value = '';
+        puntajeInput.value = '—';
+        editingRow = null;
+      }
+
+      function openModal(row) {
+        resetModal();
+        editingRow = row || null;
+        if (row) {
+          tipoInput.value = row.getAttribute('data-tipo') || 'Habilitante';
+          notaInput.value = row.getAttribute('data-nota') || '';
+          descripcionInput.value = row.getAttribute('data-descripcion') || '';
+          anioInput.value = row.getAttribute('data-anio') || '';
+        }
+        actualizarPuntajePreview();
+        modal.classList.remove('is-hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        tipoInput.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('is-hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        resetModal();
+      }
+
+      function guardarAmag() {
+        var tipo = tipoInput.value;
+        var nota = notaInput.value.trim();
+        var descripcion = descripcionInput.value.trim();
+        var anio = anioInput.value.trim();
+        var puntaje = calcularPuntajeAmag();
+
+        if (!nota) {
+          showToast('Ingrese la nota del curso AMAG.');
+          notaInput.focus();
+          return;
+        }
+        if (!descripcion) {
+          showToast('Ingrese la descripción del curso.');
+          descripcionInput.focus();
+          return;
+        }
+        if (!anio) {
+          showToast('Ingrese el año del curso.');
+          anioInput.focus();
+          return;
+        }
+
+        if (editingRow) {
+          editingRow.setAttribute('data-tipo', tipo);
+          editingRow.setAttribute('data-nota', nota);
+          editingRow.setAttribute('data-descripcion', descripcion);
+          editingRow.setAttribute('data-anio', anio);
+          editingRow.setAttribute('data-puntaje', puntaje);
+          editingRow.children[0].textContent = tipo;
+          editingRow.children[1].textContent = nota;
+          editingRow.children[2].textContent = descripcion;
+          editingRow.children[3].textContent = anio;
+          editingRow.children[4].innerHTML = '<strong>' + puntaje + '</strong>';
+        } else {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-tipo', tipo);
+          tr.setAttribute('data-nota', nota);
+          tr.setAttribute('data-descripcion', descripcion);
+          tr.setAttribute('data-anio', anio);
+          tr.setAttribute('data-puntaje', puntaje);
+          tr.innerHTML =
+            '<td>' + tipo + '</td>' +
+            '<td>' + nota + '</td>' +
+            '<td>' + descripcion + '</td>' +
+            '<td>' + anio + '</td>' +
+            '<td><strong>' + puntaje + '</strong></td>' +
+            '<td><button type="button" class="icon-btn btn-edit-amag" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>';
+          tbody.appendChild(tr);
+        }
+
+        actualizarRubroScore();
+        closeModal();
+        showToast('Estudio AMAG registrado correctamente (simulación).');
+      }
+
+      document.getElementById('btn-add-amag').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('modal-amag-close').addEventListener('click', closeModal);
+      document.getElementById('modal-amag-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-amag-guardar').addEventListener('click', guardarAmag);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      notaInput.addEventListener('input', actualizarPuntajePreview);
+
+      tbody.addEventListener('click', function (e) {
+        var editBtn = e.target.closest('.btn-edit-amag');
+        if (!editBtn) return;
+        openModal(editBtn.closest('tr'));
+      });
+    })();
+  </script>
 
   <script>
     (function () {

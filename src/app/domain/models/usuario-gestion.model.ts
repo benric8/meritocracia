@@ -1,4 +1,4 @@
-import { PerfilUsuarioConocido } from '../../../../domain/commons/auth-mappers';
+import { PerfilUsuarioConocido } from '../commons/auth-mappers';
 
 export interface UsuarioGestion {
   id: string;

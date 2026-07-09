@@ -32,7 +32,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (usuario of usuariosPaginados(); track usuario.id; let i = $index) {
+            @for (usuario of usuariosFiltrados(); track usuario.id; let i = $index) {
               <tr>
                 <td>{{ numeroFila(i) }}</td>
                 <td>{{ usuario.nombreCompleto }}</td>
@@ -88,10 +88,10 @@
         </table>
       </div>
 
-      @if (totalRegistros() > 0) {
+      @if (totalRegistrosVisibles() > 0 && !terminoBusqueda().trim()) {
         <mat-paginator
           class="lista-usuarios__paginador"
-          [length]="totalRegistros()"
+          [length]="totalRegistrosVisibles()"
           [pageIndex]="paginaActual() - 1"
           [pageSize]="tamanioPagina()"
           [pageSizeOptions]="opcionesTamanioPagina"

@@ -1,5 +1,5 @@
 import { PERFILES } from '../../../../domain/commons/auth-mappers';
-import { UsuarioGestion } from '../models/usuario-gestion.model';
+import { UsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
 
 /** Datos de demostración hasta conectar el adapter HTTP de RF004. */
 export const USUARIOS_MOCK: UsuarioGestion[] = [

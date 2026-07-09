@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PerfilUsuarioConocido } from '../../../../domain/commons/auth-mappers';
-import { NuevoUsuarioGestion } from '../models/usuario-gestion.model';
+import { NuevoUsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
 import {
   mensajeErrorCampoUsuarioRegistro,
   OPCIONES_FUNCION_USUARIO,

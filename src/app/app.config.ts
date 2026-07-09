@@ -8,7 +8,9 @@ import localeEs from '@angular/common/locales/es';
 
 import { routes } from './app.routes';
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from './domain/ports/documentos-institucionales.port';
+import { USUARIOS_PORT } from './domain/ports/usuarios.port';
 import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
+import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
 import { AUTENTICACION_PORT } from './domain/ports/autenticacion.port';
 import { SESION_PORT } from './domain/ports/sesion.port';
 import { AutenticacionHttpAdapter } from './infrastructure/adapters/http/autenticacion-http.adapter';
@@ -38,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     { provide: SESION_PORT, useClass: SessionStorageAdapter },
     { provide: AUTENTICACION_PORT, useClass: AutenticacionHttpAdapter },
     { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },
+    { provide: USUARIOS_PORT, useClass: UsuariosHttpAdapter },
     { provide: LOCALE_ID, useValue: 'es' },
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlEs },
   ]

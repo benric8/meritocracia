@@ -57,6 +57,10 @@ export function nombreCompletoPersona(persona: PersonaModel): string {
     .trim();
 }
 
+export function idPerfilDesdePerfilConocido(perfil: PerfilUsuarioConocido): number {
+  return perfil === PERFILES.ADMIN ? IDS_PERFIL.ADMIN : IDS_PERFIL.REGISTRADOR;
+}
+
 export function mapearPerfilPorId(idPerfil?: number | null): PerfilUsuario {
   if (idPerfil == null || !Number.isFinite(idPerfil)) {
     return null;
