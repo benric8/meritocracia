@@ -30,20 +30,21 @@ export function toUsuarioGestion(dto: UsuarioGestionDto): UsuarioGestion {
     throw new Error('Usuario recibido sin id');
   }
 
+  const perfil = dto.perfiles?.[0];
   const funcion = resolverPerfilUsuario({
-    idPerfil: dto.perfil?.id,
-    rol: dto.perfil?.rol,
-    nombrePerfil: dto.perfil?.nombre,
+    idPerfil: perfil?.idPerfil,
+    rol: perfil?.rol,
+    nombrePerfil: perfil?.nombre,
   });
 
   if (!funcion) {
-    throw new Error(`Perfil de usuario no reconocido: ${dto.perfil?.nombre ?? dto.perfil?.id}`);
+    throw new Error(`Perfil de usuario no reconocido: ${perfil?.nombre ?? perfil?.idPerfil}`);
   }
 
   return {
     id: String(dto.id),
     codigo: dto.usuario ?? '',
-    nombreCompleto: dto.nombreCompleto ?? '',
+    nombreCompleto: dto.nombre ?? '',
     cargo: dto.cargo ?? '',
     dependencia: dto.dependencia ?? '',
     funcion,

@@ -149,7 +149,7 @@ export function mensajeErrorCampoUsuarioRegistro(
       return 'Solo se permiten letras y espacios entre palabras.';
     }
     if (campo === 'codigo') {
-      return 'Solo se permiten letras, números, punto, guion y guion bajo.';
+      return 'Solo se permiten letras.';
     }
   }
 

@@ -16,12 +16,6 @@
   }
 
   <app-lista-usuarios
-    [usuarios]="usuarios()"
-    [cargando]="cargando()"
-    [totalRegistros]="totalRegistros()"
-    [paginaActual]="paginaActual()"
-    [tamanioPagina]="tamanioPagina()"
-    (paginaCambiada)="onPaginaCambiada($event)"
     (restablecerClave)="onRestablecerClave($event)"
     (cambiarEstado)="onCambiarEstado($event)"
   />

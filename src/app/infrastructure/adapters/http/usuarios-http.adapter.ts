@@ -40,7 +40,19 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          return toResultadoPaginado(respuesta, toUsuarioGestion);
+          const resultado = toResultadoPaginado(respuesta, (dto) => dto);
+          return {
+            ...resultado,
+            elementos: (respuesta.data ?? [])
+              .map((dto) => {
+                try {
+                  return toUsuarioGestion(dto);
+                } catch {
+                  return null;
+                }
+              })
+              .filter((usuario): usuario is UsuarioGestion => usuario !== null),
+          };
         })
       );
   }

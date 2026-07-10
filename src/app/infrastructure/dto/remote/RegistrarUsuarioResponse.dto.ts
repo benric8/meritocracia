@@ -2,21 +2,20 @@ import { BaseResponse } from './BaseResponse,dto';
 import { PaginatedResponseDto } from './PaginatedResponse.dto';
 
 export interface PerfilUsuarioDto {
-  id: number;
+  idPerfil: number;
   nombre: string;
   rol: string;
-  activo: string;
 }
 
 export interface UsuarioGestionDto {
   id: number;
   usuario: string;
-  nombreCompleto: string;
+  nombre: string;
   cargo: string;
   dependencia: string;
   email?: string;
   activo: string;
-  perfil: PerfilUsuarioDto;
+  perfiles: PerfilUsuarioDto[];
 }
 
 export interface RegistrarUsuarioResponse extends BaseResponse {
