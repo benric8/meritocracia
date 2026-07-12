@@ -1,6 +1,6 @@
 export const Util = Object({
-  //v1: 'http://localhost:8083/meritocracia-api-rest/',
-  v1: 'http://172.19.9.35:8080/meritocracia-api-rest/',
+  v1: 'http://localhost:8083/meritocracia-api-rest/',
+  //v1: 'http://172.19.9.35:8080/meritocracia-api-rest/',
   v2: '6LeqbAAnAAAAAIfjfpyKd8J1k5tHZa6uFClrLmxm', //token captcha
   v3: 'CLST1', //codigo cliente (no se usa)
   v4: 'QXeK+ABfEEKtz1FzgAPBGg==', //codigo rol

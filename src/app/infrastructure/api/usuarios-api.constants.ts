@@ -2,4 +2,5 @@
 export const usuariosEndpoints = {
   LISTAR: 'usuarios',
   REGISTRAR: 'usuarios',
+  RESETEAR_CLAVE: (id: string) => `usuarios/resetear-clave/${id}`,
 } as const;

@@ -24,6 +24,7 @@ describe('Usuarios', () => {
           useValue: {
             listar: () => of(listadoUsuariosMock),
             registrar: () => of(null),
+            resetearClave: () => of(undefined),
           },
         },
       ],

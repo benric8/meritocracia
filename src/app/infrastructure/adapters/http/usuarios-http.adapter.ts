@@ -10,6 +10,7 @@ import { UsuariosPort } from '../../../domain/ports/usuarios.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
+import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import {
   ListarUsuariosResponse,
   RegistrarUsuarioResponse,
@@ -72,6 +73,22 @@ export class UsuariosHttpAdapter implements UsuariosPort {
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
           return toUsuarioGestion(respuesta.data);
+        })
+      );
+  }
+
+  resetearClave(id: string): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.RESETEAR_CLAVE(id)}`, null)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
         })
       );
   }
