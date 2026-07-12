@@ -1,6 +1,7 @@
 import { ApplicationConfig, inject, LOCALE_ID, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { OVERLAY_DEFAULT_CONFIG } from '@angular/cdk/overlay';
 import { firstValueFrom } from 'rxjs';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { registerLocaleData } from '@angular/common';
@@ -37,6 +38,8 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(precargarIpPublica),
     provideAppInitializer(prepararVigenciaSesion),
     provideHttpClient(withInterceptors([auditoriaInterceptor, sessionInterceptor, apiErrorInterceptor])),
+    // Angular 21 pone MatDialog en top layer (Popover API); SweetAlert no puede competir con z-index.
+    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
     { provide: SESION_PORT, useClass: SessionStorageAdapter },
     { provide: AUTENTICACION_PORT, useClass: AutenticacionHttpAdapter },
     { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },

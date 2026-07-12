@@ -4,13 +4,14 @@ import { map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/paginacion.model';
-import { NuevoUsuarioGestion, UsuarioGestion } from '../../../domain/models/usuario-gestion.model';
+import { NuevoUsuarioGestion, UsuarioGestion, CambioContrasena } from '../../../domain/models/usuario-gestion.model';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { UsuariosPort } from '../../../domain/ports/usuarios.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
+import { CambiarClaveRequest } from '../../dto/remote/CambiarClaveRequest.dto';
 import {
   ListarUsuariosResponse,
   RegistrarUsuarioResponse,
@@ -102,6 +103,28 @@ export class UsuariosHttpAdapter implements UsuariosPort {
 
     return this.http
       .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.DESACTIVAR(id)}`, null)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        })
+      );
+  }
+
+  cambiarContrasena(peticion: CambioContrasena): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const body: CambiarClaveRequest = {
+      claveActual: peticion.claveActual,
+      nuevaClave: peticion.nuevaClave,
+      confirmarClave: peticion.confirmarClave,
+    };
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.CAMBIAR_CONTRASENA}`, body)
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);

@@ -1,17 +1,13 @@
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
+import { LIMITES_CLAVE } from '../../../../domain/commons/credenciales.constants';
 
-/** Límites y formato de credenciales en el formulario de login (validación de UI). */
 export const CREDENCIALES_LOGIN = {
   usuario: {
     minLength: 8,
     maxLength: 25,
-    /** Letras (con tildes), números, punto, guion y guion bajo. */
     pattern: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9._-]+$/,
   },
-  clave: {
-    minLength: 6,
-    maxLength: 100,
-  },
+  clave: LIMITES_CLAVE,
 } as const;
 
 export type CampoCredencialesLogin = 'usuario' | 'clave';

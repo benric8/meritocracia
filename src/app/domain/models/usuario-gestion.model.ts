@@ -17,3 +17,10 @@ export interface NuevoUsuarioGestion {
   cargo: string;
   dependencia: string;
 }
+
+/** Petición para que el usuario autenticado cambie su propia contraseña (RF003). */
+export interface CambioContrasena {
+  claveActual: string;
+  nuevaClave: string;
+  confirmarClave: string;
+}

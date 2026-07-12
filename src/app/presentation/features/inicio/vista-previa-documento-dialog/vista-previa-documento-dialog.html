@@ -1,0 +1,20 @@
+<div class="doc-preview-panel">
+  <header class="doc-preview-header">
+    <h3 class="doc-preview-title">{{ data.titulo }}</h3>
+    <button matIconButton type="button" aria-label="Cerrar vista previa" (click)="cerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="doc-preview-body">
+    @if (cargando()) {
+      <p class="doc-preview-estado">Cargando vista previa...</p>
+    } @else if (url(); as src) {
+      <iframe
+        class="doc-preview-frame"
+        [src]="src"
+        title="Vista previa del documento PDF"
+      ></iframe>
+    }
+  </div>
+</div>

@@ -26,6 +26,7 @@ describe('Usuarios', () => {
             registrar: () => of(null),
             resetearClave: () => of(undefined),
             desactivar: () => of(undefined),
+            cambiarContrasena: () => of(undefined),
           },
         },
       ],

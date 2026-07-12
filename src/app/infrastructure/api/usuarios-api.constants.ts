@@ -4,4 +4,5 @@ export const usuariosEndpoints = {
   REGISTRAR: 'usuarios',
   RESETEAR_CLAVE: (id: string) => `usuarios/resetear-clave/${id}`,
   DESACTIVAR: (id: string) => `usuarios/desactivar/${id}`,
+  CAMBIAR_CONTRASENA: 'usuarios/cambiar-contrasena',
 } as const;

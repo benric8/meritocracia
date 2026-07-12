@@ -1,0 +1,111 @@
+<div class="cambiar-clave-panel">
+  <header class="cambiar-clave-header">
+    <h2 id="cambiar-contrasena-titulo" class="cambiar-clave-title">{{ textos.titulo }}</h2>
+    <button
+      matIconButton
+      type="button"
+      [attr.aria-label]="textos.ariaCerrar"
+      [disabled]="guardando()"
+      (click)="onCerrar()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="cambiar-clave-form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="cambiar-clave-campos">
+      <mat-form-field appearance="outline" class="cambiar-clave-field">
+        <mat-label>{{ textos.labels.claveActual }}</mat-label>
+        <input
+          matInput
+          [formControlName]="campos.claveActual"
+          [type]="tipoCampo(campos.claveActual)"
+          autocomplete="current-password"
+          [attr.maxlength]="limitesClave.maxLength"
+        />
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          [attr.aria-label]="ariaVisibilidad(campos.claveActual)"
+          (click)="alternarVisibilidad(campos.claveActual)"
+        >
+          <mat-icon>{{ iconoVisibilidad(campos.claveActual) }}</mat-icon>
+        </button>
+        @if (mensajeErrorCampo(formulario.controls.claveActual, campos.claveActual); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="cambiar-clave-field">
+        <mat-label>{{ textos.labels.nuevaClave }}</mat-label>
+        <input
+          matInput
+          [formControlName]="campos.nuevaClave"
+          [type]="tipoCampo(campos.nuevaClave)"
+          autocomplete="new-password"
+          [attr.maxlength]="limitesClave.maxLength"
+        />
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          [attr.aria-label]="ariaVisibilidad(campos.nuevaClave)"
+          (click)="alternarVisibilidad(campos.nuevaClave)"
+        >
+          <mat-icon>{{ iconoVisibilidad(campos.nuevaClave) }}</mat-icon>
+        </button>
+        @if (mensajeErrorCampo(formulario.controls.nuevaClave, campos.nuevaClave); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="cambiar-clave-field">
+        <mat-label>{{ textos.labels.confirmarClave }}</mat-label>
+        <input
+          matInput
+          [formControlName]="campos.confirmarClave"
+          [type]="tipoCampo(campos.confirmarClave)"
+          autocomplete="new-password"
+          [attr.maxlength]="limitesClave.maxLength"
+          [errorStateMatcher]="matcherConfirmacion"
+        />
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          [attr.aria-label]="ariaVisibilidad(campos.confirmarClave)"
+          (click)="alternarVisibilidad(campos.confirmarClave)"
+        >
+          <mat-icon>{{ iconoVisibilidad(campos.confirmarClave) }}</mat-icon>
+        </button>
+        @if (
+          mensajeErrorCampo(
+            formulario.controls.confirmarClave,
+            campos.confirmarClave,
+            formulario.errors
+          );
+          as error
+        ) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <footer class="cambiar-clave-actions">
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="guardando()"
+        (click)="onLimpiar()"
+      >
+        <mat-icon>cleaning_services</mat-icon>
+        {{ textos.acciones.limpiar }}
+      </button>
+      <button matButton="filled" type="submit" [disabled]="guardando()">
+        <mat-icon>lock_reset</mat-icon>
+        {{ guardando() ? textos.acciones.guardando : textos.acciones.guardar }}
+      </button>
+    </footer>
+  </form>
+</div>

@@ -48,4 +48,8 @@ $radius-lg: 12px;
   --mc-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06);
   --mc-radius: #{$radius};
   --mc-radius-lg: #{$radius-lg};
+
+  // Apilamiento: diálogos de app → MatDialog (CDK Overlay ~1000).
+  // SweetAlert debe quedar por encima para errores/confirmaciones sobre un diálogo abierto.
+  --mc-z-alerta: 2000;
 }

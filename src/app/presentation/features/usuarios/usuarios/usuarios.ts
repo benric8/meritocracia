@@ -1,50 +1,63 @@
 import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import Swal from 'sweetalert2';
 import { finalize } from 'rxjs';
 import { CambiarEstadoUsuarioUseCase } from '../../../../application/use-cases/usuarios/cambiar-estado-usuario.use-case';
 import { RegistrarUsuarioUseCase } from '../../../../application/use-cases/usuarios/registrar-usuario.use-case';
 import { ResetearClaveUsuarioUseCase } from '../../../../application/use-cases/usuarios/resetear-clave-usuario.use-case';
+import { NuevoUsuarioGestion, UsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
+import { temaUi } from '../../../styles/tema-ui.constants';
 import { FormularioRegistroUsuario } from '../formulario-registro-usuario/formulario-registro-usuario';
 import { ListaUsuarios } from '../lista-usuarios/lista-usuarios';
-import { NuevoUsuarioGestion, UsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, ListaUsuarios, FormularioRegistroUsuario],
+  imports: [MatIconModule, MatButtonModule, ListaUsuarios],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
 export class Usuarios {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
   private readonly registrarUsuario = inject(RegistrarUsuarioUseCase);
   private readonly resetearClaveUsuario = inject(ResetearClaveUsuarioUseCase);
   private readonly cambiarEstadoUsuario = inject(CambiarEstadoUsuarioUseCase);
   private readonly listaUsuarios = viewChild(ListaUsuarios);
 
-  protected readonly guardando = signal(false);
-  protected readonly mostrarFormulario = signal(false);
   protected readonly mensajeExito = signal<string | null>(null);
 
   protected abrirFormulario(): void {
     this.mensajeExito.set(null);
-    this.mostrarFormulario.set(true);
+
+    const ref = this.dialog.open(FormularioRegistroUsuario, {
+      width: '720px',
+      maxWidth: '95vw',
+      autoFocus: 'first-tabbable',
+      panelClass: 'mc-dialog-panel',
+    });
+
+    const guardarSub = ref.componentInstance.guardar.subscribe((nuevoUsuario) => {
+      this.onGuardarUsuario(nuevoUsuario, ref);
+    });
+
+    ref.afterClosed().subscribe(() => guardarSub.unsubscribe());
   }
 
-  protected cerrarFormulario(): void {
-    this.mostrarFormulario.set(false);
-  }
+  private onGuardarUsuario(
+    nuevoUsuario: NuevoUsuarioGestion,
+    dialogRef: MatDialogRef<FormularioRegistroUsuario>
+  ): void {
+    dialogRef.componentInstance.guardando.set(true);
 
-  protected onGuardarUsuario(nuevoUsuario: NuevoUsuarioGestion): void {
-    this.guardando.set(true);
     this.registrarUsuario
       .ejecutar(nuevoUsuario)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.guardando.set(false))
+        finalize(() => dialogRef.componentInstance.guardando.set(false))
       )
       .subscribe((resultado) => {
         if (!resultado.exito || !resultado.usuario) {
@@ -52,12 +65,12 @@ export class Usuarios {
             icon: 'error',
             title: 'No se pudo registrar',
             text: resultado.mensaje ?? 'No se pudo registrar el usuario.',
-            confirmButtonColor: '#8b0000',
+            confirmButtonColor: temaUi.COLOR_PRIMARIO,
           });
           return;
         }
 
-        this.mostrarFormulario.set(false);
+        dialogRef.close();
         this.mensajeExito.set(`Usuario ${resultado.usuario.nombreCompleto} registrado correctamente.`);
         this.listaUsuarios()?.recargar(1);
       });
@@ -71,7 +84,7 @@ export class Usuarios {
       showCancelButton: true,
       confirmButtonText: 'Restablecer',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#8b0000',
+      confirmButtonColor: temaUi.COLOR_PRIMARIO,
     });
 
     if (!confirmacion.isConfirmed) {
@@ -87,7 +100,7 @@ export class Usuarios {
             icon: 'error',
             title: 'No se pudo restablecer',
             text: resultado.mensaje ?? 'No se pudo restablecer la contraseña.',
-            confirmButtonColor: '#8b0000',
+            confirmButtonColor: temaUi.COLOR_PRIMARIO,
           });
           return;
         }
@@ -96,7 +109,7 @@ export class Usuarios {
           icon: 'success',
           title: 'Contraseña restablecida',
           text: `Se restableció la contraseña de ${usuario.nombreCompleto}.`,
-          confirmButtonColor: '#8b0000',
+          confirmButtonColor: temaUi.COLOR_PRIMARIO,
         });
       });
   }
@@ -112,7 +125,7 @@ export class Usuarios {
       showCancelButton: true,
       confirmButtonText: habilitar ? 'Habilitar' : 'Deshabilitar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#8b0000',
+      confirmButtonColor: temaUi.COLOR_PRIMARIO,
     });
 
     if (!confirmacion.isConfirmed) {
@@ -128,7 +141,7 @@ export class Usuarios {
             icon: 'error',
             title: 'No se pudo cambiar el estado',
             text: resultado.mensaje ?? 'No se pudo cambiar el estado del usuario.',
-            confirmButtonColor: '#8b0000',
+            confirmButtonColor: temaUi.COLOR_PRIMARIO,
           });
           return;
         }

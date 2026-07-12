@@ -1,102 +1,92 @@
-@if (abierto()) {
-  <div
-    class="registro-modal-backdrop"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="registro-usuario-titulo"
-    (click)="onBackdropClick()"
-  >
-    <div class="registro-modal-panel" (click)="$event.stopPropagation()">
-      <header class="registro-modal-header">
-        <h2 id="registro-usuario-titulo" class="registro-modal-title">Registrar usuario</h2>
-        <button
-          matIconButton
-          type="button"
-          aria-label="Cerrar formulario de registro"
-          [disabled]="guardando()"
-          (click)="onCerrar()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </header>
+<div class="registro-modal-panel">
+  <header class="registro-modal-header">
+    <h2 id="registro-usuario-titulo" class="registro-modal-title">Registrar usuario</h2>
+    <button
+      matIconButton
+      type="button"
+      aria-label="Cerrar formulario de registro"
+      [disabled]="guardando()"
+      (click)="onCerrar()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
 
-      <form class="registro-modal-form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
-        <div class="registro-modal-grid">
-          <mat-form-field appearance="outline" class="registro-modal-field registro-modal-field--full">
-            <mat-label>Nombres y apellidos</mat-label>
-            <input
-              matInput
-              formControlName="nombreCompleto"
-              autocomplete="name"
-              placeholder="Ej. Juan Pérez García"
-            />
-            @if (mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto'); as error) {
-              <mat-error>{{ error }}</mat-error>
-            }
-          </mat-form-field>
+  <form class="registro-modal-form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="registro-modal-grid">
+      <mat-form-field appearance="outline" class="registro-modal-field registro-modal-field--full">
+        <mat-label>Nombres y apellidos</mat-label>
+        <input
+          matInput
+          formControlName="nombreCompleto"
+          autocomplete="name"
+          placeholder="Ej. Juan Pérez García"
+        />
+        @if (mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
 
-          <mat-form-field appearance="outline" class="registro-modal-field">
-            <mat-label>Código de usuario</mat-label>
-            <input
-              matInput
-              formControlName="codigo"
-              autocomplete="username"
-              placeholder="USR001"
-            />
-            @if (mensajeErrorCampo(formulario.controls.codigo, 'codigo'); as error) {
-              <mat-error>{{ error }}</mat-error>
-            }
-          </mat-form-field>
+      <mat-form-field appearance="outline" class="registro-modal-field">
+        <mat-label>Código de usuario</mat-label>
+        <input
+          matInput
+          formControlName="codigo"
+          autocomplete="username"
+          placeholder="USR001"
+        />
+        @if (mensajeErrorCampo(formulario.controls.codigo, 'codigo'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
 
-          <mat-form-field appearance="outline" class="registro-modal-field">
-            <mat-label>Función</mat-label>
-            <mat-select formControlName="funcion" placeholder="Seleccione...">
-              @for (opcion of opcionesFuncion; track opcion.valor) {
-                <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
-              }
-            </mat-select>
-            @if (mensajeErrorCampo(formulario.controls.funcion, 'funcion'); as error) {
-              <mat-error>{{ error }}</mat-error>
-            }
-          </mat-form-field>
+      <mat-form-field appearance="outline" class="registro-modal-field">
+        <mat-label>Función</mat-label>
+        <mat-select formControlName="funcion" placeholder="Seleccione...">
+          @for (opcion of opcionesFuncion; track opcion.valor) {
+            <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+          }
+        </mat-select>
+        @if (mensajeErrorCampo(formulario.controls.funcion, 'funcion'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
 
-          <mat-form-field appearance="outline" class="registro-modal-field">
-            <mat-label>Cargo</mat-label>
-            <input matInput formControlName="cargo" placeholder="Ej. Analista" />
-            @if (mensajeErrorCampo(formulario.controls.cargo, 'cargo'); as error) {
-              <mat-error>{{ error }}</mat-error>
-            }
-          </mat-form-field>
+      <mat-form-field appearance="outline" class="registro-modal-field">
+        <mat-label>Cargo</mat-label>
+        <input matInput formControlName="cargo" placeholder="Ej. Analista" />
+        @if (mensajeErrorCampo(formulario.controls.cargo, 'cargo'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
 
-          <mat-form-field appearance="outline" class="registro-modal-field registro-modal-field--full">
-            <mat-label>Dependencia</mat-label>
-            <input
-              matInput
-              formControlName="dependencia"
-              placeholder="Ej. Subgerencia Registros Laborales"
-            />
-            @if (mensajeErrorCampo(formulario.controls.dependencia, 'dependencia'); as error) {
-              <mat-error>{{ error }}</mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <footer class="registro-modal-actions">
-          <button
-            matButton="outlined"
-            type="button"
-            [disabled]="guardando()"
-            (click)="onLimpiar()"
-          >
-            <mat-icon>cleaning_services</mat-icon>
-            Limpiar
-          </button>
-          <button matButton="filled" type="submit" [disabled]="guardando()">
-            <mat-icon>save</mat-icon>
-            {{ guardando() ? 'Guardando...' : 'Guardar' }}
-          </button>
-        </footer>
-      </form>
+      <mat-form-field appearance="outline" class="registro-modal-field registro-modal-field--full">
+        <mat-label>Dependencia</mat-label>
+        <input
+          matInput
+          formControlName="dependencia"
+          placeholder="Ej. Subgerencia Registros Laborales"
+        />
+        @if (mensajeErrorCampo(formulario.controls.dependencia, 'dependencia'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
     </div>
-  </div>
-}
+
+    <footer class="registro-modal-actions">
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="guardando()"
+        (click)="onLimpiar()"
+      >
+        <mat-icon>cleaning_services</mat-icon>
+        Limpiar
+      </button>
+      <button matButton="filled" type="submit" [disabled]="guardando()">
+        <mat-icon>save</mat-icon>
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </footer>
+  </form>
+</div>

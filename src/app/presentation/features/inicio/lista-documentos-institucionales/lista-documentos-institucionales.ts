@@ -9,9 +9,10 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DescargarDocumentoInstitucionalUseCase } from '../../../../application/use-cases/inicio/descargar-documento-institucional.use-case';
@@ -22,12 +23,7 @@ import {
   TipoDocumentoInstitucional,
 } from '../../../../domain/models/documento-institucional.model';
 import { PAGINACION_POR_DEFECTO } from '../../../../domain/models/paginacion.model';
-
-interface VistaPreviaActiva {
-  titulo: string;
-  url: SafeResourceUrl | null;
-  cargando: boolean;
-}
+import { VistaPreviaDocumentoDialog } from '../vista-previa-documento-dialog/vista-previa-documento-dialog';
 
 @Component({
   selector: 'app-lista-documentos-institucionales',
@@ -39,11 +35,13 @@ interface VistaPreviaActiva {
 })
 export class ListaDocumentosInstitucionales implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly listarDocumentos = inject(ListarDocumentosInstitucionalesUseCase);
   private readonly descargarDocumento = inject(DescargarDocumentoInstitucionalUseCase);
 
   private blobVistaPrevia: string | null = null;
+  private dialogVistaPrevia: MatDialogRef<VistaPreviaDocumentoDialog> | null = null;
 
   readonly permitirReemplazo = input(false);
   readonly solicitarReemplazo = output<DocumentoInstitucional>();
@@ -55,11 +53,13 @@ export class ListaDocumentosInstitucionales implements OnInit {
   protected readonly opcionesTamanioPagina = [5, 10, 20];
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly vistaPrevia = signal<VistaPreviaActiva | null>(null);
   protected readonly previsualizandoId = signal<string | null>(null);
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.cerrarVistaPrevia());
+    this.destroyRef.onDestroy(() => {
+      this.dialogVistaPrevia?.close();
+      this.revocarBlobVistaPrevia();
+    });
   }
 
   ngOnInit(): void {
@@ -91,10 +91,22 @@ export class ListaDocumentosInstitucionales implements OnInit {
   protected verVistaPrevia(documento: DocumentoInstitucional): void {
     this.error.set(null);
     this.previsualizandoId.set(documento.id);
-    this.vistaPrevia.set({
-      titulo: documento.nombreArchivo,
-      url: null,
-      cargando: true,
+
+    this.dialogVistaPrevia?.close();
+    const ref = this.dialog.open(VistaPreviaDocumentoDialog, {
+      width: '960px',
+      maxWidth: '95vw',
+      autoFocus: 'dialog',
+      panelClass: 'mc-dialog-panel',
+      data: { titulo: documento.nombreArchivo },
+    });
+    this.dialogVistaPrevia = ref;
+
+    ref.afterClosed().subscribe(() => {
+      this.revocarBlobVistaPrevia();
+      if (this.dialogVistaPrevia === ref) {
+        this.dialogVistaPrevia = null;
+      }
     });
 
     this.descargarDocumento
@@ -105,23 +117,21 @@ export class ListaDocumentosInstitucionales implements OnInit {
       )
       .subscribe({
         next: (blob) => {
+          if (this.dialogVistaPrevia !== ref) {
+            return;
+          }
           this.revocarBlobVistaPrevia();
           this.blobVistaPrevia = URL.createObjectURL(blob);
-          this.vistaPrevia.set({
-            titulo: documento.nombreArchivo,
-            url: this.sanitizer.bypassSecurityTrustResourceUrl(this.blobVistaPrevia),
-            cargando: false,
-          });
+          ref.componentInstance.mostrarDocumento(
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.blobVistaPrevia)
+          );
         },
         error: () => {
-          this.cerrarVistaPrevia();
+          if (this.dialogVistaPrevia === ref) {
+            ref.close();
+          }
         },
       });
-  }
-
-  protected cerrarVistaPrevia(): void {
-    this.revocarBlobVistaPrevia();
-    this.vistaPrevia.set(null);
   }
 
   protected etiquetaTipo(tipo: TipoDocumentoInstitucional): string {

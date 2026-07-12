@@ -3,11 +3,12 @@ import {
   Component,
   effect,
   inject,
-  input,
   output,
+  signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -41,11 +42,9 @@ import {
 })
 export class FormularioRegistroUsuario {
   private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<FormularioRegistroUsuario>);
 
-  readonly abierto = input(false);
-  readonly guardando = input(false);
-
-  readonly cerrar = output<void>();
+  readonly guardando = signal(false);
   readonly guardar = output<NuevoUsuarioGestion>();
 
   protected readonly opcionesFuncion = OPCIONES_FUNCION_USUARIO;
@@ -61,9 +60,7 @@ export class FormularioRegistroUsuario {
 
   constructor() {
     effect(() => {
-      if (!this.abierto()) {
-        this.limpiar();
-      }
+      this.dialogRef.disableClose = this.guardando();
     });
   }
 
@@ -71,7 +68,7 @@ export class FormularioRegistroUsuario {
     if (this.guardando()) {
       return;
     }
-    this.cerrar.emit();
+    this.dialogRef.close();
   }
 
   protected onLimpiar(): void {
@@ -99,10 +96,6 @@ export class FormularioRegistroUsuario {
       cargo: cargo.trim(),
       dependencia: dependencia.trim(),
     });
-  }
-
-  protected onBackdropClick(): void {
-    this.onCerrar();
   }
 
   private limpiar(): void {

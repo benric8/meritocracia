@@ -71,39 +71,3 @@
     </div>
   }
 </section>
-
-@if (vistaPrevia(); as preview) {
-  <div
-    class="doc-preview-backdrop"
-    role="dialog"
-    aria-modal="true"
-    [attr.aria-label]="'Vista previa: ' + preview.titulo"
-    (click)="cerrarVistaPrevia()"
-  >
-    <div class="doc-preview-panel" (click)="$event.stopPropagation()">
-      <header class="doc-preview-header">
-        <h3 class="doc-preview-title">{{ preview.titulo }}</h3>
-        <button
-          matIconButton
-          type="button"
-          aria-label="Cerrar vista previa"
-          (click)="cerrarVistaPrevia()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </header>
-
-      <div class="doc-preview-body">
-        @if (preview.cargando) {
-          <p class="doc-preview-estado">Cargando vista previa...</p>
-        } @else if (preview.url) {
-          <iframe
-            class="doc-preview-frame"
-            [src]="preview.url"
-            title="Vista previa del documento PDF"
-          ></iframe>
-        }
-      </div>
-    </div>
-  </div>
-}

@@ -42,3 +42,16 @@ body {
 app-main-layout .menu-expansion .mat-expansion-panel-body {
   padding: 0;
 }
+
+// SweetAlert2 por encima de MatDialog. Requiere usePopover: false en app.config
+// (sin eso MatDialog va a top layer y este z-index no alcanza).
+.swal2-container {
+  z-index: var(--mc-z-alerta);
+}
+
+// Paneles MatDialog: sin padding del surface; el contenido define su propio layout.
+.mc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--mc-radius-lg);
+}

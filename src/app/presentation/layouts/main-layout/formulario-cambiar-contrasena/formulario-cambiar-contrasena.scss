@@ -2,15 +2,15 @@
   display: block;
 }
 
-.registro-modal-panel {
+.cambiar-clave-panel {
   display: flex;
   flex-direction: column;
-  max-height: min(90vh, 760px);
+  max-height: min(90vh, 640px);
   background: var(--mc-surface);
   overflow: hidden;
 }
 
-.registro-modal-header {
+.cambiar-clave-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,45 +19,35 @@
   border-bottom: 1px solid var(--mc-border);
 }
 
-.registro-modal-title {
+.cambiar-clave-title {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: var(--mc-text);
 }
 
-.registro-modal-form {
+.cambiar-clave-form {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.registro-modal-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px 16px;
+.cambiar-clave-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding: 20px;
   overflow-y: auto;
 }
 
-.registro-modal-field {
+.cambiar-clave-field {
   width: 100%;
 }
 
-.registro-modal-field--full {
-  grid-column: 1 / -1;
-}
-
-.registro-modal-actions {
+.cambiar-clave-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 20px 20px;
   border-top: 1px solid var(--mc-border);
-}
-
-@media (max-width: 640px) {
-  .registro-modal-grid {
-    grid-template-columns: 1fr;
-  }
 }
