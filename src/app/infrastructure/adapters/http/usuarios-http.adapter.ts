@@ -93,6 +93,22 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       );
   }
 
+  desactivar(id: string): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.DESACTIVAR(id)}`, null)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        })
+      );
+  }
+
   private asegurarTokenOpciones(): void {
     if (this.sesion.getTokenNivel() !== tokenNiveles.NIVEL_OPCIONES) {
       throw new Error('Se requiere una sesión con perfil cargado para gestionar usuarios.');

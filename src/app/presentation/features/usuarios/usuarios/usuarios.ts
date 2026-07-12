@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import Swal from 'sweetalert2';
-import { finalize, timer } from 'rxjs';
+import { finalize } from 'rxjs';
+import { CambiarEstadoUsuarioUseCase } from '../../../../application/use-cases/usuarios/cambiar-estado-usuario.use-case';
 import { RegistrarUsuarioUseCase } from '../../../../application/use-cases/usuarios/registrar-usuario.use-case';
 import { ResetearClaveUsuarioUseCase } from '../../../../application/use-cases/usuarios/resetear-clave-usuario.use-case';
 import { FormularioRegistroUsuario } from '../formulario-registro-usuario/formulario-registro-usuario';
@@ -21,6 +22,7 @@ export class Usuarios {
   private readonly destroyRef = inject(DestroyRef);
   private readonly registrarUsuario = inject(RegistrarUsuarioUseCase);
   private readonly resetearClaveUsuario = inject(ResetearClaveUsuarioUseCase);
+  private readonly cambiarEstadoUsuario = inject(CambiarEstadoUsuarioUseCase);
   private readonly listaUsuarios = viewChild(ListaUsuarios);
 
   protected readonly guardando = signal(false);
@@ -103,7 +105,7 @@ export class Usuarios {
     const habilitar = !usuario.habilitado;
     const accion = habilitar ? 'habilitar' : 'deshabilitar';
 
-    const resultado = await Swal.fire({
+    const confirmacion = await Swal.fire({
       icon: 'warning',
       title: habilitar ? 'Habilitar usuario' : 'Deshabilitar usuario',
       html: `¿Confirma que desea ${accion} a <strong>${usuario.nombreCompleto}</strong>?`,
@@ -113,13 +115,24 @@ export class Usuarios {
       confirmButtonColor: '#8b0000',
     });
 
-    if (!resultado.isConfirmed) {
+    if (!confirmacion.isConfirmed) {
       return;
     }
 
-    timer(400)
+    this.cambiarEstadoUsuario
+      .ejecutar(usuario.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void Swal.fire({
+            icon: 'error',
+            title: 'No se pudo cambiar el estado',
+            text: resultado.mensaje ?? 'No se pudo cambiar el estado del usuario.',
+            confirmButtonColor: '#8b0000',
+          });
+          return;
+        }
+
         this.mensajeExito.set(
           habilitar
             ? `${usuario.nombreCompleto} fue habilitado.`

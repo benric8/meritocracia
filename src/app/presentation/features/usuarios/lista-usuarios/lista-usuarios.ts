@@ -78,7 +78,7 @@ export class ListaUsuarios implements OnInit {
     this.cargar();
   }
 
-  recargar(pagina = PAGINACION_POR_DEFECTO.pagina): void {
+  recargar(pagina = this.paginaActual()): void {
     this.paginaActual.set(pagina);
     this.cargar(pagina);
   }
