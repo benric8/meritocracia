@@ -12,6 +12,7 @@ import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
 import { getAppConfig } from '../../config/app-runtime-config';
+import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import {
   FechaValoracionVigenteResponse,
   ListarFechasValoracionResponse,
@@ -100,6 +101,23 @@ export class FechaValoracionHttpAdapter implements FechaValoracionPort {
           return toFechaValoracion(respuesta.data);
         }),
         mapearAErrorNegocioApi('No se pudo registrar la fecha de valoración.')
+      );
+  }
+
+  desactivar(id: string): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${fechaValoracionEndpoints.DESACTIVAR(id)}`, null)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        }),
+        mapearAErrorNegocioApi('No se pudo desactivar la fecha de valoración.')
       );
   }
 

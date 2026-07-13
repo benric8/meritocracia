@@ -50,6 +50,28 @@ export class FechaValoracionMockAdapter implements FechaValoracionPort {
     return of(nueva).pipe(delay(LATENCIA_MS));
   }
 
+  desactivar(id: string): Observable<void> {
+    const idNormalizado = id.trim();
+    if (!idNormalizado) {
+      return throwError(() => new Error('Identificador de fecha de valoración no válido.'));
+    }
+
+    const almacen = this.leerAlmacen();
+    const indice = almacen.findIndex((item) => item.id === idNormalizado);
+
+    if (indice < 0) {
+      return throwError(() => new Error('No se encontró la fecha de valoración a desactivar.'));
+    }
+
+    if (almacen[indice].estado !== 'VIGENTE') {
+      return throwError(() => new Error('Solo se puede desactivar una fecha de valoración vigente.'));
+    }
+
+    almacen[indice] = { ...almacen[indice], estado: 'INACTIVO' };
+    this.guardarAlmacen(almacen);
+    return of(undefined).pipe(delay(LATENCIA_MS));
+  }
+
   private leerAlmacen(): FechaValoracion[] {
     try {
       const crudo = localStorage.getItem(STORAGE_KEY);

@@ -9,6 +9,7 @@ import { esCodigoExito } from '../../api/api-response.util';
 import { detalleDesdeRespuestaApi, extraerDetalleErrorApi } from '../../api/http-error.util';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
 import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constants';
+import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
 const RUTAS_AUTH_SIN_MODAL = [
@@ -50,8 +51,15 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'PUT',
-    // Reemplazar: PUT .../documentos/:id (no /descargar/).
     coincide: (url) => esRutaReemplazoDocumento(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fechaValoracionEndpoints.REGISTRAR),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => url.includes('fechas-valoracion/desactivar/'),
   },
 ];
 

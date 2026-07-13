@@ -33,6 +33,7 @@ describe('Fecha', () => {
             obtenerVigente: () => of(vigenteMock),
             listarHistorial: () => of([vigenteMock]),
             registrar: () => of(vigenteMock),
+            desactivar: () => of(undefined),
           },
         },
       ],

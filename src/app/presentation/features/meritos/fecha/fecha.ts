@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
+import { DesactivarFechaValoracionUseCase } from '../../../../application/use-cases/meritos/desactivar-fecha-valoracion.use-case';
 import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/use-cases/meritos/obtener-fecha-valoracion-vigente.use-case';
 import { RegistrarFechaValoracionUseCase } from '../../../../application/use-cases/meritos/registrar-fecha-valoracion.use-case';
 import {
@@ -33,10 +34,12 @@ export class Fecha implements OnInit {
   private readonly authStore = inject(AuthStore);
   private readonly obtenerVigente = inject(ObtenerFechaValoracionVigenteUseCase);
   private readonly registrarFecha = inject(RegistrarFechaValoracionUseCase);
+  private readonly desactivarFecha = inject(DesactivarFechaValoracionUseCase);
   private readonly historial = viewChild(HistorialFechasValoracion);
 
   protected readonly vigente = signal<FechaValoracion | null>(null);
   protected readonly cargando = signal(false);
+  protected readonly desactivando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly mensajeExito = signal<string | null>(null);
 
@@ -73,6 +76,49 @@ export class Fecha implements OnInit {
     });
 
     ref.afterClosed().subscribe(() => guardarSub.unsubscribe());
+  }
+
+  protected async onDesactivar(): Promise<void> {
+    const config = this.vigente();
+    if (!config || this.desactivando()) {
+      return;
+    }
+
+    this.mensajeExito.set(null);
+
+    const fechaFormateada = this.formatearFecha(config.fechaValoracion);
+    const confirmado = await this.alertas.confirmar({
+      icono: 'warning',
+      titulo: 'Desactivar fecha de valoración',
+      html: `¿Confirma que desea desactivar la fecha vigente <strong>${fechaFormateada}</strong>? Quedará sin configuración activa hasta registrar una nueva.`,
+      textoConfirmar: 'Desactivar',
+    });
+
+    if (!confirmado) {
+      return;
+    }
+
+    this.desactivando.set(true);
+
+    this.desactivarFecha
+      .ejecutar(config.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.desactivando.set(false))
+      )
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo desactivar', {
+            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
+          });
+          return;
+        }
+
+        this.mensajeExito.set('Fecha de valoración desactivada correctamente.');
+        this.recargarTodo();
+      });
   }
 
   private onGuardar(

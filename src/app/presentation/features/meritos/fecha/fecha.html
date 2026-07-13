@@ -55,9 +55,19 @@
 
       <div class="fecha-valoracion__acciones">
         <button
+          matButton="outlined"
+          type="button"
+          class="fecha-valoracion__btn-desactivar"
+          [disabled]="cargando() || desactivando()"
+          (click)="onDesactivar()"
+        >
+          <mat-icon>block</mat-icon>
+          {{ desactivando() ? 'Desactivando...' : 'Desactivar fecha' }}
+        </button>
+        <button
           matButton="filled"
           type="button"
-          [disabled]="cargando()"
+          [disabled]="cargando() || desactivando()"
           (click)="abrirFormulario()"
         >
           <mat-icon>add</mat-icon>

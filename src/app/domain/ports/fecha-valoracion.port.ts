@@ -9,6 +9,7 @@ export interface FechaValoracionPort {
   obtenerVigente(): Observable<FechaValoracion | null>;
   listarHistorial(): Observable<FechaValoracion[]>;
   registrar(peticion: NuevaFechaValoracion, usuario: string): Observable<FechaValoracion>;
+  desactivar(id: string): Observable<void>;
 }
 
 export const FECHA_VALORACION_PORT = new InjectionToken<FechaValoracionPort>(

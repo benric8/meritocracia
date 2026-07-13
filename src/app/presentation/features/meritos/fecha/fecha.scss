@@ -169,9 +169,20 @@
 .fecha-valoracion__acciones {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--mc-border);
+}
+
+.fecha-valoracion__btn-desactivar {
+  @include mat.button-overrides(
+    (
+      outlined-label-text-color: #b42318,
+      outlined-outline-color: #fecdca,
+    )
+  );
 }
 
 .fecha-valoracion__vacio {
