@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from, map, catchError, of, switchMap, throwError } from 'rxjs';
 import CryptoJS from 'crypto-js';
-import { environment } from '../../../../environments/environment';
+import { getAppConfig } from '../../config/app-runtime-config';
 
 /**
  * Servicio robusto de encriptación/desencriptación con fallback automático
@@ -42,7 +42,7 @@ export class CryptoService {
    * Obtiene la contraseña de encriptación
    */
   private getEncryptionPassword(): string {
-    const password = environment.encrypPassword;
+    const password = getAppConfig().encrypPassword;
 
     if (password.length < 16) {
       console.warn('La contraseña de encriptación es muy corta. Mínimo 16 caracteres.');
@@ -54,7 +54,7 @@ export class CryptoService {
    * Obtiene el salt de encriptación
    */
   private getEncryptionSalt(): string {
-    return environment.encryptSalt;
+    return getAppConfig().encryptSalt;
   }
 
   /**

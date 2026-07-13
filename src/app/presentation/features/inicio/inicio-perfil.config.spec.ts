@@ -26,8 +26,9 @@ describe('inicio-perfil.config', () => {
 
     expect(rutasAdmin).toContain('/usuarios');
     expect(rutasReg).not.toContain('/usuarios');
-    expect(rutasReg).toContain('/carpeta-meritos/nuevo');
-    expect(rutasReg).toContain('/carpeta-meritos/consulta');
+    expect(rutasReg).toContain('/meritos/registro');
+    expect(rutasReg).toContain('/meritos/consulta');
+    expect(rutasAdmin).toContain('/meritos/asignacion-registrador');
   });
 
   it('define textos distintos de bienvenida y título de accesos', () => {

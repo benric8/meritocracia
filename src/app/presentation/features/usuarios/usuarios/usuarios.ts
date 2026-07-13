@@ -115,7 +115,7 @@ export class Usuarios {
     }
 
     this.cambiarEstadoUsuario
-      .ejecutar(usuario.id)
+      .ejecutar(usuario.id, habilitar ? 1 : 0)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((resultado) => {
         if (!resultado.exito) {

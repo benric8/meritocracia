@@ -2,7 +2,7 @@ import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders } from '@angula
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, Observable, of, switchMap, take, throwError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { getAppConfig } from '../../config/app-runtime-config';
 import { auditoriaDefault } from '../../../domain/commons/constants';
 import { RefreshTokenResponse } from '../../dto/remote/RefreshTokenResponse.dto';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
@@ -79,7 +79,7 @@ export class TokenRefreshService {
       return throwError(() => new Error('Sin token para refrescar'));
     }
 
-    const url = `${environment.urlApi}${authEndpoints.REFRESH}?token=${encodeURIComponent(tokenActual)}`;
+    const url = `${getAppConfig().urlApi}${authEndpoints.REFRESH}?token=${encodeURIComponent(tokenActual)}`;
     const usuario = this.sesion.getUsuarioCodigo() ?? 'SISTEMA';
 
     return this.auditoria.obtenerCabecerasHttp(usuario).pipe(

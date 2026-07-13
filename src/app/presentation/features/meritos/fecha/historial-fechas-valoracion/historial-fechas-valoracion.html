@@ -1,0 +1,54 @@
+<section class="historial-fv" [class.historial-fv--cargando]="cargando()">
+  <div class="historial-fv__card">
+    <header class="historial-fv__header">
+      <h2 class="historial-fv__titulo">Historial de configuraciones</h2>
+    </header>
+
+    @if (error(); as mensajeError) {
+      <p class="historial-fv__estado historial-fv__estado--error" role="alert">{{ mensajeError }}</p>
+    } @else if (cargando() && historial().length === 0) {
+      <p class="historial-fv__estado">Cargando historial...</p>
+    } @else {
+      <div class="historial-fv__tabla-wrap">
+        <table class="historial-fv__tabla">
+          <thead>
+            <tr>
+              <th scope="col">Año</th>
+              <th scope="col">Fecha de valoración</th>
+              <th scope="col">Resolución</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Fecha de registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of historial(); track item.id) {
+              <tr [class.historial-fv__fila--vigente]="item.estado === 'VIGENTE'">
+                <td>{{ item.anio }}</td>
+                <td>{{ formatearFecha(item.fechaValoracion) }}</td>
+                <td>{{ item.resolucion }}</td>
+                <td>
+                  <span
+                    class="historial-fv__badge"
+                    [class.historial-fv__badge--vigente]="item.estado === 'VIGENTE'"
+                    [class.historial-fv__badge--inactivo]="item.estado === 'INACTIVO'"
+                  >
+                    {{ etiquetaEstado(item.estado) }}
+                  </span>
+                </td>
+                <td>{{ item.usuarioRegistro }}</td>
+                <td>{{ formatearFecha(item.fechaRegistro) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="historial-fv__vacio">
+                  Aún no hay configuraciones registradas.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

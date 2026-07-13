@@ -1,0 +1,17 @@
+{
+  "urlApi": "https://HOST-PRODUCCION/meritocracia-api-rest/",
+  "tokenCaptcha": "REEMPLAZAR_SITE_KEY_CAPTCHA",
+  "codigoCliente": "REEMPLAZAR",
+  "codigoRol": "REEMPLAZAR",
+  "usuarioConsumo": "REEMPLAZAR",
+  "claveUsuarioConsumo": "REEMPLAZAR",
+  "idGoogleAnalitics": "REEMPLAZAR",
+  "linkInterno": "https://...",
+  "linkExterno": "https://...",
+  "encrypPassword": "REEMPLAZAR_MIN_16_CHARS",
+  "encryptSalt": "REEMPLAZAR",
+  "documentosInstitucionales": {
+    "maxTamanoBytes": 5242880,
+    "mimePermitido": "application/pdf"
+  }
+}

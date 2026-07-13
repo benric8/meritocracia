@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/paginacion.model';
 import { NuevoUsuarioGestion, UsuarioGestion, CambioContrasena } from '../../../domain/models/usuario-gestion.model';
@@ -11,6 +10,7 @@ import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
+import { getAppConfig } from '../../config/app-runtime-config';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import { CambiarClaveRequest } from '../../dto/remote/CambiarClaveRequest.dto';
 import {
@@ -27,7 +27,9 @@ import {
 export class UsuariosHttpAdapter implements UsuariosPort {
   private readonly http = inject(HttpClient);
   private readonly sesion = inject(SESION_PORT);
-  private readonly baseUrl = environment.urlApi;
+  private get baseUrl(): string {
+    return getAppConfig().urlApi;
+  }
 
   listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<UsuarioGestion>> {
     try {
@@ -97,7 +99,7 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       );
   }
 
-  desactivar(id: string): Observable<void> {
+  desactivar(id: string, activo: 0 | 1): Observable<void> {
     try {
       this.asegurarTokenOpciones();
     } catch (error) {
@@ -105,7 +107,9 @@ export class UsuariosHttpAdapter implements UsuariosPort {
     }
 
     return this.http
-      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.DESACTIVAR(id)}`, null)
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.DESACTIVAR(id)}`, null, {
+        params: { activo },
+      })
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);

@@ -1,4 +1,4 @@
-/** Endpoints de documentos institucionales (relativos a environment.urlApi). */
+/** Endpoints de documentos institucionales (relativos a `getAppConfig().urlApi`). */
 export const documentosInstitucionalesEndpoints = {
   LISTAR: 'documentos',
   SUBIR: 'documentos',

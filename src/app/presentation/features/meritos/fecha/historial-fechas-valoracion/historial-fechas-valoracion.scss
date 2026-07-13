@@ -1,0 +1,101 @@
+.historial-fv {
+  position: relative;
+}
+
+.historial-fv--cargando .historial-fv__card {
+  opacity: 0.7;
+}
+
+.historial-fv__card {
+  overflow: hidden;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.historial-fv__header {
+  padding: 20px 24px 0;
+}
+
+.historial-fv__titulo {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--mc-text);
+}
+
+.historial-fv__tabla-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.historial-fv__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.historial-fv__tabla th,
+.historial-fv__tabla td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--mc-border);
+  vertical-align: middle;
+}
+
+.historial-fv__tabla th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-text-muted);
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.historial-fv__tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.historial-fv__tabla tbody tr:hover {
+  background: #fafbfc;
+}
+
+.historial-fv__fila--vigente {
+  background: #f0fdf4;
+}
+
+.historial-fv__fila--vigente:hover {
+  background: #ecfdf5;
+}
+
+.historial-fv__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.historial-fv__badge--vigente {
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.historial-fv__badge--inactivo {
+  color: #475467;
+  background: #f2f4f7;
+}
+
+.historial-fv__vacio,
+.historial-fv__estado {
+  margin: 0;
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--mc-text-muted);
+}
+
+.historial-fv__estado--error {
+  color: #b42318;
+}

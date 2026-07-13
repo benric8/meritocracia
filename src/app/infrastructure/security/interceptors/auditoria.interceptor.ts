@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { switchMap, catchError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { getAppConfig } from '../../config/app-runtime-config';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { urlsGlobal } from '../../api/auth-api.constants';
 import { AuditoriaContextService } from '../services/auditoria-context.service';
@@ -11,7 +11,7 @@ import { AuditoriaContextService } from '../services/auditoria-context.service';
  * La IP pública se resuelve vía `AuditoriaContextService` / `PublicIpService`.
  */
 export const auditoriaInterceptor: HttpInterceptorFn = (req, next) => {
-  const esApiPropia = req.url.startsWith(environment.urlApi);
+  const esApiPropia = req.url.startsWith(getAppConfig().urlApi);
   const esRutaPublica = urlsGlobal.some((ruta) => req.url.includes(ruta));
 
   if (!esApiPropia || esRutaPublica) {

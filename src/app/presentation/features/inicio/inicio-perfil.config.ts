@@ -26,7 +26,7 @@ export const ACCESOS_RAPIDOS_ADMIN: AccesoRapidoInicio[] = [
     icono: 'folder_shared',
     titulo: 'Asignación de registradores',
     descripcion: 'Vincular registradores y suplentes a magistrados.',
-    ruta: '/carpeta-meritos/asignacion',
+    ruta: '/meritos/asignacion-registrador',
   },
   {
     icono: 'bar_chart',
@@ -41,13 +41,13 @@ export const ACCESOS_RAPIDOS_REGISTRADOR: AccesoRapidoInicio[] = [
     icono: 'note_add',
     titulo: 'Nuevo registro',
     descripcion: 'Ficha de valoración de méritos.',
-    ruta: '/carpeta-meritos/nuevo',
+    ruta: '/meritos/registro',
   },
   {
     icono: 'search',
     titulo: 'Consulta',
     descripcion: 'Buscar por DNI, apellidos o nombres y editar fichas.',
-    ruta: '/carpeta-meritos/consulta',
+    ruta: '/meritos/consulta',
   },
 ];
 

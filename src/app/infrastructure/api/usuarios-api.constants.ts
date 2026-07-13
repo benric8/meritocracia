@@ -1,4 +1,4 @@
-/** Endpoints de gestión de usuarios (relativos a environment.urlApi). */
+/** Endpoints de gestión de usuarios (relativos a `getAppConfig().urlApi`). */
 export const usuariosEndpoints = {
   LISTAR: 'usuarios',
   REGISTRAR: 'usuarios',

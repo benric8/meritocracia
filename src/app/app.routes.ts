@@ -44,27 +44,32 @@ export const routes: Routes = [
       },
 
       // 3. Módulo: Gestión de la Carpeta Personal de Méritos (RF006)
+      // URLs alineadas con opciones del backend (`/meritos/...`).
       {
         path: 'meritos',
         children: [
-          { path: '', redirectTo: 'consulta', pathMatch: 'full' },
+          { path: '', redirectTo: 'asignacion-registrador', pathMatch: 'full' },
           {
             path: 'registro',
-            loadComponent: () => import('./presentation/features/meritos/registro/registro').then(m => m.Registro),
+            loadComponent: () =>
+              import('./presentation/features/meritos/registro/registro').then((m) => m.Registro),
           },
           {
             path: 'consulta',
-            loadComponent: () => import('./presentation/features/meritos/consulta/consulta').then(m => m.Consulta),
+            loadComponent: () =>
+              import('./presentation/features/meritos/consulta/consulta').then((m) => m.Consulta),
           },
           {
-            path: 'asignacion',
+            path: 'asignacion-registrador',
             canActivate: [rolGuard(['Administrador'])],
-            loadComponent: () => import('./presentation/features/meritos/asignacion/asignacion').then(m => m.Asignacion),
+            loadComponent: () =>
+              import('./presentation/features/meritos/asignacion/asignacion').then((m) => m.Asignacion),
           },
           {
-            path: 'fecha',
+            path: 'fecha-valoracion',
             canActivate: [rolGuard(['Administrador'])],
-            loadComponent: () => import('./presentation/features/meritos/fecha/fecha').then(m => m.Fecha),
+            loadComponent: () =>
+              import('./presentation/features/meritos/fecha/fecha').then((m) => m.Fecha),
           },
         ],
       },

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import {
   DocumentoInstitucional,
@@ -20,13 +19,17 @@ import {
 } from '../../dto/remote/DocumentoInstitucionalResponse.dto';
 import { toDocumentoInstitucional } from '../../mappers/documentos-institucional.mapper';
 import { toResultadoPaginado } from '../../mappers/paginacion.mapper';
+import { getAppConfig } from '../../config/app-runtime-config';
 import { crearFormDataDocumento } from './documentos-form-data.util';
 
 @Injectable({ providedIn: 'root' })
 export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstitucionalesPort {
   private readonly http = inject(HttpClient);
   private readonly sesion = inject(SESION_PORT);
-  private readonly baseUrl = environment.urlApi;
+
+  private get baseUrl(): string {
+    return getAppConfig().urlApi;
+  }
 
   listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<DocumentoInstitucional>> {
     try {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import CryptoJS from 'crypto-js';
-import { environment } from '../../../../environments/environment';
+import { getAppConfig } from '../../config/app-runtime-config';
 
 const PREFIJO_CIFRADO = 'ENC1:';
 
@@ -13,7 +13,7 @@ export function descifrarValorSesionAlmacenado(valor: string | null): string | n
     return valor;
   }
   try {
-    const bytes = CryptoJS.AES.decrypt(valor.slice(PREFIJO_CIFRADO.length), environment.encrypPassword);
+    const bytes = CryptoJS.AES.decrypt(valor.slice(PREFIJO_CIFRADO.length), getAppConfig().encrypPassword);
     const texto = bytes.toString(CryptoJS.enc.Utf8);
     return texto || null;
   } catch {
@@ -28,7 +28,10 @@ export function descifrarValorSesionAlmacenado(valor: string | null): string | n
 @Injectable({ providedIn: 'root' })
 export class SessionFieldCryptoService {
   private readonly prefijo = PREFIJO_CIFRADO;
-  private readonly clave = environment.encrypPassword;
+
+  private get clave(): string {
+    return getAppConfig().encrypPassword;
+  }
 
   cifrar(valor: string): string {
     if (!valor) {

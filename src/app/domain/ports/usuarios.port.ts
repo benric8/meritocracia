@@ -10,7 +10,7 @@ export interface UsuariosPort {
   listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<UsuarioGestion>>;
   registrar(peticion: NuevoUsuarioGestion): Observable<UsuarioGestion>;
   resetearClave(id: string): Observable<void>;
-  desactivar(id: string): Observable<void>;
+  desactivar(id: string, activo: 0 | 1): Observable<void>;
   cambiarContrasena(peticion: CambioContrasena): Observable<void>;
 }
 

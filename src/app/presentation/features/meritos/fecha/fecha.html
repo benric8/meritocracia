@@ -1,1 +1,87 @@
-<p>fecha works!</p>
+<section class="fecha-valoracion">
+  <header class="fecha-valoracion__toolbar">
+    <div class="fecha-valoracion__encabezado">
+      <h1 class="fecha-valoracion__titulo">Configuración de Fecha de Valoración</h1>
+      <p class="fecha-valoracion__subtitulo">{{ subtitulo() }}</p>
+    </div>
+  </header>
+
+  @if (mensajeExito(); as mensaje) {
+    <p class="fecha-valoracion__exito" role="status">{{ mensaje }}</p>
+  }
+
+  @if (error(); as mensajeError) {
+    <p class="fecha-valoracion__error" role="alert">{{ mensajeError }}</p>
+  }
+
+  <article class="fecha-valoracion__card" [class.fecha-valoracion__card--cargando]="cargando()">
+    @if (cargando() && !vigente()) {
+      <p class="fecha-valoracion__estado">Cargando configuración vigente...</p>
+    } @else if (vigente(); as config) {
+      <h2 class="fecha-valoracion__card-titulo">Configuración vigente</h2>
+
+      <div class="fecha-valoracion__grid">
+        <div class="fecha-valoracion__campo">
+          <span class="fecha-valoracion__label">Fecha de valoración</span>
+          <div class="fecha-valoracion__valor fecha-valoracion__valor--fecha">
+            <mat-icon aria-hidden="true">calendar_today</mat-icon>
+            <span>{{ formatearFecha(config.fechaValoracion) }}</span>
+          </div>
+        </div>
+
+        <div class="fecha-valoracion__campo">
+          <span class="fecha-valoracion__label">Estado</span>
+          <div class="fecha-valoracion__valor">
+            <span class="fecha-valoracion__status">
+              <span class="fecha-valoracion__status-dot" aria-hidden="true"></span>
+              Vigente
+            </span>
+          </div>
+        </div>
+
+        <div class="fecha-valoracion__campo fecha-valoracion__campo--full">
+          <span class="fecha-valoracion__label">Resolución que aprueba la fecha</span>
+          <div class="fecha-valoracion__valor fecha-valoracion__valor--desc">
+            {{ config.resolucion }}
+          </div>
+        </div>
+      </div>
+
+      <div class="fecha-valoracion__meta">
+        <strong>Última actualización</strong><br />
+        {{ formatearFechaHora(config.fechaRegistro) }} · Usuario:
+        <strong>{{ config.usuarioRegistro }}</strong>
+      </div>
+
+      <div class="fecha-valoracion__acciones">
+        <button
+          matButton="filled"
+          type="button"
+          [disabled]="cargando()"
+          (click)="abrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Nueva fecha de valoración
+        </button>
+      </div>
+    } @else {
+      <div class="fecha-valoracion__vacio">
+        <p>
+          No hay una fecha de valoración vigente. Registre la primera configuración para iniciar el
+          proceso.
+        </p>
+        <button
+          matButton="filled"
+          type="button"
+          [disabled]="cargando()"
+          (click)="abrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Nueva fecha de valoración
+        </button>
+      </div>
+    }
+  </article>
+
+  <app-historial-fechas-valoracion />
+</section>

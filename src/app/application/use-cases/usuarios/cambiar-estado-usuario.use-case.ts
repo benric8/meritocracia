@@ -12,8 +12,8 @@ export type CambiarEstadoUsuarioResultado =
 export class CambiarEstadoUsuarioUseCase {
   private readonly usuarios = inject(USUARIOS_PORT);
 
-  ejecutar(id: string): Observable<CambiarEstadoUsuarioResultado> {
-    return this.usuarios.desactivar(id).pipe(
+  ejecutar(id: string, activo: 0 | 1): Observable<CambiarEstadoUsuarioResultado> {
+    return this.usuarios.desactivar(id, activo).pipe(
       map(() => ({ exito: true as const })),
       catchError((error) =>
         of({

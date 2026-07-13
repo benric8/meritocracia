@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { switchMap, throwError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { getAppConfig } from '../../config/app-runtime-config';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { authEndpoints, urlsGlobal } from '../../api/auth-api.constants';
 import { TokenRefreshService } from '../services/token-refresh.service';
@@ -14,7 +14,7 @@ export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
   const sesion = inject(SESION_PORT);
   const refreshService = inject(TokenRefreshService);
 
-  const esApiPropia = req.url.startsWith(environment.urlApi);
+  const esApiPropia = req.url.startsWith(getAppConfig().urlApi);
   const esRutaPublica = urlsGlobal.some((ruta) => req.url.includes(ruta));
   const esRefresh = req.url.includes(authEndpoints.REFRESH);
 
