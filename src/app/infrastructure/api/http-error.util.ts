@@ -1,9 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { DetalleErrorApi, esRespuestaApi } from './api-error.model';
+import { DetalleError } from '../../domain/models/detalle-error.model';
+import { esRespuestaApi } from './api-error.model';
 
 export function detalleDesdeRespuestaApi(
-  respuesta: Partial<DetalleErrorApi> & { descripcion?: string }
-): DetalleErrorApi {
+  respuesta: Partial<DetalleError> & { descripcion?: string }
+): DetalleError {
   return {
     mensaje: respuesta.descripcion?.trim() || 'La operación no pudo completarse.',
     codigo: respuesta.codigo,
@@ -11,7 +12,7 @@ export function detalleDesdeRespuestaApi(
   };
 }
 
-export function extraerDetalleErrorApi(error: unknown, mensajePorDefecto: string): DetalleErrorApi {
+export function extraerDetalleErrorApi(error: unknown, mensajePorDefecto: string): DetalleError {
   if (error instanceof HttpErrorResponse) {
     const cuerpo = error.error;
 
@@ -24,7 +25,12 @@ export function extraerDetalleErrorApi(error: unknown, mensajePorDefecto: string
     }
 
     if (typeof cuerpo === 'object' && cuerpo !== null) {
-      const parcial = cuerpo as { descripcion?: string; message?: string; codigoOperacion?: string; codigo?: string };
+      const parcial = cuerpo as {
+        descripcion?: string;
+        message?: string;
+        codigoOperacion?: string;
+        codigo?: string;
+      };
       return {
         mensaje: parcial.descripcion ?? parcial.message ?? mensajePorDefecto,
         codigo: parcial.codigo,
@@ -36,7 +42,7 @@ export function extraerDetalleErrorApi(error: unknown, mensajePorDefecto: string
   }
 
   if (error && typeof error === 'object' && 'detalle' in error) {
-    return (error as { detalle: DetalleErrorApi }).detalle;
+    return (error as { detalle: DetalleError }).detalle;
   }
 
   if (error instanceof Error && error.message.trim()) {
@@ -44,8 +50,4 @@ export function extraerDetalleErrorApi(error: unknown, mensajePorDefecto: string
   }
 
   return { mensaje: mensajePorDefecto };
-}
-
-export function mensajeErrorHttp(error: unknown, mensajePorDefecto: string): string {
-  return extraerDetalleErrorApi(error, mensajePorDefecto).mensaje;
 }

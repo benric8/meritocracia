@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { aDetalleError } from '../../errors/detalle-error.mapper';
+import { DetalleError } from '../../../domain/models/detalle-error.model';
 import { USUARIOS_PORT } from '../../../domain/ports/usuarios.port';
-import { mensajeErrorHttp } from '../../../infrastructure/api/http-error.util';
 
-export interface ResetearClaveUsuarioResultado {
-  exito: boolean;
-  mensaje?: string;
-}
+export type ResetearClaveUsuarioResultado =
+  | { exito: true }
+  | { exito: false; detalle: DetalleError };
 
 @Injectable({ providedIn: 'root' })
 export class ResetearClaveUsuarioUseCase {
@@ -18,7 +18,7 @@ export class ResetearClaveUsuarioUseCase {
       catchError((error) =>
         of({
           exito: false as const,
-          mensaje: mensajeErrorHttp(error, 'No se pudo restablecer la contraseña.'),
+          detalle: aDetalleError(error, 'No se pudo restablecer la contraseña.'),
         })
       )
     );

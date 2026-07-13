@@ -3,13 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import Swal from 'sweetalert2';
 import { finalize } from 'rxjs';
 import { CambiarEstadoUsuarioUseCase } from '../../../../application/use-cases/usuarios/cambiar-estado-usuario.use-case';
 import { RegistrarUsuarioUseCase } from '../../../../application/use-cases/usuarios/registrar-usuario.use-case';
 import { ResetearClaveUsuarioUseCase } from '../../../../application/use-cases/usuarios/resetear-clave-usuario.use-case';
 import { NuevoUsuarioGestion, UsuarioGestion } from '../../../../domain/models/usuario-gestion.model';
-import { temaUi } from '../../../styles/tema-ui.constants';
+import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import { FormularioRegistroUsuario } from '../formulario-registro-usuario/formulario-registro-usuario';
 import { ListaUsuarios } from '../lista-usuarios/lista-usuarios';
 
@@ -23,6 +22,7 @@ import { ListaUsuarios } from '../lista-usuarios/lista-usuarios';
 export class Usuarios {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
+  private readonly alertas = inject(ALERTAS_PORT);
   private readonly registrarUsuario = inject(RegistrarUsuarioUseCase);
   private readonly resetearClaveUsuario = inject(ResetearClaveUsuarioUseCase);
   private readonly cambiarEstadoUsuario = inject(CambiarEstadoUsuarioUseCase);
@@ -60,13 +60,8 @@ export class Usuarios {
         finalize(() => dialogRef.componentInstance.guardando.set(false))
       )
       .subscribe((resultado) => {
-        if (!resultado.exito || !resultado.usuario) {
-          void Swal.fire({
-            icon: 'error',
-            title: 'No se pudo registrar',
-            text: resultado.mensaje ?? 'No se pudo registrar el usuario.',
-            confirmButtonColor: temaUi.COLOR_PRIMARIO,
-          });
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo registrar', resultado.detalle);
           return;
         }
 
@@ -77,17 +72,14 @@ export class Usuarios {
   }
 
   protected async onRestablecerClave(usuario: UsuarioGestion): Promise<void> {
-    const confirmacion = await Swal.fire({
-      icon: 'question',
-      title: 'Restablecer contraseña',
+    const confirmado = await this.alertas.confirmar({
+      icono: 'question',
+      titulo: 'Restablecer contraseña',
       html: `¿Desea restablecer la contraseña de <strong>${usuario.nombreCompleto}</strong>?`,
-      showCancelButton: true,
-      confirmButtonText: 'Restablecer',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: temaUi.COLOR_PRIMARIO,
+      textoConfirmar: 'Restablecer',
     });
 
-    if (!confirmacion.isConfirmed) {
+    if (!confirmado) {
       return;
     }
 
@@ -96,21 +88,14 @@ export class Usuarios {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void Swal.fire({
-            icon: 'error',
-            title: 'No se pudo restablecer',
-            text: resultado.mensaje ?? 'No se pudo restablecer la contraseña.',
-            confirmButtonColor: temaUi.COLOR_PRIMARIO,
-          });
+          void this.alertas.error('No se pudo restablecer', resultado.detalle);
           return;
         }
 
-        void Swal.fire({
-          icon: 'success',
-          title: 'Contraseña restablecida',
-          text: `Se restableció la contraseña de ${usuario.nombreCompleto}.`,
-          confirmButtonColor: temaUi.COLOR_PRIMARIO,
-        });
+        void this.alertas.exito(
+          'Contraseña restablecida',
+          `Se restableció la contraseña de ${usuario.nombreCompleto}.`
+        );
       });
   }
 
@@ -118,17 +103,14 @@ export class Usuarios {
     const habilitar = !usuario.habilitado;
     const accion = habilitar ? 'habilitar' : 'deshabilitar';
 
-    const confirmacion = await Swal.fire({
-      icon: 'warning',
-      title: habilitar ? 'Habilitar usuario' : 'Deshabilitar usuario',
+    const confirmado = await this.alertas.confirmar({
+      icono: 'warning',
+      titulo: habilitar ? 'Habilitar usuario' : 'Deshabilitar usuario',
       html: `¿Confirma que desea ${accion} a <strong>${usuario.nombreCompleto}</strong>?`,
-      showCancelButton: true,
-      confirmButtonText: habilitar ? 'Habilitar' : 'Deshabilitar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: temaUi.COLOR_PRIMARIO,
+      textoConfirmar: habilitar ? 'Habilitar' : 'Deshabilitar',
     });
 
-    if (!confirmacion.isConfirmed) {
+    if (!confirmado) {
       return;
     }
 
@@ -137,12 +119,7 @@ export class Usuarios {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void Swal.fire({
-            icon: 'error',
-            title: 'No se pudo cambiar el estado',
-            text: resultado.mensaje ?? 'No se pudo cambiar el estado del usuario.',
-            confirmButtonColor: temaUi.COLOR_PRIMARIO,
-          });
+          void this.alertas.error('No se pudo cambiar el estado', resultado.detalle);
           return;
         }
 

@@ -11,11 +11,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
-import Swal from 'sweetalert2';
 import { CambiarContrasenaUseCase } from '../../../application/use-cases/usuarios/cambiar-contrasena.use-case';
+import { ALERTAS_PORT } from '../../../domain/ports/alertas.port';
 import { AuthStore } from '../../../infrastructure/security/stores/auth.store';
 import { SessionVigenciaService } from '../../../infrastructure/security/session/session-vigencia.service';
-import { temaUi } from '../../styles/tema-ui.constants';
 import {
   FormularioCambiarContrasena,
   DatosCambiarContrasena,
@@ -46,6 +45,7 @@ export class MainLayout {
   public authStore = inject(AuthStore);
   private readonly sessionVigencia = inject(SessionVigenciaService);
   private readonly cambiarContrasena = inject(CambiarContrasenaUseCase);
+  private readonly alertas = inject(ALERTAS_PORT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private router = inject(Router);
@@ -97,12 +97,7 @@ export class MainLayout {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void Swal.fire({
-            icon: 'error',
-            title: this.textosClave.errorTitulo,
-            text: resultado.mensaje ?? this.textosClave.errorPorDefecto,
-            confirmButtonColor: temaUi.COLOR_PRIMARIO,
-          });
+          void this.alertas.error(this.textosClave.errorTitulo, resultado.detalle);
           return;
         }
 
@@ -112,12 +107,7 @@ export class MainLayout {
   }
 
   private async confirmarCambioYCerrarSesion(): Promise<void> {
-    await Swal.fire({
-      icon: 'success',
-      title: this.textosClave.exitoTitulo,
-      text: this.textosClave.exitoTexto,
-      confirmButtonColor: temaUi.COLOR_PRIMARIO,
-    });
+    await this.alertas.exito(this.textosClave.exitoTitulo, this.textosClave.exitoTexto);
     this.onCerrarSesion();
   }
 

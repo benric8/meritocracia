@@ -1,14 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { aDetalleError } from '../../errors/detalle-error.mapper';
+import { DetalleError } from '../../../domain/models/detalle-error.model';
 import { NuevoUsuarioGestion, UsuarioGestion } from '../../../domain/models/usuario-gestion.model';
 import { USUARIOS_PORT } from '../../../domain/ports/usuarios.port';
-import { mensajeErrorHttp } from '../../../infrastructure/api/http-error.util';
 
-export interface RegistrarUsuarioResultado {
-  exito: boolean;
-  usuario?: UsuarioGestion;
-  mensaje?: string;
-}
+export type RegistrarUsuarioResultado =
+  | { exito: true; usuario: UsuarioGestion }
+  | { exito: false; detalle: DetalleError };
 
 @Injectable({ providedIn: 'root' })
 export class RegistrarUsuarioUseCase {
@@ -20,7 +19,7 @@ export class RegistrarUsuarioUseCase {
       catchError((error) =>
         of({
           exito: false as const,
-          mensaje: mensajeErrorHttp(error, 'No se pudo registrar el usuario.'),
+          detalle: aDetalleError(error, 'No se pudo registrar el usuario.'),
         })
       )
     );

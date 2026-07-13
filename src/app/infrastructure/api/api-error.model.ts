@@ -1,15 +1,10 @@
+import { DetalleError } from '../../domain/models/detalle-error.model';
 import { BaseResponse } from '../dto/remote/BaseResponse,dto';
 
-export interface DetalleErrorApi {
-  mensaje: string;
-  codigo?: string;
-  codigoOperacion?: string;
-}
-
 export class ErrorNegocioApi extends Error {
-  readonly detalle: DetalleErrorApi;
+  readonly detalle: DetalleError;
 
-  constructor(detalle: DetalleErrorApi) {
+  constructor(detalle: DetalleError) {
     super(detalle.mensaje);
     this.name = 'ErrorNegocioApi';
     this.detalle = detalle;
