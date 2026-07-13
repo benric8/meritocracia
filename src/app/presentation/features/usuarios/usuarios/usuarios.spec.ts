@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import { USUARIOS_PORT } from '../../../../domain/ports/usuarios.port';
+import { crearAlertasPortMock } from '../../../../testing/alertas-port.mock';
 import { Usuarios } from './usuarios';
 
 const listadoUsuariosMock = {
@@ -19,6 +21,7 @@ describe('Usuarios', () => {
     await TestBed.configureTestingModule({
       imports: [Usuarios],
       providers: [
+        { provide: ALERTAS_PORT, useValue: crearAlertasPortMock() },
         {
           provide: USUARIOS_PORT,
           useValue: {

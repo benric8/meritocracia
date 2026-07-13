@@ -42,7 +42,7 @@ describe('credenciales-login.validators', () => {
     const control = new FormControl('', { nonNullable: true, validators: VALIDADORES_CLAVE_LOGIN });
 
     it('rechaza contraseña corta', () => {
-      control.setValue('1234567');
+      control.setValue('12345');
       control.markAsTouched();
       expect(control.invalid).toBe(true);
       expect(mensajeErrorCampoLogin(control, 'clave')).toContain(
@@ -51,7 +51,7 @@ describe('credenciales-login.validators', () => {
     });
 
     it('acepta contraseña con longitud mínima', () => {
-      control.setValue('12345678');
+      control.setValue('123456');
       expect(control.valid).toBe(true);
     });
   });

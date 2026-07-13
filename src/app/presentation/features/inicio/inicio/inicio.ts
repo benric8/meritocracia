@@ -185,6 +185,15 @@ export class Inicio {
       .subscribe({
         next: (resultado) => {
           if (!resultado.exito) {
+            if (resultado.detalle) {
+              const codigo = resultado.detalle.codigoOperacion?.trim();
+              this.errorFormulario.set(
+                codigo
+                  ? `${resultado.detalle.mensaje}\n\nCódigo de operación: ${codigo}`
+                  : resultado.detalle.mensaje
+              );
+              return;
+            }
             if (resultado.mensaje) {
               this.errorFormulario.set(resultado.mensaje);
             }

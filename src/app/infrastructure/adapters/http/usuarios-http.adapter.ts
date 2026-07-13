@@ -9,6 +9,7 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { UsuariosPort } from '../../../domain/ports/usuarios.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
+import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import { CambiarClaveRequest } from '../../dto/remote/CambiarClaveRequest.dto';
@@ -74,7 +75,8 @@ export class UsuariosHttpAdapter implements UsuariosPort {
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
           return toUsuarioGestion(respuesta.data);
-        })
+        }),
+        mapearAErrorNegocioApi('No se pudo registrar el usuario.')
       );
   }
 
@@ -90,7 +92,8 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-        })
+        }),
+        mapearAErrorNegocioApi('No se pudo restablecer la contraseña.')
       );
   }
 
@@ -106,7 +109,8 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-        })
+        }),
+        mapearAErrorNegocioApi('No se pudo cambiar el estado del usuario.')
       );
   }
 
@@ -128,7 +132,8 @@ export class UsuariosHttpAdapter implements UsuariosPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-        })
+        }),
+        mapearAErrorNegocioApi('No se pudo cambiar la contraseña.')
       );
   }
 

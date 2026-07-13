@@ -2,14 +2,16 @@ import { Injectable } from '@angular/core';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { DetalleError } from '../../../domain/models/detalle-error.model';
 import { AlertaConfirmacion, AlertasPort } from '../../../domain/ports/alertas.port';
+import { formatearHtmlDetalleError } from './alerta-error-html.util';
 
 /** Alineado con `temaUi.COLOR_PRIMARIO` / `--mc-primary`. */
 const COLOR_CONFIRMAR = '#8b0000';
 
 /**
  * Adaptador de UI: implementa `AlertasPort` con SweetAlert2.
+ * Se registra solo vía `{ provide: ALERTAS_PORT, useClass: AlertasSweetAlertAdapter }`.
  */
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class AlertasSweetAlertAdapter implements AlertasPort {
   private mostrandoError = false;
 
@@ -24,7 +26,7 @@ export class AlertasSweetAlertAdapter implements AlertasPort {
       await Swal.fire({
         icon: 'error',
         title: titulo,
-        html: this.construirHtmlError(detalle),
+        html: formatearHtmlDetalleError(detalle),
         confirmButtonText: 'Aceptar',
         confirmButtonColor: COLOR_CONFIRMAR,
         allowOutsideClick: false,
@@ -55,25 +57,5 @@ export class AlertasSweetAlertAdapter implements AlertasPort {
     });
 
     return resultado.isConfirmed;
-  }
-
-  private construirHtmlError(detalle: DetalleError): string {
-    const mensaje = this.escaparHtml(detalle.mensaje);
-    const codigoOperacion = detalle.codigoOperacion?.trim();
-
-    if (!codigoOperacion) {
-      return mensaje;
-    }
-
-    return `${mensaje}<br><br><small><strong>Código de operación:</strong> ${this.escaparHtml(codigoOperacion)}</small>`;
-  }
-
-  private escaparHtml(valor: string): string {
-    return valor
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 }

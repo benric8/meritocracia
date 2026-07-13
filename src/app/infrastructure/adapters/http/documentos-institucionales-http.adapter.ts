@@ -10,9 +10,10 @@ import {
 import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/paginacion.model';
 import { DocumentosInstitucionalesPort } from '../../../domain/ports/documentos-institucionales.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
-import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constants';
+import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
+import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import {
   DocumentoInstitucionalResponse,
   ListarDocumentosInstitucionalesResponse,
@@ -93,7 +94,8 @@ export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstituci
       map((respuesta) => {
         assertRespuestaExitosa(respuesta);
         return toDocumentoInstitucional(respuesta.data);
-      })
+      }),
+      mapearAErrorNegocioApi('No se pudo guardar el documento.')
     );
   }
 

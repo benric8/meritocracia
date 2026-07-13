@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { aDetalleError } from '../../errors/detalle-error.mapper';
 import { validarArchivoPdf } from '../../../domain/commons/validacion-archivo-pdf';
+import { DetalleError } from '../../../domain/models/detalle-error.model';
 import {
   DocumentoInstitucional,
   SubirDocumentoPeticion,
@@ -8,11 +10,9 @@ import {
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from '../../../domain/ports/documentos-institucionales.port';
 import { obtenerConfigDocumentosInstitucionales } from '../../../infrastructure/config/documentos-institucionales.config';
 
-export interface GuardarDocumentoInstitucionalResultado {
-  exito: boolean;
-  documento?: DocumentoInstitucional;
-  mensaje?: string;
-}
+export type GuardarDocumentoInstitucionalResultado =
+  | { exito: true; documento: DocumentoInstitucional }
+  | { exito: false; mensaje?: string; detalle?: DetalleError };
 
 @Injectable({ providedIn: 'root' })
 export class GuardarDocumentoInstitucionalUseCase {
@@ -45,7 +45,12 @@ export class GuardarDocumentoInstitucionalUseCase {
 
     return operacion.pipe(
       map((documento) => ({ exito: true as const, documento })),
-      catchError(() => of({ exito: false as const }))
+      catchError((error) =>
+        of({
+          exito: false as const,
+          detalle: aDetalleError(error, 'No se pudo guardar el documento.'),
+        })
+      )
     );
   }
 }

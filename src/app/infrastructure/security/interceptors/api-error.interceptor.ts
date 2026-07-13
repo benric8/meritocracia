@@ -8,6 +8,7 @@ import { esRespuestaApi } from '../../api/api-error.model';
 import { esCodigoExito } from '../../api/api-response.util';
 import { detalleDesdeRespuestaApi, extraerDetalleErrorApi } from '../../api/http-error.util';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
+import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
 const RUTAS_AUTH_SIN_MODAL = [
@@ -18,7 +19,7 @@ const RUTAS_AUTH_SIN_MODAL = [
 ];
 
 /**
- * Mutaciones cuyo fallo ya se notifica en pantalla vía Result + ALERTAS_PORT.
+ * Mutaciones cuyo fallo ya se notifica en pantalla vía Result (+ ALERTAS_PORT o form).
  * El interceptor no debe abrir un segundo modal.
  */
 const MUTACIONES_CON_RESULT: ReadonlyArray<{
@@ -28,7 +29,7 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   {
     method: 'POST',
     // Registrar: POST .../usuarios (no .../usuarios/...). Listar es GET a la misma base.
-    coincide: (url) => esRutaExactaUsuarios(url),
+    coincide: (url) => esRutaExacta(url, usuariosEndpoints.LISTAR),
   },
   {
     method: 'PUT',
@@ -41,6 +42,16 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   {
     method: 'PUT',
     coincide: (url) => url.includes(usuariosEndpoints.CAMBIAR_CONTRASENA),
+  },
+  {
+    method: 'POST',
+    // Subir documento: POST .../documentos. Listar es GET.
+    coincide: (url) => esRutaExacta(url, documentosInstitucionalesEndpoints.LISTAR),
+  },
+  {
+    method: 'PUT',
+    // Reemplazar: PUT .../documentos/:id (no /descargar/).
+    coincide: (url) => esRutaReemplazoDocumento(url),
   },
 ];
 
@@ -101,8 +112,17 @@ function esMutacionConResultEnPantalla(req: HttpRequest<unknown>): boolean {
   );
 }
 
-/** True si el path (sin query) termina exactamente en `/usuarios`. */
-function esRutaExactaUsuarios(url: string): boolean {
+/** True si el path (sin query) termina exactamente en `/${segmento}`. */
+function esRutaExacta(url: string, segmento: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
-  return path.endsWith(`/${usuariosEndpoints.LISTAR}`) || path.endsWith(usuariosEndpoints.LISTAR);
+  return path.endsWith(`/${segmento}`) || path.endsWith(segmento);
+}
+
+function esRutaReemplazoDocumento(url: string): boolean {
+  if (url.includes('/descargar/')) {
+    return false;
+  }
+
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/documentos\/[^/]+$/.test(path);
 }

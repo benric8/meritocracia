@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { ALERTAS_PORT } from '../../../domain/ports/alertas.port';
+import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { USUARIOS_PORT } from '../../../domain/ports/usuarios.port';
+import { crearAlertasPortMock } from '../../../testing/alertas-port.mock';
+import { crearSesionPortMock } from '../../../testing/sesion-port.mock';
 import { MainLayout } from './main-layout';
 
 describe('MainLayout', () => {
@@ -11,6 +16,9 @@ describe('MainLayout', () => {
     await TestBed.configureTestingModule({
       imports: [MainLayout],
       providers: [
+        provideRouter([]),
+        { provide: ALERTAS_PORT, useValue: crearAlertasPortMock() },
+        { provide: SESION_PORT, useValue: crearSesionPortMock() },
         {
           provide: USUARIOS_PORT,
           useValue: {
