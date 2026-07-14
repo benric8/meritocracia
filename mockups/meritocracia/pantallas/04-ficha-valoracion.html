@@ -111,6 +111,169 @@
       border-top: 1px solid var(--border);
       background: #fafafa;
     }
+
+    /* E.1 — Estudios de doctorado y/o maestría */
+    .e1-hint {
+      margin: 0 0 14px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .e1-section {
+      margin-bottom: 16px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .e1-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .e1-section-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .e1-section-title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--primary-p20);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .e1-section-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .e1-semestres-table {
+      margin-top: 0;
+    }
+
+    .e1-semestres-table th {
+      white-space: nowrap;
+    }
+
+    .e1-semestres-table .input,
+    .e1-semestres-table .select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .e1-semestres-table td {
+      vertical-align: middle;
+    }
+
+    .e1-notas-cell {
+      min-width: 160px;
+    }
+
+    .e1-notas-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      min-height: 34px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .e1-notas-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-p20);
+    }
+
+    .e1-nota-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--primary-p20);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .e1-nota-chip button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      padding: 0 0 0 2px;
+      font-size: 12px;
+      line-height: 1;
+      opacity: 0.7;
+    }
+
+    .e1-nota-chip button:hover {
+      opacity: 1;
+    }
+
+    .e1-nota-input {
+      flex: 1;
+      min-width: 48px;
+      border: 0;
+      outline: none;
+      font: inherit;
+      font-size: 12px;
+      padding: 2px 0;
+      background: transparent;
+    }
+
+    .e1-promedio {
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .e1-promedio.is-empty {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .e1-empty-semestres {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .e1-empty-semestres.is-hidden {
+      display: none;
+    }
+
+    .mockup-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+    }
   </style>
 </head>
 <body class="mockup-scroll-body">
@@ -194,7 +357,7 @@
                   <label for="magistrado-nivel">Nivel</label>
                   <select class="select" id="magistrado-nivel">
                     <option>Juez Superior Titular</option>
-                    <option>Juez Supremo</option>
+                    <option>Juez Supremo Titular</option>
                   </select>
                 </div>
               </div>
@@ -250,11 +413,26 @@
                 <div class="antiguedad-block">
                   <span class="antiguedad-block-criterion">Antigüedad en el cargo</span>
                   <h3 class="antiguedad-block-title">Datos generales y titularidad actual</h3>
-                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración.</p>
+                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración. La fecha y hora de juramentación se toman del Acta de Juramento (JNJ); la hora constituye el 4.º criterio de desempate.</p>
                   <div class="form-row form-row--dense">
-                    <div class="form-group"><label>Distrito judicial (SIGA)</label><select class="select"><option>Huancavelica</option><option>Lima</option></select></div>
-                    <div class="form-group"><label>Cargo titular actual</label><input class="input" value="Juez Superior Titular" /></div>
-                    <div class="form-group"><label>Fecha juramentación (cargo titular actual)</label><input class="input" type="date" value="2013-04-09" /></div>
+                    <div class="form-group"><label>Distrito judicial</label><select class="select"><option>Huancavelica</option><option>Lima</option></select></div>
+                    <div class="form-group">
+                      <label for="cargo-titular-actual">Cargo titular actual</label>
+                      <select class="select" id="cargo-titular-actual">
+                        <option>Juez Supremo Titular</option>
+                        <option selected>Juez Superior Titular</option>
+                        <option>Juez Especializado Titular</option>
+                        <option>Juez de Paz Letrado Titular</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="fecha-juramentacion">Fecha juramentación</label>
+                      <input class="input" id="fecha-juramentacion" type="date" value="2013-04-09" />
+                    </div>
+                    <div class="form-group">
+                      <label for="hora-juramento">Hora de juramento <small style="font-weight:400;color:var(--text-muted);"></small></label>
+                      <input class="input" id="hora-juramento" type="time" value="11:15" />
+                    </div>
                     <div class="form-group"><label>Fecha de cese</label><input class="input" type="date" /></div>
                     <div class="form-group"><label>Fecha de reincorporación</label><input class="input" type="date" /></div>
                     <div class="form-group"><label>Fecha de valoración</label><input class="input" type="date" value="2024-12-31" /></div>
@@ -373,18 +551,6 @@
                     </tbody>
                   </table>
                 </div>
-
-                <div class="antiguedad-block">
-                  <span class="antiguedad-block-criterion">4.º criterio de desempate</span>
-                  <h3 class="antiguedad-block-title">Hora de juramento</h3>
-                  <p class="antiguedad-block-hint">Registrar la hora consignada en el Acta de Juramento ante la JNJ (o quien haga sus veces) en el cargo titular actual valorado.</p>
-                  <div class="form-row form-row--dense">
-                    <div class="form-group">
-                      <label for="hora-juramento">Hora de juramento <small style="font-weight:400;color:var(--text-muted);">(Acta de Juramento — JNJ)</small></label>
-                      <input class="input" id="hora-juramento" type="time" value="11:15" />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -496,52 +662,156 @@
               <div class="accordion-nested" id="rubro-e-nested">
 
                 <!-- E.1 -->
-                <div class="rubro-sub rubro-addable">
+                <div class="rubro-sub rubro-addable" id="e1-estudios">
                   <div class="rubro-sub-header">
                     <span><span class="sub-code">E.1</span> Estudios de doctorado y/o maestría</span>
                     <div class="rubro-sub-actions">
+                      <span class="rubro-score">9.00</span>
                       <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
-                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir estudio
                       </button>
                     </div>
                   </div>
-                  <div class="rubro-sub-form">
-                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.1 Doctorado y/o Maestría</span></div>
-                    <div class="form-row form-row--dense">
-                      <div class="form-group">
-                        <label for="e1-tipo-estudio">Tipo</label>
-                        <select class="select" id="e1-tipo-estudio">
-                          <option>Doctorado</option>
-                          <option>Maestría</option>
-                        </select>
+                  <div class="rubro-sub-records">
+                    <table class="rubro-records" id="e1-estudios-records">
+                      <thead>
+                        <tr>
+                          <th>Nombre de estudios</th>
+                          <th>Universidad</th>
+                          <th>País</th>
+                          <th>Especialidad</th>
+                          <th>Condición</th>
+                          <th>Semestres</th>
+                          <th>Puntaje</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Maestría en Derecho Constitucional</td>
+                          <td>PUCP</td>
+                          <td>Perú</td>
+                          <td>Jurídico</td>
+                          <td>Egresado</td>
+                          <td>4</td>
+                          <td><strong>9.00</strong></td>
+                          <td><button type="button" class="icon-btn btn-edit-e1" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="rubro-sub-form" id="e1-form-panel">
+                    <div class="rubro-add-form-title" style="margin-bottom:8px;">
+                      <span>Registrar — E.1 Doctorado y/o Maestría</span>
+                      <span>RF006 · Subrubro E.1</span>
+                    </div>
+                    <p class="e1-hint">Primero registre los datos del programa de estudios. Luego agregue cada semestre con sus notas; el promedio y el puntaje según tabla se calculan por semestre.</p>
+
+                    <section class="e1-section" aria-labelledby="e1-datos-title">
+                      <div class="e1-section-head">
+                        <h4 class="e1-section-title" id="e1-datos-title"><span>1</span> Datos del estudio</h4>
                       </div>
-                      <div class="form-group">
-                        <label>Universidad</label>
-                        <div class="universidad-combobox" data-universidad-combobox>
-                          <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
-                          <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                      <div class="form-row form-row--dense">
+                        <div class="form-group">
+                          <label for="e1-nombre-estudios">Nombre de estudios</label>
+                          <input class="input" id="e1-nombre-estudios" type="text" placeholder="Ej. Doctorado en Derecho / Maestría en Derecho Penal" value="Maestría en Derecho Constitucional" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-universidad">Universidad</label>
+                          <div class="universidad-combobox" data-universidad-combobox>
+                            <input class="input universidad-combobox-input" id="e1-universidad" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" value="Pontificia Universidad Católica del Perú" />
+                            <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-pais">País</label>
+                          <input class="input" id="e1-pais" type="text" value="Perú" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-especialidad">Especialidad</label>
+                          <select class="select" id="e1-especialidad">
+                            <option selected>Jurídico</option>
+                            <option>No jurídico</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-mencion">Mención</label>
+                          <input class="input" id="e1-mencion" type="text" placeholder="Ej. Derecho Constitucional" value="Derecho Constitucional" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-condicion-academica">Condición académica</label>
+                          <select class="select" id="e1-condicion-academica">
+                            <option>Estudiante</option>
+                            <option selected>Egresado</option>
+                          </select>
                         </div>
                       </div>
-                      <div class="form-group"><label>País</label><input class="input" /></div>
-                      <div class="form-group"><label>Especialidad</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
-                      <div class="form-group"><label>Mención</label><input class="input" /></div>
-                      <div class="form-group">
-                        <label for="e1-condicion-academica">Condición académica</label>
-                        <select class="select" id="e1-condicion-academica">
-                          <option>Estudiante</option>
-                          <option>Egresado</option>
-                        </select>
+                    </section>
+
+                    <section class="e1-section" aria-labelledby="e1-semestres-title">
+                      <div class="e1-section-head">
+                        <h4 class="e1-section-title" id="e1-semestres-title"><span>2</span> Semestres académicos</h4>
+                        <span class="e1-section-meta">Ingrese notas y pulse Enter o coma para agregarlas</span>
                       </div>
-                      <div class="form-group"><label>Número de semestre</label><input class="input" type="number" /></div>
-                      <div class="form-group"><label>Año inicio del semestre</label><input class="input" type="number" /></div>
-                      <div class="form-group"><label>Año fin del semestre</label><input class="input" type="number" /></div>
-                      <div class="form-group"><label>Notas por semestre</label><input class="input" placeholder="Ej. 16, 17, 15" /></div>
-                      <div class="form-group"><label>Promedio por semestre</label><input class="input" /></div>
-                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
-                    </div>
+                      <table class="rubro-records e1-semestres-table" id="e1-semestres-table">
+                        <thead>
+                          <tr>
+                            <th>N.º semestre</th>
+                            <th>Año inicio</th>
+                            <th>Año fin</th>
+                            <th>Notas por semestre</th>
+                            <th>Promedio</th>
+                            <th>Puntaje</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody id="e1-semestres-tbody">
+                          <tr data-semestre-row>
+                            <td><input class="input" type="number" min="1" max="20" value="1" aria-label="Número de semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2018" aria-label="Año inicio del semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2018" aria-label="Año fin del semestre" /></td>
+                            <td class="e1-notas-cell">
+                              <div class="e1-notas-wrap" data-notas>
+                                <span class="e1-nota-chip">16<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">17<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">15<button type="button" title="Quitar">×</button></span>
+                                <input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />
+                              </div>
+                            </td>
+                            <td><span class="e1-promedio" data-promedio>16.00</span></td>
+                            <td><span class="e1-promedio" data-puntaje>4.50</span></td>
+                            <td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre"><img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>
+                          </tr>
+                          <tr data-semestre-row>
+                            <td><input class="input" type="number" min="1" max="20" value="2" aria-label="Número de semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2019" aria-label="Año inicio del semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2019" aria-label="Año fin del semestre" /></td>
+                            <td class="e1-notas-cell">
+                              <div class="e1-notas-wrap" data-notas>
+                                <span class="e1-nota-chip">18<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">16<button type="button" title="Quitar">×</button></span>
+                                <input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />
+                              </div>
+                            </td>
+                            <td><span class="e1-promedio" data-promedio>17.00</span></td>
+                            <td><span class="e1-promedio" data-puntaje>4.50</span></td>
+                            <td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre"><img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <p class="e1-empty-semestres is-hidden" id="e1-empty-semestres">Aún no hay semestres. Agregue al menos uno para registrar notas, promedio y puntaje por semestre.</p>
+                      <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                        <button type="button" class="btn btn-secondary btn-sm btn-with-icon" id="e1-add-semestre">
+                          <img src="../assets/icons/plus.svg" width="14" height="14" alt="" /> Añadir semestre
+                        </button>
+                      </div>
+                    </section>
+
                     <div class="rubro-sub-form-actions">
                       <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
-                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="e1-guardar">
+                        <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar estudio
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1512,6 +1782,195 @@
         if (!editBtn) return;
         openModal(editBtn.closest('tr'));
       });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var root = document.getElementById('e1-estudios');
+      if (!root) return;
+
+      var tbody = document.getElementById('e1-semestres-tbody');
+      var emptyMsg = document.getElementById('e1-empty-semestres');
+      var addBtn = document.getElementById('e1-add-semestre');
+      var guardarBtn = document.getElementById('e1-guardar');
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function parseNotas(wrap) {
+        return Array.prototype.map.call(wrap.querySelectorAll('.e1-nota-chip'), function (chip) {
+          return parseFloat(chip.childNodes[0].nodeValue);
+        }).filter(function (n) { return !isNaN(n); });
+      }
+
+      function formatPromedio(notas) {
+        if (!notas.length) return null;
+        var sum = notas.reduce(function (a, b) { return a + b; }, 0);
+        return (sum / notas.length).toFixed(2);
+      }
+
+      function puntajeDesdePromedio(promedio) {
+        if (promedio == null) return '—';
+        var p = parseFloat(promedio);
+        if (isNaN(p) || p < 11) return '0.00';
+        if (p >= 18) return '6.00';
+        if (p >= 16) return '4.50';
+        if (p >= 14) return '3.00';
+        if (p >= 12) return '1.50';
+        return '0.50';
+      }
+
+      function actualizarFila(row) {
+        var wrap = row.querySelector('[data-notas]');
+        var avgEl = row.querySelector('[data-promedio]');
+        var puntajeEl = row.querySelector('[data-puntaje]');
+        if (!wrap || !avgEl || !puntajeEl) return;
+
+        var promedio = formatPromedio(parseNotas(wrap));
+        if (promedio == null) {
+          avgEl.textContent = '—';
+          avgEl.classList.add('is-empty');
+          puntajeEl.textContent = '—';
+          puntajeEl.classList.add('is-empty');
+        } else {
+          avgEl.textContent = promedio;
+          avgEl.classList.remove('is-empty');
+          puntajeEl.textContent = puntajeDesdePromedio(promedio);
+          puntajeEl.classList.remove('is-empty');
+        }
+      }
+
+      function actualizarSemestres() {
+        var rows = tbody.querySelectorAll('[data-semestre-row]');
+        emptyMsg.classList.toggle('is-hidden', rows.length > 0);
+        rows.forEach(actualizarFila);
+      }
+
+      function crearChip(nota) {
+        var chip = document.createElement('span');
+        chip.className = 'e1-nota-chip';
+        chip.appendChild(document.createTextNode(String(nota)));
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.title = 'Quitar';
+        btn.textContent = '×';
+        chip.appendChild(btn);
+        return chip;
+      }
+
+      function agregarNota(wrap, raw) {
+        var valor = String(raw || '').trim().replace(',', '.');
+        if (!valor) return false;
+        var nota = parseFloat(valor);
+        if (isNaN(nota) || nota < 0 || nota > 20) {
+          showToast('Ingrese una nota válida entre 0 y 20.');
+          return false;
+        }
+        var redondeada = Math.round(nota * 100) / 100;
+        var input = wrap.querySelector('.e1-nota-input');
+        wrap.insertBefore(crearChip(redondeada % 1 === 0 ? redondeada.toFixed(0) : redondeada.toFixed(2)), input);
+        actualizarSemestres();
+        return true;
+      }
+
+      function siguienteNumeroSemestre() {
+        var max = 0;
+        tbody.querySelectorAll('[data-semestre-row]').forEach(function (row) {
+          var input = row.querySelector('td:first-child input');
+          var n = parseInt(input && input.value, 10);
+          if (!isNaN(n) && n > max) max = n;
+        });
+        return max + 1;
+      }
+
+      function crearFilaSemestre(numero) {
+        var anio = new Date().getFullYear();
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-semestre-row', '');
+        tr.innerHTML =
+          '<td><input class="input" type="number" min="1" max="20" value="' + numero + '" aria-label="Número de semestre" /></td>' +
+          '<td><input class="input" type="number" min="1900" max="2100" value="' + anio + '" aria-label="Año inicio del semestre" /></td>' +
+          '<td><input class="input" type="number" min="1900" max="2100" value="' + anio + '" aria-label="Año fin del semestre" /></td>' +
+          '<td class="e1-notas-cell"><div class="e1-notas-wrap" data-notas>' +
+          '<input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />' +
+          '</div></td>' +
+          '<td><span class="e1-promedio is-empty" data-promedio>—</span></td>' +
+          '<td><span class="e1-promedio is-empty" data-puntaje>—</span></td>' +
+          '<td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre">' +
+          '<img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>';
+        return tr;
+      }
+
+      addBtn.addEventListener('click', function () {
+        tbody.appendChild(crearFilaSemestre(siguienteNumeroSemestre()));
+        actualizarSemestres();
+      });
+
+      tbody.addEventListener('click', function (e) {
+        var removeChip = e.target.closest('.e1-nota-chip button');
+        if (removeChip) {
+          removeChip.closest('.e1-nota-chip').remove();
+          actualizarSemestres();
+          return;
+        }
+
+        var removeRow = e.target.closest('.btn-remove-semestre');
+        if (removeRow) {
+          removeRow.closest('tr').remove();
+          actualizarSemestres();
+        }
+      });
+
+      tbody.addEventListener('keydown', function (e) {
+        var input = e.target.closest('.e1-nota-input');
+        if (!input) return;
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          if (agregarNota(input.parentElement, input.value)) {
+            input.value = '';
+          }
+        }
+      });
+
+      tbody.addEventListener('blur', function (e) {
+        var input = e.target.closest('.e1-nota-input');
+        if (!input || !input.value.trim()) return;
+        if (agregarNota(input.parentElement, input.value)) {
+          input.value = '';
+        }
+      }, true);
+
+      if (guardarBtn) {
+        guardarBtn.addEventListener('click', function () {
+          var nombre = document.getElementById('e1-nombre-estudios').value.trim();
+          if (!nombre) {
+            showToast('Ingrese el nombre de estudios.');
+            return;
+          }
+          if (!tbody.querySelectorAll('[data-semestre-row]').length) {
+            showToast('Agregue al menos un semestre.');
+            return;
+          }
+          showToast('Estudio E.1 registrado correctamente (simulación).');
+          root.classList.remove('is-form-open');
+        });
+      }
+
+      var editBtn = root.querySelector('.btn-edit-e1');
+      if (editBtn) {
+        editBtn.addEventListener('click', function () {
+          root.classList.add('is-form-open');
+          document.getElementById('e1-form-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      }
+
+      actualizarSemestres();
     })();
   </script>
 

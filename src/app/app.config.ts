@@ -11,8 +11,12 @@ import { routes } from './app.routes';
 import { ALERTAS_PORT } from './domain/ports/alertas.port';
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from './domain/ports/documentos-institucionales.port';
 import { FECHA_VALORACION_PORT } from './domain/ports/fecha-valoracion.port';
+import { JUEZ_PORT } from './domain/ports/juez.port';
+import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
 import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
+import { JuezHttpAdapter } from './infrastructure/adapters/http/juez-http.adapter';
+import { MaestrosHttpAdapter } from './infrastructure/adapters/http/maestros-http.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
 import { FechaValoracionMockAdapter } from './infrastructure/adapters/mock/fecha-valoracion-mock.adapter';
 import { AlertasSweetAlertAdapter } from './infrastructure/adapters/ui/alertas-sweetalert.adapter';
@@ -51,6 +55,8 @@ export const appConfig: ApplicationConfig = {
     { provide: AUTENTICACION_PORT, useClass: AutenticacionHttpAdapter },
     { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },
     { provide: USUARIOS_PORT, useClass: UsuariosHttpAdapter },
+    { provide: MAESTROS_PORT, useClass: MaestrosHttpAdapter },
+    { provide: JUEZ_PORT, useClass: JuezHttpAdapter },
     // Mock hasta disponer del API de fechas-valoracion; sustituir por FechaValoracionHttpAdapter.
     { provide: FECHA_VALORACION_PORT, useClass: FechaValoracionMockAdapter },
     { provide: ALERTAS_PORT, useClass: AlertasSweetAlertAdapter },

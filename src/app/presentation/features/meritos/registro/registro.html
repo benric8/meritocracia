@@ -1,1 +1,154 @@
-<p>registro works!</p>
+<section class="ficha-valoracion">
+  <header class="ficha-valoracion__toolbar">
+    <div class="ficha-valoracion__encabezado">
+      <h1 class="ficha-valoracion__titulo">Ficha de valoración de méritos</h1>
+    </div>
+  </header>
+
+  @if (errorCarga(); as mensajeError) {
+    <p class="ficha-valoracion__error" role="alert">{{ mensajeError }}</p>
+  }
+
+  @if (!fechaValoracionVigente()) {
+    <p class="ficha-valoracion__aviso" role="status">
+      No hay fecha de valoración vigente. La edad se calculará cuando exista una configuración
+      activa.
+    </p>
+  } @else {
+    <p class="ficha-valoracion__meta" role="status">
+      Fecha de valoración vigente:
+      <strong>{{ formatearFecha(fechaValoracionVigente()!) }}</strong>
+    </p>
+  }
+
+  <article class="ficha-valoracion__card">
+    <h2 class="ficha-valoracion__card-titulo">Nivel y datos personales del juez</h2>
+
+    <form class="ficha-valoracion__form" [formGroup]="formulario" novalidate>
+      <div class="ficha-valoracion__magistrado">
+        <div class="ficha-valoracion__foto" aria-label="Foto del juez desde SIGA">
+          @if (fotoSiga(); as foto) {
+            <img [src]="foto" alt="Foto del juez" class="ficha-valoracion__foto-img" />
+          } @else {
+            <mat-icon aria-hidden="true">person</mat-icon>
+            <span>Foto SIGA</span>
+          }
+        </div>
+
+        <div class="ficha-valoracion__datos">
+          <div class="ficha-valoracion__fila ficha-valoracion__fila--sig">
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo">
+              <mat-label>DNI</mat-label>
+              <input
+                matInput
+                formControlName="dni"
+                inputmode="numeric"
+                maxlength="8"
+                autocomplete="off"
+                placeholder="12345678"
+                (input)="onDniInput($event)"
+              />
+              @if (mensajeErrorCampo(formulario.controls.dni, 'dni'); as error) {
+                <mat-error>{{ error }}</mat-error>
+              }
+            </mat-form-field>
+
+            <button
+              matButton="filled"
+              type="button"
+              class="ficha-valoracion__btn-buscar"
+              [disabled]="buscandoSiga() || formulario.controls.dni.invalid"
+              (click)="onBuscarSiga()"
+              title="Buscar en SIGA"
+            >
+              @if (buscandoSiga()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>search</mat-icon>
+              }
+              Buscar
+            </button>
+
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo">
+              <mat-label>Nivel</mat-label>
+              <mat-select formControlName="nivelId" placeholder="Seleccione...">
+                @for (nivel of niveles(); track nivel.id) {
+                  <mat-option [value]="nivel.id">{{ nivel.nombre }}</mat-option>
+                }
+              </mat-select>
+              @if (mensajeErrorCampo(formulario.controls.nivelId, 'nivelId'); as error) {
+                <mat-error>{{ error }}</mat-error>
+              }
+              @if (cargandoNiveles()) {
+                <mat-hint>Cargando niveles...</mat-hint>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="ficha-valoracion__fila ficha-valoracion__fila--identidad">
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo ficha-valoracion__campo--full">
+              <mat-label>Apellidos y nombres completos</mat-label>
+              <input
+                matInput
+                formControlName="nombreCompleto"
+                autocomplete="name"
+                placeholder="Obtenido desde SIGA"
+              />
+              @if (mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto'); as error) {
+                <mat-error>{{ error }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="ficha-valoracion__fila ficha-valoracion__fila--demografia">
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo">
+              <mat-label>Fecha de nacimiento</mat-label>
+              <input matInput type="date" formControlName="fechaNacimiento" />
+              @if (
+                mensajeErrorCampo(formulario.controls.fechaNacimiento, 'fechaNacimiento');
+                as error
+              ) {
+                <mat-error>{{ error }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo">
+              <mat-label>Edad</mat-label>
+              <input
+                matInput
+                [value]="edad()"
+                readonly
+                placeholder="—"
+                [attr.aria-busy]="calculandoEdad()"
+              />
+              @if (calculandoEdad()) {
+                <mat-hint>Calculando...</mat-hint>
+              } @else {
+                <mat-hint>Según fecha de valoración</mat-hint>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="ficha-valoracion__campo">
+              <mat-label>Sexo</mat-label>
+              <mat-select formControlName="sexo" placeholder="Seleccione...">
+                @for (opcion of opcionesSexo; track opcion.valor) {
+                  <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+                }
+              </mat-select>
+              @if (mensajeErrorCampo(formulario.controls.sexo, 'sexo'); as error) {
+                <mat-error>{{ error }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <footer class="ficha-valoracion__acciones">
+        <button matButton="outlined" type="button" (click)="onLimpiarDatosPersonales()">
+          <mat-icon>cleaning_services</mat-icon>
+          Limpiar
+        </button>
+      </footer>
+    </form>
+  </article>
+</section>

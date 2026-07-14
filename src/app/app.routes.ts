@@ -50,7 +50,7 @@ export const routes: Routes = [
         children: [
           { path: '', redirectTo: 'asignacion-registrador', pathMatch: 'full' },
           {
-            path: 'registro',
+            path: 'nuevo-registro',
             loadComponent: () =>
               import('./presentation/features/meritos/registro/registro').then((m) => m.Registro),
           },
