@@ -20,7 +20,6 @@ import {
 import {
   toCalcularEdadJuezRequestDto,
   toDatosSigaJuez,
-  toDatosSigaJuezRequestDto,
   toEdadJuez,
 } from '../../mappers/juez.mapper';
 
@@ -40,10 +39,12 @@ export class JuezHttpAdapter implements JuezPort {
       return throwError(() => error);
     }
 
-    const body = toDatosSigaJuezRequestDto(dni);
+    const params = new HttpParams().set('numero_documento', dni.trim());
 
     return this.http
-      .post<DatosSigaJuezResponse>(`${this.baseUrl}${juezEndpoints.DATOS_SIGA}`, body)
+      .get<DatosSigaJuezResponse>(`${this.baseUrl}${juezEndpoints.DATOS_SIGA}`, {
+        params,
+      })
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);

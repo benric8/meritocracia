@@ -46,6 +46,14 @@ export function mensajeErrorCampoDatosPersonales(
     }
   }
 
+  if (control.errors['matDatepickerParse'] && campo === 'fechaNacimiento') {
+    return 'Fecha de nacimiento inválida.';
+  }
+
+  if (control.errors['matDatepickerMax'] && campo === 'fechaNacimiento') {
+    return 'La fecha de nacimiento no puede ser futura.';
+  }
+
   if (control.errors['pattern'] && campo === 'dni') {
     return `El DNI debe tener ${DNI_LENGTH} dígitos.`;
   }
@@ -59,4 +67,12 @@ export function mensajeErrorCampoDatosPersonales(
 
 export function soloDigitosDni(valor: string): string {
   return valor.replace(/\D/g, '').slice(0, DNI_LENGTH);
+}
+
+/** Convierte `Date` local a ISO `YYYY-MM-DD` sin desfase UTC. */
+export function aFechaIsoLocal(fecha: Date): string {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${anio}-${mes}-${dia}`;
 }

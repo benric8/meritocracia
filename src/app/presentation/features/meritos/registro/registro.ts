@@ -9,6 +9,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +24,7 @@ import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/us
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
+  aFechaIsoLocal,
   mensajeErrorCampoDatosPersonales,
   OPCIONES_SEXO,
   soloDigitosDni,
@@ -44,6 +47,11 @@ import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    MatDatepickerModule,
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'es-PE' },
   ],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
@@ -66,17 +74,22 @@ export class Registro implements OnInit {
   protected readonly edad = signal<string>('');
   protected readonly fechaValoracionVigente = signal<string | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
+  /** DNI con el que se cargaron foto y nombre desde SIGA. */
+  private readonly dniConsultadoSiga = signal<string>('');
+
+  /** Impide seleccionar fechas futuras de nacimiento. */
+  protected readonly maxFechaNacimiento = new Date();
 
   protected readonly opcionesSexo = OPCIONES_SEXO;
   protected readonly mensajeErrorCampo = mensajeErrorCampoDatosPersonales;
   protected readonly formatearFecha = formatearFechaCorta;
 
-  protected readonly formulario = this.fb.nonNullable.group({
-    dni: ['', VALIDADORES_DNI],
-    nivelId: ['', VALIDADORES_NIVEL],
-    nombreCompleto: ['', VALIDADORES_NOMBRE_COMPLETO],
-    fechaNacimiento: ['', VALIDADORES_FECHA_NACIMIENTO],
-    sexo: ['', VALIDADORES_SEXO],
+  protected readonly formulario = this.fb.group({
+    dni: this.fb.nonNullable.control('', VALIDADORES_DNI),
+    nivelId: this.fb.nonNullable.control('', VALIDADORES_NIVEL),
+    nombreCompleto: this.fb.nonNullable.control('', VALIDADORES_NOMBRE_COMPLETO),
+    fechaNacimiento: this.fb.control<Date | null>(null, VALIDADORES_FECHA_NACIMIENTO),
+    sexo: this.fb.nonNullable.control('', VALIDADORES_SEXO),
   });
 
   ngOnInit(): void {
@@ -92,6 +105,7 @@ export class Registro implements OnInit {
       input.value = normalizado;
     }
     this.formulario.controls.dni.setValue(normalizado, { emitEvent: false });
+    this.sincronizarDatosSigaConDni(normalizado);
   }
 
   protected onBuscarSiga(): void {
@@ -116,6 +130,7 @@ export class Registro implements OnInit {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
+          this.limpiarDatosSiga();
           void this.alertas.error('No se encontró en SIGA', {
             mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
             codigo: resultado.detalle?.codigo,
@@ -124,6 +139,7 @@ export class Registro implements OnInit {
           return;
         }
 
+        this.dniConsultadoSiga.set(dniControl.value);
         this.formulario.controls.nombreCompleto.setValue(resultado.datos.nombreCompleto);
         this.fotoSiga.set(resultado.datos.foto);
       });
@@ -134,11 +150,29 @@ export class Registro implements OnInit {
       dni: '',
       nivelId: '',
       nombreCompleto: '',
-      fechaNacimiento: '',
+      fechaNacimiento: null,
       sexo: '',
     });
-    this.fotoSiga.set('');
+    this.limpiarDatosSiga();
     this.edad.set('');
+  }
+
+  /** Si el DNI deja de coincidir con la consulta SIGA, limpia foto y nombre. */
+  private sincronizarDatosSigaConDni(dni: string): void {
+    const consultado = this.dniConsultadoSiga();
+    if (!consultado) {
+      return;
+    }
+
+    if (!dni || dni !== consultado) {
+      this.limpiarDatosSiga();
+    }
+  }
+
+  private limpiarDatosSiga(): void {
+    this.dniConsultadoSiga.set('');
+    this.fotoSiga.set('');
+    this.formulario.controls.nombreCompleto.setValue('');
   }
 
   private cargarNiveles(): void {
@@ -184,11 +218,14 @@ export class Registro implements OnInit {
     this.formulario.controls.fechaNacimiento.valueChanges
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(),
+        distinctUntilChanged(
+          (prev, curr) => prev?.getTime() === curr?.getTime()
+        ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((fechaNacimiento) => {
-        this.solicitarEdad(fechaNacimiento);
+        const iso = fechaNacimiento ? aFechaIsoLocal(fechaNacimiento) : '';
+        this.solicitarEdad(iso);
       });
   }
 

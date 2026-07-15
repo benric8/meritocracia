@@ -12,39 +12,37 @@
       outlined-outline-color: var(--mc-primary),
     )
   );
+
+  // Campos más compactos solo en esta pantalla.
+  @include mat.form-field-density(-2);
+  @include mat.button-density(-1);
 }
 
 .ficha-valoracion {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .ficha-valoracion__toolbar {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .ficha-valoracion__titulo {
   margin: 0;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--mc-text);
-}
-
-.ficha-valoracion__subtitulo {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: var(--mc-text-muted);
 }
 
 .ficha-valoracion__error {
   margin: 0;
-  padding: 12px 14px;
+  padding: 10px 12px;
   font-size: 13px;
   color: #b42318;
   background: #fef3f2;
@@ -54,9 +52,9 @@
 
 .ficha-valoracion__aviso {
   margin: 0;
-  padding: 12px 14px;
+  padding: 10px 12px;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.45;
   color: #92400e;
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -65,135 +63,303 @@
 
 .ficha-valoracion__meta {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--mc-text-muted);
 }
 
 .ficha-valoracion__card {
-  padding: 24px;
+  padding: 18px 20px 16px;
   background: var(--mc-surface);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-radius-lg);
   box-shadow: var(--mc-shadow);
 }
 
+.ficha-valoracion__card-head {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mc-border);
+}
+
 .ficha-valoracion__card-titulo {
-  margin: 0 0 20px;
-  font-size: 18px;
-  font-weight: 600;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.ficha-valoracion__card-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mc-text-muted);
 }
 
 .ficha-valoracion__form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .ficha-valoracion__magistrado {
   display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 20px 24px;
+  align-items: stretch;
+}
+
+.ficha-valoracion__foto-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .ficha-valoracion__foto {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  min-height: 240px;
+  max-height: 280px;
+  aspect-ratio: 3 / 4;
+  color: var(--mc-text-muted);
+  background:
+    linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
+  border: 1px solid var(--mc-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.ficha-valoracion__foto-panel--con-imagen .ficha-valoracion__foto {
+  background: #0f172a;
+  border-color: color-mix(in srgb, var(--mc-primary) 35%, var(--mc-border));
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.ficha-valoracion__foto-vacia {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 140px;
-  height: 160px;
-  padding: 12px;
-  color: var(--mc-text-muted);
-  font-size: 12px;
-  font-weight: 600;
+  gap: 6px;
+  padding: 16px;
   text-align: center;
-  background: #f8fafc;
-  border: 1px dashed var(--mc-border);
-  border-radius: var(--mc-radius);
-  overflow: hidden;
 
   mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
     color: #94a3b8;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--mc-text);
+  }
+
+  small {
+    font-size: 11px;
+    color: var(--mc-text-muted);
   }
 }
 
 .ficha-valoracion__foto-img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: calc(var(--mc-radius) - 2px);
+  object-position: center top;
 }
 
+/* El ancho de ambas filas lo marca la 2.ª (campos compactos), no al revés. */
 .ficha-valoracion__datos {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: inline-grid;
+  grid-template-columns: max-content;
+  gap: 10px;
+  max-width: 100%;
+  justify-content: start;
+  align-content: center;
   min-width: 0;
 }
 
 .ficha-valoracion__fila {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
   align-items: start;
 }
 
-.ficha-valoracion__fila--sig {
-  grid-template-columns: minmax(140px, 200px) auto minmax(200px, 1fr);
-}
-
 .ficha-valoracion__fila--identidad {
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
 }
 
-.ficha-valoracion__fila--demografia {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.ficha-valoracion__fila--detalle {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  max-width: 100%;
+  gap: 12px;
+}
+
+.ficha-valoracion__dni-group {
+  display: grid;
+  grid-template-columns: 132px auto;
+  gap: 8px;
+  align-items: start;
+  flex: 0 0 auto;
 }
 
 .ficha-valoracion__campo {
   width: 100%;
 }
 
-.ficha-valoracion__campo--full {
-  grid-column: 1 / -1;
+.ficha-valoracion__campo--dni {
+  width: 132px;
+}
+
+.ficha-valoracion__campo--nombre {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+
+  input {
+    background: #f8fafc;
+    cursor: default;
+  }
+}
+
+.ficha-valoracion__campo--nivel {
+  flex: 0 0 220px;
+  width: 220px;
+}
+
+.ficha-valoracion__campo--sexo {
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+.ficha-valoracion__campo--nacimiento {
+  flex: 0 0 190px;
+  width: 190px;
+
+  input {
+    cursor: pointer;
+  }
+}
+
+.ficha-valoracion__campo--edad {
+  flex: 0 0 96px;
+  width: 96px;
+
+  input {
+    font-weight: 650;
+    text-align: center;
+    background: #f8fafc;
+    cursor: default;
+  }
 }
 
 .ficha-valoracion__btn-buscar {
-  height: 56px;
+  --mdc-icon-button-state-layer-size: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   margin-top: 0;
   align-self: start;
+  color: #ffffff;
+  background: var(--mc-primary);
+  border-radius: var(--mc-radius);
+
+  &:disabled {
+    opacity: 0.55;
+  }
+
+  mat-icon {
+    color: #ffffff;
+  }
 }
 
 .ficha-valoracion__acciones {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   margin-top: 12px;
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--mc-border);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
+  .ficha-valoracion__magistrado {
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .ficha-valoracion__foto {
+    min-height: 200px;
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 720px) {
   .ficha-valoracion__magistrado {
     grid-template-columns: 1fr;
   }
 
-  .ficha-valoracion__foto {
-    width: 120px;
-    height: 140px;
-    justify-self: start;
+  .ficha-valoracion__foto-panel {
+    justify-self: center;
+    width: min(200px, 55vw);
   }
 
-  .ficha-valoracion__fila--sig,
-  .ficha-valoracion__fila--demografia {
-    grid-template-columns: 1fr;
+  .ficha-valoracion__foto {
+    min-height: 240px;
+    max-height: none;
+  }
+
+  .ficha-valoracion__datos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .ficha-valoracion__fila--identidad {
+    flex-wrap: wrap;
+  }
+
+  .ficha-valoracion__fila--detalle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .ficha-valoracion__dni-group {
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+  }
+
+  .ficha-valoracion__campo--dni,
+  .ficha-valoracion__campo--nombre,
+  .ficha-valoracion__campo--nivel,
+  .ficha-valoracion__campo--sexo,
+  .ficha-valoracion__campo--nacimiento,
+  .ficha-valoracion__campo--edad {
+    width: 100%;
+    flex: 1 1 auto;
   }
 
   .ficha-valoracion__btn-buscar {
-    width: 100%;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .ficha-valoracion__fila--detalle {
+    grid-template-columns: 1fr;
   }
 }

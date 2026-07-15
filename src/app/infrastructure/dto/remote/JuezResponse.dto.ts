@@ -4,6 +4,7 @@ export interface DatosSigaJuezDto {
   nombreCompleto?: string;
   nombresCompletos?: string;
   apellidosNombres?: string;
+  /** Base64 puro (sin prefijo data:) o data URL / URL. */
   foto?: string;
   fotoBase64?: string;
   urlFoto?: string;
@@ -11,10 +12,6 @@ export interface DatosSigaJuezDto {
 
 export interface DatosSigaJuezResponse extends BaseResponse {
   data: DatosSigaJuezDto;
-}
-
-export interface DatosSigaJuezRequestDto {
-  dni: string;
 }
 
 export interface EdadJuezDto {
