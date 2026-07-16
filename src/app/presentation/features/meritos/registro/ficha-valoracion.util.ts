@@ -2,6 +2,9 @@ import { Validators } from '@angular/forms';
 
 export const DNI_LENGTH = 8;
 
+/** Edad mínima razonable de un juez respecto a la fecha actual. */
+export const EDAD_MINIMA_JUEZ = 20;
+
 export const OPCIONES_SEXO = [
   { valor: 'M', etiqueta: 'Masculino' },
   { valor: 'F', etiqueta: 'Femenino' },
@@ -51,7 +54,7 @@ export function mensajeErrorCampoDatosPersonales(
   }
 
   if (control.errors['matDatepickerMax'] && campo === 'fechaNacimiento') {
-    return 'La fecha de nacimiento no puede ser futura.';
+    return `La fecha de nacimiento debe corresponder a una edad de al menos ${EDAD_MINIMA_JUEZ} años.`;
   }
 
   if (control.errors['pattern'] && campo === 'dni') {
@@ -67,6 +70,19 @@ export function mensajeErrorCampoDatosPersonales(
 
 export function soloDigitosDni(valor: string): string {
   return valor.replace(/\D/g, '').slice(0, DNI_LENGTH);
+}
+
+/**
+ * Fecha máxima de nacimiento para que la edad a la fecha de referencia
+ * sea al menos `edadMinima` (por defecto 20 años).
+ */
+export function maxFechaNacimientoPorEdadMinima(
+  referencia: Date = new Date(),
+  edadMinima: number = EDAD_MINIMA_JUEZ
+): Date {
+  const maxima = new Date(referencia.getFullYear(), referencia.getMonth(), referencia.getDate());
+  maxima.setFullYear(maxima.getFullYear() - edadMinima);
+  return maxima;
 }
 
 /** Convierte `Date` local a ISO `YYYY-MM-DD` sin desfase UTC. */

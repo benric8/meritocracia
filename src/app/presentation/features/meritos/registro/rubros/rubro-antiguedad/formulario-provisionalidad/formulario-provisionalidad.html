@@ -1,0 +1,110 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">
+      {{ esEdicion ? 'Editar provisionalidad' : 'Nueva provisionalidad' }}
+    </h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha inicio</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerInicio"
+            formControlName="fechaInicio"
+            readonly
+            placeholder="dd/mm/aaaa"
+            (click)="pickerInicio.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio" />
+          <mat-datepicker #pickerInicio />
+          @if (formulario.controls.fechaInicio.touched && formulario.controls.fechaInicio.invalid) {
+            <mat-error>Seleccione la fecha de inicio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerFin"
+            formControlName="fechaFin"
+            readonly
+            placeholder="dd/mm/aaaa"
+            (click)="pickerFin.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFin" />
+          <mat-datepicker #pickerFin />
+          @if (formulario.controls.fechaFin.touched && formulario.controls.fechaFin.invalid) {
+            <mat-error>Seleccione la fecha de fin.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tiempo total (auto)</mat-label>
+          <input matInput [value]="tiempoTotal().etiqueta" readonly />
+          @if (calculando()) {
+            <mat-hint>Calculando...</mat-hint>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Cargo</mat-label>
+          <mat-select formControlName="cargoId" placeholder="Seleccione...">
+            @for (cargo of cargos; track cargo.id) {
+              <mat-option [value]="cargo.id">{{ cargo.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.cargoId.touched && formulario.controls.cargoId.invalid) {
+            <mat-error>Seleccione el cargo.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Órgano jurisdiccional</mat-label>
+          <input matInput formControlName="organoJurisdiccional" maxlength="200" />
+          @if (
+            formulario.controls.organoJurisdiccional.touched &&
+            formulario.controls.organoJurisdiccional.invalid
+          ) {
+            <mat-error>Ingrese el órgano jurisdiccional.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Documento sustentatorio</mat-label>
+          <input
+            matInput
+            formControlName="documento"
+            maxlength="200"
+            placeholder="Resolución, acto administrativo, etc."
+          />
+          @if (formulario.controls.documento.touched && formulario.controls.documento.invalid) {
+            <mat-error>Ingrese el documento sustentatorio.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
+      <button matButton="filled" type="submit">
+        <mat-icon>save</mat-icon>
+        Guardar periodo
+      </button>
+    </footer>
+  </form>
+</div>

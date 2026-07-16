@@ -103,28 +103,26 @@
 
 .ficha-valoracion__magistrado {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 20px 24px;
-  align-items: stretch;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 20px 28px;
+  align-items: start;
 }
 
 .ficha-valoracion__foto-panel {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  width: 100%;
 }
 
 .ficha-valoracion__foto {
-  flex: 1;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
-  min-height: 240px;
-  max-height: 280px;
+  width: 100%;
   aspect-ratio: 3 / 4;
+  min-height: 0;
   color: var(--mc-text-muted);
-  background:
-    linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
   border: 1px solid var(--mc-border);
   border-radius: 10px;
   overflow: hidden;
@@ -174,60 +172,33 @@
   object-position: center top;
 }
 
-/* El ancho de ambas filas lo marca la 2.ª (campos compactos), no al revés. */
+/*
+  Grilla 4 columnas:
+  1) DNI (1) | Nombre (3)
+  2) Nivel (2) | Fecha + espacio + Edad (2)
+  3) Sexo (2)
+*/
 .ficha-valoracion__datos {
-  display: inline-grid;
-  grid-template-columns: max-content;
-  gap: 10px;
-  max-width: 100%;
-  justify-content: start;
-  align-content: center;
-  min-width: 0;
-}
-
-.ficha-valoracion__fila {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 12px;
-  align-items: start;
-}
-
-.ficha-valoracion__fila--identidad {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
   width: 100%;
   min-width: 0;
-  gap: 12px;
-}
-
-.ficha-valoracion__fila--detalle {
-  display: flex;
-  flex-wrap: nowrap;
-  width: max-content;
-  max-width: 100%;
-  gap: 12px;
-}
-
-.ficha-valoracion__dni-group {
-  display: grid;
-  grid-template-columns: 132px auto;
-  gap: 8px;
+  align-content: start;
   align-items: start;
-  flex: 0 0 auto;
 }
 
 .ficha-valoracion__campo {
   width: 100%;
+  min-width: 0;
 }
 
 .ficha-valoracion__campo--dni {
-  width: 132px;
+  grid-column: 1 / 2;
 }
 
 .ficha-valoracion__campo--nombre {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: auto;
+  grid-column: 2 / 5;
 
   input {
     background: #f8fafc;
@@ -235,54 +206,89 @@
   }
 }
 
-.ficha-valoracion__campo--nivel {
-  flex: 0 0 220px;
-  width: 220px;
+.ficha-valoracion__campo--nivel,
+.ficha-valoracion__campo--sexo {
+  grid-column: 1 / 3;
 }
 
-.ficha-valoracion__campo--sexo {
-  flex: 0 0 140px;
-  width: 140px;
+.ficha-valoracion__nacimiento-con-edad {
+  grid-column: 3 / 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
 }
 
 .ficha-valoracion__campo--nacimiento {
-  flex: 0 0 190px;
-  width: 190px;
+  flex: 1 1 auto;
+  min-width: 0;
 
   input {
     cursor: pointer;
   }
 }
 
-.ficha-valoracion__campo--edad {
-  flex: 0 0 96px;
-  width: 96px;
+.ficha-valoracion__edad {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-width: 64px;
+  padding-top: 6px;
+}
 
-  input {
-    font-weight: 650;
-    text-align: center;
-    background: #f8fafc;
-    cursor: default;
-  }
+.ficha-valoracion__edad-etiqueta {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--mc-text-muted);
+}
+
+.ficha-valoracion__edad-contenido {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 28px;
+}
+
+.ficha-valoracion__edad-valor {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--mc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-valoracion__edad-valor--vacio,
+.ficha-valoracion__edad-valor--cargando {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--mc-text-muted);
+}
+
+.ficha-valoracion__edad-unidad {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mc-text-muted);
 }
 
 .ficha-valoracion__btn-buscar {
-  --mdc-icon-button-state-layer-size: 40px;
-  width: 40px;
-  height: 40px;
+  --mdc-icon-button-state-layer-size: 36px;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  margin-top: 0;
-  align-self: start;
-  color: #ffffff;
-  background: var(--mc-primary);
-  border-radius: var(--mc-radius);
+  margin-right: -4px;
+  color: var(--mc-primary);
 
   &:disabled {
     opacity: 0.55;
   }
 
-  mat-icon {
-    color: #ffffff;
+  mat-progress-spinner {
+    display: block;
   }
 }
 
@@ -297,13 +303,8 @@
 
 @media (max-width: 960px) {
   .ficha-valoracion__magistrado {
-    grid-template-columns: 160px minmax(0, 1fr);
-    gap: 16px;
-  }
-
-  .ficha-valoracion__foto {
-    min-height: 200px;
-    max-height: 220px;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 16px 20px;
   }
 }
 
@@ -314,52 +315,41 @@
 
   .ficha-valoracion__foto-panel {
     justify-self: center;
-    width: min(200px, 55vw);
-  }
-
-  .ficha-valoracion__foto {
-    min-height: 240px;
-    max-height: none;
+    width: min(168px, 42vw);
   }
 
   .ficha-valoracion__datos {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ficha-valoracion__fila--identidad {
-    flex-wrap: wrap;
+  .ficha-valoracion__campo--dni {
+    grid-column: 1 / 2;
   }
 
-  .ficha-valoracion__fila--detalle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
+  .ficha-valoracion__campo--nombre {
+    grid-column: 1 / 3;
   }
 
-  .ficha-valoracion__dni-group {
-    grid-template-columns: minmax(0, 1fr) auto;
-    width: 100%;
+  .ficha-valoracion__campo--nivel,
+  .ficha-valoracion__campo--sexo {
+    grid-column: 1 / 2;
+  }
+
+  .ficha-valoracion__nacimiento-con-edad {
+    grid-column: 2 / 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .ficha-valoracion__datos {
+    grid-template-columns: 1fr;
   }
 
   .ficha-valoracion__campo--dni,
   .ficha-valoracion__campo--nombre,
   .ficha-valoracion__campo--nivel,
-  .ficha-valoracion__campo--sexo,
-  .ficha-valoracion__campo--nacimiento,
-  .ficha-valoracion__campo--edad {
-    width: 100%;
-    flex: 1 1 auto;
-  }
-
-  .ficha-valoracion__btn-buscar {
-    width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .ficha-valoracion__fila--detalle {
-    grid-template-columns: 1fr;
+  .ficha-valoracion__nacimiento-con-edad,
+  .ficha-valoracion__campo--sexo {
+    grid-column: 1 / -1;
   }
 }

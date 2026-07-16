@@ -1,0 +1,75 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">
+      {{ esEdicion ? 'Editar colegiatura' : 'Nueva colegiatura' }}
+    </h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      @if (sinFechaValoracion) {
+        <p class="rubro-dialog__aviso" role="status">
+          No hay fecha de valoración vigente; los años de colegiatura quedarán en 0 hasta que exista
+          una configuración activa.
+        </p>
+      }
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Colegio de Abogados de</mat-label>
+          <mat-select formControlName="colegioId" placeholder="Seleccione...">
+            @for (colegio of colegios; track colegio.id) {
+              <mat-option [value]="colegio.id">{{ colegio.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.colegioId.touched && formulario.controls.colegioId.invalid) {
+            <mat-error>Seleccione el colegio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de colegiatura</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerColegiatura"
+            formControlName="fechaColegiatura"
+            readonly
+            placeholder="dd/mm/aaaa"
+            (click)="pickerColegiatura.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerColegiatura" />
+          <mat-datepicker #pickerColegiatura startView="multi-year" />
+          @if (
+            formulario.controls.fechaColegiatura.touched &&
+            formulario.controls.fechaColegiatura.invalid
+          ) {
+            <mat-error>Seleccione la fecha de colegiatura.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Años de colegiatura</mat-label>
+          <input matInput [value]="anios() + ' años'" readonly />
+          @if (calculando()) {
+            <mat-hint>Calculando...</mat-hint>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
+      <button matButton="filled" type="submit">
+        <mat-icon>save</mat-icon>
+        Guardar colegiatura
+      </button>
+    </footer>
+  </form>
+</div>

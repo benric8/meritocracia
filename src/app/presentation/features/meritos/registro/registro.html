@@ -48,103 +48,87 @@
         </aside>
 
         <div class="ficha-valoracion__datos">
-          <div class="ficha-valoracion__fila ficha-valoracion__fila--identidad">
-            <div class="ficha-valoracion__dni-group">
-              <mat-form-field
-                appearance="outline"
-                subscriptSizing="dynamic"
-                class="ficha-valoracion__campo ficha-valoracion__campo--dni"
-              >
-                <mat-label>DNI</mat-label>
-                <input
-                  matInput
-                  formControlName="dni"
-                  inputmode="numeric"
-                  maxlength="8"
-                  autocomplete="off"
-                  
-                  (input)="onDniInput($event)"
-                />
-                @if (mensajeErrorCampo(formulario.controls.dni, 'dni'); as error) {
-                  <mat-error>{{ error }}</mat-error>
-                }
-              </mat-form-field>
-
-              <button
-                matIconButton
-                type="button"
-                class="ficha-valoracion__btn-buscar"
-                [disabled]="buscandoSiga() || formulario.controls.dni.invalid"
-                (click)="onBuscarSiga()"
-                title="Buscar en SIGA"
-                aria-label="Buscar en SIGA"
-              >
-                @if (buscandoSiga()) {
-                  <mat-progress-spinner diameter="18" mode="indeterminate" />
-                } @else {
-                  <mat-icon>search</mat-icon>
-                }
-              </button>
-            </div>
-
-            <mat-form-field
-              appearance="outline"
-              subscriptSizing="dynamic"
-              class="ficha-valoracion__campo ficha-valoracion__campo--nombre"
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--dni"
+          >
+            <mat-label>DNI</mat-label>
+            <input
+              matInput
+              formControlName="dni"
+              inputmode="numeric"
+              maxlength="8"
+              autocomplete="off"
+              (input)="onDniInput($event)"
+              (keydown.enter)="onBuscarSiga($event)"
+            />
+            <button
+              matIconButton
+              matSuffix
+              type="button"
+              class="ficha-valoracion__btn-buscar"
+              [disabled]="
+                buscandoSiga() ||
+                formulario.controls.dni.invalid ||
+                dniYaConsultadoSiga()
+              "
+              (click)="onBuscarSiga()"
+              title="Buscar en SIGA"
+              aria-label="Buscar en SIGA"
             >
-              <mat-label>Apellidos y nombres completos</mat-label>
-              <input
-                matInput
-                formControlName="nombreCompleto"
-                autocomplete="name"
-                placeholder="Obtenido desde SIGA"
-                readonly
-              />
-              @if (
-                mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto');
-                as error
-              ) {
-                <mat-error>{{ error }}</mat-error>
+              @if (buscandoSiga()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>search</mat-icon>
               }
-            </mat-form-field>
-          </div>
+            </button>
+            @if (mensajeErrorCampo(formulario.controls.dni, 'dni'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
 
-          <div class="ficha-valoracion__fila ficha-valoracion__fila--detalle">
-            <mat-form-field
-              appearance="outline"
-              subscriptSizing="dynamic"
-              class="ficha-valoracion__campo ficha-valoracion__campo--nivel"
-            >
-              <mat-label>Nivel</mat-label>
-              <mat-select formControlName="nivelId" placeholder="Seleccione...">
-                @for (nivel of niveles(); track nivel.id) {
-                  <mat-option [value]="nivel.id">{{ nivel.nombre }}</mat-option>
-                }
-              </mat-select>
-              @if (mensajeErrorCampo(formulario.controls.nivelId, 'nivelId'); as error) {
-                <mat-error>{{ error }}</mat-error>
-              }
-              @if (cargandoNiveles()) {
-                <mat-hint>Cargando niveles...</mat-hint>
-              }
-            </mat-form-field>
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--nombre"
+          >
+            <mat-label>Apellidos y nombres completos</mat-label>
+            <input
+              matInput
+              formControlName="nombreCompleto"
+              autocomplete="name"
+              placeholder="Obtenido desde SIGA"
+              readonly
+            />
+            @if (
+              mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto');
+              as error
+            ) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
 
-            <mat-form-field
-              appearance="outline"
-              subscriptSizing="dynamic"
-              class="ficha-valoracion__campo ficha-valoracion__campo--sexo"
-            >
-              <mat-label>Sexo</mat-label>
-              <mat-select formControlName="sexo" placeholder="Seleccione...">
-                @for (opcion of opcionesSexo; track opcion.valor) {
-                  <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
-                }
-              </mat-select>
-              @if (mensajeErrorCampo(formulario.controls.sexo, 'sexo'); as error) {
-                <mat-error>{{ error }}</mat-error>
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--nivel"
+          >
+            <mat-label>Nivel</mat-label>
+            <mat-select formControlName="nivelId" placeholder="Seleccione...">
+              @for (nivel of niveles(); track nivel.id) {
+                <mat-option [value]="nivel.id">{{ nivel.nombre }}</mat-option>
               }
-            </mat-form-field>
+            </mat-select>
+            @if (mensajeErrorCampo(formulario.controls.nivelId, 'nivelId'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+            @if (cargandoNiveles()) {
+              <mat-hint>Cargando niveles...</mat-hint>
+            }
+          </mat-form-field>
 
+          <div class="ficha-valoracion__nacimiento-con-edad">
             <mat-form-field
               appearance="outline"
               subscriptSizing="dynamic"
@@ -156,12 +140,17 @@
                 [matDatepicker]="pickerNacimiento"
                 formControlName="fechaNacimiento"
                 [max]="maxFechaNacimiento"
+                [matDatepickerFilter]="filtroFechaNacimiento"
                 readonly
                 placeholder="dd/mm/aaaa"
                 (click)="pickerNacimiento.open()"
               />
               <mat-datepicker-toggle matIconSuffix [for]="pickerNacimiento" />
-              <mat-datepicker #pickerNacimiento startView="multi-year" />
+              <mat-datepicker
+                #pickerNacimiento
+                startView="multi-year"
+                [startAt]="fechaNacimientoInicio"
+              />
               @if (
                 mensajeErrorCampo(formulario.controls.fechaNacimiento, 'fechaNacimiento');
                 as error
@@ -170,24 +159,45 @@
               }
             </mat-form-field>
 
-            <mat-form-field
-              appearance="outline"
-              subscriptSizing="dynamic"
-              class="ficha-valoracion__campo ficha-valoracion__campo--edad"
+            <div
+              class="ficha-valoracion__edad"
+              role="status"
+              aria-live="polite"
+              [attr.aria-busy]="calculandoEdad()"
             >
-              <mat-label>Edad</mat-label>
-              <input
-                matInput
-                [value]="edad()"
-                readonly
-                placeholder="—"
-                [attr.aria-busy]="calculandoEdad()"
-              />
-              @if (calculandoEdad()) {
-                <mat-hint>Calculando...</mat-hint>
-              } 
-            </mat-form-field>
+              <span class="ficha-valoracion__edad-etiqueta">Edad</span>
+              <div class="ficha-valoracion__edad-contenido">
+                @if (calculandoEdad()) {
+                  <span class="ficha-valoracion__edad-valor ficha-valoracion__edad-valor--cargando"
+                    >…</span
+                  >
+                } @else if (edad(); as valorEdad) {
+                  <span class="ficha-valoracion__edad-valor">{{ valorEdad }}</span>
+                  <span class="ficha-valoracion__edad-unidad">años</span>
+                } @else {
+                  <span class="ficha-valoracion__edad-valor ficha-valoracion__edad-valor--vacio"
+                    >—</span
+                  >
+                }
+              </div>
+            </div>
           </div>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--sexo"
+          >
+            <mat-label>Sexo</mat-label>
+            <mat-select formControlName="sexo" placeholder="Seleccione...">
+              @for (opcion of opcionesSexo; track opcion.valor) {
+                <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+              }
+            </mat-select>
+            @if (mensajeErrorCampo(formulario.controls.sexo, 'sexo'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
         </div>
       </div>
 

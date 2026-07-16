@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { EMPTY, Subject, debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs';
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
 import { ListarNivelesTitularUseCase } from '../../../../application/use-cases/meritos/listar-niveles-titular.use-case';
 import { ObtenerDatosSigaJuezUseCase } from '../../../../application/use-cases/meritos/obtener-datos-siga-juez.use-case';
@@ -25,6 +25,8 @@ import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
   aFechaIsoLocal,
+  DNI_LENGTH,
+  maxFechaNacimientoPorEdadMinima,
   mensajeErrorCampoDatosPersonales,
   OPCIONES_SEXO,
   soloDigitosDni,
@@ -76,9 +78,27 @@ export class Registro implements OnInit {
   protected readonly errorCarga = signal<string | null>(null);
   /** DNI con el que se cargaron foto y nombre desde SIGA. */
   private readonly dniConsultadoSiga = signal<string>('');
+  /**
+   * Dispara búsqueda SIGA. `null` cancela la petición en curso;
+   * `{ dni, forzar }` fuerza reintento aunque el DNI ya esté consultado.
+   */
+  private readonly solicitudSiga$ = new Subject<{ dni: string; forzar: boolean } | null>();
+  /** Evita que `finalize` de una petición cancelada apague el spinner de la vigente. */
+  private generacionBusquedaSiga = 0;
 
-  /** Impide seleccionar fechas futuras de nacimiento. */
-  protected readonly maxFechaNacimiento = new Date();
+  /** Fecha máxima de nacimiento: edad actual >= 20 años. */
+  protected readonly maxFechaNacimiento = maxFechaNacimientoPorEdadMinima();
+  /** Abre el selector de años cerca del límite válido. */
+  protected readonly fechaNacimientoInicio = this.maxFechaNacimiento;
+  /** Excluye fechas cuya edad a hoy sería menor de 20 años. */
+  protected readonly filtroFechaNacimiento = (fecha: Date | null): boolean => {
+    if (!fecha) {
+      return false;
+    }
+
+    const candidata = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+    return candidata.getTime() <= this.maxFechaNacimiento.getTime();
+  };
 
   protected readonly opcionesSexo = OPCIONES_SEXO;
   protected readonly mensajeErrorCampo = mensajeErrorCampoDatosPersonales;
@@ -96,6 +116,7 @@ export class Registro implements OnInit {
     this.cargarNiveles();
     this.cargarFechaValoracionVigente();
     this.escucharFechaNacimiento();
+    this.escucharBusquedaSiga();
   }
 
   protected onDniInput(event: Event): void {
@@ -106,10 +127,20 @@ export class Registro implements OnInit {
     }
     this.formulario.controls.dni.setValue(normalizado, { emitEvent: false });
     this.sincronizarDatosSigaConDni(normalizado);
+    this.intentarBusquedaSigaAutomatica(normalizado);
   }
 
-  protected onBuscarSiga(): void {
-    if (this.buscandoSiga()) {
+  /** True si el DNI actual ya tiene foto/nombre cargados desde SIGA. */
+  protected dniYaConsultadoSiga(): boolean {
+    const dni = this.formulario.controls.dni.value;
+    return !!dni && dni === this.dniConsultadoSiga();
+  }
+
+  /** Lupa o Enter: busca en SIGA (no reintenta si ya hay resultado para ese DNI). */
+  protected onBuscarSiga(event?: Event): void {
+    event?.preventDefault();
+
+    if (this.buscandoSiga() || this.dniYaConsultadoSiga()) {
       return;
     }
 
@@ -120,15 +151,74 @@ export class Registro implements OnInit {
       return;
     }
 
-    this.buscandoSiga.set(true);
+    this.solicitudSiga$.next({ dni: dniControl.value, forzar: false });
+  }
 
-    this.obtenerDatosSiga
-      .ejecutar(dniControl.value)
+  protected onLimpiarDatosPersonales(): void {
+    this.solicitudSiga$.next(null);
+    this.formulario.reset({
+      dni: '',
+      nivelId: '',
+      nombreCompleto: '',
+      fechaNacimiento: null,
+      sexo: '',
+    });
+    this.limpiarDatosSiga();
+    this.edad.set('');
+  }
+
+  /** Auto-busca al completar 8 dígitos; cancela si el DNI queda incompleto. */
+  private intentarBusquedaSigaAutomatica(dni: string): void {
+    if (dni.length < DNI_LENGTH) {
+      if (this.buscandoSiga()) {
+        this.solicitudSiga$.next(null);
+      }
+      return;
+    }
+
+    if (dni === this.dniConsultadoSiga()) {
+      return;
+    }
+
+    this.solicitudSiga$.next({ dni, forzar: false });
+  }
+
+  private escucharBusquedaSiga(): void {
+    this.solicitudSiga$
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.buscandoSiga.set(false))
+        switchMap((solicitud) => {
+          const generacion = ++this.generacionBusquedaSiga;
+
+          if (!solicitud) {
+            this.buscandoSiga.set(false);
+            return EMPTY;
+          }
+
+          const { dni, forzar } = solicitud;
+          if (!forzar && dni === this.dniConsultadoSiga()) {
+            this.buscandoSiga.set(false);
+            return EMPTY;
+          }
+
+          this.buscandoSiga.set(true);
+
+          return this.obtenerDatosSiga.ejecutar(dni).pipe(
+            map((resultado) => ({ dni, resultado })),
+            finalize(() => {
+              if (this.generacionBusquedaSiga === generacion) {
+                this.buscandoSiga.set(false);
+              }
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((resultado) => {
+      .subscribe(({ dni, resultado }) => {
+        // Ignora respuestas obsoletas si el DNI cambió mientras respondía el servidor.
+        if (this.formulario.controls.dni.value !== dni) {
+          return;
+        }
+
         if (!resultado.exito) {
           this.limpiarDatosSiga();
           void this.alertas.error('No se encontró en SIGA', {
@@ -139,22 +229,10 @@ export class Registro implements OnInit {
           return;
         }
 
-        this.dniConsultadoSiga.set(dniControl.value);
+        this.dniConsultadoSiga.set(dni);
         this.formulario.controls.nombreCompleto.setValue(resultado.datos.nombreCompleto);
         this.fotoSiga.set(resultado.datos.foto);
       });
-  }
-
-  protected onLimpiarDatosPersonales(): void {
-    this.formulario.reset({
-      dni: '',
-      nivelId: '',
-      nombreCompleto: '',
-      fechaNacimiento: null,
-      sexo: '',
-    });
-    this.limpiarDatosSiga();
-    this.edad.set('');
   }
 
   /** Si el DNI deja de coincidir con la consulta SIGA, limpia foto y nombre. */

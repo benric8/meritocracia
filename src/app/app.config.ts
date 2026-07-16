@@ -10,12 +10,14 @@ import localeEs from '@angular/common/locales/es';
 import { routes } from './app.routes';
 import { ALERTAS_PORT } from './domain/ports/alertas.port';
 import { DOCUMENTOS_INSTITUCIONALES_PORT } from './domain/ports/documentos-institucionales.port';
+import { ANTIGUEDAD_PORT } from './domain/ports/antiguedad.port';
 import { FECHA_VALORACION_PORT } from './domain/ports/fecha-valoracion.port';
 import { JUEZ_PORT } from './domain/ports/juez.port';
 import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
 import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
+import { AntiguedadMockAdapter } from './infrastructure/adapters/mock/antiguedad-mock.adapter';
 import { FechaValoracionMockAdapter } from './infrastructure/adapters/mock/fecha-valoracion-mock.adapter';
 import { JuezSigaHttpEdadMockAdapter } from './infrastructure/adapters/mock/juez-siga-http-edad-mock.adapter';
 import { MaestrosMockAdapter } from './infrastructure/adapters/mock/maestros-mock.adapter';
@@ -60,6 +62,7 @@ export const appConfig: ApplicationConfig = {
     // SIGA real (GET jueces/siga); edad aún mock.
     { provide: JUEZ_PORT, useClass: JuezSigaHttpEdadMockAdapter },
     { provide: FECHA_VALORACION_PORT, useClass: FechaValoracionMockAdapter },
+    { provide: ANTIGUEDAD_PORT, useClass: AntiguedadMockAdapter },
     { provide: ALERTAS_PORT, useClass: AlertasSweetAlertAdapter },
     { provide: LOCALE_ID, useValue: 'es' },
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlEs },

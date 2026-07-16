@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
+import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { MaestrosPort } from '../../../domain/ports/maestros.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
@@ -47,6 +48,36 @@ export class MaestrosHttpAdapter implements MaestrosPort {
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de niveles.')
       );
+  }
+
+  listarDistritosJudiciales(): Observable<CatalogoItem[]> {
+    return this.noImplementado('distritos judiciales');
+  }
+
+  listarCargosTitular(): Observable<CatalogoItem[]> {
+    return this.noImplementado('cargos titular');
+  }
+
+  listarCargosProvisional(): Observable<CatalogoItem[]> {
+    return this.noImplementado('cargos provisional');
+  }
+
+  listarEspecialidades(): Observable<CatalogoItem[]> {
+    return this.noImplementado('especialidades');
+  }
+
+  listarNivelesInmediatosAnteriores(): Observable<CatalogoItem[]> {
+    return this.noImplementado('niveles inmediatos anteriores');
+  }
+
+  listarColegiosAbogados(): Observable<CatalogoItem[]> {
+    return this.noImplementado('colegios de abogados');
+  }
+
+  private noImplementado(catalogo: string): Observable<CatalogoItem[]> {
+    return throwError(
+      () => new Error(`Catálogo HTTP de ${catalogo} aún no está disponible.`)
+    );
   }
 
   private asegurarTokenOpciones(): void {
