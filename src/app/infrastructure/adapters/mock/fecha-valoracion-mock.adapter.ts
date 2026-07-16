@@ -96,10 +96,10 @@ export class FechaValoracionMockAdapter implements FechaValoracionPort {
     return [
       {
         id: 'fv-seed-1',
-        fechaValoracion: '2026-07-02',
+        fechaValoracion: '2026-12-31',
         anio: 2026,
         resolucion:
-          'Resolución Administrativa N° 045-2026-CEJ que aprueba la fecha de valoración del I semestre 2026',
+          'Resolución Administrativa N° 045-2026-CEJ que aprueba la fecha de valoración del II semestre 2026',
         estado: 'VIGENTE',
         usuarioRegistro: 'Juan Pérez',
         fechaRegistro: '2026-07-01T15:30:00.000Z',

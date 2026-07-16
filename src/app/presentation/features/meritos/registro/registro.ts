@@ -16,11 +16,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY, Subject, debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs';
+import { EMPTY, Subject, debounceTime, distinctUntilChanged, finalize, map, switchMap, take } from 'rxjs';
+import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/use-cases/meritos/actualizar-datos-personales-ficha.use-case';
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
+import { CrearBorradorFichaUseCase } from '../../../../application/use-cases/meritos/crear-borrador-ficha.use-case';
 import { ListarNivelesTitularUseCase } from '../../../../application/use-cases/meritos/listar-niveles-titular.use-case';
 import { ObtenerDatosSigaJuezUseCase } from '../../../../application/use-cases/meritos/obtener-datos-siga-juez.use-case';
 import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/use-cases/meritos/obtener-fecha-valoracion-vigente.use-case';
+import { ObtenerFichaUseCase } from '../../../../application/use-cases/meritos/obtener-ficha.use-case';
+import { ResolverFichaDelCicloUseCase } from '../../../../application/use-cases/meritos/resolver-ficha-del-ciclo.use-case';
+import {
+  EstadoFicha,
+  FichaValoracion,
+} from '../../../../domain/models/ficha-valoracion.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -37,6 +45,8 @@ import {
   VALIDADORES_SEXO,
 } from './ficha-valoracion.util';
 import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
+import { RubrosPanel } from './rubros/rubros-panel/rubros-panel';
+import { aDateDesdeIso, formatearPuntaje } from './rubros/rubros.util';
 
 @Component({
   selector: 'app-registro',
@@ -50,6 +60,7 @@ import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatDatepickerModule,
+    RubrosPanel,
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -67,15 +78,27 @@ export class Registro implements OnInit {
   private readonly obtenerDatosSiga = inject(ObtenerDatosSigaJuezUseCase);
   private readonly calcularEdad = inject(CalcularEdadJuezUseCase);
   private readonly obtenerFechaVigente = inject(ObtenerFechaValoracionVigenteUseCase);
+  private readonly resolverFicha = inject(ResolverFichaDelCicloUseCase);
+  private readonly crearBorrador = inject(CrearBorradorFichaUseCase);
+  private readonly actualizarDatosPersonales = inject(ActualizarDatosPersonalesFichaUseCase);
+  private readonly obtenerFicha = inject(ObtenerFichaUseCase);
 
   protected readonly niveles = signal<NivelTitular[]>([]);
   protected readonly cargandoNiveles = signal(false);
   protected readonly buscandoSiga = signal(false);
   protected readonly calculandoEdad = signal(false);
+  protected readonly guardandoFicha = signal(false);
   protected readonly fotoSiga = signal<string>('');
   protected readonly edad = signal<string>('');
   protected readonly fechaValoracionVigente = signal<string | null>(null);
+  protected readonly fechaValoracionId = signal<string | null>(null);
+  protected readonly fichaId = signal<string | null>(null);
+  protected readonly fichaEstado = signal<EstadoFicha | null>(null);
+  protected readonly puntajeTotal = signal(0);
+  protected readonly rubrosDesbloqueados = signal(false);
+  protected readonly fichaSoloLectura = signal(false);
   protected readonly errorCarga = signal<string | null>(null);
+  protected readonly formatearPuntaje = formatearPuntaje;
   /** DNI con el que se cargaron foto y nombre desde SIGA. */
   private readonly dniConsultadoSiga = signal<string>('');
   /**
@@ -165,6 +188,244 @@ export class Registro implements OnInit {
     });
     this.limpiarDatosSiga();
     this.edad.set('');
+    this.fichaId.set(null);
+    this.fichaEstado.set(null);
+    this.puntajeTotal.set(0);
+    this.rubrosDesbloqueados.set(false);
+    this.fichaSoloLectura.set(false);
+    this.formulario.enable({ emitEvent: false });
+  }
+
+  /**
+   * Primera unidad: resuelve el ciclo y crea/reanuda el borrador.
+   * Sin fichaId no se habilitan los rubros.
+   */
+  protected onGuardarYContinuar(): void {
+    if (this.guardandoFicha() || this.fichaSoloLectura()) {
+      return;
+    }
+
+    this.formulario.markAllAsTouched();
+    if (this.formulario.invalid) {
+      void this.alertas.error('Datos incompletos', {
+        mensaje: 'Complete los datos personales del juez antes de continuar.',
+      });
+      return;
+    }
+
+    const fechaValoracionId = this.fechaValoracionId();
+    const fechaValoracionSnapshot = this.fechaValoracionVigente();
+    if (!fechaValoracionId || !fechaValoracionSnapshot) {
+      void this.alertas.error('Sin fecha de valoración', {
+        mensaje:
+          'No hay una fecha de valoración vigente. Configure una antes de crear la ficha.',
+      });
+      return;
+    }
+
+    const dni = this.formulario.controls.dni.value;
+    this.guardandoFicha.set(true);
+
+    this.resolverFicha
+      .ejecutar(dni, fechaValoracionId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        switchMap((resolucion) => {
+          if (!resolucion.exito) {
+            void this.alertas.error('No se pudo resolver la ficha', {
+              mensaje:
+                resolucion.detalle?.mensaje ??
+                resolucion.mensaje ??
+                'Error desconocido.',
+              codigo: resolucion.detalle?.codigo,
+              codigoOperacion: resolucion.detalle?.codigoOperacion,
+            });
+            return EMPTY;
+          }
+
+          const resultado = resolucion.resultado;
+
+          if (resultado.tipo === 'BLOQUEADA') {
+            return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
+              map((obtencion) => ({ modo: 'bloqueada' as const, obtencion }))
+            );
+          }
+
+          if (resultado.tipo === 'EDITABLE') {
+            const fichaIdExistente = this.fichaId();
+            if (fichaIdExistente === resultado.fichaId) {
+              return this.persistirActualizacion(resultado.fichaId).pipe(
+                map((guardado) => ({ modo: 'actualizada' as const, guardado }))
+              );
+            }
+            return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
+              map((obtencion) => ({ modo: 'reanudada' as const, obtencion }))
+            );
+          }
+
+          const arrastrarDesde =
+            resultado.tipo === 'NUEVA_CON_PREVIA' ? resultado.fichaPreviaId : null;
+
+          return this.persistirBorrador(
+            fechaValoracionId,
+            fechaValoracionSnapshot,
+            arrastrarDesde
+          ).pipe(map((guardado) => ({ modo: 'creada' as const, guardado, arrastrarDesde })));
+        }),
+        finalize(() => this.guardandoFicha.set(false))
+      )
+      .subscribe(async (evento) => {
+        if (evento.modo === 'bloqueada') {
+          if (!evento.obtencion.exito) {
+            void this.alertas.error('Ficha bloqueada', {
+              mensaje:
+                evento.obtencion.detalle?.mensaje ??
+                evento.obtencion.mensaje ??
+                'La ficha del ciclo ya no es editable.',
+            });
+            return;
+          }
+          this.aplicarFichaEnUi(evento.obtencion.ficha, true);
+          void this.alertas.error('Ficha cerrada', {
+            mensaje:
+              'La fecha de valoración ya fue alcanzada. La ficha se muestra en solo lectura.',
+          });
+          return;
+        }
+
+        if (evento.modo === 'reanudada') {
+          if (!evento.obtencion.exito) {
+            void this.alertas.error('No se pudo reanudar la ficha', {
+              mensaje:
+                evento.obtencion.detalle?.mensaje ??
+                evento.obtencion.mensaje ??
+                'Error desconocido.',
+            });
+            return;
+          }
+          this.aplicarFichaEnUi(evento.obtencion.ficha, false);
+          await this.alertas.exito(
+            'Ficha reanudada',
+            'Se cargó el borrador existente. Puede continuar con los rubros.'
+          );
+          return;
+        }
+
+        if (evento.modo === 'actualizada') {
+          if (!evento.guardado.exito) {
+            void this.alertas.error('No se pudieron guardar los datos', {
+              mensaje:
+                evento.guardado.detalle?.mensaje ??
+                evento.guardado.mensaje ??
+                'Error desconocido.',
+            });
+            return;
+          }
+          this.aplicarFichaEnUi(evento.guardado.ficha, false);
+          await this.alertas.exito(
+            'Datos actualizados',
+            'Los datos personales se guardaron correctamente.'
+          );
+          return;
+        }
+
+        if (!evento.guardado.exito) {
+          void this.alertas.error('No se pudo crear la ficha', {
+            mensaje:
+              evento.guardado.detalle?.mensaje ??
+              evento.guardado.mensaje ??
+              'Error desconocido.',
+          });
+          return;
+        }
+
+        this.aplicarFichaEnUi(evento.guardado.ficha, false);
+        const mensajeArrastre = evento.arrastrarDesde
+          ? ' Se detectó una ficha de un ciclo anterior (el arrastre de ítems se completará en siguientes fases).'
+          : '';
+        await this.alertas.exito(
+          'Ficha en borrador',
+          `Datos personales guardados. Puede continuar con el rubro B — Antigüedad.${mensajeArrastre}`
+        );
+      });
+  }
+
+  private persistirBorrador(
+    fechaValoracionId: string,
+    fechaValoracionSnapshot: string,
+    arrastrarDesde: string | null
+  ) {
+    const v = this.formulario.getRawValue();
+    const nivel = this.niveles().find((n) => n.id === v.nivelId);
+    const edadNum = this.edad() ? Number(this.edad()) : null;
+
+    return this.crearBorrador.ejecutar({
+      nivelId: v.nivelId,
+      nivelNombre: nivel?.nombre ?? '',
+      fechaValoracionId,
+      fechaValoracionSnapshot,
+      arrastrarDesdeFichaId: arrastrarDesde,
+      datosPersonales: {
+        dni: v.dni,
+        nombreCompleto: v.nombreCompleto,
+        foto: this.fotoSiga(),
+        fechaNacimiento: v.fechaNacimiento ? aFechaIsoLocal(v.fechaNacimiento) : '',
+        sexo: v.sexo as 'M' | 'F',
+        edad: Number.isFinite(edadNum) ? edadNum : null,
+      },
+    });
+  }
+
+  private persistirActualizacion(fichaId: string) {
+    const v = this.formulario.getRawValue();
+    const nivel = this.niveles().find((n) => n.id === v.nivelId);
+    const edadNum = this.edad() ? Number(this.edad()) : null;
+
+    return this.actualizarDatosPersonales.ejecutar(fichaId, {
+      nivelId: v.nivelId,
+      nivelNombre: nivel?.nombre ?? '',
+      datosPersonales: {
+        dni: v.dni,
+        nombreCompleto: v.nombreCompleto,
+        foto: this.fotoSiga(),
+        fechaNacimiento: v.fechaNacimiento ? aFechaIsoLocal(v.fechaNacimiento) : '',
+        sexo: v.sexo as 'M' | 'F',
+        edad: Number.isFinite(edadNum) ? edadNum : null,
+      },
+    });
+  }
+
+  private aplicarFichaEnUi(ficha: FichaValoracion, soloLectura: boolean): void {
+    this.fichaId.set(ficha.id);
+    this.fichaEstado.set(ficha.estado);
+    this.puntajeTotal.set(ficha.puntajeTotal);
+    this.rubrosDesbloqueados.set(true);
+    this.fichaSoloLectura.set(soloLectura);
+
+    this.formulario.patchValue(
+      {
+        dni: ficha.datosPersonales.dni,
+        nivelId: ficha.nivelId,
+        nombreCompleto: ficha.datosPersonales.nombreCompleto,
+        sexo: ficha.datosPersonales.sexo,
+        fechaNacimiento: aDateDesdeIso(ficha.datosPersonales.fechaNacimiento),
+      },
+      { emitEvent: false }
+    );
+
+    this.fotoSiga.set(ficha.datosPersonales.foto);
+    this.dniConsultadoSiga.set(ficha.datosPersonales.dni);
+    if (ficha.datosPersonales.edad != null) {
+      this.edad.set(String(ficha.datosPersonales.edad));
+    }
+
+    if (soloLectura) {
+      this.formulario.disable({ emitEvent: false });
+    } else {
+      this.formulario.enable({ emitEvent: false });
+      this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
+    }
   }
 
   /** Auto-busca al completar 8 dígitos; cancela si el DNI queda incompleto. */
@@ -285,9 +546,11 @@ export class Registro implements OnInit {
       .subscribe({
         next: (vigente) => {
           this.fechaValoracionVigente.set(vigente?.fechaValoracion ?? null);
+          this.fechaValoracionId.set(vigente?.id ?? null);
         },
         error: () => {
           this.fechaValoracionVigente.set(null);
+          this.fechaValoracionId.set(null);
         },
       });
   }

@@ -202,11 +202,65 @@
       </div>
 
       <footer class="ficha-valoracion__acciones">
-        <button matButton="outlined" type="button" (click)="onLimpiarDatosPersonales()">
+        <button matButton="outlined" type="button" (click)="onLimpiarDatosPersonales()" [disabled]="guardandoFicha()">
           <mat-icon>cleaning_services</mat-icon>
           Limpiar
+        </button>
+        <button
+          matButton="filled"
+          type="button"
+          class="ficha-valoracion__btn-continuar"
+          (click)="onGuardarYContinuar()"
+          [disabled]="guardandoFicha() || fichaSoloLectura() || !fechaValoracionVigente()"
+        >
+          @if (guardandoFicha()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Guardar y continuar
         </button>
       </footer>
     </form>
   </article>
+
+  @if (!rubrosDesbloqueados()) {
+    <div class="ficha-valoracion__rubros-locked" role="status">
+      <strong>Registro de rubros pendiente</strong>
+      Complete y guarde el nivel y los datos personales para comenzar con el rubro B — Antigüedad en el cargo.
+    </div>
+  } @else {
+    <div class="ficha-valoracion__rubros">
+      @if (fichaEstado(); as estado) {
+        <p class="ficha-valoracion__ficha-meta" role="status">
+          Ficha
+          <strong>{{ fichaId() }}</strong>
+          · Estado: <strong>{{ estado }}</strong>
+          @if (fichaSoloLectura()) {
+            · <span class="ficha-valoracion__solo-lectura">Solo lectura</span>
+          }
+        </p>
+      }
+
+      <app-rubros-panel [fechaValoracion]="fechaValoracionVigente()" />
+
+      <footer class="ficha-valoracion__sticky-footer" aria-label="Acciones de la ficha">
+        <div class="ficha-valoracion__footer-total">
+          <span>Puntaje total de la ficha</span>
+          <strong>{{ formatearPuntaje(puntajeTotal()) }}</strong>
+          <small>Se recalcula en el servidor con cada guardado.</small>
+        </div>
+        <div class="ficha-valoracion__footer-acciones">
+          <button matButton="outlined" type="button" disabled title="Disponible en una fase posterior">
+            <mat-icon>cleaning_services</mat-icon>
+            Limpiar
+          </button>
+          <button matButton="filled" type="button" disabled title="Disponible en una fase posterior">
+            <mat-icon>task_alt</mat-icon>
+            Finalizar registro
+          </button>
+        </div>
+      </footer>
+    </div>
+  }
 </section>

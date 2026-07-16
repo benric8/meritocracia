@@ -73,6 +73,119 @@
       line-height: 1;
     }
 
+    .ficha-footer-hint {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .antiguedad-block-optional {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #64748b;
+      background: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    /* Titularidad = bloque principal (puntaje) */
+    .antiguedad-block--principal {
+      padding: 18px 18px 16px;
+      margin-bottom: 20px;
+      border: 1px solid var(--primary-p40, #e3c4cc);
+      border-bottom: 1px solid var(--primary-p40, #e3c4cc);
+      border-radius: 10px;
+      background: linear-gradient(180deg, var(--primary-p20, #f3e6e9) 0%, #fff 48%);
+      box-shadow: 0 1px 2px rgba(124, 29, 46, 0.06);
+    }
+
+    .antiguedad-block--principal .antiguedad-block-criterion {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .antiguedad-block-badge-required {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--primary);
+      vertical-align: middle;
+    }
+
+    /* Grupo de criterios de desempate (secundario / opcional) */
+    .antiguedad-desempate-group {
+      margin-top: 8px;
+      padding: 16px 16px 8px;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .antiguedad-desempate-group-head {
+      margin: 0 0 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .antiguedad-desempate-group-label {
+      display: block;
+      margin: 0 0 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .antiguedad-desempate-group-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .antiguedad-desempate-group-hint {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .antiguedad-desempate-group .antiguedad-block {
+      margin-bottom: 14px;
+      padding: 14px 14px 12px;
+      padding-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      border-left: 3px solid #94a3b8;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .antiguedad-desempate-group .antiguedad-block:last-child {
+      margin-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .antiguedad-desempate-group .antiguedad-block-criterion {
+      color: #475569;
+    }
+
     .magistrado-datos {
       display: flex;
       flex-direction: column;
@@ -110,6 +223,68 @@
       padding: 16px 24px;
       border-top: 1px solid var(--border);
       background: #fafafa;
+    }
+
+    .ficha-fecha-valoracion {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .ficha-fecha-valoracion strong {
+      color: var(--text);
+    }
+
+    .ficha-step-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ficha-rubros-locked {
+      margin-top: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      background: var(--surface);
+      border: 1px dashed #94a3b8;
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ficha-rubros-locked strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .ficha-layout.is-locked,
+    .antiguedad-block.is-hidden,
+    .ficha-rubros-locked.is-hidden,
+    .sticky-footer.is-hidden {
+      display: none;
+    }
+
+    .antiguedad-block.is-complete .antiguedad-block-criterion::after {
+      content: ' · Guardado';
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--success);
     }
 
     /* E.1 — Estudios de doctorado y/o maestría */
@@ -335,7 +510,12 @@
           <p>Nivel, datos personales (SIGA) y rubros A–J con puntaje por rubro. El total se muestra al pie de la ficha.</p>
         </div>
 
-        <div class="card">
+        <div class="ficha-fecha-valoracion" role="status" id="ficha-fecha-valoracion" data-fecha="2024-12-31">
+          <span>Fecha de valoración vigente: <strong>31/12/2024</strong></span>
+          <span class="anexo-date-badge">Configurada por administración</span>
+        </div>
+
+        <div class="card" id="card-datos-personales">
           <div class="card-title">Nivel y datos personales del juez</div>
           <div class="magistrado-header">
             <div class="photo-placeholder">
@@ -383,9 +563,22 @@
               </div>
             </div>
           </div>
+          <div class="ficha-step-actions">
+            <button type="button" class="btn btn-secondary btn-sm btn-with-icon" id="btn-limpiar-datos-personales">
+              <img src="../assets/icons/broom.svg" width="14" height="14" alt="" /> Limpiar
+            </button>
+            <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-guardar-datos-personales">
+              <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar y continuar
+            </button>
+          </div>
         </div>
 
-        <div class="ficha-layout ficha-layout--full">
+        <div class="ficha-rubros-locked" id="ficha-rubros-locked">
+          <strong>Registro de rubros pendiente</strong>
+          Complete y guarde el nivel y los datos personales para comenzar con el rubro B — Antigüedad en el cargo.
+        </div>
+
+        <div class="ficha-layout ficha-layout--full is-locked" id="ficha-rubros-layout">
           <div class="ficha-rubros-panel">
             <div class="rubros-column-header">
               <span>Rubros de valoración</span>
@@ -410,8 +603,8 @@
                 <span class="rubro-score">18.50</span>
               </div>
               <div class="accordion-body">
-                <div class="antiguedad-block">
-                  <span class="antiguedad-block-criterion">Antigüedad en el cargo</span>
+                <div class="antiguedad-block antiguedad-block--principal" id="antiguedad-datos-generales" data-step="datos">
+                  <span class="antiguedad-block-criterion">Antigüedad en el cargo <span class="antiguedad-block-badge-required">Obligatorio</span></span>
                   <h3 class="antiguedad-block-title">Datos generales y titularidad actual</h3>
                   <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración. La fecha y hora de juramentación se toman del Acta de Juramento (JNJ); la hora constituye el 4.º criterio de desempate.</p>
                   <div class="form-row form-row--dense">
@@ -435,16 +628,28 @@
                     </div>
                     <div class="form-group"><label>Fecha de cese</label><input class="input" type="date" /></div>
                     <div class="form-group"><label>Fecha de reincorporación</label><input class="input" type="date" /></div>
-                    <div class="form-group"><label>Fecha de valoración</label><input class="input" type="date" value="2024-12-31" /></div>
+                    <div class="form-group"><label>Fecha de valoración</label><input class="input" id="fecha-valoracion-readonly" type="date" value="2024-12-31" readonly style="background:#f1f5f9;" /></div>
                     <div class="form-group"><label>Tiempo total en cargo titular</label><input class="input" value="11 aa 8 mm 22 dd" readonly style="background:#f1f5f9;" /></div>
                     <div class="form-group"><label>Puntaje según años totales</label><input class="input" value="18.50" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
                     <div class="form-group"><label>Primera especialidad</label><select class="select"><option>Civil</option></select></div>
                     <div class="form-group"><label>Segunda especialidad</label><select class="select"><option>— Ninguna —</option></select></div>
                   </div>
+                  <div class="ficha-step-actions">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-antiguedad-guardar" data-section="titularidad">
+                      <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar
+                    </button>
+                  </div>
                 </div>
 
-                <div class="antiguedad-block">
-                  <span class="antiguedad-block-criterion">1.er criterio de desempate</span>
+                <div class="antiguedad-desempate-group" aria-labelledby="desempate-group-title">
+                  <header class="antiguedad-desempate-group-head">
+                    <span class="antiguedad-desempate-group-label">Criterios de desempate</span>
+                    <h3 class="antiguedad-desempate-group-title" id="desempate-group-title">Precedencia en caso de empate</h3>
+                    <p class="antiguedad-desempate-group-hint">No suman puntaje al rubro B. Solo se usan para ordenar jueces con el mismo puntaje total (1.er nivel anterior → 2.º provisionalidades → 3.er colegiatura → 4.º hora de juramento). Puede completarlos en cualquier orden.</p>
+                  </header>
+
+                <div class="antiguedad-block" id="desempate-1" data-step="desempate-1">
+                  <span class="antiguedad-block-criterion">1.er criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
                   <h3 class="antiguedad-block-title">Periodo en el nivel inmediato anterior titular</h3>
                   <p class="antiguedad-block-hint">Registrar la fecha de inicio y fin del periodo laborado como Juez en el nivel inmediato anterior titular.</p>
                   <div class="form-row form-row--dense">
@@ -461,12 +666,17 @@
                     <div class="form-group"><label>Fecha fin</label><input class="input" type="date" value="2013-04-08" /></div>
                     <div class="form-group"><label>Tiempo total del periodo</label><input class="input" value="9 aa 4 mm 21 dd" readonly style="background:#f1f5f9;" /></div>
                   </div>
+                  <div class="ficha-step-actions">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-antiguedad-guardar" data-section="desempate-1">
+                      <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar
+                    </button>
+                  </div>
                 </div>
 
-                <div class="antiguedad-block">
-                  <span class="antiguedad-block-criterion">2.º criterio de desempate</span>
+                <div class="antiguedad-block" id="desempate-2" data-step="desempate-2">
+                  <span class="antiguedad-block-criterion">2.º criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
                   <h3 class="antiguedad-block-title">Provisionalidades en el nivel titular actual</h3>
-                  <p class="antiguedad-block-hint">Registrar fecha de inicio y fin, tiempo total, cargo, órgano jurisdiccional y documento de cada periodo como Juez en el nivel titular actual (provisionalidades).</p>
+                  <p class="antiguedad-block-hint">Registrar fecha de inicio y fin, tiempo total, cargo, órgano jurisdiccional y documento de cada periodo como Juez en el nivel titular actual (provisionalidades). Cada periodo se guarda por separado.</p>
                   <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
                     <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-add-provisionalidad" data-target="provisionalidad-form-panel">
                       <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir provisionalidad
@@ -515,7 +725,7 @@
                     </div>
                     <div class="rubro-sub-form-actions">
                       <button type="button" class="btn btn-secondary btn-sm btn-cancel-provisionalidad">Cancelar</button>
-                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar periodo</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar</button>
                     </div>
                   </div>
                   <div class="antiguedad-total-row">
@@ -523,10 +733,10 @@
                   </div>
                 </div>
 
-                <div class="antiguedad-block" id="colegiatura-block">
-                  <span class="antiguedad-block-criterion">3.er criterio de desempate</span>
+                <div class="antiguedad-block" id="colegiatura-block" data-step="desempate-3">
+                  <span class="antiguedad-block-criterion">3.er criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
                   <h3 class="antiguedad-block-title">Colegiatura</h3>
-                  <p class="antiguedad-block-hint">Registrar el colegio de abogados, la fecha de colegiatura y el cálculo de años a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua.</p>
+                  <p class="antiguedad-block-hint">Registrar el colegio de abogados, la fecha de colegiatura y el cálculo de años a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua. Cada colegiatura se guarda por separado.</p>
                   <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
                     <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-add-colegiatura">
                       <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir colegiatura
@@ -550,6 +760,7 @@
                       </tr>
                     </tbody>
                   </table>
+                </div>
                 </div>
               </div>
             </div>
@@ -1315,17 +1526,18 @@
           </div>
         </div>
 
-        <div class="sticky-footer sticky-footer--ficha">
+        <div class="sticky-footer sticky-footer--ficha is-hidden" id="ficha-sticky-footer">
           <div class="ficha-footer-total">
             <span>Puntaje total de la ficha</span>
             <strong>73.75</strong>
+            <p class="ficha-footer-hint">Se recalcula en el servidor con cada guardado.</p>
           </div>
           <div style="display:flex;gap:12px;">
           <button class="btn btn-secondary btn-with-icon" type="button">
             <img src="../assets/icons/broom.svg" width="16" height="16" alt="" /> Limpiar
           </button>
-          <button class="btn btn-primary btn-with-icon" type="button">
-            <img src="../assets/icons/save.svg" width="16" height="16" alt="" /> Guardar
+          <button class="btn btn-primary btn-with-icon" type="button" id="btn-finalizar-registro">
+            <img src="../assets/icons/save.svg" width="16" height="16" alt="" /> Finalizar registro
           </button>
           </div>
         </div>
@@ -1434,15 +1646,13 @@
       }
 
       function getFechaValoracion() {
-        var groups = document.querySelectorAll('.antiguedad-block .form-group');
-        for (var i = 0; i < groups.length; i++) {
-          var label = groups[i].querySelector('label');
-          if (label && label.textContent.trim() === 'Fecha de valoración') {
-            var input = groups[i].querySelector('input[type="date"]');
-            if (input && input.value) {
-              return input.value;
-            }
-          }
+        var banner = document.getElementById('ficha-fecha-valoracion');
+        if (banner && banner.getAttribute('data-fecha')) {
+          return banner.getAttribute('data-fecha');
+        }
+        var readonly = document.getElementById('fecha-valoracion-readonly');
+        if (readonly && readonly.value) {
+          return readonly.value;
         }
         return '2024-12-31';
       }
@@ -2008,6 +2218,89 @@
           });
         }
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      var rubrosLocked = document.getElementById('ficha-rubros-locked');
+      var rubrosLayout = document.getElementById('ficha-rubros-layout');
+      var stickyFooter = document.getElementById('ficha-sticky-footer');
+      var btnGuardarDatos = document.getElementById('btn-guardar-datos-personales');
+      var btnLimpiarDatos = document.getElementById('btn-limpiar-datos-personales');
+
+      function desbloquearRubros() {
+        if (rubrosLocked) rubrosLocked.classList.add('is-hidden');
+        if (rubrosLayout) rubrosLayout.classList.remove('is-locked');
+        if (stickyFooter) stickyFooter.classList.remove('is-hidden');
+      }
+
+      if (btnGuardarDatos) {
+        btnGuardarDatos.addEventListener('click', function () {
+          var dni = document.getElementById('magistrado-dni');
+          var nombres = document.getElementById('magistrado-nombres');
+          var nivel = document.getElementById('magistrado-nivel');
+          if (!dni || !dni.value.trim()) {
+            showToast('Ingrese el DNI del juez.');
+            if (dni) dni.focus();
+            return;
+          }
+          if (!nombres || !nombres.value.trim()) {
+            showToast('Consulte el DNI en SIGA para obtener los nombres.');
+            if (nombres) nombres.focus();
+            return;
+          }
+          if (!nivel || !nivel.value) {
+            showToast('Seleccione el nivel del juez.');
+            if (nivel) nivel.focus();
+            return;
+          }
+          desbloquearRubros();
+          showToast('Datos personales guardados. Puede continuar con el rubro B.');
+          if (rubrosLayout) {
+            rubrosLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
+      if (btnLimpiarDatos) {
+        btnLimpiarDatos.addEventListener('click', function () {
+          showToast('Datos personales limpiados (simulación).');
+        });
+      }
+
+      document.querySelectorAll('.btn-antiguedad-guardar').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var block = btn.closest('.antiguedad-block');
+          var section = (btn.getAttribute('data-section') || '').trim();
+          if (block) {
+            block.classList.add('is-complete');
+          }
+          if (section === 'titularidad') {
+            showToast('Titularidad guardada (simulación). Los criterios de desempate son opcionales.');
+            return;
+          }
+          if (section === 'desempate-1') {
+            showToast('1.er criterio de desempate guardado (simulación).');
+            return;
+          }
+          showToast('Sección de antigüedad guardada (simulación).');
+        });
+      });
+
+      var btnFinalizar = document.getElementById('btn-finalizar-registro');
+      if (btnFinalizar) {
+        btnFinalizar.addEventListener('click', function () {
+          showToast('Validando mínimos (cabecera + rubro B) → ficha REGISTRADA. (simulación)');
+        });
+      }
     })();
   </script>
   <script src="../js/mockup-review.js" defer></script>
