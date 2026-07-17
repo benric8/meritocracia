@@ -1,6 +1,6 @@
 {
-  "urlApi1": "http://172.19.9.35:8080/meritocracia-api-rest/",
-  "urlApi": "http://localhost:8083/meritocracia-api-rest/",
+  "urlApi": "http://172.19.9.35:8080/meritocracia-api-rest/",
+  "urlApi2": "http://localhost:8083/meritocracia-api-rest/",
   "tokenCaptcha": "6LeqbAAnAAAAAIfjfpyKd8J1k5tHZa6uFClrLmxm",
   "codigoCliente": "CLST1",
   "codigoRol": "QXeK+ABfEEKtz1FzgAPBGg==",

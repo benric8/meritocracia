@@ -1,0 +1,2690 @@
+{
+	"info": {
+		"_postman_id": "rf006-ficha-valoracion-2026",
+		"name": "RF006 — Ficha de valoración",
+		"description": "Contratos RF006 (cabecera + rubro B). Misma auth/variables que \"meritocracia-api-rest v1\".\n\n1) Importar junto a meritocracia-api-rest v1 (o copiar variables servidor/contexto/jwtOpciones).\n2) Ejecutar el flujo de autenticación de la colección v1 para obtener jwtOpciones.\n3) Ver docs/api-contratos-rf006-ficha-valoracion.md\n\nPrincipios: requests lean (sin campos calculados), IDs numéricos, GlobalResponse, back calcula tiempos/puntaje.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "servidor",
+			"value": "http://172.19.9.35:8080"
+		},
+		{
+			"key": "contexto",
+			"value": "meritocracia-api-rest"
+		},
+		{
+			"key": "jwtOpciones",
+			"value": ""
+		},
+		{
+			"key": "dni",
+			"value": "12345678"
+		},
+		{
+			"key": "fechaValoracionId",
+			"value": "3"
+		},
+		{
+			"key": "fichaId",
+			"value": "42"
+		},
+		{
+			"key": "fichaPreviaId",
+			"value": "10"
+		},
+		{
+			"key": "nivelId",
+			"value": "1"
+		},
+		{
+			"key": "provisionalidadId",
+			"value": "501"
+		},
+		{
+			"key": "colegiaturaId",
+			"value": "701"
+		}
+	],
+	"item": [
+		{
+			"name": "01 Maestros",
+			"description": "Catálogos. Preferir el endpoint batch (01.1) para cargar el rubro B en una sola llamada.",
+			"item": [
+				{
+					"name": "maestros/antiguedad (batch por nivel)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Eficiencia: un solo round-trip con todos los catálogos del rubro B filtrados por nivel.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/antiguedad?nivelId={{nivelId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"antiguedad"
+							],
+							"query": [
+								{
+									"key": "nivelId",
+									"value": "{{nivelId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/antiguedad (batch por nivel) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-ANTIGUEDAD\",\n  \"data\": {\n    \"distritosJudiciales\": [\n      {\n        \"id\": 5,\n        \"nombre\": \"Huancavelica\"\n      },\n      {\n        \"id\": 1,\n        \"nombre\": \"Lima\"\n      }\n    ],\n    \"cargosTitular\": [\n      {\n        \"id\": 1,\n        \"nombre\": \"Juez Superior Titular\",\n        \"nivelId\": 1\n      }\n    ],\n    \"cargosProvisional\": [\n      {\n        \"id\": 1,\n        \"nombre\": \"Juez Superior\",\n        \"nivelId\": 1\n      }\n    ],\n    \"especialidades\": [\n      {\n        \"id\": 1,\n        \"nombre\": \"Civil\"\n      },\n      {\n        \"id\": 2,\n        \"nombre\": \"Penal\"\n      }\n    ],\n    \"nivelesInmediatosAnteriores\": [\n      {\n        \"id\": 2,\n        \"nombre\": \"Juez Especializado Titular\",\n        \"nivelId\": 1\n      }\n    ],\n    \"colegiosAbogados\": [\n      {\n        \"id\": 1,\n        \"nombre\": \"LIMA\"\n      },\n      {\n        \"id\": 2,\n        \"nombre\": \"AREQUIPA\"\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/nivel/titular",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Niveles para cabecera de ficha.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/nivel/titular",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"nivel",
+								"titular"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/nivel/titular — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-NIVEL\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"nombre\": \"Juez Superior Titular\",\n      \"abreviatura\": \"SUP\"\n    },\n    {\n      \"id\": 2,\n      \"nombre\": \"Juez Supremo Titular\",\n      \"abreviatura\": \"SM\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/distrito-judicial (existente)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Ya implementado en el API.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/distrito-judicial",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"distrito-judicial"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/distrito-judicial (existente) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-DJ\",\n  \"data\": [\n    {\n      \"id\": 5,\n      \"nombre\": \"Huancavelica\",\n      \"nombreCorto\": \"HVCA\",\n      \"codigoSigla\": \"HV\",\n      \"activo\": true\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/cargos-titular",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Filtrar por nivelId (recomendado). Cargo = nivel de la ficha.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/cargos-titular?nivelId={{nivelId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"cargos-titular"
+							],
+							"query": [
+								{
+									"key": "nivelId",
+									"value": "{{nivelId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/cargos-titular — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-CT\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"nombre\": \"Juez Superior Titular\",\n      \"nivelId\": 1\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/cargos-provisional",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/cargos-provisional?nivelId={{nivelId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"cargos-provisional"
+							],
+							"query": [
+								{
+									"key": "nivelId",
+									"value": "{{nivelId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/cargos-provisional — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-CP\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"nombre\": \"Juez Superior\",\n      \"nivelId\": 1\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/especialidades",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/especialidades",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"especialidades"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/especialidades — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-ESP\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"nombre\": \"Civil\"\n    },\n    {\n      \"id\": 2,\n      \"nombre\": \"Penal\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/niveles-inmediatos-anteriores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "nivelId = nivel actual de la ficha. Supremo→Superior; Superior→Especializado.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/niveles-inmediatos-anteriores?nivelId={{nivelId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"niveles-inmediatos-anteriores"
+							],
+							"query": [
+								{
+									"key": "nivelId",
+									"value": "{{nivelId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/niveles-inmediatos-anteriores — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-NIA\",\n  \"data\": [\n    {\n      \"id\": 2,\n      \"nombre\": \"Juez Especializado Titular\",\n      \"nivelId\": 1\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "maestros/colegios-abogados",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/colegios-abogados",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"colegios-abogados"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "maestros/colegios-abogados — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"MAESTROS-COL\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"nombre\": \"LIMA\"\n    },\n    {\n      \"id\": 2,\n      \"nombre\": \"AREQUIPA\"\n    }\n  ]\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "02 Juez",
+			"item": [
+				{
+					"name": "jueces/siga (existente)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Solo si resolver devolvió NUEVA.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/jueces/siga?numero_documento={{dni}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"jueces",
+								"siga"
+							],
+							"query": [
+								{
+									"key": "numero_documento",
+									"value": "{{dni}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "jueces/siga (existente) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"JUEZ-SIGA\",\n  \"data\": {\n    \"nombreCompleto\": \"García López, Pedro Juan\",\n    \"foto\": \"\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "jueces/edad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/jueces/edad?fechaNacimiento=1975-03-15&fechaValoracion=2026-12-31",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"jueces",
+								"edad"
+							],
+							"query": [
+								{
+									"key": "fechaNacimiento",
+									"value": "1975-03-15"
+								},
+								{
+									"key": "fechaValoracion",
+									"value": "2026-12-31"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "jueces/edad — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"JUEZ-EDAD\",\n  \"data\": {\n    \"edad\": 51\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "03 Fechas valoración (existente)",
+			"item": [
+				{
+					"name": "fechas-valoracion/vigente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion/vigente",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion",
+								"vigente"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fechas-valoracion/vigente — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FV-VIGENTE\",\n  \"data\": {\n    \"id\": 3,\n    \"fechaValoracion\": \"2026-12-31\",\n    \"anio\": 2026,\n    \"resolucion\": \"RA-001-2026-CE-PJ\",\n    \"estado\": \"VIGENTE\",\n    \"usuarioRegistra\": \"SYSADMIN\",\n    \"fechaRegistro\": \"2026-01-15T10:00:00\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fechas-valoracion (listar)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion?pagina=1&tamanio=10",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion"
+							],
+							"query": [
+								{
+									"key": "pagina",
+									"value": "1"
+								},
+								{
+									"key": "tamanio",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fechas-valoracion (listar) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FV-LISTAR\",\n  \"data\": [\n    {\n      \"id\": 3,\n      \"fechaValoracion\": \"2026-12-31\",\n      \"anio\": 2026,\n      \"resolucion\": \"RA-001-2026-CE-PJ\",\n      \"estado\": \"VIGENTE\",\n      \"usuarioRegistra\": \"SYSADMIN\",\n      \"fechaRegistro\": \"2026-01-15T10:00:00\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "fechas-valoracion (crear)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fechaValoracion\": \"2026-12-31\",\n  \"resolucion\": \"RA-001-2026-CE-PJ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fechas-valoracion (crear) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FV-CREAR\",\n  \"data\": {\n    \"id\": 3,\n    \"fechaValoracion\": \"2026-12-31\",\n    \"anio\": 2026,\n    \"resolucion\": \"RA-001-2026-CE-PJ\",\n    \"estado\": \"VIGENTE\",\n    \"usuarioRegistra\": \"SYSADMIN\",\n    \"fechaRegistro\": \"2026-07-17T12:00:00\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fechas-valoracion/{id}/inactivar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion/{{fechaValoracionId}}/inactivar",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion",
+								"{{fechaValoracionId}}",
+								"inactivar"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fechas-valoracion/{id}/inactivar — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FV-INACTIVAR\",\n  \"data\": true\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "04 Antigüedad — cálculos",
+			"description": "Idempotentes. Preferir GET. No persistir: solo feedback UI. Al guardar, el back recalcula.",
+			"item": [
+				{
+					"name": "antiguedad/calcular-tiempo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "fechaFin >= fechaInicio.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/antiguedad/calcular-tiempo?fechaInicio=2009-03-03&fechaFin=2013-04-09",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"antiguedad",
+								"calcular-tiempo"
+							],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2009-03-03"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2013-04-09"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "antiguedad/calcular-tiempo — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"ANT-TIEMPO\",\n  \"data\": {\n    \"anios\": 4,\n    \"meses\": 1,\n    \"dias\": 6,\n    \"etiqueta\": \"4 aa 1 mm 6 dd\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "antiguedad/calcular-tiempo-titular",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Devuelve tiempo + puntaje en un solo response (evita 2da llamada).",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/antiguedad/calcular-tiempo-titular?fechaJuramentacion=2013-04-09&fechaValoracion=2026-12-31",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"antiguedad",
+								"calcular-tiempo-titular"
+							],
+							"query": [
+								{
+									"key": "fechaJuramentacion",
+									"value": "2013-04-09"
+								},
+								{
+									"key": "fechaValoracion",
+									"value": "2026-12-31"
+								},
+								{
+									"key": "fechaCese",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "fechaReincorporacion",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "antiguedad/calcular-tiempo-titular — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"ANT-TITULAR\",\n  \"data\": {\n    \"tiempo\": {\n      \"anios\": 11,\n      \"meses\": 8,\n      \"dias\": 22,\n      \"etiqueta\": \"11 aa 8 mm 22 dd\"\n    },\n    \"puntaje\": 18.5\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "antiguedad/anios-colegiatura",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/antiguedad/anios-colegiatura?fechaColegiatura=1996-10-16&fechaValoracion=2026-12-31",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"antiguedad",
+								"anios-colegiatura"
+							],
+							"query": [
+								{
+									"key": "fechaColegiatura",
+									"value": "1996-10-16"
+								},
+								{
+									"key": "fechaValoracion",
+									"value": "2026-12-31"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "antiguedad/anios-colegiatura — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"ANT-COLEG\",\n  \"data\": {\n    \"anios\": 30\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "antiguedad/sumar-tiempos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "POST porque el body puede ser una lista larga.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/antiguedad/sumar-tiempos",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"antiguedad",
+								"sumar-tiempos"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tiempos\": [\n    {\n      \"anios\": 2,\n      \"meses\": 10,\n      \"dias\": 20,\n      \"etiqueta\": \"2 aa 10 mm 20 dd\"\n    },\n    {\n      \"anios\": 1,\n      \"meses\": 3,\n      \"dias\": 15,\n      \"etiqueta\": \"1 aa 3 mm 15 dd\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "antiguedad/sumar-tiempos — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"ANT-SUMAR\",\n  \"data\": {\n    \"anios\": 4,\n    \"meses\": 2,\n    \"dias\": 5,\n    \"etiqueta\": \"4 aa 2 mm 5 dd\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "05 Ficha — ciclo / cabecera",
+			"item": [
+				{
+					"name": "fichas/resolver",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "Primera llamada de Buscar. Tipos: NUEVA | NUEVA_CON_PREVIA | EDITABLE | BLOQUEADA.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/resolver?dni={{dni}}&fechaValoracionId={{fechaValoracionId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"resolver"
+							],
+							"query": [
+								{
+									"key": "dni",
+									"value": "{{dni}}"
+								},
+								{
+									"key": "fechaValoracionId",
+									"value": "{{fechaValoracionId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/resolver — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-RESOLVER\",\n  \"data\": {\n    \"tipo\": \"NUEVA\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/resolver (EDITABLE)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/resolver?dni={{dni}}&fechaValoracionId={{fechaValoracionId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"resolver"
+							],
+							"query": [
+								{
+									"key": "dni",
+									"value": "{{dni}}"
+								},
+								{
+									"key": "fechaValoracionId",
+									"value": "{{fechaValoracionId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/resolver (EDITABLE) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-RESOLVER\",\n  \"data\": {\n    \"tipo\": \"EDITABLE\",\n    \"fichaId\": 42\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/resolver (NUEVA_CON_PREVIA)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/resolver?dni={{dni}}&fechaValoracionId={{fechaValoracionId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"resolver"
+							],
+							"query": [
+								{
+									"key": "dni",
+									"value": "{{dni}}"
+								},
+								{
+									"key": "fechaValoracionId",
+									"value": "{{fechaValoracionId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/resolver (NUEVA_CON_PREVIA) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-RESOLVER\",\n  \"data\": {\n    \"tipo\": \"NUEVA_CON_PREVIA\",\n    \"fichaPreviaId\": 10\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/borrador (nuevo)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Lean: no enviar nivelNombre (se resuelve del catálogo). Botón: Guardar y continuar.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/borrador",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"borrador"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nivelId\": 1,\n  \"fechaValoracionId\": 3,\n  \"arrastrarDesdeFichaId\": null,\n  \"datosPersonales\": {\n    \"dni\": \"87654321\",\n    \"nombreCompleto\": \"Pérez Rojas, Ana María\",\n    \"foto\": \"\",\n    \"fechaNacimiento\": \"1980-06-20\",\n    \"sexo\": \"F\",\n    \"edad\": 46\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/borrador (nuevo) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-BORRADOR\",\n  \"data\": {\n    \"id\": 55,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/borrador (importar previa)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Botón: Importar ficha anterior.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/borrador",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"borrador"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nivelId\": 1,\n  \"fechaValoracionId\": 3,\n  \"arrastrarDesdeFichaId\": \"{{fichaPreviaId}}\",\n  \"datosPersonales\": {\n    \"dni\": \"12345678\",\n    \"nombreCompleto\": \"García López, Pedro Juan\",\n    \"foto\": \"\",\n    \"fechaNacimiento\": \"1975-03-15\",\n    \"sexo\": \"M\",\n    \"edad\": 51\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/borrador (importar previa) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-IMPORTAR\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": 10,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id} — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-GET\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/datos-personales",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Botón: Actualizar. No enviar nivelNombre.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/datos-personales",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"datos-personales"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nivelId\": 1,\n  \"datosPersonales\": {\n    \"dni\": \"12345678\",\n    \"nombreCompleto\": \"García López, Pedro Juan\",\n    \"foto\": \"\",\n    \"fechaNacimiento\": \"1975-03-15\",\n    \"sexo\": \"M\",\n    \"edad\": 51\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/datos-personales — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-DP\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "06 Ficha — rubro B Antigüedad",
+			"description": "Mutaciones lean: solo IDs y fechas de entrada. Back calcula tiempos/puntaje/nombres y devuelve FichaValoracion.",
+			"item": [
+				{
+					"name": "fichas/{id}/antiguedad/titularidad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Obligatorios: distrito, cargo, fecha+hora juramentación, 1.ª especialidad. Asigna rubroAntiguedad.id. cargoTitularId debe coincidir con nivelId de la ficha.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/titularidad",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"titularidad"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"distritoJudicialId\": 5,\n  \"cargoTitularId\": 1,\n  \"fechaJuramentacion\": \"2013-04-09\",\n  \"horaJuramento\": \"11:15\",\n  \"fechaCese\": null,\n  \"fechaReincorporacion\": null,\n  \"primeraEspecialidadId\": 1,\n  \"segundaEspecialidadId\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/titularidad — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-TIT\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/periodo-nivel-anterior",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Requiere titularidad guardada. fechaFin >= fechaInicio. nivelInmediatoAnterior fijo según nivel.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/periodo-nivel-anterior",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"periodo-nivel-anterior"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nivelInmediatoAnteriorId\": 2,\n  \"fechaInicio\": \"2003-11-18\",\n  \"fechaFin\": \"2013-04-08\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/periodo-nivel-anterior — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-PER\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/provisionalidades (crear)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Lean: no enviar cargoNombre ni tiempoTotal. cargoId = nivel de la ficha.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/provisionalidades",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"provisionalidades"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fechaInicio\": \"2009-03-03\",\n  \"fechaFin\": \"2013-04-09\",\n  \"cargoId\": 1,\n  \"organoJurisdiccional\": \"Corte Superior de Huancavelica\",\n  \"documento\": \"Resolución N.° 041-2009-PJ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/provisionalidades (crear) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-PROV-C\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [\n        {\n          \"id\": 501,\n          \"fechaInicio\": \"2009-03-03\",\n          \"fechaFin\": \"2013-04-09\",\n          \"tiempoTotal\": {\n            \"anios\": 4,\n            \"meses\": 1,\n            \"dias\": 6,\n            \"etiqueta\": \"4 aa 1 mm 6 dd\"\n          },\n          \"cargoId\": 1,\n          \"cargoNombre\": \"Juez Superior\",\n          \"organoJurisdiccional\": \"Corte Superior de Huancavelica\",\n          \"documento\": \"Resolución N.° 041-2009-PJ\"\n        }\n      ],\n      \"sumaProvisionalidades\": {\n        \"anios\": 4,\n        \"meses\": 1,\n        \"dias\": 6,\n        \"etiqueta\": \"4 aa 1 mm 6 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/provisionalidades/{itemId}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/provisionalidades/{{provisionalidadId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"provisionalidades",
+								"{{provisionalidadId}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fechaInicio\": \"2009-03-03\",\n  \"fechaFin\": \"2013-04-09\",\n  \"cargoId\": 1,\n  \"organoJurisdiccional\": \"Corte Superior de Huancavelica\",\n  \"documento\": \"Resolución N.° 041-2009-PJ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/provisionalidades/{itemId} — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-PROV-U\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/provisionalidades/{itemId} (eliminar)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/provisionalidades/{{provisionalidadId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"provisionalidades",
+								"{{provisionalidadId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/provisionalidades/{itemId} (eliminar) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-PROV-D\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/colegiaturas (crear)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "Lean: no enviar colegioNombre ni anios.",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/colegiaturas",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"colegiaturas"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"colegioId\": 1,\n  \"fechaColegiatura\": \"1996-10-16\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/colegiaturas (crear) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-COL-C\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": [\n        {\n          \"id\": 701,\n          \"colegioId\": 1,\n          \"colegioNombre\": \"LIMA\",\n          \"fechaColegiatura\": \"1996-10-16\",\n          \"anios\": 30\n        }\n      ]\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/colegiaturas/{itemId}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/colegiaturas/{{colegiaturaId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"colegiaturas",
+								"{{colegiaturaId}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"colegioId\": 1,\n  \"fechaColegiatura\": \"1996-10-16\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/colegiaturas/{itemId} — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-COL-U\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "fichas/{id}/antiguedad/colegiaturas/{itemId} (eliminar)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"description": "",
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fichas/{{fichaId}}/antiguedad/colegiaturas/{{colegiaturaId}}",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fichas",
+								"{{fichaId}}",
+								"antiguedad",
+								"colegiaturas",
+								"{{colegiaturaId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "fichas/{id}/antiguedad/colegiaturas/{itemId} (eliminar) — ejemplo 200",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"codigo\": \"0000\",\n  \"descripcion\": \"Operación exitosa\",\n  \"codigoOperacion\": \"FICHA-COL-D\",\n  \"data\": {\n    \"id\": 42,\n    \"estado\": \"BORRADOR\",\n    \"nivelId\": 1,\n    \"nivelNombre\": \"Juez Superior Titular\",\n    \"fechaValoracionId\": 3,\n    \"fechaValoracionSnapshot\": \"2026-12-31\",\n    \"datosPersonales\": {\n      \"dni\": \"12345678\",\n      \"nombreCompleto\": \"García López, Pedro Juan\",\n      \"foto\": \"\",\n      \"fechaNacimiento\": \"1975-03-15\",\n      \"sexo\": \"M\",\n      \"edad\": 51\n    },\n    \"fichaPreviaId\": null,\n    \"rubroAntiguedad\": {\n      \"id\": 101,\n      \"titularidad\": {\n        \"distritoJudicialId\": 5,\n        \"cargoTitularId\": 1,\n        \"fechaJuramentacion\": \"2013-04-09\",\n        \"horaJuramento\": \"11:15\",\n        \"fechaCese\": null,\n        \"fechaReincorporacion\": null,\n        \"fechaValoracion\": \"2026-12-31\",\n        \"tiempoTotal\": {\n          \"anios\": 11,\n          \"meses\": 8,\n          \"dias\": 22,\n          \"etiqueta\": \"11 aa 8 mm 22 dd\"\n        },\n        \"puntaje\": 18.5,\n        \"primeraEspecialidadId\": 1,\n        \"segundaEspecialidadId\": null\n      },\n      \"periodoNivelAnterior\": {\n        \"nivelInmediatoAnteriorId\": 2,\n        \"fechaInicio\": \"2003-11-18\",\n        \"fechaFin\": \"2013-04-08\",\n        \"tiempoTotal\": {\n          \"anios\": 9,\n          \"meses\": 4,\n          \"dias\": 21,\n          \"etiqueta\": \"9 aa 4 mm 21 dd\"\n        }\n      },\n      \"provisionalidades\": [],\n      \"sumaProvisionalidades\": {\n        \"anios\": 0,\n        \"meses\": 0,\n        \"dias\": 0,\n        \"etiqueta\": \"0 aa 0 mm 0 dd\"\n      },\n      \"colegiaturas\": []\n    },\n    \"puntajeTotal\": 18.5,\n    \"creadoEn\": \"2026-07-17T15:00:00.000Z\",\n    \"actualizadoEn\": \"2026-07-17T16:30:00.000Z\"\n  }\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}

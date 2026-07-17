@@ -25,7 +25,8 @@
     <header class="ficha-valoracion__card-head">
       <h2 class="ficha-valoracion__card-titulo">Nivel y datos personales del juez</h2>
       <p class="ficha-valoracion__card-desc">
-        Consulte el DNI en SIGA para cargar foto y nombres; complete el resto de datos.
+        Busque el DNI para resolver si existe borrador o ficha del proceso anterior. Solo en un
+        registro nuevo se consulta SIGA para cargar foto y nombres.
       </p>
     </header>
 
@@ -35,7 +36,7 @@
           class="ficha-valoracion__foto-panel"
           [class.ficha-valoracion__foto-panel--con-imagen]="!!fotoSiga()"
         >
-          <div class="ficha-valoracion__foto" aria-label="Foto del juez desde SIGA">
+          <div class="ficha-valoracion__foto" aria-label="Foto del juez">
             @if (fotoSiga(); as foto) {
               <img [src]="foto" alt="Foto del juez" class="ficha-valoracion__foto-img" />
             } @else {
@@ -61,7 +62,7 @@
               maxlength="8"
               autocomplete="off"
               (input)="onDniInput($event)"
-              (keydown.enter)="onBuscarSiga($event)"
+              (keydown.enter)="onBuscarDni($event)"
             />
             <button
               matIconButton
@@ -69,15 +70,16 @@
               type="button"
               class="ficha-valoracion__btn-buscar"
               [disabled]="
-                buscandoSiga() ||
+                buscandoDni() ||
+                guardandoFicha() ||
                 formulario.controls.dni.invalid ||
-                dniYaConsultadoSiga()
+                dniYaResuelto()
               "
-              (click)="onBuscarSiga()"
-              title="Buscar en SIGA"
-              aria-label="Buscar en SIGA"
+              (click)="onBuscarDni()"
+              title="Buscar ficha o SIGA"
+              aria-label="Buscar ficha o SIGA"
             >
-              @if (buscandoSiga()) {
+              @if (buscandoDni()) {
                 <mat-progress-spinner diameter="18" mode="indeterminate" />
               } @else {
                 <mat-icon>search</mat-icon>
@@ -202,24 +204,41 @@
       </div>
 
       <footer class="ficha-valoracion__acciones">
-        <button matButton="outlined" type="button" (click)="onLimpiarDatosPersonales()" [disabled]="guardandoFicha()">
-          <mat-icon>cleaning_services</mat-icon>
-          Limpiar
-        </button>
-        <button
-          matButton="filled"
-          type="button"
-          class="ficha-valoracion__btn-continuar"
-          (click)="onGuardarYContinuar()"
-          [disabled]="guardandoFicha() || fichaSoloLectura() || !fechaValoracionVigente()"
-        >
-          @if (guardandoFicha()) {
-            <mat-progress-spinner diameter="18" mode="indeterminate" />
-          } @else {
-            <mat-icon>save</mat-icon>
-          }
-          Guardar y continuar
-        </button>
+        @if (mensajeEstadoBusqueda(); as mensajeEstado) {
+          <p class="ficha-valoracion__estado-busqueda" role="status">{{ mensajeEstado }}</p>
+        }
+        <div class="ficha-valoracion__acciones-botones">
+          <button
+            matButton="outlined"
+            type="button"
+            (click)="onLimpiarDatosPersonales()"
+            [disabled]="guardandoFicha() || buscandoDni()"
+          >
+            <mat-icon>cleaning_services</mat-icon>
+            Limpiar
+          </button>
+          <button
+            matButton="filled"
+            type="button"
+            class="ficha-valoracion__btn-continuar"
+            (click)="onAccionCabecera()"
+            [disabled]="
+              guardandoFicha() ||
+              buscandoDni() ||
+              fichaSoloLectura() ||
+              !fechaValoracionVigente() ||
+              !modoAccionCabecera() ||
+              modoAccionCabecera() === 'BLOQUEADA'
+            "
+          >
+            @if (guardandoFicha()) {
+              <mat-progress-spinner diameter="18" mode="indeterminate" />
+            } @else {
+              <mat-icon>{{ iconoBotonPrincipal() }}</mat-icon>
+            }
+            {{ etiquetaBotonPrincipal() }}
+          </button>
+        </div>
       </footer>
     </form>
   </article>

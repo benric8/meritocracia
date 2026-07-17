@@ -294,11 +294,25 @@
 
 .ficha-valoracion__acciones {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: stretch;
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--mc-border);
+}
+
+.ficha-valoracion__estado-busqueda {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--mc-text-muted);
+}
+
+.ficha-valoracion__acciones-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .ficha-valoracion__btn-continuar {

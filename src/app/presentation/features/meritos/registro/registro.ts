@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
@@ -16,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY, Subject, debounceTime, distinctUntilChanged, finalize, map, switchMap, take } from 'rxjs';
+import { EMPTY, debounceTime, distinctUntilChanged, finalize, map, switchMap, take } from 'rxjs';
 import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/use-cases/meritos/actualizar-datos-personales-ficha.use-case';
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
 import { CrearBorradorFichaUseCase } from '../../../../application/use-cases/meritos/crear-borrador-ficha.use-case';
@@ -34,7 +35,6 @@ import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
   aFechaIsoLocal,
-  DNI_LENGTH,
   maxFechaNacimientoPorEdadMinima,
   mensajeErrorCampoDatosPersonales,
   OPCIONES_SEXO,
@@ -48,6 +48,9 @@ import {
 import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
 import { RubrosPanel } from './rubros/rubros-panel/rubros-panel';
 import { aDateDesdeIso, formatearPuntaje } from './rubros/rubros.util';
+
+/** Acción principal de cabecera según el resultado de Buscar. */
+export type ModoAccionCabecera = 'NUEVA' | 'ACTUALIZAR' | 'IMPORTAR' | 'BLOQUEADA';
 
 @Component({
   selector: 'app-registro',
@@ -86,7 +89,7 @@ export class Registro implements OnInit {
 
   protected readonly niveles = signal<NivelTitular[]>([]);
   protected readonly cargandoNiveles = signal(false);
-  protected readonly buscandoSiga = signal(false);
+  protected readonly buscandoDni = signal(false);
   protected readonly calculandoEdad = signal(false);
   protected readonly guardandoFicha = signal(false);
   protected readonly fotoSiga = signal<string>('');
@@ -102,15 +105,61 @@ export class Registro implements OnInit {
   protected readonly rubroAntiguedad = signal<RubroAntiguedad | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly formatearPuntaje = formatearPuntaje;
-  /** DNI con el que se cargaron foto y nombre desde SIGA. */
-  private readonly dniConsultadoSiga = signal<string>('');
+
   /**
-   * Dispara búsqueda SIGA. `null` cancela la petición en curso;
-   * `{ dni, forzar }` fuerza reintento aunque el DNI ya esté consultado.
+   * Modo de la acción principal tras Buscar.
+   * `null` = aún no se resolvió el DNI.
    */
-  private readonly solicitudSiga$ = new Subject<{ dni: string; forzar: boolean } | null>();
-  /** Evita que `finalize` de una petición cancelada apague el spinner de la vigente. */
-  private generacionBusquedaSiga = 0;
+  protected readonly modoAccionCabecera = signal<ModoAccionCabecera | null>(null);
+  /** Ficha del proceso anterior a importar (solo modo IMPORTAR). */
+  protected readonly fichaPreviaId = signal<string | null>(null);
+  /** DNI para el que ya se ejecutó Buscar (resolver + SIGA si aplica). */
+  private readonly dniResuelto = signal<string>('');
+  /** DNI con foto/nombre cargados (SIGA o ficha existente). */
+  private readonly dniConsultadoIdentidad = signal<string>('');
+
+  protected readonly etiquetaBotonPrincipal = computed(() => {
+    switch (this.modoAccionCabecera()) {
+      case 'ACTUALIZAR':
+        return 'Actualizar';
+      case 'IMPORTAR':
+        return 'Importar ficha anterior';
+      case 'BLOQUEADA':
+        return 'Ficha cerrada';
+      case 'NUEVA':
+      default:
+        return 'Guardar y continuar';
+    }
+  });
+
+  protected readonly iconoBotonPrincipal = computed(() => {
+    switch (this.modoAccionCabecera()) {
+      case 'ACTUALIZAR':
+        return 'sync';
+      case 'IMPORTAR':
+        return 'content_copy';
+      case 'BLOQUEADA':
+        return 'lock';
+      case 'NUEVA':
+      default:
+        return 'save';
+    }
+  });
+
+  protected readonly mensajeEstadoBusqueda = computed(() => {
+    switch (this.modoAccionCabecera()) {
+      case 'NUEVA':
+        return 'Nuevo registro: complete los datos y pulse Guardar y continuar.';
+      case 'ACTUALIZAR':
+        return 'Se encontró un registro del proceso actual. Puede actualizar los datos personales.';
+      case 'IMPORTAR':
+        return 'Existe una ficha del proceso anterior. Pulse Importar ficha anterior para crear el borrador del ciclo vigente.';
+      case 'BLOQUEADA':
+        return 'La ficha del proceso actual está cerrada y se muestra en solo lectura.';
+      default:
+        return null;
+    }
+  });
 
   /** Fecha máxima de nacimiento: edad actual >= 20 años. */
   protected readonly maxFechaNacimiento = maxFechaNacimientoPorEdadMinima();
@@ -142,7 +191,6 @@ export class Registro implements OnInit {
     this.cargarNiveles();
     this.cargarFechaValoracionVigente();
     this.escucharFechaNacimiento();
-    this.escucharBusquedaSiga();
   }
 
   protected onDniInput(event: Event): void {
@@ -152,84 +200,44 @@ export class Registro implements OnInit {
       input.value = normalizado;
     }
     this.formulario.controls.dni.setValue(normalizado, { emitEvent: false });
-    this.sincronizarDatosSigaConDni(normalizado);
-    this.intentarBusquedaSigaAutomatica(normalizado);
+    this.sincronizarResolucionConDni(normalizado);
   }
 
-  /** True si el DNI actual ya tiene foto/nombre cargados desde SIGA. */
-  protected dniYaConsultadoSiga(): boolean {
+  /** True si el DNI actual ya fue resuelto con Buscar. */
+  protected dniYaResuelto(): boolean {
     const dni = this.formulario.controls.dni.value;
-    return !!dni && dni === this.dniConsultadoSiga();
+    return !!dni && dni === this.dniResuelto() && this.modoAccionCabecera() != null;
   }
 
-  /** Lupa o Enter: busca en SIGA (no reintenta si ya hay resultado para ese DNI). */
-  protected onBuscarSiga(event?: Event): void {
+  /**
+   * Lupa o Enter: primero resuelve ficha del ciclo (borrador / previa).
+   * Solo si es registro nuevo consulta SIGA.
+   */
+  protected onBuscarDni(event?: Event): void {
     event?.preventDefault();
 
-    if (this.buscandoSiga() || this.dniYaConsultadoSiga()) {
+    if (this.buscandoDni() || this.guardandoFicha() || this.dniYaResuelto()) {
       return;
     }
 
     const dniControl = this.formulario.controls.dni;
     dniControl.markAsTouched();
-
     if (dniControl.invalid) {
       return;
     }
 
-    this.solicitudSiga$.next({ dni: dniControl.value, forzar: false });
-  }
-
-  protected onLimpiarDatosPersonales(): void {
-    this.solicitudSiga$.next(null);
-    this.formulario.reset({
-      dni: '',
-      nivelId: '',
-      nombreCompleto: '',
-      fechaNacimiento: null,
-      sexo: '',
-    });
-    this.limpiarDatosSiga();
-    this.edad.set('');
-    this.fichaId.set(null);
-    this.nivelIdFicha.set(null);
-    this.fichaEstado.set(null);
-    this.puntajeTotal.set(0);
-    this.rubrosDesbloqueados.set(false);
-    this.fichaSoloLectura.set(false);
-    this.rubroAntiguedad.set(null);
-    this.formulario.enable({ emitEvent: false });
-  }
-
-  /**
-   * Primera unidad: resuelve el ciclo y crea/reanuda el borrador.
-   * Sin fichaId no se habilitan los rubros.
-   */
-  protected onGuardarYContinuar(): void {
-    if (this.guardandoFicha() || this.fichaSoloLectura()) {
-      return;
-    }
-
-    this.formulario.markAllAsTouched();
-    if (this.formulario.invalid) {
-      void this.alertas.error('Datos incompletos', {
-        mensaje: 'Complete los datos personales del juez antes de continuar.',
-      });
-      return;
-    }
-
     const fechaValoracionId = this.fechaValoracionId();
-    const fechaValoracionSnapshot = this.fechaValoracionVigente();
-    if (!fechaValoracionId || !fechaValoracionSnapshot) {
+    if (!fechaValoracionId) {
       void this.alertas.error('Sin fecha de valoración', {
         mensaje:
-          'No hay una fecha de valoración vigente. Configure una antes de crear la ficha.',
+          'No hay una fecha de valoración vigente. Configure una antes de buscar el DNI.',
       });
       return;
     }
 
-    const dni = this.formulario.controls.dni.value;
-    this.guardandoFicha.set(true);
+    const dni = dniControl.value;
+    this.buscandoDni.set(true);
+    this.resetEstadoTrasCambioDni(false);
 
     this.resolverFicha
       .ejecutar(dni, fechaValoracionId)
@@ -251,47 +259,92 @@ export class Registro implements OnInit {
 
           const resultado = resolucion.resultado;
 
-          if (resultado.tipo === 'BLOQUEADA') {
+          if (resultado.tipo === 'EDITABLE' || resultado.tipo === 'BLOQUEADA') {
             return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
-              map((obtencion) => ({ modo: 'bloqueada' as const, obtencion }))
+              map((obtencion) => ({
+                tipo: resultado.tipo,
+                obtencion,
+              }))
             );
           }
 
-          if (resultado.tipo === 'EDITABLE') {
-            const fichaIdExistente = this.fichaId();
-            if (fichaIdExistente === resultado.fichaId) {
-              return this.persistirActualizacion(resultado.fichaId).pipe(
-                map((guardado) => ({ modo: 'actualizada' as const, guardado }))
-              );
-            }
-            return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
-              map((obtencion) => ({ modo: 'reanudada' as const, obtencion }))
+          if (resultado.tipo === 'NUEVA_CON_PREVIA') {
+            return this.obtenerFicha.ejecutar(resultado.fichaPreviaId).pipe(
+              map((obtencion) => ({
+                tipo: 'NUEVA_CON_PREVIA' as const,
+                obtencion,
+                fichaPreviaId: resultado.fichaPreviaId,
+              }))
             );
           }
 
-          const arrastrarDesde =
-            resultado.tipo === 'NUEVA_CON_PREVIA' ? resultado.fichaPreviaId : null;
-
-          return this.persistirBorrador(
-            fechaValoracionId,
-            fechaValoracionSnapshot,
-            arrastrarDesde
-          ).pipe(map((guardado) => ({ modo: 'creada' as const, guardado, arrastrarDesde })));
+          return this.obtenerDatosSiga.ejecutar(dni).pipe(
+            map((siga) => ({
+              tipo: 'NUEVA' as const,
+              siga,
+              dni,
+            }))
+          );
         }),
-        finalize(() => this.guardandoFicha.set(false))
+        finalize(() => this.buscandoDni.set(false))
       )
       .subscribe(async (evento) => {
-        if (evento.modo === 'bloqueada') {
-          if (!evento.obtencion.exito) {
-            void this.alertas.error('Ficha bloqueada', {
+        if (this.formulario.controls.dni.value !== dni) {
+          return;
+        }
+
+        if (evento.tipo === 'NUEVA') {
+          if (!evento.siga.exito) {
+            this.limpiarIdentidad();
+            void this.alertas.error('No se encontró en SIGA', {
               mensaje:
-                evento.obtencion.detalle?.mensaje ??
-                evento.obtencion.mensaje ??
-                'La ficha del ciclo ya no es editable.',
+                evento.siga.detalle?.mensaje ??
+                evento.siga.mensaje ??
+                'Error desconocido.',
+              codigo: evento.siga.detalle?.codigo,
+              codigoOperacion: evento.siga.detalle?.codigoOperacion,
             });
             return;
           }
-          this.aplicarFichaEnUi(evento.obtencion.ficha, true);
+
+          this.dniResuelto.set(dni);
+          this.dniConsultadoIdentidad.set(dni);
+          this.modoAccionCabecera.set('NUEVA');
+          this.fichaPreviaId.set(null);
+          this.formulario.controls.nombreCompleto.setValue(evento.siga.datos.nombreCompleto);
+          this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
+          this.fotoSiga.set(evento.siga.datos.foto);
+          return;
+        }
+
+        if (!evento.obtencion.exito) {
+          void this.alertas.error('No se pudo cargar la ficha', {
+            mensaje:
+              evento.obtencion.detalle?.mensaje ??
+              evento.obtencion.mensaje ??
+              'Error desconocido.',
+          });
+          return;
+        }
+
+        const ficha = evento.obtencion.ficha;
+        this.dniResuelto.set(dni);
+
+        if (evento.tipo === 'EDITABLE') {
+          this.modoAccionCabecera.set('ACTUALIZAR');
+          this.fichaPreviaId.set(null);
+          this.aplicarFichaEnUi(ficha, false);
+          await this.alertas.exito(
+            'Registro encontrado',
+            'Se cargó el borrador del proceso actual. Puede actualizar los datos o continuar con los rubros.'
+          );
+          return;
+        }
+
+        if (evento.tipo === 'BLOQUEADA') {
+          this.modoAccionCabecera.set('BLOQUEADA');
+          this.fichaPreviaId.set(null);
+          this.aplicarFichaEnUi(ficha, true);
           void this.alertas.error('Ficha cerrada', {
             mensaje:
               'La fecha de valoración ya fue alcanzada. La ficha se muestra en solo lectura.',
@@ -299,59 +352,137 @@ export class Registro implements OnInit {
           return;
         }
 
-        if (evento.modo === 'reanudada') {
-          if (!evento.obtencion.exito) {
-            void this.alertas.error('No se pudo reanudar la ficha', {
-              mensaje:
-                evento.obtencion.detalle?.mensaje ??
-                evento.obtencion.mensaje ??
-                'Error desconocido.',
-            });
-            return;
-          }
-          this.aplicarFichaEnUi(evento.obtencion.ficha, false);
+        if (evento.tipo === 'NUEVA_CON_PREVIA') {
+          this.modoAccionCabecera.set('IMPORTAR');
+          this.fichaPreviaId.set(evento.fichaPreviaId);
+          this.prellenarDesdeFichaPrevia(ficha);
           await this.alertas.exito(
-            'Ficha reanudada',
-            'Se cargó el borrador existente. Puede continuar con los rubros.'
+            'Ficha del proceso anterior',
+            'Se encontraron datos del proceso anterior. Revise la información y pulse Importar ficha anterior.'
           );
+        }
+      });
+  }
+
+  protected onLimpiarDatosPersonales(): void {
+    this.formulario.reset({
+      dni: '',
+      nivelId: '',
+      nombreCompleto: '',
+      fechaNacimiento: null,
+      sexo: '',
+    });
+    this.resetEstadoTrasCambioDni(true);
+    this.formulario.enable({ emitEvent: false });
+  }
+
+  /**
+   * Acción principal según el modo resuelto en Buscar.
+   * No vuelve a consultar el resolver: usa el resultado ya determinado.
+   */
+  protected onAccionCabecera(): void {
+    const modo = this.modoAccionCabecera();
+    if (!modo || modo === 'BLOQUEADA' || this.guardandoFicha() || this.fichaSoloLectura()) {
+      return;
+    }
+
+    this.formulario.markAllAsTouched();
+    if (this.formulario.invalid) {
+      void this.alertas.error('Datos incompletos', {
+        mensaje: 'Complete los datos personales del juez antes de continuar.',
+      });
+      return;
+    }
+
+    const fechaValoracionId = this.fechaValoracionId();
+    const fechaValoracionSnapshot = this.fechaValoracionVigente();
+    if (!fechaValoracionId || !fechaValoracionSnapshot) {
+      void this.alertas.error('Sin fecha de valoración', {
+        mensaje:
+          'No hay una fecha de valoración vigente. Configure una antes de crear la ficha.',
+      });
+      return;
+    }
+
+    if (modo === 'ACTUALIZAR') {
+      const id = this.fichaId();
+      if (!id) {
+        void this.alertas.error('Sin ficha', {
+          mensaje: 'No hay una ficha cargada para actualizar. Vuelva a buscar el DNI.',
+        });
+        return;
+      }
+      this.ejecutarActualizacion(id);
+      return;
+    }
+
+    const arrastrarDesde = modo === 'IMPORTAR' ? this.fichaPreviaId() : null;
+    if (modo === 'IMPORTAR' && !arrastrarDesde) {
+      void this.alertas.error('Sin ficha previa', {
+        mensaje: 'No se identificó la ficha del proceso anterior. Vuelva a buscar el DNI.',
+      });
+      return;
+    }
+
+    this.ejecutarCreacionBorrador(fechaValoracionId, fechaValoracionSnapshot, arrastrarDesde);
+  }
+
+  private ejecutarActualizacion(fichaId: string): void {
+    this.guardandoFicha.set(true);
+    this.persistirActualizacion(fichaId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.guardandoFicha.set(false))
+      )
+      .subscribe(async (guardado) => {
+        if (!guardado.exito) {
+          void this.alertas.error('No se pudieron guardar los datos', {
+            mensaje:
+              guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
+          });
           return;
         }
+        this.aplicarFichaEnUi(guardado.ficha, false);
+        this.modoAccionCabecera.set('ACTUALIZAR');
+        await this.alertas.exito(
+          'Datos actualizados',
+          'Los datos personales se guardaron correctamente.'
+        );
+      });
+  }
 
-        if (evento.modo === 'actualizada') {
-          if (!evento.guardado.exito) {
-            void this.alertas.error('No se pudieron guardar los datos', {
-              mensaje:
-                evento.guardado.detalle?.mensaje ??
-                evento.guardado.mensaje ??
-                'Error desconocido.',
-            });
-            return;
-          }
-          this.aplicarFichaEnUi(evento.guardado.ficha, false);
-          await this.alertas.exito(
-            'Datos actualizados',
-            'Los datos personales se guardaron correctamente.'
-          );
-          return;
-        }
-
-        if (!evento.guardado.exito) {
+  private ejecutarCreacionBorrador(
+    fechaValoracionId: string,
+    fechaValoracionSnapshot: string,
+    arrastrarDesde: string | null
+  ): void {
+    this.guardandoFicha.set(true);
+    this.persistirBorrador(fechaValoracionId, fechaValoracionSnapshot, arrastrarDesde)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.guardandoFicha.set(false))
+      )
+      .subscribe(async (guardado) => {
+        if (!guardado.exito) {
           void this.alertas.error('No se pudo crear la ficha', {
             mensaje:
-              evento.guardado.detalle?.mensaje ??
-              evento.guardado.mensaje ??
-              'Error desconocido.',
+              guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
           });
           return;
         }
 
-        this.aplicarFichaEnUi(evento.guardado.ficha, false);
-        const mensajeArrastre = evento.arrastrarDesde
-          ? ' Se detectó una ficha de un ciclo anterior (el arrastre de ítems se completará en siguientes fases).'
-          : '';
+        this.aplicarFichaEnUi(guardado.ficha, false);
+        this.modoAccionCabecera.set('ACTUALIZAR');
+        this.fichaPreviaId.set(null);
+
+        const mensaje = arrastrarDesde
+          ? 'Ficha importada del proceso anterior. Puede continuar con los rubros.'
+          : 'Datos personales guardados. Puede continuar con el rubro B — Antigüedad.';
         await this.alertas.exito(
-          'Ficha en borrador',
-          `Datos personales guardados. Puede continuar con el rubro B — Antigüedad.${mensajeArrastre}`
+          arrastrarDesde ? 'Ficha importada' : 'Ficha en borrador',
+          mensaje
         );
       });
   }
@@ -418,11 +549,12 @@ export class Registro implements OnInit {
         sexo: ficha.datosPersonales.sexo,
         fechaNacimiento: aDateDesdeIso(ficha.datosPersonales.fechaNacimiento),
       },
-      { emitEvent: false }
+      { emitEvent: true }
     );
 
     this.fotoSiga.set(ficha.datosPersonales.foto);
-    this.dniConsultadoSiga.set(ficha.datosPersonales.dni);
+    this.dniConsultadoIdentidad.set(ficha.datosPersonales.dni);
+    this.dniResuelto.set(ficha.datosPersonales.dni);
     if (ficha.datosPersonales.edad != null) {
       this.edad.set(String(ficha.datosPersonales.edad));
     }
@@ -435,94 +567,74 @@ export class Registro implements OnInit {
     }
   }
 
+  /** Precarga datos de la ficha previa sin desbloquear rubros ni asignar fichaId del ciclo. */
+  private prellenarDesdeFichaPrevia(ficha: FichaValoracion): void {
+    this.fichaId.set(null);
+    this.nivelIdFicha.set(null);
+    this.fichaEstado.set(null);
+    this.puntajeTotal.set(0);
+    this.rubroAntiguedad.set(null);
+    this.rubrosDesbloqueados.set(false);
+    this.fichaSoloLectura.set(false);
+
+    this.formulario.patchValue(
+      {
+        dni: ficha.datosPersonales.dni,
+        nivelId: ficha.nivelId,
+        nombreCompleto: ficha.datosPersonales.nombreCompleto,
+        sexo: ficha.datosPersonales.sexo,
+        fechaNacimiento: aDateDesdeIso(ficha.datosPersonales.fechaNacimiento),
+      },
+      { emitEvent: true }
+    );
+
+    this.fotoSiga.set(ficha.datosPersonales.foto);
+    this.dniConsultadoIdentidad.set(ficha.datosPersonales.dni);
+    if (ficha.datosPersonales.edad != null) {
+      this.edad.set(String(ficha.datosPersonales.edad));
+    }
+
+    this.formulario.enable({ emitEvent: false });
+    this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
+  }
+
   protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.fichaEstado.set(ficha.estado);
   }
 
-  /** Auto-busca al completar 8 dígitos; cancela si el DNI queda incompleto. */
-  private intentarBusquedaSigaAutomatica(dni: string): void {
-    if (dni.length < DNI_LENGTH) {
-      if (this.buscandoSiga()) {
-        this.solicitudSiga$.next(null);
-      }
+  /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
+  private sincronizarResolucionConDni(dni: string): void {
+    const resuelto = this.dniResuelto();
+    if (!resuelto) {
       return;
     }
 
-    if (dni === this.dniConsultadoSiga()) {
-      return;
-    }
-
-    this.solicitudSiga$.next({ dni, forzar: false });
-  }
-
-  private escucharBusquedaSiga(): void {
-    this.solicitudSiga$
-      .pipe(
-        switchMap((solicitud) => {
-          const generacion = ++this.generacionBusquedaSiga;
-
-          if (!solicitud) {
-            this.buscandoSiga.set(false);
-            return EMPTY;
-          }
-
-          const { dni, forzar } = solicitud;
-          if (!forzar && dni === this.dniConsultadoSiga()) {
-            this.buscandoSiga.set(false);
-            return EMPTY;
-          }
-
-          this.buscandoSiga.set(true);
-
-          return this.obtenerDatosSiga.ejecutar(dni).pipe(
-            map((resultado) => ({ dni, resultado })),
-            finalize(() => {
-              if (this.generacionBusquedaSiga === generacion) {
-                this.buscandoSiga.set(false);
-              }
-            })
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(({ dni, resultado }) => {
-        // Ignora respuestas obsoletas si el DNI cambió mientras respondía el servidor.
-        if (this.formulario.controls.dni.value !== dni) {
-          return;
-        }
-
-        if (!resultado.exito) {
-          this.limpiarDatosSiga();
-          void this.alertas.error('No se encontró en SIGA', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
-          return;
-        }
-
-        this.dniConsultadoSiga.set(dni);
-        this.formulario.controls.nombreCompleto.setValue(resultado.datos.nombreCompleto);
-        this.fotoSiga.set(resultado.datos.foto);
-      });
-  }
-
-  /** Si el DNI deja de coincidir con la consulta SIGA, limpia foto y nombre. */
-  private sincronizarDatosSigaConDni(dni: string): void {
-    const consultado = this.dniConsultadoSiga();
-    if (!consultado) {
-      return;
-    }
-
-    if (!dni || dni !== consultado) {
-      this.limpiarDatosSiga();
+    if (!dni || dni !== resuelto) {
+      this.resetEstadoTrasCambioDni(true);
     }
   }
 
-  private limpiarDatosSiga(): void {
-    this.dniConsultadoSiga.set('');
+  private resetEstadoTrasCambioDni(limpiarIdentidad: boolean): void {
+    this.dniResuelto.set('');
+    this.modoAccionCabecera.set(null);
+    this.fichaPreviaId.set(null);
+    this.fichaId.set(null);
+    this.nivelIdFicha.set(null);
+    this.fichaEstado.set(null);
+    this.puntajeTotal.set(0);
+    this.rubrosDesbloqueados.set(false);
+    this.fichaSoloLectura.set(false);
+    this.rubroAntiguedad.set(null);
+    this.edad.set('');
+    if (limpiarIdentidad) {
+      this.limpiarIdentidad();
+    }
+  }
+
+  private limpiarIdentidad(): void {
+    this.dniConsultadoIdentidad.set('');
     this.fotoSiga.set('');
     this.formulario.controls.nombreCompleto.setValue('');
   }
