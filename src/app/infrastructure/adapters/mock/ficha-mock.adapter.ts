@@ -1,23 +1,35 @@
-import { Injectable } from '@angular/core';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { delay, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { ErrorNegocioApi } from '../../../domain/errors/error-negocio-api';
 import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
+  crearRubroAntiguedadVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
+import {
+  Colegiatura,
+  PeriodoNivelAnterior,
+  Provisionalidad,
+  RubroAntiguedad,
+  TitularidadActual,
+} from '../../../domain/models/rubro-antiguedad.model';
+import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
+import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 
 const STORAGE_KEY = 'MC_FICHAS_VALORACION_MOCK';
 const LATENCIA_MS = 400;
 
 /**
- * Mock de ficha: localStorage + semillas de ciclos pasados para probar arrastre.
- * Sustituir por FichaHttpAdapter cuando el API esté listo.
+ * Mock de ficha: localStorage + semillas.
+ * Cálculos de tiempo/puntaje vía AntiguedadPort (misma fuente que usará el back).
  */
 @Injectable({ providedIn: 'root' })
 export class FichaMockAdapter implements FichaPort {
+  private readonly antiguedad = inject(ANTIGUEDAD_PORT);
+
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha> {
     const dniNorm = dni.trim();
     const fechaId = fechaValoracionId.trim();
@@ -46,13 +58,8 @@ export class FichaMockAdapter implements FichaPort {
     }
 
     const previas = almacen
-      .filter(
-        (f) =>
-          f.datosPersonales.dni === dniNorm && f.fechaValoracionId !== fechaId
-      )
-      .sort((a, b) =>
-        b.fechaValoracionSnapshot.localeCompare(a.fechaValoracionSnapshot)
-      );
+      .filter((f) => f.datosPersonales.dni === dniNorm && f.fechaValoracionId !== fechaId)
+      .sort((a, b) => b.fechaValoracionSnapshot.localeCompare(a.fechaValoracionSnapshot));
 
     if (previas.length > 0) {
       return of({
@@ -67,9 +74,7 @@ export class FichaMockAdapter implements FichaPort {
   crearBorrador(peticion: CrearBorradorFicha): Observable<FichaValoracion> {
     const dni = peticion.datosPersonales.dni?.trim() ?? '';
     if (!/^\d{8}$/.test(dni)) {
-      return throwError(
-        () => new ErrorNegocioApi({ mensaje: 'El DNI debe tener 8 dígitos.' })
-      );
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'El DNI debe tener 8 dígitos.' }));
     }
 
     if (!peticion.fechaValoracionId?.trim() || !peticion.fechaValoracionSnapshot?.trim()) {
@@ -109,9 +114,6 @@ export class FichaMockAdapter implements FichaPort {
     }
 
     const ahora = new Date().toISOString();
-    const fichaPreviaId = peticion.arrastrarDesdeFichaId?.trim() || null;
-
-    // Fase 1: el arrastre solo registra trazabilidad; los ítems de rubros llegan en fases siguientes.
     const nueva: FichaValoracion = {
       id: `ficha-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       estado: 'BORRADOR',
@@ -120,7 +122,8 @@ export class FichaMockAdapter implements FichaPort {
       fechaValoracionId: peticion.fechaValoracionId.trim(),
       fechaValoracionSnapshot: peticion.fechaValoracionSnapshot.trim().slice(0, 10),
       datosPersonales: this.normalizarDatos(peticion.datosPersonales),
-      fichaPreviaId,
+      fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
+      rubroAntiguedad: crearRubroAntiguedadVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -134,56 +137,274 @@ export class FichaMockAdapter implements FichaPort {
     fichaId: string,
     peticion: ActualizarDatosPersonalesFicha
   ): Observable<FichaValoracion> {
-    const id = fichaId.trim();
-    const almacen = this.leerAlmacen();
-    const indice = almacen.findIndex((f) => f.id === id);
-
-    if (indice < 0) {
-      return throwError(
-        () => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha a actualizar.' })
-      );
-    }
-
-    const actual = almacen[indice];
-    if (!this.esEditable(actual.fechaValoracionSnapshot)) {
-      return throwError(
-        () =>
-          new ErrorNegocioApi({
-            mensaje: 'La ficha está cerrada: la fecha de valoración ya fue alcanzada.',
-          })
-      );
-    }
-
-    const actualizada: FichaValoracion = {
+    return this.conFichaEditable(fichaId, (actual) => ({
       ...actual,
       nivelId: peticion.nivelId.trim(),
       nivelNombre: peticion.nivelNombre.trim(),
       datosPersonales: this.normalizarDatos(peticion.datosPersonales),
       actualizadoEn: new Date().toISOString(),
-    };
-
-    almacen[indice] = actualizada;
-    this.guardarAlmacen(almacen);
-    return of(actualizada).pipe(delay(LATENCIA_MS));
+    }));
   }
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
-    const id = fichaId.trim();
-    const ficha = this.leerAlmacen().find((f) => f.id === id);
-
+    const ficha = this.buscar(fichaId);
     if (!ficha) {
       return throwError(
         () => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha solicitada.' })
       );
     }
-
     return of(ficha).pipe(delay(LATENCIA_MS));
   }
 
-  /** Editable mientras hoy &lt; fechaValoracionSnapshot (día exacto). */
+  guardarTitularidad(fichaId: string, data: TitularidadActual): Observable<FichaValoracion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    if (!this.esEditable(ficha.fechaValoracionSnapshot)) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
+    }
+
+    const snapshot = ficha.fechaValoracionSnapshot;
+    return this.antiguedad
+      .calcularTiempoTitular({
+        fechaJuramentacion: data.fechaJuramentacion ?? '',
+        fechaCese: data.fechaCese,
+        fechaReincorporacion: data.fechaReincorporacion,
+        fechaValoracion: snapshot,
+      })
+      .pipe(
+        switchMap((tiempo) =>
+          this.antiguedad.calcularPuntajePorAnios(tiempo).pipe(
+            map((puntaje) => {
+              const rubro = this.asegurarRubro(ficha);
+              if (!rubro.id) {
+                rubro.id = `ant-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+              }
+              rubro.titularidad = {
+                ...data,
+                fechaValoracion: snapshot,
+                tiempoTotal: tiempo,
+                puntaje,
+              };
+              return this.persistirRubro(ficha, rubro);
+            })
+          )
+        ),
+        delay(LATENCIA_MS)
+      );
+  }
+
+  guardarPeriodoNivelAnterior(
+    fichaId: string,
+    data: PeriodoNivelAnterior
+  ): Observable<FichaValoracion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    if (!this.esEditable(ficha.fechaValoracionSnapshot)) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
+    }
+
+    const rubroBase = this.asegurarRubro(ficha);
+    if (!rubroBase.id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Guarde primero la titularidad (antigüedad) antes de registrar criterios de desempate.',
+          })
+      );
+    }
+
+    const inicio = data.fechaInicio ?? '';
+    const fin = data.fechaFin ?? '';
+    const calc$ =
+      inicio && fin
+        ? this.antiguedad.calcularTiempo(inicio, fin)
+        : of(TIEMPO_SERVICIO_CERO);
+
+    return calc$.pipe(
+      map((tiempo) => {
+        const rubro = this.asegurarRubro(ficha);
+        rubro.periodoNivelAnterior = { ...data, tiempoTotal: tiempo };
+        return this.persistirRubro(ficha, rubro);
+      }),
+      delay(LATENCIA_MS)
+    );
+  }
+
+  upsertProvisionalidad(fichaId: string, item: Provisionalidad): Observable<FichaValoracion> {
+    return this.mutarLista(fichaId, (rubro) => {
+      const idx = rubro.provisionalidades.findIndex((p) => p.id === item.id);
+      if (idx >= 0) {
+        rubro.provisionalidades[idx] = item;
+      } else {
+        rubro.provisionalidades = [...rubro.provisionalidades, item];
+      }
+      return this.antiguedad.sumarTiempos(rubro.provisionalidades.map((p) => p.tiempoTotal)).pipe(
+        map((suma) => {
+          rubro.sumaProvisionalidades = suma;
+          return rubro;
+        })
+      );
+    });
+  }
+
+  eliminarProvisionalidad(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.mutarLista(fichaId, (rubro) => {
+      rubro.provisionalidades = rubro.provisionalidades.filter((p) => p.id !== itemId);
+      return this.antiguedad.sumarTiempos(rubro.provisionalidades.map((p) => p.tiempoTotal)).pipe(
+        map((suma) => {
+          rubro.sumaProvisionalidades = suma;
+          return rubro;
+        })
+      );
+    });
+  }
+
+  upsertColegiatura(fichaId: string, item: Colegiatura): Observable<FichaValoracion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    if (!this.esEditable(ficha.fechaValoracionSnapshot)) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
+    }
+
+    const rubroExistente = this.asegurarRubro(ficha);
+    if (!rubroExistente.id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Guarde primero la titularidad (antigüedad) antes de registrar criterios de desempate.',
+          })
+      );
+    }
+
+    return this.antiguedad
+      .calcularAniosColegiatura(item.fechaColegiatura, ficha.fechaValoracionSnapshot)
+      .pipe(
+        map((anios) => {
+          const rubro = this.asegurarRubro(ficha);
+          const actualizado = { ...item, anios };
+          const idx = rubro.colegiaturas.findIndex((c) => c.id === actualizado.id);
+          if (idx >= 0) {
+            rubro.colegiaturas[idx] = actualizado;
+          } else {
+            rubro.colegiaturas = [...rubro.colegiaturas, actualizado];
+          }
+          return this.persistirRubro(ficha, rubro);
+        }),
+        delay(LATENCIA_MS)
+      );
+  }
+
+  eliminarColegiatura(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    const rubroCheck = this.asegurarRubro(ficha);
+    if (!rubroCheck.id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Guarde primero la titularidad (antigüedad) antes de registrar criterios de desempate.',
+          })
+      );
+    }
+
+    return this.conFichaEditable(fichaId, (actual) => {
+      const rubro = this.asegurarRubro(actual);
+      rubro.colegiaturas = rubro.colegiaturas.filter((c) => c.id !== itemId);
+      return this.persistirRubro(actual, rubro, false);
+    });
+  }
+
+  private mutarLista(
+    fichaId: string,
+    mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
+  ): Observable<FichaValoracion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    if (!this.esEditable(ficha.fechaValoracionSnapshot)) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
+    }
+
+    const rubro = this.asegurarRubro(ficha);
+    if (!rubro.id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Guarde primero la titularidad (antigüedad) antes de registrar criterios de desempate.',
+          })
+      );
+    }
+
+    return mutar(rubro).pipe(
+      map((actualizado) => this.persistirRubro(ficha, actualizado)),
+      delay(LATENCIA_MS)
+    );
+  }
+
+  private conFichaEditable(
+    fichaId: string,
+    mapear: (ficha: FichaValoracion) => FichaValoracion
+  ): Observable<FichaValoracion> {
+    const almacen = this.leerAlmacen();
+    const indice = almacen.findIndex((f) => f.id === fichaId.trim());
+    if (indice < 0) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    if (!this.esEditable(almacen[indice].fechaValoracionSnapshot)) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
+    }
+
+    const actualizada = mapear(almacen[indice]);
+    almacen[indice] = actualizada;
+    this.guardarAlmacen(almacen);
+    return of(actualizada).pipe(delay(LATENCIA_MS));
+  }
+
+  private persistirRubro(
+    ficha: FichaValoracion,
+    rubro: RubroAntiguedad,
+    persistir = true
+  ): FichaValoracion {
+    const actualizada: FichaValoracion = {
+      ...ficha,
+      rubroAntiguedad: rubro,
+      puntajeTotal: rubro.titularidad.puntaje,
+      actualizadoEn: new Date().toISOString(),
+    };
+
+    if (persistir) {
+      const almacen = this.leerAlmacen();
+      const indice = almacen.findIndex((f) => f.id === ficha.id);
+      if (indice >= 0) {
+        almacen[indice] = actualizada;
+        this.guardarAlmacen(almacen);
+      }
+    }
+
+    return actualizada;
+  }
+
+  private asegurarRubro(ficha: FichaValoracion): RubroAntiguedad {
+    return ficha.rubroAntiguedad
+      ? structuredClone(ficha.rubroAntiguedad)
+      : crearRubroAntiguedadVacio();
+  }
+
+  private buscar(fichaId: string): FichaValoracion | undefined {
+    return this.leerAlmacen().find((f) => f.id === fichaId.trim());
+  }
+
   private esEditable(fechaValoracionSnapshot: string): boolean {
-    const hoy = this.hoyIsoLocal();
-    return hoy < fechaValoracionSnapshot.slice(0, 10);
+    return this.hoyIsoLocal() < fechaValoracionSnapshot.slice(0, 10);
   }
 
   private hoyIsoLocal(): string {
@@ -213,7 +434,10 @@ export class FichaMockAdapter implements FichaPort {
         this.guardarAlmacen(iniciales);
         return iniciales;
       }
-      return JSON.parse(crudo) as FichaValoracion[];
+      return (JSON.parse(crudo) as FichaValoracion[]).map((f) => ({
+        ...f,
+        rubroAntiguedad: f.rubroAntiguedad ?? null,
+      }));
     } catch {
       const iniciales = this.datosIniciales();
       this.guardarAlmacen(iniciales);
@@ -225,10 +449,6 @@ export class FichaMockAdapter implements FichaPort {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }
 
-  /**
-   * Semilla: ficha REGISTRADA de un ciclo pasado (2025) para el DNI demo 12345678,
-   * de modo que al crear en el ciclo vigente se active NUEVA_CON_PREVIA.
-   */
   private datosIniciales(): FichaValoracion[] {
     return [
       {
@@ -247,6 +467,7 @@ export class FichaMockAdapter implements FichaPort {
           edad: 50,
         },
         fichaPreviaId: null,
+        rubroAntiguedad: null,
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

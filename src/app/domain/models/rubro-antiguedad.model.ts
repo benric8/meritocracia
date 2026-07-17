@@ -46,8 +46,10 @@ export interface Colegiatura {
 
 /**
  * Agregado de UI del rubro B — Antigüedad en el cargo.
+ * `id` lo asigna el back al guardar la titularidad; los criterios de desempate lo requieren.
  */
 export interface RubroAntiguedad {
+  id: string | null;
   titularidad: TitularidadActual;
   periodoNivelAnterior: PeriodoNivelAnterior;
   provisionalidades: Provisionalidad[];

@@ -24,19 +24,20 @@ export class MaestrosMockAdapter implements MaestrosPort {
 
   listarCargosTitular(): Observable<CatalogoItem[]> {
     return of([
-      { id: 'ct-supremo', nombre: 'Juez Supremo Titular' },
-      { id: 'ct-superior', nombre: 'Juez Superior Titular' },
-      { id: 'ct-especializado', nombre: 'Juez Especializado Titular' },
-      { id: 'ct-paz', nombre: 'Juez de Paz Letrado Titular' },
+      { id: 'ct-supremo', nombre: 'Juez Supremo Titular', nivelId: '2' },
+      { id: 'ct-superior', nombre: 'Juez Superior Titular', nivelId: '1' },
+      { id: 'ct-especializado', nombre: 'Juez Especializado Titular', nivelId: '3' },
+      { id: 'ct-paz', nombre: 'Juez de Paz Letrado Titular', nivelId: '4' },
     ]).pipe(delay(LATENCIA_MS));
   }
 
   listarCargosProvisional(): Observable<CatalogoItem[]> {
+    // `nivelId` = nivel actual de la ficha (provisionalidad en el nivel titular actual).
     return of([
-      { id: 'cp-supremo', nombre: 'JUEZ SUPREMO' },
-      { id: 'cp-superior', nombre: 'JUEZ SUPERIOR' },
-      { id: 'cp-especializado', nombre: 'JUEZ ESPECIALIZADO' },
-      { id: 'cp-paz', nombre: 'JUEZ DE PAZ LETRADO' },
+      { id: 'cp-supremo', nombre: 'Juez Supremo', nivelId: '2' },
+      { id: 'cp-superior', nombre: 'Juez Superior', nivelId: '1' },
+      { id: 'cp-especializado', nombre: 'Juez Especializado', nivelId: '3' },
+      { id: 'cp-paz', nombre: 'Juez de Paz Letrado', nivelId: '4' },
     ]).pipe(delay(LATENCIA_MS));
   }
 
@@ -52,11 +53,18 @@ export class MaestrosMockAdapter implements MaestrosPort {
   }
 
   listarNivelesInmediatosAnteriores(): Observable<CatalogoItem[]> {
+    // `nivelId` = nivel actual de la ficha al que corresponde este inmediato anterior.
     return of([
-      { id: 'nia-supremo', nombre: 'Juez Supremo Titular' },
-      { id: 'nia-superior', nombre: 'Superior Titular' },
-      { id: 'nia-especializado', nombre: 'Especializado' },
-      { id: 'nia-paz', nombre: 'Paz Letrado' },
+      {
+        id: 'nia-superior',
+        nombre: 'Juez Superior Titular',
+        nivelId: '2', // de Juez Supremo Titular
+      },
+      {
+        id: 'nia-especializado',
+        nombre: 'Juez Especializado Titular',
+        nivelId: '1', // de Juez Superior Titular
+      },
     ]).pipe(delay(LATENCIA_MS));
   }
 

@@ -6,16 +6,18 @@ import {
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../models/ficha-valoracion.model';
+import {
+  Colegiatura,
+  PeriodoNivelAnterior,
+  Provisionalidad,
+  TitularidadActual,
+} from '../models/rubro-antiguedad.model';
 
 /**
  * Puerto de salida: ciclo de vida de la ficha de valoración (RF006).
- * Persistencia por unidades; esta Fase 1 cubre cabecera / borrador.
- * En producción lo resuelve el backend; el mock simula latencia y reglas.
+ * Persistencia por unidades (cabecera + rubro B en esta fase).
  */
 export interface FichaPort {
-  /**
-   * Determina si el juez tiene ficha en el ciclo vigente o solo en ciclos pasados.
-   */
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha>;
 
   crearBorrador(peticion: CrearBorradorFicha): Observable<FichaValoracion>;
@@ -26,6 +28,21 @@ export interface FichaPort {
   ): Observable<FichaValoracion>;
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion>;
+
+  guardarTitularidad(fichaId: string, data: TitularidadActual): Observable<FichaValoracion>;
+
+  guardarPeriodoNivelAnterior(
+    fichaId: string,
+    data: PeriodoNivelAnterior
+  ): Observable<FichaValoracion>;
+
+  upsertProvisionalidad(fichaId: string, item: Provisionalidad): Observable<FichaValoracion>;
+
+  eliminarProvisionalidad(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  upsertColegiatura(fichaId: string, item: Colegiatura): Observable<FichaValoracion>;
+
+  eliminarColegiatura(fichaId: string, itemId: string): Observable<FichaValoracion>;
 }
 
 export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

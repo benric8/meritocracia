@@ -16,6 +16,7 @@
           <input
             matInput
             [matDatepicker]="pickerInicio"
+            [matDatepickerFilter]="filtroFechaInicio"
             formControlName="fechaInicio"
             readonly
             placeholder="dd/mm/aaaa"
@@ -33,6 +34,7 @@
           <input
             matInput
             [matDatepicker]="pickerFin"
+            [matDatepickerFilter]="filtroFechaFin"
             formControlName="fechaFin"
             readonly
             placeholder="dd/mm/aaaa"
@@ -40,7 +42,9 @@
           />
           <mat-datepicker-toggle matIconSuffix [for]="pickerFin" />
           <mat-datepicker #pickerFin />
-          @if (formulario.controls.fechaFin.touched && formulario.controls.fechaFin.invalid) {
+          @if (formulario.controls.fechaFin.hasError('fechaAnteriorAInicio')) {
+            <mat-error>La fecha fin no puede ser anterior a la fecha de inicio.</mat-error>
+          } @else if (formulario.controls.fechaFin.touched && formulario.controls.fechaFin.invalid) {
             <mat-error>Seleccione la fecha de fin.</mat-error>
           }
         </mat-form-field>
@@ -55,7 +59,7 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
           <mat-label>Cargo</mat-label>
-          <mat-select formControlName="cargoId" placeholder="Seleccione...">
+          <mat-select formControlName="cargoId" placeholder="Según el nivel…">
             @for (cargo of cargos; track cargo.id) {
               <mat-option [value]="cargo.id">{{ cargo.nombre }}</mat-option>
             }

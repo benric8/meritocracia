@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
@@ -10,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -20,18 +21,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { debounceTime, finalize } from 'rxjs';
+import { debounceTime, finalize, take } from 'rxjs';
 import { CalcularAniosColegiaturaUseCase } from '../../../../../../application/use-cases/meritos/calcular-anios-colegiatura.use-case';
 import { CalcularPuntajeAntiguedadUseCase } from '../../../../../../application/use-cases/meritos/calcular-puntaje-antiguedad.use-case';
 import { CalcularTiempoServicioUseCase } from '../../../../../../application/use-cases/meritos/calcular-tiempo-servicio.use-case';
+import { GuardarPeriodoNivelAnteriorFichaUseCase } from '../../../../../../application/use-cases/meritos/guardar-periodo-nivel-anterior-ficha.use-case';
+import { GuardarTitularidadFichaUseCase } from '../../../../../../application/use-cases/meritos/guardar-titularidad-ficha.use-case';
 import {
   CatalogosAntiguedad,
   ListarCatalogosAntiguedadUseCase,
 } from '../../../../../../application/use-cases/meritos/listar-catalogos-antiguedad.use-case';
+import { MutarItemsRubroAntiguedadUseCase } from '../../../../../../application/use-cases/meritos/mutar-items-rubro-antiguedad.use-case';
 import { CatalogoItem } from '../../../../../../domain/models/catalogo-item.model';
+import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import {
   Colegiatura,
+  PeriodoNivelAnterior,
   Provisionalidad,
+  RubroAntiguedad,
+  TitularidadActual,
 } from '../../../../../../domain/models/rubro-antiguedad.model';
 import {
   TIEMPO_SERVICIO_CERO,
@@ -41,6 +49,10 @@ import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
 import {
   aDateDesdeIso,
   aFechaIsoLocal,
+  corregirFechaFinSiAnteriorAInicio,
+  crearFiltroFechaMaxima,
+  crearFiltroFechaMinima,
+  esFechaAnterior,
   formatearFechaCorta,
   formatearPuntaje,
 } from '../rubros.util';
@@ -85,13 +97,30 @@ export class RubroAntiguedadComponent implements OnInit {
   private readonly calcularTiempo = inject(CalcularTiempoServicioUseCase);
   private readonly calcularPuntaje = inject(CalcularPuntajeAntiguedadUseCase);
   private readonly calcularAniosColegiatura = inject(CalcularAniosColegiaturaUseCase);
+  private readonly guardarTitularidad = inject(GuardarTitularidadFichaUseCase);
+  private readonly guardarPeriodo = inject(GuardarPeriodoNivelAnteriorFichaUseCase);
+  private readonly mutarItems = inject(MutarItemsRubroAntiguedadUseCase);
 
+  readonly fichaId = input<string | null>(null);
+  readonly nivelId = input<string | null>(null);
+  readonly soloLectura = input(false);
+  readonly rubroInicial = input<RubroAntiguedad | null>(null);
   readonly fechaValoracion = input<string | null>(null);
   readonly puntajeChange = output<number>();
+  readonly fichaActualizada = output<FichaValoracion>();
 
   protected readonly cargandoCatalogos = signal(false);
   protected readonly calculandoTitular = signal(false);
   protected readonly calculandoPeriodo = signal(false);
+  protected readonly guardandoTitular = signal(false);
+  protected readonly guardandoPeriodo = signal(false);
+  protected readonly titularGuardada = signal(false);
+  protected readonly antiguedadId = signal<string | null>(null);
+  protected readonly puedeGuardarTitularidad = signal(false);
+  protected readonly puedeEditarDesempate = computed(
+    () => this.titularGuardada() && !!this.antiguedadId() && !this.soloLectura()
+  );
+  protected readonly periodoGuardado = signal(false);
   protected readonly errorCatalogos = signal<string | null>(null);
 
   protected readonly distritos = signal<CatalogoItem[]>([]);
@@ -111,29 +140,70 @@ export class RubroAntiguedadComponent implements OnInit {
   protected readonly formatearFecha = formatearFechaCorta;
   protected readonly formatearPuntaje = formatearPuntaje;
 
+  /** En periodo: fecha fin no puede ser anterior a fecha inicio. */
+  protected readonly filtroFechaFinPeriodo = crearFiltroFechaMinima(
+    () => this.formularioPeriodo.controls.fechaInicio.value
+  );
+  /** En periodo: fecha inicio no puede ser posterior a fecha fin. */
+  protected readonly filtroFechaInicioPeriodo = crearFiltroFechaMaxima(
+    () => this.formularioPeriodo.controls.fechaFin.value
+  );
+
   protected readonly formularioTitular = this.fb.group({
-    distritoJudicialId: this.fb.nonNullable.control(''),
-    cargoTitularId: this.fb.nonNullable.control(''),
-    fechaJuramentacion: this.fb.control<Date | null>(null),
-    horaJuramento: this.fb.nonNullable.control(''),
+    distritoJudicialId: this.fb.nonNullable.control('', Validators.required),
+    cargoTitularId: this.fb.nonNullable.control({ value: '', disabled: true }, Validators.required),
+    fechaJuramentacion: this.fb.control<Date | null>(null, Validators.required),
+    horaJuramento: this.fb.nonNullable.control('', Validators.required),
     fechaCese: this.fb.control<Date | null>(null),
     fechaReincorporacion: this.fb.control<Date | null>(null),
-    primeraEspecialidadId: this.fb.nonNullable.control(''),
+    primeraEspecialidadId: this.fb.nonNullable.control('', Validators.required),
     segundaEspecialidadId: this.fb.nonNullable.control(''),
   });
 
   protected readonly formularioPeriodo = this.fb.group({
-    nivelInmediatoAnteriorId: this.fb.nonNullable.control(''),
+    nivelInmediatoAnteriorId: this.fb.nonNullable.control({ value: '', disabled: true }),
     fechaInicio: this.fb.control<Date | null>(null),
     fechaFin: this.fb.control<Date | null>(null),
   });
 
+  private catalogosCargados = false;
+  private rubroInicialAplicado = false;
+  private cargosTitularTodos: CatalogoItem[] = [];
+  private nivelesAnterioresTodos: CatalogoItem[] = [];
+
   constructor() {
     effect(() => {
-      // Recalcular cuando cambia la fecha de valoración vigente (input).
       this.fechaValoracion();
       this.recalcularTiempoTitular();
       this.recalcularAniosColegiaturas();
+    });
+
+    effect(() => {
+      const rubro = this.rubroInicial();
+      if (!this.catalogosCargados || this.rubroInicialAplicado || !this.tieneRubroUtil(rubro)) {
+        return;
+      }
+      this.aplicarRubro(rubro!);
+      this.rubroInicialAplicado = true;
+    });
+
+    effect(() => {
+      this.nivelId();
+      if (!this.catalogosCargados) {
+        return;
+      }
+      this.sincronizarCamposDerivadosDelNivel();
+    });
+
+    effect(() => {
+      if (this.soloLectura() || !this.puedeEditarDesempate()) {
+        this.formularioPeriodo.disable({ emitEvent: false });
+      } else {
+        this.formularioPeriodo.controls.fechaInicio.enable({ emitEvent: false });
+        this.formularioPeriodo.controls.fechaFin.enable({ emitEvent: false });
+        // El nivel inmediato anterior lo fija el nivel de la ficha.
+        this.formularioPeriodo.controls.nivelInmediatoAnteriorId.disable({ emitEvent: false });
+      }
     });
   }
 
@@ -143,9 +213,114 @@ export class RubroAntiguedadComponent implements OnInit {
     this.escucharFormularioPeriodo();
   }
 
+  protected onGuardarTitularidad(): void {
+    const id = this.fichaId();
+    if (!id || this.soloLectura() || !this.puedeGuardarTitularidad()) {
+      return;
+    }
+
+    this.formularioTitular.markAllAsTouched();
+    if (!this.puedeGuardarTitularidad()) {
+      return;
+    }
+
+    const data = this.construirTitularidadActual();
+    this.guardandoTitular.set(true);
+
+    this.guardarTitularidad
+      .ejecutar(id, data)
+      .pipe(
+        take(1),
+        finalize(() => this.guardandoTitular.set(false))
+      )
+      .subscribe(async (resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo guardar la titularidad', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        this.titularGuardada.set(true);
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.antiguedadId.set(rubro.id);
+          this.tiempoTitular.set(rubro.titularidad.tiempoTotal);
+          this.puntajeTitular.set(rubro.titularidad.puntaje);
+        }
+        this.puntajeChange.emit(this.puntajeTitular());
+        this.fichaActualizada.emit(resultado.ficha);
+        await this.alertas.exito(
+          'Titularidad guardada',
+          'Los datos de titularidad se guardaron correctamente.'
+        );
+      });
+  }
+
+  protected onGuardarPeriodo(): void {
+    const id = this.fichaId();
+    if (!id || this.soloLectura() || !this.puedeEditarDesempate()) {
+      return;
+    }
+
+    const raw = this.formularioPeriodo.getRawValue();
+    if (
+      raw.fechaInicio &&
+      raw.fechaFin &&
+      esFechaAnterior(raw.fechaFin, raw.fechaInicio)
+    ) {
+      this.formularioPeriodo.controls.fechaFin.setErrors({ fechaAnteriorAInicio: true });
+      this.formularioPeriodo.controls.fechaFin.markAsTouched();
+      void this.alertas.error('Rango de fechas inválido', {
+        mensaje: 'La fecha fin no puede ser anterior a la fecha de inicio.',
+      });
+      return;
+    }
+
+    const data = this.construirPeriodoNivelAnterior();
+    this.guardandoPeriodo.set(true);
+
+    this.guardarPeriodo
+      .ejecutar(id, data)
+      .pipe(
+        take(1),
+        finalize(() => this.guardandoPeriodo.set(false))
+      )
+      .subscribe(async (resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo guardar el periodo', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        this.periodoGuardado.set(true);
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.tiempoPeriodo.set(rubro.periodoNivelAnterior.tiempoTotal);
+        }
+        this.fichaActualizada.emit(resultado.ficha);
+        await this.alertas.exito(
+          'Periodo guardado',
+          'El periodo de nivel anterior se guardó correctamente.'
+        );
+      });
+  }
+
   protected abrirProvisionalidad(existente?: Provisionalidad): void {
+    if (!this.puedeEditarDesempate() && !existente) {
+      return;
+    }
+    if (!this.titularGuardada() || !this.antiguedadId()) {
+      void this.alertas.error('Titularidad pendiente', {
+        mensaje: 'Guarde primero la titularidad para registrar provisionalidades.',
+      });
+      return;
+    }
     const data: FormularioProvisionalidadData = {
-      cargos: this.cargosProvisional(),
+      cargos: this.cargosProvisionalDelNivel(),
       provisionalidad: existente ?? null,
     };
 
@@ -173,11 +348,44 @@ export class RubroAntiguedadComponent implements OnInit {
     if (!ok) {
       return;
     }
-    this.provisionalidades.update((lista) => lista.filter((p) => p.id !== id));
-    this.recalcularSumaProvisionalidades();
+
+    const fichaId = this.fichaId();
+    if (!fichaId) {
+      this.provisionalidades.update((lista) => lista.filter((p) => p.id !== id));
+      this.recalcularSumaProvisionalidades();
+      return;
+    }
+
+    this.mutarItems
+      .eliminarProvisionalidad(fichaId, id)
+      .pipe(take(1))
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo eliminar la provisionalidad', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.sincronizarItemsDesdeRubro(rubro);
+        }
+        this.fichaActualizada.emit(resultado.ficha);
+      });
   }
 
   protected abrirColegiatura(existente?: Colegiatura): void {
+    if (!this.puedeEditarDesempate() && !existente) {
+      return;
+    }
+    if (!this.titularGuardada() || !this.antiguedadId()) {
+      void this.alertas.error('Titularidad pendiente', {
+        mensaje: 'Guarde primero la titularidad para registrar colegiaturas.',
+      });
+      return;
+    }
     const data: FormularioColegiaturaData = {
       colegios: this.colegios(),
       fechaValoracion: this.fechaValoracion(),
@@ -208,7 +416,31 @@ export class RubroAntiguedadComponent implements OnInit {
     if (!ok) {
       return;
     }
-    this.colegiaturas.update((lista) => lista.filter((c) => c.id !== id));
+
+    const fichaId = this.fichaId();
+    if (!fichaId) {
+      this.colegiaturas.update((lista) => lista.filter((c) => c.id !== id));
+      return;
+    }
+
+    this.mutarItems
+      .eliminarColegiatura(fichaId, id)
+      .pipe(take(1))
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo eliminar la colegiatura', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.sincronizarItemsDesdeRubro(rubro);
+        }
+        this.fichaActualizada.emit(resultado.ficha);
+      });
   }
 
   private onGuardarProvisionalidad(
@@ -226,18 +458,41 @@ export class RubroAntiguedadComponent implements OnInit {
       documento: item.documento,
     };
 
-    this.provisionalidades.update((lista) => {
-      const idx = lista.findIndex((p) => p.id === registro.id);
-      if (idx >= 0) {
-        const copia = [...lista];
-        copia[idx] = registro;
-        return copia;
-      }
-      return [...lista, registro];
-    });
+    const fichaId = this.fichaId();
+    if (!fichaId) {
+      this.provisionalidades.update((lista) => {
+        const idx = lista.findIndex((p) => p.id === registro.id);
+        if (idx >= 0) {
+          const copia = [...lista];
+          copia[idx] = registro;
+          return copia;
+        }
+        return [...lista, registro];
+      });
+      this.recalcularSumaProvisionalidades();
+      ref.close();
+      return;
+    }
 
-    this.recalcularSumaProvisionalidades();
-    ref.close();
+    this.mutarItems
+      .upsertProvisionalidad(fichaId, registro)
+      .pipe(take(1))
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo guardar la provisionalidad', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.sincronizarItemsDesdeRubro(rubro);
+        }
+        this.fichaActualizada.emit(resultado.ficha);
+        ref.close();
+      });
   }
 
   private onGuardarColegiatura(
@@ -252,17 +507,40 @@ export class RubroAntiguedadComponent implements OnInit {
       anios: item.anios,
     };
 
-    this.colegiaturas.update((lista) => {
-      const idx = lista.findIndex((c) => c.id === registro.id);
-      if (idx >= 0) {
-        const copia = [...lista];
-        copia[idx] = registro;
-        return copia;
-      }
-      return [...lista, registro];
-    });
+    const fichaId = this.fichaId();
+    if (!fichaId) {
+      this.colegiaturas.update((lista) => {
+        const idx = lista.findIndex((c) => c.id === registro.id);
+        if (idx >= 0) {
+          const copia = [...lista];
+          copia[idx] = registro;
+          return copia;
+        }
+        return [...lista, registro];
+      });
+      ref.close();
+      return;
+    }
 
-    ref.close();
+    this.mutarItems
+      .upsertColegiatura(fichaId, registro)
+      .pipe(take(1))
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo guardar la colegiatura', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+          });
+          return;
+        }
+
+        const rubro = resultado.ficha.rubroAntiguedad;
+        if (rubro) {
+          this.sincronizarItemsDesdeRubro(rubro);
+        }
+        this.fichaActualizada.emit(resultado.ficha);
+        ref.close();
+      });
   }
 
   private cargarCatalogos(): void {
@@ -286,17 +564,176 @@ export class RubroAntiguedadComponent implements OnInit {
         }
 
         this.aplicarCatalogos(resultado.catalogos);
-        this.precargarValoresDemo(resultado.catalogos);
+        this.catalogosCargados = true;
+
+        const rubro = this.rubroInicial();
+        if (this.tieneRubroUtil(rubro)) {
+          this.aplicarRubro(rubro!);
+          this.rubroInicialAplicado = true;
+        }
+
+        if (this.soloLectura()) {
+          this.formularioTitular.disable({ emitEvent: false });
+          this.formularioPeriodo.disable({ emitEvent: false });
+        } else {
+          // Cargo titular y nivel inmediato anterior los fija el nivel de la ficha.
+          this.formularioTitular.controls.cargoTitularId.disable({ emitEvent: false });
+          this.formularioPeriodo.controls.nivelInmediatoAnteriorId.disable({ emitEvent: false });
+        }
       });
   }
 
   private aplicarCatalogos(catalogos: CatalogosAntiguedad): void {
     this.distritos.set(catalogos.distritosJudiciales);
-    this.cargosTitular.set(catalogos.cargosTitular);
+    this.cargosTitularTodos = catalogos.cargosTitular;
     this.cargosProvisional.set(catalogos.cargosProvisional);
     this.especialidades.set(catalogos.especialidades);
-    this.nivelesAnteriores.set(catalogos.nivelesInmediatosAnteriores);
+    this.nivelesAnterioresTodos = catalogos.nivelesInmediatosAnteriores;
     this.colegios.set(catalogos.colegiosAbogados);
+    this.sincronizarCamposDerivadosDelNivel();
+  }
+
+  /**
+   * Campos derivados del nivel de la ficha (no editables):
+   * - Cargo titular = mismo nivel
+   * - Nivel inmediato anterior: Supremo → Superior; Superior → Especializado
+   */
+  private sincronizarCamposDerivadosDelNivel(): void {
+    this.sincronizarCargoConNivel();
+    this.sincronizarNivelInmediatoAnterior();
+  }
+
+  private sincronizarCargoConNivel(): void {
+    const nivelId = this.nivelId()?.trim() ?? '';
+    const permitidos = nivelId
+      ? this.cargosTitularTodos.filter((c) => c.nivelId === nivelId)
+      : [];
+    this.cargosTitular.set(permitidos);
+
+    const cargoId = permitidos[0]?.id ?? '';
+    const control = this.formularioTitular.controls.cargoTitularId;
+    if (control.getRawValue() !== cargoId) {
+      control.setValue(cargoId, { emitEvent: true });
+    }
+    control.disable({ emitEvent: false });
+    this.actualizarPuedeGuardarTitularidad();
+  }
+
+  private sincronizarNivelInmediatoAnterior(): void {
+    const nivelId = this.nivelId()?.trim() ?? '';
+    const permitidos = nivelId
+      ? this.nivelesAnterioresTodos.filter((n) => n.nivelId === nivelId)
+      : [];
+    this.nivelesAnteriores.set(permitidos);
+
+    const nivelAnteriorId = permitidos[0]?.id ?? '';
+    const control = this.formularioPeriodo.controls.nivelInmediatoAnteriorId;
+    if (control.getRawValue() !== nivelAnteriorId) {
+      control.setValue(nivelAnteriorId, { emitEvent: true });
+    }
+    control.disable({ emitEvent: false });
+  }
+
+  /** Cargos de provisionalidad permitidos para el nivel de la ficha. */
+  private cargosProvisionalDelNivel(): CatalogoItem[] {
+    const nivelId = this.nivelId()?.trim() ?? '';
+    if (!nivelId) {
+      return [];
+    }
+    return this.cargosProvisional().filter((c) => c.nivelId === nivelId);
+  }
+
+  private tieneRubroUtil(rubro: RubroAntiguedad | null): boolean {
+    if (!rubro) {
+      return false;
+    }
+    return (
+      !!rubro.id ||
+      !!rubro.titularidad.fechaJuramentacion ||
+      rubro.provisionalidades.length > 0
+    );
+  }
+
+  private aplicarRubro(rubro: RubroAntiguedad): void {
+    const { titularidad, periodoNivelAnterior } = rubro;
+
+    this.formularioTitular.patchValue(
+      {
+        distritoJudicialId: titularidad.distritoJudicialId,
+        fechaJuramentacion: aDateDesdeIso(titularidad.fechaJuramentacion),
+        horaJuramento: titularidad.horaJuramento ?? '',
+        fechaCese: aDateDesdeIso(titularidad.fechaCese),
+        fechaReincorporacion: aDateDesdeIso(titularidad.fechaReincorporacion),
+        primeraEspecialidadId: titularidad.primeraEspecialidadId,
+        segundaEspecialidadId: titularidad.segundaEspecialidadId,
+      },
+      { emitEvent: true }
+    );
+    this.sincronizarCamposDerivadosDelNivel();
+
+    this.formularioPeriodo.patchValue(
+      {
+        fechaInicio: aDateDesdeIso(periodoNivelAnterior.fechaInicio),
+        fechaFin: aDateDesdeIso(periodoNivelAnterior.fechaFin),
+      },
+      { emitEvent: true }
+    );
+    this.sincronizarNivelInmediatoAnterior();
+
+    this.tiempoTitular.set(titularidad.tiempoTotal);
+    this.puntajeTitular.set(titularidad.puntaje);
+    this.puntajeChange.emit(titularidad.puntaje);
+    this.tiempoPeriodo.set(periodoNivelAnterior.tiempoTotal);
+    this.provisionalidades.set(rubro.provisionalidades);
+    this.sumaProvisionalidades.set(rubro.sumaProvisionalidades);
+    this.colegiaturas.set(rubro.colegiaturas);
+
+    this.titularGuardada.set(!!rubro.id || !!titularidad.fechaJuramentacion);
+    this.antiguedadId.set(rubro.id);
+    this.periodoGuardado.set(
+      !!periodoNivelAnterior.fechaInicio && !!periodoNivelAnterior.fechaFin
+    );
+    this.actualizarPuedeGuardarTitularidad();
+
+    this.recalcularAniosColegiaturas();
+  }
+
+  private sincronizarItemsDesdeRubro(rubro: RubroAntiguedad): void {
+    this.provisionalidades.set(rubro.provisionalidades);
+    this.sumaProvisionalidades.set(rubro.sumaProvisionalidades);
+    this.colegiaturas.set(rubro.colegiaturas);
+    this.recalcularAniosColegiaturas();
+  }
+
+  private construirTitularidadActual(): TitularidadActual {
+    const raw = this.formularioTitular.getRawValue();
+    return {
+      distritoJudicialId: raw.distritoJudicialId,
+      cargoTitularId: raw.cargoTitularId,
+      fechaJuramentacion: raw.fechaJuramentacion
+        ? aFechaIsoLocal(raw.fechaJuramentacion)
+        : null,
+      horaJuramento: raw.horaJuramento || null,
+      fechaCese: raw.fechaCese ? aFechaIsoLocal(raw.fechaCese) : null,
+      fechaReincorporacion: raw.fechaReincorporacion
+        ? aFechaIsoLocal(raw.fechaReincorporacion)
+        : null,
+      fechaValoracion: this.fechaValoracion()?.slice(0, 10) ?? null,
+      tiempoTotal: this.tiempoTitular(),
+      puntaje: this.puntajeTitular(),
+      primeraEspecialidadId: raw.primeraEspecialidadId,
+      segundaEspecialidadId: raw.segundaEspecialidadId,
+    };
+  }
+
+  private construirPeriodoNivelAnterior(): PeriodoNivelAnterior {
+    const raw = this.formularioPeriodo.getRawValue();
+    return {
+      nivelInmediatoAnteriorId: raw.nivelInmediatoAnteriorId,
+      fechaInicio: raw.fechaInicio ? aFechaIsoLocal(raw.fechaInicio) : null,
+      fechaFin: raw.fechaFin ? aFechaIsoLocal(raw.fechaFin) : null,
+      tiempoTotal: this.tiempoPeriodo(),
+    };
   }
 
   /** Valores alineados al mockup para facilitar la demostración. */
@@ -305,21 +742,11 @@ export class RubroAntiguedadComponent implements OnInit {
       catalogos.distritosJudiciales.find((d) => d.nombre === 'Huancavelica')?.id ??
       catalogos.distritosJudiciales[0]?.id ??
       '';
-    const cargo =
-      catalogos.cargosTitular.find((c) => c.nombre.includes('Superior'))?.id ??
-      catalogos.cargosTitular[0]?.id ??
-      '';
     const especialidad =
       catalogos.especialidades.find((e) => e.nombre === 'Civil')?.id ??
       catalogos.especialidades[0]?.id ??
       '';
-    const nivelAnterior =
-      catalogos.nivelesInmediatosAnteriores.find((n) => n.nombre === 'Especializado')?.id ??
-      catalogos.nivelesInmediatosAnteriores[0]?.id ??
-      '';
-    const cargoProv =
-      catalogos.cargosProvisional.find((c) => c.nombre.includes('SUPERIOR')) ??
-      catalogos.cargosProvisional[0];
+    const cargoProv = this.cargosProvisionalDelNivel()[0] ?? catalogos.cargosProvisional[0];
     const colegio =
       catalogos.colegiosAbogados.find((c) => c.nombre === 'LIMA') ??
       catalogos.colegiosAbogados[0];
@@ -327,7 +754,6 @@ export class RubroAntiguedadComponent implements OnInit {
     this.formularioTitular.patchValue(
       {
         distritoJudicialId: distrito,
-        cargoTitularId: cargo,
         fechaJuramentacion: aDateDesdeIso('2013-04-09'),
         horaJuramento: '11:15',
         primeraEspecialidadId: especialidad,
@@ -335,15 +761,16 @@ export class RubroAntiguedadComponent implements OnInit {
       },
       { emitEvent: true }
     );
+    this.sincronizarCamposDerivadosDelNivel();
 
     this.formularioPeriodo.patchValue(
       {
-        nivelInmediatoAnteriorId: nivelAnterior,
         fechaInicio: aDateDesdeIso('2003-11-18'),
         fechaFin: aDateDesdeIso('2013-04-08'),
       },
       { emitEvent: true }
     );
+    this.sincronizarNivelInmediatoAnterior();
 
     if (cargoProv) {
       this.provisionalidades.set([
@@ -403,14 +830,64 @@ export class RubroAntiguedadComponent implements OnInit {
 
   private escucharFormularioTitular(): void {
     this.formularioTitular.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.actualizarPuedeGuardarTitularidad());
+
+    this.formularioTitular.valueChanges
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recalcularTiempoTitular());
+
+    this.actualizarPuedeGuardarTitularidad();
+  }
+
+  private actualizarPuedeGuardarTitularidad(): void {
+    const v = this.formularioTitular.getRawValue();
+    const cargoPermitido = this.cargosTitular().some((c) => c.id === v.cargoTitularId);
+    this.puedeGuardarTitularidad.set(
+      !!v.distritoJudicialId?.trim() &&
+        cargoPermitido &&
+        !!v.fechaJuramentacion &&
+        !!v.horaJuramento?.trim() &&
+        !!v.primeraEspecialidadId?.trim()
+    );
   }
 
   private escucharFormularioPeriodo(): void {
+    this.formularioPeriodo.controls.fechaInicio.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((inicio) => {
+        const fin = this.formularioPeriodo.controls.fechaFin.value;
+        const finCorregida = corregirFechaFinSiAnteriorAInicio(inicio, fin);
+        if (finCorregida !== fin) {
+          this.formularioPeriodo.controls.fechaFin.setValue(finCorregida, {
+            emitEvent: true,
+          });
+        }
+        this.actualizarErrorRangoPeriodo();
+      });
+
+    this.formularioPeriodo.controls.fechaFin.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.actualizarErrorRangoPeriodo());
+
     this.formularioPeriodo.valueChanges
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recalcularTiempoPeriodo());
+  }
+
+  private actualizarErrorRangoPeriodo(): void {
+    const inicio = this.formularioPeriodo.controls.fechaInicio.value;
+    const finCtrl = this.formularioPeriodo.controls.fechaFin;
+    const fin = finCtrl.value;
+
+    if (inicio && fin && esFechaAnterior(fin, inicio)) {
+      finCtrl.setErrors({ ...(finCtrl.errors ?? {}), fechaAnteriorAInicio: true });
+      return;
+    }
+
+    if (finCtrl.hasError('fechaAnteriorAInicio')) {
+      finCtrl.updateValueAndValidity({ emitEvent: false });
+    }
   }
 
   private recalcularTiempoTitular(): void {
@@ -448,13 +925,12 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   private actualizarPuntaje(tiempo: TiempoServicio): void {
+    // El puntaje del encabezado se actualiza solo tras guardar titularidad (respuesta del back).
     this.calcularPuntaje
       .ejecutar(tiempo)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((resultado) => {
-        const puntaje = resultado.exito ? resultado.puntaje : 0;
-        this.puntajeTitular.set(puntaje);
-        this.puntajeChange.emit(puntaje);
+        this.puntajeTitular.set(resultado.exito ? resultado.puntaje : 0);
       });
   }
 

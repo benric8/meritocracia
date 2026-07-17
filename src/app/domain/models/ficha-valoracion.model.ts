@@ -3,6 +3,9 @@
  * Una ficha = un juez (DNI) + una fecha de valoración (periodo).
  */
 
+import { RubroAntiguedad } from './rubro-antiguedad.model';
+import { TIEMPO_SERVICIO_CERO } from './tiempo-servicio.model';
+
 export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 
 export interface DatosPersonalesJuez {
@@ -27,6 +30,7 @@ export interface FichaValoracion {
   datosPersonales: DatosPersonalesJuez;
   /** Trazabilidad del arrastre desde un ciclo anterior. */
   fichaPreviaId: string | null;
+  rubroAntiguedad: RubroAntiguedad | null;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;
@@ -57,3 +61,31 @@ export type ResultadoResolverFicha =
   | { tipo: 'NUEVA_CON_PREVIA'; fichaPreviaId: string }
   | { tipo: 'EDITABLE'; fichaId: string }
   | { tipo: 'BLOQUEADA'; fichaId: string };
+
+export function crearRubroAntiguedadVacio(): RubroAntiguedad {
+  return {
+    id: null,
+    titularidad: {
+      distritoJudicialId: '',
+      cargoTitularId: '',
+      fechaJuramentacion: null,
+      horaJuramento: null,
+      fechaCese: null,
+      fechaReincorporacion: null,
+      fechaValoracion: null,
+      tiempoTotal: TIEMPO_SERVICIO_CERO,
+      puntaje: 0,
+      primeraEspecialidadId: '',
+      segundaEspecialidadId: '',
+    },
+    periodoNivelAnterior: {
+      nivelInmediatoAnteriorId: '',
+      fechaInicio: null,
+      fechaFin: null,
+      tiempoTotal: TIEMPO_SERVICIO_CERO,
+    },
+    provisionalidades: [],
+    sumaProvisionalidades: TIEMPO_SERVICIO_CERO,
+    colegiaturas: [],
+  };
+}

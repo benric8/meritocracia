@@ -1,4 +1,384 @@
-<p class="rubro-antiguedad__placeholder" role="status">
-  Rubro B — Antigüedad: la UI completa se implementa en la siguiente fase.
-  Los cálculos (tiempo, puntaje, colegiatura) ya están disponibles vía puerto mock.
-</p>
+<section class="rubro-antiguedad" aria-label="Antigüedad en el cargo">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-antiguedad__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos()) {
+    <div class="rubro-antiguedad__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>Cargando catálogos…</span>
+    </div>
+  } @else {
+    <!-- Titularidad (obligatoria, aporta puntaje) -->
+    <article
+      class="antiguedad-block antiguedad-block--principal"
+      [class.antiguedad-block--guardado]="titularGuardada()"
+    >
+      <span class="antiguedad-block__criterion">
+        Titularidad actual
+        <span class="antiguedad-block__badge antiguedad-block__badge--required">Obligatorio</span>
+      </span>
+      <h3 class="antiguedad-block__title">Datos generales y titularidad</h3>
+
+      <form class="antiguedad-block__form" [formGroup]="formularioTitular" novalidate>
+        <div class="antiguedad-block__grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Distrito judicial</mat-label>
+            <mat-select formControlName="distritoJudicialId" placeholder="Seleccione…">
+              @for (item of distritos(); track item.id) {
+                <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Cargo titular actual</mat-label>
+            <mat-select formControlName="cargoTitularId" placeholder="Según el nivel…">
+              @for (item of cargosTitular(); track item.id) {
+                <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Fecha juramentación</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerJura"
+              formControlName="fechaJuramentacion"
+              readonly
+              placeholder="dd/mm/aaaa"
+              (click)="pickerJura.open()"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerJura" />
+            <mat-datepicker #pickerJura />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Hora de juramento</mat-label>
+            <input matInput type="time" formControlName="horaJuramento" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Fecha de cese</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerCese"
+              formControlName="fechaCese"
+              readonly
+              placeholder="dd/mm/aaaa"
+              (click)="pickerCese.open()"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerCese" />
+            <mat-datepicker #pickerCese />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Fecha de reincorporación</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerReinc"
+              formControlName="fechaReincorporacion"
+              readonly
+              placeholder="dd/mm/aaaa"
+              (click)="pickerReinc.open()"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerReinc" />
+            <mat-datepicker #pickerReinc />
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="antiguedad-block__campo antiguedad-block__campo--readonly"
+          >
+            <mat-label>Tiempo total en cargo titular</mat-label>
+            <input matInput [value]="tiempoTitular().etiqueta" readonly />
+            @if (calculandoTitular()) {
+              <mat-hint>Calculando…</mat-hint>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Primera especialidad</mat-label>
+            <mat-select formControlName="primeraEspecialidadId" placeholder="Seleccione…">
+              @for (item of especialidades(); track item.id) {
+                <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+            <mat-label>Segunda especialidad</mat-label>
+            <mat-select formControlName="segundaEspecialidadId" placeholder="Ninguna">
+              <mat-option value="">— Ninguna —</mat-option>
+              @for (item of especialidades(); track item.id) {
+                <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (!soloLectura()) {
+          <div class="antiguedad-block__acciones">
+            <button
+              matButton="filled"
+              type="button"
+              (click)="onGuardarTitularidad()"
+              [disabled]="guardandoTitular() || !fichaId() || !puedeGuardarTitularidad()"
+            >
+              @if (guardandoTitular()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              Guardar
+            </button>
+          </div>
+        }
+      </form>
+    </article>
+
+    <!-- Criterios de desempate (opcionales; requieren antigüedad guardada) -->
+    <div
+      class="antiguedad-desempate-group"
+      [class.antiguedad-desempate-group--locked]="!titularGuardada() || !antiguedadId()"
+    >
+      <header class="antiguedad-desempate-group__head">
+        <span class="antiguedad-desempate-group__label">Criterios de desempate</span>
+        <h3 class="antiguedad-desempate-group__title">Precedencia en caso de empate</h3>
+        @if (!titularGuardada() || !antiguedadId()) {
+          <p class="antiguedad-desempate-group__aviso" role="status">
+            Guarde la titularidad para habilitar estos criterios.
+          </p>
+        }
+      </header>
+
+      <article
+        class="antiguedad-block"
+        [class.antiguedad-block--guardado]="periodoGuardado()"
+      >
+        <span class="antiguedad-block__criterion">
+          1.er criterio
+          <span class="antiguedad-block__badge">Opcional</span>
+        </span>
+        <h3 class="antiguedad-block__title">Periodo en el nivel inmediato anterior</h3>
+
+        <form class="antiguedad-block__form" [formGroup]="formularioPeriodo" novalidate>
+          <div class="antiguedad-block__grid">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+              <mat-label>Nivel inmediato anterior</mat-label>
+              <mat-select formControlName="nivelInmediatoAnteriorId" placeholder="Según el nivel…">
+                @for (item of nivelesAnteriores(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+              <mat-label>Fecha inicio</mat-label>
+              <input
+                matInput
+                [matDatepicker]="pickerPerInicio"
+                [matDatepickerFilter]="filtroFechaInicioPeriodo"
+                formControlName="fechaInicio"
+                readonly
+                placeholder="dd/mm/aaaa"
+                (click)="pickerPerInicio.open()"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="pickerPerInicio" />
+              <mat-datepicker #pickerPerInicio />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
+              <mat-label>Fecha fin</mat-label>
+              <input
+                matInput
+                [matDatepicker]="pickerPerFin"
+                [matDatepickerFilter]="filtroFechaFinPeriodo"
+                formControlName="fechaFin"
+                readonly
+                placeholder="dd/mm/aaaa"
+                (click)="pickerPerFin.open()"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="pickerPerFin" />
+              <mat-datepicker #pickerPerFin />
+              @if (formularioPeriodo.controls.fechaFin.hasError('fechaAnteriorAInicio')) {
+                <mat-error>La fecha fin no puede ser anterior a la fecha de inicio.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="antiguedad-block__campo antiguedad-block__campo--readonly"
+            >
+              <mat-label>Tiempo total del periodo</mat-label>
+              <input matInput [value]="tiempoPeriodo().etiqueta" readonly />
+              @if (calculandoPeriodo()) {
+                <mat-hint>Calculando…</mat-hint>
+              }
+            </mat-form-field>
+          </div>
+
+          @if (!soloLectura()) {
+            <div class="antiguedad-block__acciones">
+              <button
+                matButton="filled"
+                type="button"
+                (click)="onGuardarPeriodo()"
+                [disabled]="guardandoPeriodo() || !fichaId() || !puedeEditarDesempate()"
+              >
+                @if (guardandoPeriodo()) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                Guardar
+              </button>
+            </div>
+          }
+        </form>
+      </article>
+
+      <article class="antiguedad-block">
+        <span class="antiguedad-block__criterion">
+          2.º criterio
+          <span class="antiguedad-block__badge">Opcional</span>
+        </span>
+        <h3 class="antiguedad-block__title">Provisionalidades</h3>
+
+        @if (!soloLectura()) {
+          <div class="antiguedad-block__toolbar">
+            <button
+              matButton="filled"
+              type="button"
+              (click)="abrirProvisionalidad()"
+              [disabled]="!fichaId() || !puedeEditarDesempate()"
+            >
+              <mat-icon>add</mat-icon>
+              Añadir provisionalidad
+            </button>
+          </div>
+        }
+
+        <div class="rubro-records-wrap">
+          <table class="rubro-records">
+            <thead>
+              <tr>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Tiempo</th>
+                <th>Cargo</th>
+                <th>Órgano</th>
+                <th>Documento</th>
+                @if (puedeEditarDesempate()) {
+                  <th></th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of provisionalidades(); track item.id) {
+                <tr>
+                  <td>{{ formatearFecha(item.fechaInicio) }}</td>
+                  <td>{{ formatearFecha(item.fechaFin) }}</td>
+                  <td>{{ item.tiempoTotal.etiqueta }}</td>
+                  <td>{{ item.cargoNombre }}</td>
+                  <td>{{ item.organoJurisdiccional }}</td>
+                  <td>{{ item.documento }}</td>
+                  @if (puedeEditarDesempate()) {
+                    <td class="rubro-records__actions">
+                      <button matIconButton type="button" title="Editar" (click)="abrirProvisionalidad(item)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button matIconButton type="button" title="Eliminar" (click)="eliminarProvisionalidad(item.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  }
+                </tr>
+              } @empty {
+                <tr>
+                  <td class="rubro-records__empty" [attr.colspan]="puedeEditarDesempate() ? 7 : 6">
+                    Sin provisionalidades registradas.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (provisionalidades().length) {
+          <div class="antiguedad-block__total">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo--readonly">
+              <mat-label>Suma total de provisionalidades</mat-label>
+              <input matInput [value]="sumaProvisionalidades().etiqueta" readonly />
+            </mat-form-field>
+          </div>
+        }
+      </article>
+
+      <article class="antiguedad-block">
+        <span class="antiguedad-block__criterion">
+          3.er criterio
+          <span class="antiguedad-block__badge">Opcional</span>
+        </span>
+        <h3 class="antiguedad-block__title">Colegiatura</h3>
+
+        @if (!soloLectura()) {
+          <div class="antiguedad-block__toolbar">
+            <button
+              matButton="filled"
+              type="button"
+              (click)="abrirColegiatura()"
+              [disabled]="!fichaId() || !puedeEditarDesempate()"
+            >
+              <mat-icon>add</mat-icon>
+              Añadir colegiatura
+            </button>
+          </div>
+        }
+
+        <div class="rubro-records-wrap">
+          <table class="rubro-records">
+            <thead>
+              <tr>
+                <th>Colegio de Abogados</th>
+                <th>Fecha de colegiatura</th>
+                <th>Años</th>
+                @if (puedeEditarDesempate()) {
+                  <th></th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of colegiaturas(); track item.id) {
+                <tr>
+                  <td>{{ item.colegioNombre }}</td>
+                  <td>{{ formatearFecha(item.fechaColegiatura) }}</td>
+                  <td>{{ item.anios }}</td>
+                  @if (puedeEditarDesempate()) {
+                    <td class="rubro-records__actions">
+                      <button matIconButton type="button" title="Editar" (click)="abrirColegiatura(item)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button matIconButton type="button" title="Eliminar" (click)="eliminarColegiatura(item.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  }
+                </tr>
+              } @empty {
+                <tr>
+                  <td class="rubro-records__empty" [attr.colspan]="puedeEditarDesempate() ? 4 : 3">
+                    Sin colegiaturas registradas.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  }
+</section>

@@ -29,8 +29,13 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
       <app-rubro-antiguedad
+        [fichaId]="fichaId()"
+        [nivelId]="nivelId()"
+        [soloLectura]="soloLectura()"
+        [rubroInicial]="rubroAntiguedad()"
         [fechaValoracion]="fechaValoracion()"
         (puntajeChange)="onPuntajeAntiguedad($event)"
+        (fichaActualizada)="onFichaActualizada($event)"
       />
     </mat-expansion-panel>
   </mat-accordion>

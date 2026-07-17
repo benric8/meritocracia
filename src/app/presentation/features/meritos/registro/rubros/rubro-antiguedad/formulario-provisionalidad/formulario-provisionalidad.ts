@@ -28,10 +28,15 @@ import { Provisionalidad } from '../../../../../../../domain/models/rubro-antigu
 import {
   aDateDesdeIso,
   aFechaIsoLocal,
+  corregirFechaFinSiAnteriorAInicio,
+  crearFiltroFechaMaxima,
+  crearFiltroFechaMinima,
+  esFechaAnterior,
   nuevoIdLocal,
 } from '../../rubros.util';
 
 export interface FormularioProvisionalidadData {
+  /** Solo cargos del nivel de la ficha. */
   cargos: CatalogoItem[];
   provisionalidad?: Provisionalidad | null;
 }
@@ -74,6 +79,8 @@ export class FormularioProvisionalidad implements OnInit {
   );
   protected readonly calculando = signal(false);
 
+  private readonly cargoFijoId = this.data.cargos[0]?.id ?? '';
+
   protected readonly formulario = this.fb.group({
     fechaInicio: this.fb.control<Date | null>(
       aDateDesdeIso(this.data.provisionalidad?.fechaInicio),
@@ -84,7 +91,7 @@ export class FormularioProvisionalidad implements OnInit {
       Validators.required
     ),
     cargoId: this.fb.nonNullable.control(
-      this.data.provisionalidad?.cargoId ?? '',
+      { value: this.cargoFijoId, disabled: true },
       Validators.required
     ),
     organoJurisdiccional: this.fb.nonNullable.control(
@@ -97,7 +104,29 @@ export class FormularioProvisionalidad implements OnInit {
     ),
   });
 
+  protected readonly filtroFechaFin = crearFiltroFechaMinima(
+    () => this.formulario.controls.fechaInicio.value
+  );
+  protected readonly filtroFechaInicio = crearFiltroFechaMaxima(
+    () => this.formulario.controls.fechaFin.value
+  );
+
   ngOnInit(): void {
+    this.formulario.controls.fechaInicio.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((inicio) => {
+        const fin = this.formulario.controls.fechaFin.value;
+        const finCorregida = corregirFechaFinSiAnteriorAInicio(inicio, fin);
+        if (finCorregida !== fin) {
+          this.formulario.controls.fechaFin.setValue(finCorregida, { emitEvent: true });
+        }
+        this.actualizarErrorRango();
+      });
+
+    this.formulario.controls.fechaFin.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.actualizarErrorRango());
+
     this.formulario.valueChanges
       .pipe(debounceTime(250), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recalcularTiempo());
@@ -108,6 +137,7 @@ export class FormularioProvisionalidad implements OnInit {
   }
 
   protected onGuardar(): void {
+    this.actualizarErrorRango();
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -116,6 +146,9 @@ export class FormularioProvisionalidad implements OnInit {
     const raw = this.formulario.getRawValue();
     const cargo = this.cargos.find((c) => c.id === raw.cargoId);
     if (!raw.fechaInicio || !raw.fechaFin || !cargo) {
+      return;
+    }
+    if (esFechaAnterior(raw.fechaFin, raw.fechaInicio)) {
       return;
     }
 
@@ -131,9 +164,24 @@ export class FormularioProvisionalidad implements OnInit {
     });
   }
 
+  private actualizarErrorRango(): void {
+    const inicio = this.formulario.controls.fechaInicio.value;
+    const finCtrl = this.formulario.controls.fechaFin;
+    const fin = finCtrl.value;
+
+    if (inicio && fin && esFechaAnterior(fin, inicio)) {
+      finCtrl.setErrors({ ...(finCtrl.errors ?? {}), fechaAnteriorAInicio: true });
+      return;
+    }
+
+    if (finCtrl.hasError('fechaAnteriorAInicio')) {
+      finCtrl.updateValueAndValidity({ emitEvent: false });
+    }
+  }
+
   private recalcularTiempo(): void {
     const { fechaInicio, fechaFin } = this.formulario.getRawValue();
-    if (!fechaInicio || !fechaFin) {
+    if (!fechaInicio || !fechaFin || esFechaAnterior(fechaFin, fechaInicio)) {
       this.tiempoTotal.set(TIEMPO_SERVICIO_CERO);
       return;
     }

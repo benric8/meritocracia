@@ -193,13 +193,110 @@
   }
 }
 
-.rubro-antiguedad__placeholder {
-  margin: 0;
-  padding: 12px 14px;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--mc-text-muted);
-  background: #f8fafc;
+.antiguedad-block--principal {
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--mc-primary) 28%, #ffffff);
+  border-radius: var(--mc-radius-lg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mc-primary) 10%, #ffffff) 0%,
+    #ffffff 50%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--mc-primary) 28%, #ffffff);
+}
+
+.antiguedad-block__badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  background: #e2e8f0;
+  vertical-align: middle;
+}
+
+.antiguedad-block__badge--required {
+  color: #fff;
+  background: var(--mc-primary);
+}
+
+.antiguedad-block--guardado .antiguedad-block__criterion::after {
+  content: ' · Guardado';
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #16a34a;
+}
+
+.antiguedad-block__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mc-border);
+}
+
+.antiguedad-desempate-group {
+  margin-top: 4px;
+  padding: 14px 14px 8px;
   border: 1px dashed #94a3b8;
+  border-radius: var(--mc-radius-lg);
+  background: #f8fafc;
+}
+
+.antiguedad-desempate-group__head {
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.antiguedad-desempate-group__label {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.antiguedad-desempate-group__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.antiguedad-desempate-group .antiguedad-block {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #94a3b8;
   border-radius: 8px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+
+  &:last-child {
+    margin-bottom: 4px;
+  }
+}
+
+.antiguedad-desempate-group .antiguedad-block__criterion {
+  color: #475569;
+}
+
+.antiguedad-desempate-group--locked {
+  opacity: 0.72;
+}
+
+.antiguedad-desempate-group__aviso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b45309;
 }

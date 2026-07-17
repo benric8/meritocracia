@@ -29,6 +29,7 @@ import {
   EstadoFicha,
   FichaValoracion,
 } from '../../../../domain/models/ficha-valoracion.model';
+import { RubroAntiguedad } from '../../../../domain/models/rubro-antiguedad.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -93,10 +94,12 @@ export class Registro implements OnInit {
   protected readonly fechaValoracionVigente = signal<string | null>(null);
   protected readonly fechaValoracionId = signal<string | null>(null);
   protected readonly fichaId = signal<string | null>(null);
+  protected readonly nivelIdFicha = signal<string | null>(null);
   protected readonly fichaEstado = signal<EstadoFicha | null>(null);
   protected readonly puntajeTotal = signal(0);
   protected readonly rubrosDesbloqueados = signal(false);
   protected readonly fichaSoloLectura = signal(false);
+  protected readonly rubroAntiguedad = signal<RubroAntiguedad | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly formatearPuntaje = formatearPuntaje;
   /** DNI con el que se cargaron foto y nombre desde SIGA. */
@@ -189,10 +192,12 @@ export class Registro implements OnInit {
     this.limpiarDatosSiga();
     this.edad.set('');
     this.fichaId.set(null);
+    this.nivelIdFicha.set(null);
     this.fichaEstado.set(null);
     this.puntajeTotal.set(0);
     this.rubrosDesbloqueados.set(false);
     this.fichaSoloLectura.set(false);
+    this.rubroAntiguedad.set(null);
     this.formulario.enable({ emitEvent: false });
   }
 
@@ -398,8 +403,10 @@ export class Registro implements OnInit {
 
   private aplicarFichaEnUi(ficha: FichaValoracion, soloLectura: boolean): void {
     this.fichaId.set(ficha.id);
+    this.nivelIdFicha.set(ficha.nivelId);
     this.fichaEstado.set(ficha.estado);
     this.puntajeTotal.set(ficha.puntajeTotal);
+    this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -426,6 +433,12 @@ export class Registro implements OnInit {
       this.formulario.enable({ emitEvent: false });
       this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
     }
+  }
+
+  protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {
+    this.puntajeTotal.set(ficha.puntajeTotal);
+    this.rubroAntiguedad.set(ficha.rubroAntiguedad);
+    this.fichaEstado.set(ficha.estado);
   }
 
   /** Auto-busca al completar 8 dígitos; cancela si el DNI queda incompleto. */

@@ -19,6 +19,64 @@ export function aDateDesdeIso(iso: string | null | undefined): Date | null {
   return new Date(anio, mes - 1, dia);
 }
 
+export function inicioDelDia(fecha: Date): Date {
+  return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+}
+
+/** `true` si `candidata` es estrictamente anterior a `referencia` (solo día). */
+export function esFechaAnterior(candidata: Date, referencia: Date): boolean {
+  return inicioDelDia(candidata).getTime() < inicioDelDia(referencia).getTime();
+}
+
+/**
+ * Filtro de datepicker: no permite fechas anteriores a `minima`.
+ * Si no hay mínima, permite cualquier fecha.
+ */
+export function crearFiltroFechaMinima(
+  obtenerMinima: () => Date | null
+): (fecha: Date | null) => boolean {
+  return (fecha: Date | null): boolean => {
+    if (!fecha) {
+      return false;
+    }
+    const minima = obtenerMinima();
+    if (!minima) {
+      return true;
+    }
+    return !esFechaAnterior(fecha, minima);
+  };
+}
+
+/**
+ * Filtro de datepicker: no permite fechas posteriores a `maxima`.
+ * Si no hay máxima, permite cualquier fecha.
+ */
+export function crearFiltroFechaMaxima(
+  obtenerMaxima: () => Date | null
+): (fecha: Date | null) => boolean {
+  return (fecha: Date | null): boolean => {
+    if (!fecha) {
+      return false;
+    }
+    const maxima = obtenerMaxima();
+    if (!maxima) {
+      return true;
+    }
+    return !esFechaAnterior(maxima, fecha);
+  };
+}
+
+/** Limpia `fechaFin` si quedó anterior a `fechaInicio`. */
+export function corregirFechaFinSiAnteriorAInicio(
+  fechaInicio: Date | null,
+  fechaFin: Date | null
+): Date | null {
+  if (!fechaInicio || !fechaFin) {
+    return fechaFin;
+  }
+  return esFechaAnterior(fechaFin, fechaInicio) ? null : fechaFin;
+}
+
 export function formatearPuntaje(puntaje: number): string {
   return puntaje.toFixed(2);
 }
