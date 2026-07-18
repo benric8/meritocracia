@@ -112,7 +112,7 @@ export class FechaValoracionHttpAdapter implements FechaValoracionPort {
     }
 
     return this.http
-      .put<BaseResponse>(`${this.baseUrl}${fechaValoracionEndpoints.DESACTIVAR(id)}`, null)
+      .patch<BaseResponse>(`${this.baseUrl}${fechaValoracionEndpoints.DESACTIVAR(id)}`, null)
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);

@@ -58,8 +58,8 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     coincide: (url) => esRutaExacta(url, fechaValoracionEndpoints.REGISTRAR),
   },
   {
-    method: 'PUT',
-    coincide: (url) => url.includes('fechas-valoracion/desactivar/'),
+    method: 'PATCH',
+    coincide: (url) => /fechas-valoracion\/[^/]+\/inactivar\/?$/.test(url),
   },
 ];
 

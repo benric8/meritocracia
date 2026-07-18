@@ -7,6 +7,7 @@ export interface FechaValoracionDto {
   resolucion: string;
   estado: string | boolean;
   usuarioRegistro?: string;
+  usuarioRegistra?: string;
   usuario?: string;
   fechaRegistro: string;
 }

@@ -51,7 +51,9 @@ export function toFechaValoracion(dto: FechaValoracionDto): FechaValoracion {
     anio: dto.anio ?? anioDesdeFecha(fechaValoracion),
     resolucion: String(dto.resolucion ?? '').trim(),
     estado,
-    usuarioRegistro: String(dto.usuarioRegistro ?? dto.usuario ?? '').trim(),
+    usuarioRegistro: String(
+      dto.usuarioRegistro ?? dto.usuarioRegistra ?? dto.usuario ?? ''
+    ).trim(),
     fechaRegistro: String(dto.fechaRegistro ?? '').trim(),
   };
 }
