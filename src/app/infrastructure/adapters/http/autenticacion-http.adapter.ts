@@ -86,6 +86,11 @@ export class AutenticacionHttpAdapter implements AutenticacionPort {
     this.sesion.setToken(respuesta.data.token);
     this.sesion.setTokenNivel(tokenNiveles.NIVEL_LOGIN);
     this.sesion.marcarTokenGenerado();
+
+    const idUsuario = respuesta.data.id ?? respuesta.data.idUsuario;
+    if (idUsuario != null && Number.isFinite(Number(idUsuario))) {
+      this.sesion.setIdUsuarioAlmacenado(Number(idUsuario));
+    }
   }
 
   private persistirTokenOpciones(respuesta: OpcionesResponse): void {

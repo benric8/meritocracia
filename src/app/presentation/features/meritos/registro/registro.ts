@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY, debounceTime, distinctUntilChanged, finalize, map, switchMap, take } from 'rxjs';
+import { EMPTY, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take } from 'rxjs';
 import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/use-cases/meritos/actualizar-datos-personales-ficha.use-case';
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
 import { CrearBorradorFichaUseCase } from '../../../../application/use-cases/meritos/crear-borrador-ficha.use-case';
@@ -128,7 +128,7 @@ export class Registro implements OnInit {
         return 'Ficha cerrada';
       case 'NUEVA':
       default:
-        return 'Guardar y continuar';
+        return 'Guardar';
     }
   });
 
@@ -149,7 +149,7 @@ export class Registro implements OnInit {
   protected readonly mensajeEstadoBusqueda = computed(() => {
     switch (this.modoAccionCabecera()) {
       case 'NUEVA':
-        return 'Nuevo registro: complete los datos y pulse Guardar y continuar.';
+        return 'Nuevo registro: complete los datos y pulse Guardar.';
       case 'ACTUALIZAR':
         return 'Se encontró un registro del proceso actual. Puede actualizar los datos personales.';
       case 'IMPORTAR':
@@ -259,20 +259,29 @@ export class Registro implements OnInit {
 
           const resultado = resolucion.resultado;
 
+          if (resultado.tipo === 'ASIGNADO_A_OTRO') {
+            return of({
+              tipo: 'ASIGNADO_A_OTRO' as const,
+              fichaId: resultado.fichaId,
+            });
+          }
+
           if (resultado.tipo === 'EDITABLE' || resultado.tipo === 'BLOQUEADA') {
             return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
               map((obtencion) => ({
                 tipo: resultado.tipo,
+                fichaId: resultado.fichaId,
                 obtencion,
               }))
             );
           }
 
           if (resultado.tipo === 'NUEVA_CON_PREVIA') {
-            return this.obtenerFicha.ejecutar(resultado.fichaPreviaId).pipe(
-              map((obtencion) => ({
+            return this.obtenerDatosSiga.ejecutar(dni).pipe(
+              map((siga) => ({
                 tipo: 'NUEVA_CON_PREVIA' as const,
-                obtencion,
+                siga,
+                dni,
                 fichaPreviaId: resultado.fichaPreviaId,
               }))
             );
@@ -293,7 +302,16 @@ export class Registro implements OnInit {
           return;
         }
 
-        if (evento.tipo === 'NUEVA') {
+        if (evento.tipo === 'ASIGNADO_A_OTRO') {
+          this.resetEstadoTrasCambioDni(true);
+          void this.alertas.error('Ficha asignada a otro registrador', {
+            mensaje:
+              'Este magistrado ya tiene una ficha del ciclo vigente asignada a otro registrador. No puede editarla.',
+          });
+          return;
+        }
+
+        if (evento.tipo === 'NUEVA' || evento.tipo === 'NUEVA_CON_PREVIA') {
           if (!evento.siga.exito) {
             this.limpiarIdentidad();
             void this.alertas.error('No se encontró en SIGA', {
@@ -309,21 +327,40 @@ export class Registro implements OnInit {
 
           this.dniResuelto.set(dni);
           this.dniConsultadoIdentidad.set(dni);
-          this.modoAccionCabecera.set('NUEVA');
-          this.fichaPreviaId.set(null);
           this.formulario.controls.nombreCompleto.setValue(evento.siga.datos.nombreCompleto);
           this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
           this.fotoSiga.set(evento.siga.datos.foto);
+
+          if (evento.tipo === 'NUEVA') {
+            this.modoAccionCabecera.set('NUEVA');
+            this.fichaPreviaId.set(null);
+            return;
+          }
+
+          this.modoAccionCabecera.set('IMPORTAR');
+          this.fichaPreviaId.set(evento.fichaPreviaId);
+          await this.alertas.exito(
+            'Ficha del proceso anterior',
+            'Se encontraron datos del proceso anterior. Complete nivel y datos personales, luego pulse Importar ficha anterior.'
+          );
           return;
         }
 
         if (!evento.obtencion.exito) {
-          void this.alertas.error('No se pudo cargar la ficha', {
-            mensaje:
-              evento.obtencion.detalle?.mensaje ??
-              evento.obtencion.mensaje ??
-              'Error desconocido.',
-          });
+          this.dniResuelto.set(dni);
+          this.fichaId.set(evento.fichaId);
+          this.modoAccionCabecera.set(
+            evento.tipo === 'EDITABLE' ? 'ACTUALIZAR' : 'BLOQUEADA'
+          );
+          void this.alertas.error(
+            evento.tipo === 'EDITABLE' ? 'Ficha encontrada' : 'Ficha no editable',
+            {
+              mensaje:
+                evento.obtencion.detalle?.mensaje ??
+                evento.obtencion.mensaje ??
+                'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.',
+            }
+          );
           return;
         }
 
@@ -347,19 +384,8 @@ export class Registro implements OnInit {
           this.aplicarFichaEnUi(ficha, true);
           void this.alertas.error('Ficha cerrada', {
             mensaje:
-              'La fecha de valoración ya fue alcanzada. La ficha se muestra en solo lectura.',
+              'La ficha del ciclo vigente está completada y se muestra en solo lectura.',
           });
-          return;
-        }
-
-        if (evento.tipo === 'NUEVA_CON_PREVIA') {
-          this.modoAccionCabecera.set('IMPORTAR');
-          this.fichaPreviaId.set(evento.fichaPreviaId);
-          this.prellenarDesdeFichaPrevia(ficha);
-          await this.alertas.exito(
-            'Ficha del proceso anterior',
-            'Se encontraron datos del proceso anterior. Revise la información y pulse Importar ficha anterior.'
-          );
         }
       });
   }
@@ -565,37 +591,6 @@ export class Registro implements OnInit {
       this.formulario.enable({ emitEvent: false });
       this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
     }
-  }
-
-  /** Precarga datos de la ficha previa sin desbloquear rubros ni asignar fichaId del ciclo. */
-  private prellenarDesdeFichaPrevia(ficha: FichaValoracion): void {
-    this.fichaId.set(null);
-    this.nivelIdFicha.set(null);
-    this.fichaEstado.set(null);
-    this.puntajeTotal.set(0);
-    this.rubroAntiguedad.set(null);
-    this.rubrosDesbloqueados.set(false);
-    this.fichaSoloLectura.set(false);
-
-    this.formulario.patchValue(
-      {
-        dni: ficha.datosPersonales.dni,
-        nivelId: ficha.nivelId,
-        nombreCompleto: ficha.datosPersonales.nombreCompleto,
-        sexo: ficha.datosPersonales.sexo,
-        fechaNacimiento: aDateDesdeIso(ficha.datosPersonales.fechaNacimiento),
-      },
-      { emitEvent: true }
-    );
-
-    this.fotoSiga.set(ficha.datosPersonales.foto);
-    this.dniConsultadoIdentidad.set(ficha.datosPersonales.dni);
-    if (ficha.datosPersonales.edad != null) {
-      this.edad.set(String(ficha.datosPersonales.edad));
-    }
-
-    this.formulario.enable({ emitEvent: false });
-    this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
   }
 
   protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {

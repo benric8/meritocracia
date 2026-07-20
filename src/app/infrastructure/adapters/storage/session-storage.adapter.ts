@@ -194,6 +194,32 @@ export class SessionStorageAdapter implements SesionPort {
 
 
 
+  getIdUsuarioAlmacenado(): number | null {
+
+    const crudo = localStorage.getItem(constantes.USUARIO_ID);
+
+    if (!crudo) {
+
+      return null;
+
+    }
+
+    const idUsuario = Number(crudo);
+
+    return Number.isFinite(idUsuario) ? idUsuario : null;
+
+  }
+
+
+
+  setIdUsuarioAlmacenado(idUsuario: number): void {
+
+    localStorage.setItem(constantes.USUARIO_ID, String(idUsuario));
+
+  }
+
+
+
   getOpciones(): MenuOpcion[] {
 
     try {
@@ -239,6 +265,8 @@ export class SessionStorageAdapter implements SesionPort {
     localStorage.removeItem(constantes.USUARIO_PERFIL);
 
     localStorage.removeItem(constantes.USUARIO_ID_PERFIL);
+
+    localStorage.removeItem(constantes.USUARIO_ID);
 
     localStorage.removeItem(constantes.USUARIO_OPCIONES);
 

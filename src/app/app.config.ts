@@ -18,11 +18,11 @@ import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
 import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
 import { FechaValoracionHttpAdapter } from './infrastructure/adapters/http/fecha-valoracion-http.adapter';
+import { FichaHttpAdapter } from './infrastructure/adapters/http/ficha-http.adapter';
+import { MaestrosHttpAdapter } from './infrastructure/adapters/http/maestros-http.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
 import { AntiguedadMockAdapter } from './infrastructure/adapters/mock/antiguedad-mock.adapter';
-import { FichaMockAdapter } from './infrastructure/adapters/mock/ficha-mock.adapter';
 import { JuezSigaHttpEdadMockAdapter } from './infrastructure/adapters/mock/juez-siga-http-edad-mock.adapter';
-import { MaestrosMockAdapter } from './infrastructure/adapters/mock/maestros-mock.adapter';
 import { AlertasSweetAlertAdapter } from './infrastructure/adapters/ui/alertas-sweetalert.adapter';
 import { AUTENTICACION_PORT } from './domain/ports/autenticacion.port';
 import { SESION_PORT } from './domain/ports/sesion.port';
@@ -60,12 +60,12 @@ export const appConfig: ApplicationConfig = {
     { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },
     { provide: USUARIOS_PORT, useClass: UsuariosHttpAdapter },
     { provide: FECHA_VALORACION_PORT, useClass: FechaValoracionHttpAdapter },
+    { provide: MAESTROS_PORT, useClass: MaestrosHttpAdapter },
+    { provide: FICHA_PORT, useClass: FichaHttpAdapter },
     // Mocks / híbridos hasta disponer del API completo; sustituir por *HttpAdapter.
-    { provide: MAESTROS_PORT, useClass: MaestrosMockAdapter },
     // SIGA real (GET jueces/siga); edad aún mock.
     { provide: JUEZ_PORT, useClass: JuezSigaHttpEdadMockAdapter },
     { provide: ANTIGUEDAD_PORT, useClass: AntiguedadMockAdapter },
-    { provide: FICHA_PORT, useClass: FichaMockAdapter },
     { provide: ALERTAS_PORT, useClass: AlertasSweetAlertAdapter },
     { provide: LOCALE_ID, useValue: 'es' },
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlEs },

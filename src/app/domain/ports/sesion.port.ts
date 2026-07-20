@@ -33,6 +33,9 @@ export interface SesionPort {
   setPerfilAlmacenado(perfil: string): void;
   getIdPerfilAlmacenado(): number | null;
   setIdPerfilAlmacenado(idPerfil: number): void;
+  /** ID numérico del usuario en BD (`n_usuario_id`), usado como registrador. */
+  getIdUsuarioAlmacenado(): number | null;
+  setIdUsuarioAlmacenado(idUsuario: number): void;
   getOpciones(): MenuOpcion[];
   setOpciones(opciones: MenuOpcion[]): void;
 

@@ -8,6 +8,9 @@ export interface Perfil {
 }
 
 export interface Usuario {
+  /** ID numérico del usuario en BD (registrador). */
+  id?: number;
+  idUsuario?: number;
   usuario: string;
   clave: string;
   persona: PersonaModel;

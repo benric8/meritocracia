@@ -10,6 +10,7 @@ import { detalleDesdeRespuestaApi, extraerDetalleErrorApi } from '../../api/http
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
 import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constants';
 import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
+import { fichaEndpoints } from '../../api/ficha-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
 const RUTAS_AUTH_SIN_MODAL = [
@@ -60,6 +61,10 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   {
     method: 'PATCH',
     coincide: (url) => /fechas-valoracion\/[^/]+\/inactivar\/?$/.test(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.CREAR),
   },
 ];
 

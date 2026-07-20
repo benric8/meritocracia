@@ -5375,7 +5375,7 @@ execute procedure ufn_mov_ficha_publicacion();
 
 create trigger trg_mov_ficha_distincion
     after update or delete
-    on mov_ficha_distincion
+    on mov_ficha_distincionfich
     for each row
 execute procedure ufn_mov_ficha_distincion();
 

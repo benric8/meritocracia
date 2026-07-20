@@ -31,7 +31,7 @@ export class MaestrosHttpAdapter implements MaestrosPort {
 
     return this.http
       .get<ListarNivelesTitularResponse>(
-        `${this.baseUrl}${maestrosEndpoints.NIVELES_TITULAR}`
+        `${this.baseUrl}${maestrosEndpoints.CARGOS_MAGISTRADO_EVALUADAS}`
       )
       .pipe(
         map((respuesta) => {
@@ -46,7 +46,7 @@ export class MaestrosHttpAdapter implements MaestrosPort {
             })
             .filter((item): item is NivelTitular => item !== null);
         }),
-        mapearAErrorNegocioApi('No se pudo cargar el catálogo de niveles.')
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de cargos de magistrado.')
       );
   }
 

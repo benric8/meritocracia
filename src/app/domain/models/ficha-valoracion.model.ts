@@ -54,13 +54,15 @@ export interface ActualizarDatosPersonalesFicha {
 
 /**
  * Resultado de resolver si el juez ya tiene ficha en el ciclo vigente.
- * Clave natural: (dni, fechaValoracionId).
+ * Clave natural: (dni, fechaValoracionId, registradorId).
+ * Mapea la respuesta de GET /fichas/flujo.
  */
 export type ResultadoResolverFicha =
   | { tipo: 'NUEVA' }
-  | { tipo: 'NUEVA_CON_PREVIA'; fichaPreviaId: string }
-  | { tipo: 'EDITABLE'; fichaId: string }
-  | { tipo: 'BLOQUEADA'; fichaId: string };
+  | { tipo: 'NUEVA_CON_PREVIA'; fichaPreviaId: string; magistradoId?: string }
+  | { tipo: 'EDITABLE'; fichaId: string; magistradoId?: string }
+  | { tipo: 'BLOQUEADA'; fichaId: string; magistradoId?: string }
+  | { tipo: 'ASIGNADO_A_OTRO'; fichaId: string; magistradoId?: string };
 
 export function crearRubroAntiguedadVacio(): RubroAntiguedad {
   return {
