@@ -24,6 +24,7 @@ import { Colegiatura } from '../../../../../../../domain/models/rubro-antiguedad
 import {
   aDateDesdeIso,
   aFechaIsoLocal,
+  crearFiltroFechaMaxima,
   nuevoIdLocal,
 } from '../../rubros.util';
 
@@ -70,6 +71,16 @@ export class FormularioColegiatura implements OnInit {
   protected readonly calculando = signal(false);
   protected readonly sinFechaValoracion = !this.data.fechaValoracion;
 
+  /** Solo fechas del año actual hacia atrás (sin fechas futuras). */
+  protected readonly fechaMaximaColegiatura = (() => {
+    const hoy = new Date();
+    return new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  })();
+
+  protected readonly filtroFechaColegiatura = crearFiltroFechaMaxima(
+    () => this.fechaMaximaColegiatura
+  );
+
   protected readonly formulario = this.fb.group({
     colegioId: this.fb.nonNullable.control(
       this.data.colegiatura?.colegioId ?? '',
@@ -104,6 +115,12 @@ export class FormularioColegiatura implements OnInit {
     const raw = this.formulario.getRawValue();
     const colegio = this.colegios.find((c) => c.id === raw.colegioId);
     if (!raw.fechaColegiatura || !colegio) {
+      return;
+    }
+
+    if (raw.fechaColegiatura.getTime() > this.fechaMaximaColegiatura.getTime()) {
+      this.formulario.controls.fechaColegiatura.setErrors({ fechaFutura: true });
+      this.formulario.controls.fechaColegiatura.markAsTouched();
       return;
     }
 

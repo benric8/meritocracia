@@ -74,13 +74,10 @@
           subscriptSizing="dynamic"
           class="rubro-dialog__campo rubro-dialog__campo--wide"
         >
-          <mat-label>Órgano jurisdiccional</mat-label>
+          <mat-label>Órgano jurisdiccional (opcional)</mat-label>
           <input matInput formControlName="organoJurisdiccional" maxlength="200" />
-          @if (
-            formulario.controls.organoJurisdiccional.touched &&
-            formulario.controls.organoJurisdiccional.invalid
-          ) {
-            <mat-error>Ingrese el órgano jurisdiccional.</mat-error>
+          @if (formulario.controls.organoJurisdiccional.hasError('maxlength')) {
+            <mat-error>Máximo 200 caracteres.</mat-error>
           }
         </mat-form-field>
 
@@ -89,15 +86,15 @@
           subscriptSizing="dynamic"
           class="rubro-dialog__campo rubro-dialog__campo--wide"
         >
-          <mat-label>Documento sustentatorio</mat-label>
+          <mat-label>Documento sustentatorio (opcional)</mat-label>
           <input
             matInput
             formControlName="documento"
             maxlength="200"
             placeholder="Resolución, acto administrativo, etc."
           />
-          @if (formulario.controls.documento.touched && formulario.controls.documento.invalid) {
-            <mat-error>Ingrese el documento sustentatorio.</mat-error>
+          @if (formulario.controls.documento.hasError('maxlength')) {
+            <mat-error>Máximo 200 caracteres.</mat-error>
           }
         </mat-form-field>
       </div>

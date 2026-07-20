@@ -96,11 +96,11 @@ export class FormularioProvisionalidad implements OnInit {
     ),
     organoJurisdiccional: this.fb.nonNullable.control(
       this.data.provisionalidad?.organoJurisdiccional ?? '',
-      [Validators.required, Validators.maxLength(200)]
+      Validators.maxLength(200)
     ),
     documento: this.fb.nonNullable.control(
       this.data.provisionalidad?.documento ?? '',
-      [Validators.required, Validators.maxLength(200)]
+      Validators.maxLength(200)
     ),
   });
 

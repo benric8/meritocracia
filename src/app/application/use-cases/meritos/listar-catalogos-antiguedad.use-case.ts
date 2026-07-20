@@ -22,13 +22,19 @@ export type ListarCatalogosAntiguedadResultado =
 export class ListarCatalogosAntiguedadUseCase {
   private readonly maestros = inject(MAESTROS_PORT);
 
-  ejecutar(): Observable<ListarCatalogosAntiguedadResultado> {
+  /**
+   * @param cargoMagistradoId ID del cargo evaluado de la ficha (cabecera).
+   *   Requerido para cargo titular, provisionalidad e inmediato anterior.
+   */
+  ejecutar(cargoMagistradoId: string): Observable<ListarCatalogosAntiguedadResultado> {
+    const cargoId = cargoMagistradoId?.trim() ?? '';
+
     return forkJoin({
       distritosJudiciales: this.maestros.listarDistritosJudiciales(),
-      cargosTitular: this.maestros.listarCargosTitular(),
-      cargosProvisional: this.maestros.listarCargosProvisional(),
+      cargosTitular: this.maestros.listarCargosTitular(cargoId),
+      cargosProvisional: this.maestros.listarCargosProvisional(cargoId),
       especialidades: this.maestros.listarEspecialidades(),
-      nivelesInmediatosAnteriores: this.maestros.listarNivelesInmediatosAnteriores(),
+      nivelesInmediatosAnteriores: this.maestros.listarNivelesInmediatosAnteriores(cargoId),
       colegiosAbogados: this.maestros.listarColegiosAbogados(),
     }).pipe(
       map((catalogos) => ({ exito: true as const, catalogos })),

@@ -192,7 +192,7 @@ export class RubroAntiguedadComponent implements OnInit {
       if (!this.catalogosCargados) {
         return;
       }
-      this.sincronizarCamposDerivadosDelNivel();
+      this.cargarCatalogos();
     });
 
     effect(() => {
@@ -201,7 +201,7 @@ export class RubroAntiguedadComponent implements OnInit {
       } else {
         this.formularioPeriodo.controls.fechaInicio.enable({ emitEvent: false });
         this.formularioPeriodo.controls.fechaFin.enable({ emitEvent: false });
-        // El nivel inmediato anterior lo fija el nivel de la ficha.
+        // El nivel inmediato anterior lo fija el cargo de la ficha.
         this.formularioPeriodo.controls.nivelInmediatoAnteriorId.disable({ emitEvent: false });
       }
     });
@@ -238,6 +238,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo guardar la titularidad', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -292,6 +294,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo guardar el periodo', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -364,6 +368,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo eliminar la provisionalidad', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -431,6 +437,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo eliminar la colegiatura', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -482,6 +490,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo guardar la provisionalidad', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -530,6 +540,8 @@ export class RubroAntiguedadComponent implements OnInit {
           void this.alertas.error('No se pudo guardar la colegiatura', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -544,11 +556,12 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   private cargarCatalogos(): void {
+    const cargoMagistradoId = this.nivelId()?.trim() ?? '';
     this.cargandoCatalogos.set(true);
     this.errorCatalogos.set(null);
 
     this.listarCatalogos
-      .ejecutar()
+      .ejecutar(cargoMagistradoId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.cargandoCatalogos.set(false))
@@ -567,7 +580,7 @@ export class RubroAntiguedadComponent implements OnInit {
         this.catalogosCargados = true;
 
         const rubro = this.rubroInicial();
-        if (this.tieneRubroUtil(rubro)) {
+        if (this.tieneRubroUtil(rubro) && !this.rubroInicialAplicado) {
           this.aplicarRubro(rubro!);
           this.rubroInicialAplicado = true;
         }
@@ -576,7 +589,7 @@ export class RubroAntiguedadComponent implements OnInit {
           this.formularioTitular.disable({ emitEvent: false });
           this.formularioPeriodo.disable({ emitEvent: false });
         } else {
-          // Cargo titular y nivel inmediato anterior los fija el nivel de la ficha.
+          // Cargo titular y nivel inmediato anterior los fija el cargo de la ficha.
           this.formularioTitular.controls.cargoTitularId.disable({ emitEvent: false });
           this.formularioPeriodo.controls.nivelInmediatoAnteriorId.disable({ emitEvent: false });
         }
@@ -594,9 +607,9 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   /**
-   * Campos derivados del nivel de la ficha (no editables):
-   * - Cargo titular = mismo nivel
-   * - Nivel inmediato anterior: Supremo → Superior; Superior → Especializado
+   * Campos derivados del cargo de magistrado de la ficha (no editables):
+   * - Cargo titular actual
+   * - Nivel/cargo inmediato anterior
    */
   private sincronizarCamposDerivadosDelNivel(): void {
     this.sincronizarCargoConNivel();
@@ -604,10 +617,7 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   private sincronizarCargoConNivel(): void {
-    const nivelId = this.nivelId()?.trim() ?? '';
-    const permitidos = nivelId
-      ? this.cargosTitularTodos.filter((c) => c.nivelId === nivelId)
-      : [];
+    const permitidos = this.cargosTitularTodos;
     this.cargosTitular.set(permitidos);
 
     const cargoId = permitidos[0]?.id ?? '';
@@ -620,10 +630,7 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   private sincronizarNivelInmediatoAnterior(): void {
-    const nivelId = this.nivelId()?.trim() ?? '';
-    const permitidos = nivelId
-      ? this.nivelesAnterioresTodos.filter((n) => n.nivelId === nivelId)
-      : [];
+    const permitidos = this.nivelesAnterioresTodos;
     this.nivelesAnteriores.set(permitidos);
 
     const nivelAnteriorId = permitidos[0]?.id ?? '';
@@ -634,13 +641,9 @@ export class RubroAntiguedadComponent implements OnInit {
     control.disable({ emitEvent: false });
   }
 
-  /** Cargos de provisionalidad permitidos para el nivel de la ficha. */
+  /** Cargos de provisionalidad del cargo de magistrado de la ficha. */
   private cargosProvisionalDelNivel(): CatalogoItem[] {
-    const nivelId = this.nivelId()?.trim() ?? '';
-    if (!nivelId) {
-      return [];
-    }
-    return this.cargosProvisional().filter((c) => c.nivelId === nivelId);
+    return this.cargosProvisional();
   }
 
   private tieneRubroUtil(rubro: RubroAntiguedad | null): boolean {

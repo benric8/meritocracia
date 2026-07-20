@@ -39,6 +39,8 @@
           <input
             matInput
             [matDatepicker]="pickerColegiatura"
+            [matDatepickerFilter]="filtroFechaColegiatura"
+            [max]="fechaMaximaColegiatura"
             formControlName="fechaColegiatura"
             readonly
             placeholder="dd/mm/aaaa"
@@ -46,7 +48,9 @@
           />
           <mat-datepicker-toggle matIconSuffix [for]="pickerColegiatura" />
           <mat-datepicker #pickerColegiatura startView="multi-year" />
-          @if (
+          @if (formulario.controls.fechaColegiatura.hasError('fechaFutura')) {
+            <mat-error>La fecha no puede ser posterior a hoy.</mat-error>
+          } @else if (
             formulario.controls.fechaColegiatura.touched &&
             formulario.controls.fechaColegiatura.invalid
           ) {

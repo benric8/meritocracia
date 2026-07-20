@@ -66,6 +66,22 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.CREAR),
   },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.ANTIGUEDAD),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.PERIODO_INMEDIATO),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.PROVISIONALIDAD),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.COLEGIATURA),
+  },
 ];
 
 export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {

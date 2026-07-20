@@ -359,6 +359,8 @@ export class Registro implements OnInit {
                 evento.obtencion.detalle?.mensaje ??
                 evento.obtencion.mensaje ??
                 'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.',
+              codigo: evento.obtencion.detalle?.codigo,
+              codigoOperacion: evento.obtencion.detalle?.codigoOperacion,
             }
           );
           return;
@@ -466,6 +468,8 @@ export class Registro implements OnInit {
           void this.alertas.error('No se pudieron guardar los datos', {
             mensaje:
               guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
+            codigo: guardado.detalle?.codigo,
+            codigoOperacion: guardado.detalle?.codigoOperacion,
           });
           return;
         }
@@ -495,6 +499,8 @@ export class Registro implements OnInit {
           void this.alertas.error('No se pudo crear la ficha', {
             mensaje:
               guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
+            codigo: guardado.detalle?.codigo,
+            codigoOperacion: guardado.detalle?.codigoOperacion,
           });
           return;
         }
