@@ -17,6 +17,7 @@ export interface TitularidadActual {
 
 /** 1.er criterio de desempate: periodo en nivel inmediato anterior. */
 export interface PeriodoNivelAnterior {
+  id: string | null;
   nivelInmediatoAnteriorId: string;
   fechaInicio: string | null;
   fechaFin: string | null;

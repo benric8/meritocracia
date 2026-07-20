@@ -14,6 +14,7 @@ import {
   Colegiatura,
   PeriodoNivelAnterior,
   Provisionalidad,
+  RubroAntiguedad,
   TitularidadActual,
 } from '../../../domain/models/rubro-antiguedad.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -28,25 +29,30 @@ import {
   GuardarPeriodoInmediatoResponse,
   GuardarProvisionalidadResponse,
   GuardarTitularidadResponse,
+  ObtenerAntiguedadResponse,
 } from '../../dto/remote/FichaAntiguedadResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
   FlujoFichaResponse,
+  ObtenerFichaResponse,
 } from '../../dto/remote/FichaResponse.dto';
 import {
   aplicarColegiaturaEnFicha,
   aplicarPeriodoEnFicha,
   aplicarProvisionalidadEnFicha,
   aplicarTitularidadEnFicha,
+  esIdPersistidoApi,
   toGuardarColegiaturaRequestDto,
   toGuardarPeriodoInmediatoRequestDto,
   toGuardarProvisionalidadRequestDto,
   toGuardarTitularidadRequestDto,
+  toRubroAntiguedadDesdeDetalle,
 } from '../../mappers/ficha-antiguedad.mapper';
 import {
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
+  toFichaValoracionDesdeDetalle,
   toResultadoResolverFicha,
 } from '../../mappers/ficha.mapper';
 
@@ -60,7 +66,7 @@ function esRespuestaEnvuelta(
 export class FichaHttpAdapter implements FichaPort {
   private readonly http = inject(HttpClient);
   private readonly sesion = inject(SESION_PORT);
-  /** Estado local de fichas del ciclo actual (el API aún no expone GET completo). */
+  /** Cache local para mutaciones de rubros tras crear/obtener la ficha. */
   private readonly fichasEnMemoria = new Map<string, FichaValoracion>();
 
   private get baseUrl(): string {
@@ -137,18 +143,99 @@ export class FichaHttpAdapter implements FichaPort {
   }
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
-    const enMemoria = this.fichasEnMemoria.get(fichaId.trim());
-    if (enMemoria) {
-      return new Observable((subscriber) => {
-        subscriber.next(enMemoria);
-        subscriber.complete();
-      });
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
     }
 
-    return this.noImplementado('obtener ficha por id');
+    const id = fichaId.trim();
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerFichaResponse>(`${this.baseUrl}${fichaEndpoints.porId(id)}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          if (!respuesta.data) {
+            throw new ErrorNegocioApi({
+              mensaje: 'El servidor no devolvió la ficha.',
+            });
+          }
+          const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
+          return this.fusionarConMemoria(ficha);
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener la ficha.')
+      );
   }
 
-  guardarTitularidad(fichaId: string, data: TitularidadActual): Observable<FichaValoracion> {
+  obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId.trim();
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerAntiguedadResponse>(`${this.baseUrl}${fichaEndpoints.ANTIGUEDAD}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          if (!respuesta.data) {
+            throw new ErrorNegocioApi({
+              mensaje: 'El servidor no devolvió el rubro de antigüedad.',
+            });
+          }
+          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
+          this.actualizarRubroEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de antigüedad.')
+      );
+  }
+
+  guardarTitularidad(
+    fichaId: string,
+    data: TitularidadActual,
+    antiguedadId?: string | null
+  ): Observable<FichaValoracion> {
     try {
       this.asegurarTokenOpciones();
     } catch (error) {
@@ -162,21 +249,32 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    return this.http
-      .post<GuardarTitularidadResponse>(`${this.baseUrl}${fichaEndpoints.ANTIGUEDAD}`, body)
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          if (!respuesta.data) {
-            throw new ErrorNegocioApi({
-              mensaje: 'El servidor no devolvió la antigüedad guardada.',
-            });
-          }
-          const ficha = this.asegurarFichaEnMemoria(fichaId);
-          return this.guardarEnMemoria(aplicarTitularidadEnFicha(ficha, data, respuesta.data));
-        }),
-        mapearAErrorNegocioApi('No se pudo guardar la titularidad.')
-      );
+    const idAntiguedad = antiguedadId?.trim() ?? '';
+    const url = idAntiguedad
+      ? `${this.baseUrl}${fichaEndpoints.antiguedadPorId(idAntiguedad)}`
+      : `${this.baseUrl}${fichaEndpoints.ANTIGUEDAD}`;
+
+    const request$ = idAntiguedad
+      ? this.http.put<GuardarTitularidadResponse>(url, body)
+      : this.http.post<GuardarTitularidadResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: idAntiguedad
+              ? 'El servidor no devolvió la titularidad actualizada.'
+              : 'El servidor no devolvió la antigüedad guardada.',
+          });
+        }
+        const ficha = this.asegurarFichaEnMemoria(fichaId);
+        return this.guardarEnMemoria(aplicarTitularidadEnFicha(ficha, data, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        idAntiguedad ? 'No se pudo actualizar la titularidad.' : 'No se pudo guardar la titularidad.'
+      )
+    );
   }
 
   guardarPeriodoNivelAnterior(
@@ -208,23 +306,34 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    return this.http
-      .post<GuardarPeriodoInmediatoResponse>(
-        `${this.baseUrl}${fichaEndpoints.PERIODO_INMEDIATO}`,
-        body
+    const periodoId = data.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(periodoId);
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.periodoInmediatoPorId(periodoId)}`
+      : `${this.baseUrl}${fichaEndpoints.PERIODO_INMEDIATO}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarPeriodoInmediatoResponse>(url, body)
+      : this.http.post<GuardarPeriodoInmediatoResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió el periodo actualizado.'
+              : 'El servidor no devolvió el periodo guardado.',
+          });
+        }
+        return this.guardarEnMemoria(aplicarPeriodoEnFicha(ficha, data, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar el periodo de nivel anterior.'
+          : 'No se pudo guardar el periodo de nivel anterior.'
       )
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          if (!respuesta.data) {
-            throw new ErrorNegocioApi({
-              mensaje: 'El servidor no devolvió el periodo guardado.',
-            });
-          }
-          return this.guardarEnMemoria(aplicarPeriodoEnFicha(ficha, data, respuesta.data));
-        }),
-        mapearAErrorNegocioApi('No se pudo guardar el periodo de nivel anterior.')
-      );
+    );
   }
 
   upsertProvisionalidad(fichaId: string, item: Provisionalidad): Observable<FichaValoracion> {
@@ -252,25 +361,34 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    return this.http
-      .post<GuardarProvisionalidadResponse>(
-        `${this.baseUrl}${fichaEndpoints.PROVISIONALIDAD}`,
-        body
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.provisionalidadPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.PROVISIONALIDAD}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarProvisionalidadResponse>(url, body)
+      : this.http.post<GuardarProvisionalidadResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió la provisionalidad actualizada.'
+              : 'El servidor no devolvió la provisionalidad guardada.',
+          });
+        }
+        return this.guardarEnMemoria(
+          aplicarProvisionalidadEnFicha(ficha, item, respuesta.data)
+        );
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion ? 'No se pudo actualizar la provisionalidad.' : 'No se pudo guardar la provisionalidad.'
       )
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          if (!respuesta.data) {
-            throw new ErrorNegocioApi({
-              mensaje: 'El servidor no devolvió la provisionalidad guardada.',
-            });
-          }
-          return this.guardarEnMemoria(
-            aplicarProvisionalidadEnFicha(ficha, item, respuesta.data)
-          );
-        }),
-        mapearAErrorNegocioApi('No se pudo guardar la provisionalidad.')
-      );
+    );
   }
 
   eliminarProvisionalidad(
@@ -305,20 +423,32 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    return this.http
-      .post<GuardarColegiaturaResponse>(`${this.baseUrl}${fichaEndpoints.COLEGIATURA}`, body)
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          if (!respuesta.data) {
-            throw new ErrorNegocioApi({
-              mensaje: 'El servidor no devolvió la colegiatura guardada.',
-            });
-          }
-          return this.guardarEnMemoria(aplicarColegiaturaEnFicha(ficha, item, respuesta.data));
-        }),
-        mapearAErrorNegocioApi('No se pudo guardar la colegiatura.')
-      );
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.colegiaturaPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.COLEGIATURA}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarColegiaturaResponse>(url, body)
+      : this.http.post<GuardarColegiaturaResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió la colegiatura actualizada.'
+              : 'El servidor no devolvió la colegiatura guardada.',
+          });
+        }
+        return this.guardarEnMemoria(aplicarColegiaturaEnFicha(ficha, item, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion ? 'No se pudo actualizar la colegiatura.' : 'No se pudo guardar la colegiatura.'
+      )
+    );
   }
 
   eliminarColegiatura(_fichaId: string, _itemId: string): Observable<FichaValoracion> {
@@ -381,6 +511,46 @@ export class FichaHttpAdapter implements FichaPort {
   private guardarEnMemoria(ficha: FichaValoracion): FichaValoracion {
     this.fichasEnMemoria.set(ficha.id, ficha);
     return ficha;
+  }
+
+  /**
+   * El GET de ficha no trae el detalle del rubro B; si en la sesión ya se guardó
+   * titularidad/ítems, se conserva ese estado local sobre la cabecera fresca del API.
+   */
+  private fusionarConMemoria(fichaApi: FichaValoracion): FichaValoracion {
+    const previa = this.fichasEnMemoria.get(fichaApi.id);
+    const rubroPrevio = previa?.rubroAntiguedad;
+    if (rubroPrevio?.id) {
+      return this.guardarEnMemoria({
+        ...fichaApi,
+        rubroAntiguedad: rubroPrevio,
+      });
+    }
+
+    return this.guardarEnMemoria(fichaApi);
+  }
+
+  private actualizarRubroEnMemoria(fichaId: string, rubro: RubroAntiguedad): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroAntiguedad: rubro,
+        puntajeTotal: rubro.titularidad.puntaje,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroAntiguedad: rubro,
+      puntajeTotal: rubro.titularidad.puntaje,
+      actualizadoEn: new Date().toISOString(),
+    });
   }
 
   private noImplementado(operacion: string): Observable<FichaValoracion> {

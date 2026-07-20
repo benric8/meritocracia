@@ -21,7 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { debounceTime, finalize, take } from 'rxjs';
+import { debounceTime, EMPTY, finalize, map, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { CalcularAniosColegiaturaUseCase } from '../../../../../../application/use-cases/meritos/calcular-anios-colegiatura.use-case';
 import { CalcularPuntajeAntiguedadUseCase } from '../../../../../../application/use-cases/meritos/calcular-puntaje-antiguedad.use-case';
 import { CalcularTiempoServicioUseCase } from '../../../../../../application/use-cases/meritos/calcular-tiempo-servicio.use-case';
@@ -53,6 +53,7 @@ import {
   crearFiltroFechaMaxima,
   crearFiltroFechaMinima,
   esFechaAnterior,
+  esIdPersistidoApi,
   formatearFechaCorta,
   formatearPuntaje,
 } from '../rubros.util';
@@ -106,6 +107,7 @@ export class RubroAntiguedadComponent implements OnInit {
   readonly soloLectura = input(false);
   readonly rubroInicial = input<RubroAntiguedad | null>(null);
   readonly fechaValoracion = input<string | null>(null);
+  readonly cargandoDetalle = input(false);
   readonly puntajeChange = output<number>();
   readonly fichaActualizada = output<FichaValoracion>();
 
@@ -120,7 +122,20 @@ export class RubroAntiguedadComponent implements OnInit {
   protected readonly puedeEditarDesempate = computed(
     () => this.titularGuardada() && !!this.antiguedadId() && !this.soloLectura()
   );
+  protected readonly etiquetaBotonTitularidad = computed(() =>
+    this.titularGuardada() && this.antiguedadId() ? 'Actualizar' : 'Guardar'
+  );
+  protected readonly iconoBotonTitularidad = computed(() =>
+    this.titularGuardada() && this.antiguedadId() ? 'sync' : 'save'
+  );
   protected readonly periodoGuardado = signal(false);
+  protected readonly periodoInmediatoId = signal<string | null>(null);
+  protected readonly etiquetaBotonPeriodo = computed(() =>
+    this.periodoGuardado() && this.periodoInmediatoId() ? 'Actualizar' : 'Guardar'
+  );
+  protected readonly iconoBotonPeriodo = computed(() =>
+    this.periodoGuardado() && this.periodoInmediatoId() ? 'sync' : 'save'
+  );
   protected readonly errorCatalogos = signal<string | null>(null);
 
   protected readonly distritos = signal<CatalogoItem[]>([]);
@@ -167,24 +182,47 @@ export class RubroAntiguedadComponent implements OnInit {
   });
 
   private catalogosCargados = false;
-  private rubroInicialAplicado = false;
+  private ultimoRubroHidratadoClave: string | null = null;
+  /** True solo durante la hidratación programática del rubro (GET / guardar). */
+  private hidratandoRubro = false;
   private cargosTitularTodos: CatalogoItem[] = [];
   private nivelesAnterioresTodos: CatalogoItem[] = [];
+  private readonly recalcularTitular$ = new Subject<void>();
+  private readonly recalcularPeriodo$ = new Subject<void>();
+  private readonly detenerRecalcTitular$ = new Subject<void>();
+  private readonly detenerRecalcPeriodo$ = new Subject<void>();
+  /** Solo true tras edición manual; evita recalcular al hidratar desde GET. */
+  private readonly usuarioEditoTitular = signal(false);
+  private readonly usuarioEditoPeriodo = signal(false);
 
   constructor() {
     effect(() => {
       this.fechaValoracion();
-      this.recalcularTiempoTitular();
-      this.recalcularAniosColegiaturas();
+      if (this.hidratandoRubro) {
+        return;
+      }
+      if (this.usuarioEditoTitular()) {
+        this.solicitarRecalculoTitular();
+      }
+      if (this.usuarioEditoPeriodo()) {
+        this.solicitarRecalculoPeriodo();
+      }
+      this.solicitarRecalculoAniosColegiaturas();
     });
 
     effect(() => {
       const rubro = this.rubroInicial();
-      if (!this.catalogosCargados || this.rubroInicialAplicado || !this.tieneRubroUtil(rubro)) {
+      if (!this.catalogosCargados || !this.tieneRubroUtil(rubro)) {
         return;
       }
-      this.aplicarRubro(rubro!);
-      this.rubroInicialAplicado = true;
+
+      const clave = this.claveRubro(rubro!);
+      if (this.ultimoRubroHidratadoClave === clave) {
+        return;
+      }
+
+      this.hidratarRubroDesdeApi(rubro!);
+      this.ultimoRubroHidratadoClave = clave;
     });
 
     effect(() => {
@@ -208,9 +246,60 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.inicializarRecalculosReactivos();
     this.cargarCatalogos();
     this.escucharFormularioTitular();
     this.escucharFormularioPeriodo();
+  }
+
+  /** Cancela cálculos anteriores y unifica el patrón titular / periodo. */
+  private inicializarRecalculosReactivos(): void {
+    this.recalcularTitular$
+      .pipe(
+        debounceTime(300),
+        switchMap(() =>
+          this.calcularTiempoTitular$().pipe(takeUntil(this.detenerRecalcTitular$))
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((tiempo) => {
+        this.tiempoTitular.set(tiempo);
+        this.actualizarPuntaje(tiempo);
+      });
+
+    this.recalcularPeriodo$
+      .pipe(
+        debounceTime(300),
+        switchMap(() =>
+          this.calcularTiempoPeriodo$().pipe(takeUntil(this.detenerRecalcPeriodo$))
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((tiempo) => {
+        this.tiempoPeriodo.set(tiempo);
+      });
+  }
+
+  /** Solo para edición del usuario; la hidratación usa los tiempos del API. */
+  private solicitarRecalculoTitular(): void {
+    if (this.hidratandoRubro || !this.usuarioEditoTitular()) {
+      return;
+    }
+    this.recalcularTitular$.next();
+  }
+
+  private solicitarRecalculoPeriodo(): void {
+    if (this.hidratandoRubro || !this.usuarioEditoPeriodo()) {
+      return;
+    }
+    this.recalcularPeriodo$.next();
+  }
+
+  private solicitarRecalculoAniosColegiaturas(): void {
+    if (this.hidratandoRubro) {
+      return;
+    }
+    this.recalcularAniosColegiaturas();
   }
 
   protected onGuardarTitularidad(): void {
@@ -225,39 +314,52 @@ export class RubroAntiguedadComponent implements OnInit {
     }
 
     const data = this.construirTitularidadActual();
+    const esActualizacion = this.titularGuardada() && !!this.antiguedadId();
     this.guardandoTitular.set(true);
 
     this.guardarTitularidad
-      .ejecutar(id, data)
+      .ejecutar(id, data, this.antiguedadId())
       .pipe(
         take(1),
         finalize(() => this.guardandoTitular.set(false))
       )
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo guardar la titularidad', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            esActualizacion ? 'No se pudo actualizar la titularidad' : 'No se pudo guardar la titularidad',
+            {
+              mensaje:
+                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+              codigo: resultado.detalle?.codigo,
+              codigoOperacion: resultado.detalle?.codigoOperacion,
+            }
+          );
           return;
         }
 
-        this.titularGuardada.set(true);
-        const rubro = resultado.ficha.rubroAntiguedad;
-        if (rubro) {
-          this.antiguedadId.set(rubro.id);
-          this.tiempoTitular.set(rubro.titularidad.tiempoTotal);
-          this.puntajeTitular.set(rubro.titularidad.puntaje);
-        }
-        this.puntajeChange.emit(this.puntajeTitular());
+        this.aplicarTitularidadGuardada(resultado.ficha.rubroAntiguedad);
         this.fichaActualizada.emit(resultado.ficha);
         await this.alertas.exito(
-          'Titularidad guardada',
-          'Los datos de titularidad se guardaron correctamente.'
+          esActualizacion ? 'Titularidad actualizada' : 'Titularidad guardada',
+          esActualizacion
+            ? 'Los datos de titularidad se actualizaron correctamente.'
+            : 'Los datos de titularidad se guardaron correctamente.'
         );
       });
+  }
+
+  private aplicarTitularidadGuardada(rubro: RubroAntiguedad | null | undefined): void {
+    if (!rubro) {
+      return;
+    }
+
+    this.titularGuardada.set(true);
+    this.antiguedadId.set(rubro.id);
+    this.tiempoTitular.set(rubro.titularidad.tiempoTotal);
+    this.puntajeTitular.set(rubro.titularidad.puntaje);
+    this.puntajeChange.emit(rubro.titularidad.puntaje);
+    this.usuarioEditoTitular.set(false);
+    this.calculandoTitular.set(false);
   }
 
   protected onGuardarPeriodo(): void {
@@ -281,6 +383,7 @@ export class RubroAntiguedadComponent implements OnInit {
     }
 
     const data = this.construirPeriodoNivelAnterior();
+    const esActualizacion = this.periodoGuardado() && !!this.periodoInmediatoId();
     this.guardandoPeriodo.set(true);
 
     this.guardarPeriodo
@@ -291,26 +394,39 @@ export class RubroAntiguedadComponent implements OnInit {
       )
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo guardar el periodo', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            esActualizacion ? 'No se pudo actualizar el periodo' : 'No se pudo guardar el periodo',
+            {
+              mensaje:
+                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+              codigo: resultado.detalle?.codigo,
+              codigoOperacion: resultado.detalle?.codigoOperacion,
+            }
+          );
           return;
         }
 
-        this.periodoGuardado.set(true);
-        const rubro = resultado.ficha.rubroAntiguedad;
-        if (rubro) {
-          this.tiempoPeriodo.set(rubro.periodoNivelAnterior.tiempoTotal);
-        }
+        this.aplicarPeriodoGuardado(resultado.ficha.rubroAntiguedad);
         this.fichaActualizada.emit(resultado.ficha);
         await this.alertas.exito(
-          'Periodo guardado',
-          'El periodo de nivel anterior se guardó correctamente.'
+          esActualizacion ? 'Periodo actualizado' : 'Periodo guardado',
+          esActualizacion
+            ? 'El periodo de nivel anterior se actualizó correctamente.'
+            : 'El periodo de nivel anterior se guardó correctamente.'
         );
       });
+  }
+
+  private aplicarPeriodoGuardado(rubro: RubroAntiguedad | null | undefined): void {
+    if (!rubro) {
+      return;
+    }
+
+    this.periodoGuardado.set(true);
+    this.periodoInmediatoId.set(rubro.periodoNivelAnterior.id);
+    this.tiempoPeriodo.set(rubro.periodoNivelAnterior.tiempoTotal);
+    this.usuarioEditoPeriodo.set(false);
+    this.calculandoPeriodo.set(false);
   }
 
   protected abrirProvisionalidad(existente?: Provisionalidad): void {
@@ -467,6 +583,7 @@ export class RubroAntiguedadComponent implements OnInit {
     };
 
     const fichaId = this.fichaId();
+    const esActualizacion = esIdPersistidoApi(registro.id);
     if (!fichaId) {
       this.provisionalidades.update((lista) => {
         const idx = lista.findIndex((p) => p.id === registro.id);
@@ -485,14 +602,19 @@ export class RubroAntiguedadComponent implements OnInit {
     this.mutarItems
       .upsertProvisionalidad(fichaId, registro)
       .pipe(take(1))
-      .subscribe((resultado) => {
+      .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo guardar la provisionalidad', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            esActualizacion
+              ? 'No se pudo actualizar la provisionalidad'
+              : 'No se pudo guardar la provisionalidad',
+            {
+              mensaje:
+                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+              codigo: resultado.detalle?.codigo,
+              codigoOperacion: resultado.detalle?.codigoOperacion,
+            }
+          );
           return;
         }
 
@@ -502,6 +624,12 @@ export class RubroAntiguedadComponent implements OnInit {
         }
         this.fichaActualizada.emit(resultado.ficha);
         ref.close();
+        await this.alertas.exito(
+          esActualizacion ? 'Provisionalidad actualizada' : 'Provisionalidad guardada',
+          esActualizacion
+            ? 'El periodo de provisionalidad se actualizó correctamente.'
+            : 'El periodo de provisionalidad se guardó correctamente.'
+        );
       });
   }
 
@@ -518,6 +646,7 @@ export class RubroAntiguedadComponent implements OnInit {
     };
 
     const fichaId = this.fichaId();
+    const esActualizacion = esIdPersistidoApi(registro.id);
     if (!fichaId) {
       this.colegiaturas.update((lista) => {
         const idx = lista.findIndex((c) => c.id === registro.id);
@@ -535,14 +664,17 @@ export class RubroAntiguedadComponent implements OnInit {
     this.mutarItems
       .upsertColegiatura(fichaId, registro)
       .pipe(take(1))
-      .subscribe((resultado) => {
+      .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo guardar la colegiatura', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            esActualizacion ? 'No se pudo actualizar la colegiatura' : 'No se pudo guardar la colegiatura',
+            {
+              mensaje:
+                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+              codigo: resultado.detalle?.codigo,
+              codigoOperacion: resultado.detalle?.codigoOperacion,
+            }
+          );
           return;
         }
 
@@ -552,6 +684,12 @@ export class RubroAntiguedadComponent implements OnInit {
         }
         this.fichaActualizada.emit(resultado.ficha);
         ref.close();
+        await this.alertas.exito(
+          esActualizacion ? 'Colegiatura actualizada' : 'Colegiatura guardada',
+          esActualizacion
+            ? 'La colegiatura se actualizó correctamente.'
+            : 'La colegiatura se guardó correctamente.'
+        );
       });
   }
 
@@ -580,9 +718,12 @@ export class RubroAntiguedadComponent implements OnInit {
         this.catalogosCargados = true;
 
         const rubro = this.rubroInicial();
-        if (this.tieneRubroUtil(rubro) && !this.rubroInicialAplicado) {
-          this.aplicarRubro(rubro!);
-          this.rubroInicialAplicado = true;
+        if (this.tieneRubroUtil(rubro)) {
+          const clave = this.claveRubro(rubro!);
+          if (this.ultimoRubroHidratadoClave !== clave) {
+            this.hidratarRubroDesdeApi(rubro!);
+            this.ultimoRubroHidratadoClave = clave;
+          }
         }
 
         if (this.soloLectura()) {
@@ -623,7 +764,7 @@ export class RubroAntiguedadComponent implements OnInit {
     const cargoId = permitidos[0]?.id ?? '';
     const control = this.formularioTitular.controls.cargoTitularId;
     if (control.getRawValue() !== cargoId) {
-      control.setValue(cargoId, { emitEvent: true });
+      control.setValue(cargoId, { emitEvent: false });
     }
     control.disable({ emitEvent: false });
     this.actualizarPuedeGuardarTitularidad();
@@ -636,7 +777,7 @@ export class RubroAntiguedadComponent implements OnInit {
     const nivelAnteriorId = permitidos[0]?.id ?? '';
     const control = this.formularioPeriodo.controls.nivelInmediatoAnteriorId;
     if (control.getRawValue() !== nivelAnteriorId) {
-      control.setValue(nivelAnteriorId, { emitEvent: true });
+      control.setValue(nivelAnteriorId, { emitEvent: false });
     }
     control.disable({ emitEvent: false });
   }
@@ -653,52 +794,104 @@ export class RubroAntiguedadComponent implements OnInit {
     return (
       !!rubro.id ||
       !!rubro.titularidad.fechaJuramentacion ||
-      rubro.provisionalidades.length > 0
+      rubro.provisionalidades.length > 0 ||
+      rubro.colegiaturas.length > 0 ||
+      !!rubro.periodoNivelAnterior.fechaInicio
     );
   }
 
-  private aplicarRubro(rubro: RubroAntiguedad): void {
+  private claveRubro(rubro: RubroAntiguedad): string {
+    return [
+      rubro.id ?? '',
+      rubro.titularidad.fechaJuramentacion ?? '',
+      rubro.periodoNivelAnterior.fechaInicio ?? '',
+      rubro.provisionalidades.length,
+      rubro.colegiaturas.length,
+    ].join('|');
+  }
+
+  /**
+   * Hidrata formulario y tiempos desde API o respuesta de guardado.
+   * No recalcula: el backend es la fuente de verdad en este flujo.
+   */
+  private hidratarRubroDesdeApi(rubro: RubroAntiguedad): void {
     const { titularidad, periodoNivelAnterior } = rubro;
 
-    this.formularioTitular.patchValue(
-      {
-        distritoJudicialId: titularidad.distritoJudicialId,
-        fechaJuramentacion: aDateDesdeIso(titularidad.fechaJuramentacion),
-        horaJuramento: titularidad.horaJuramento ?? '',
-        fechaCese: aDateDesdeIso(titularidad.fechaCese),
-        fechaReincorporacion: aDateDesdeIso(titularidad.fechaReincorporacion),
-        primeraEspecialidadId: titularidad.primeraEspecialidadId,
-        segundaEspecialidadId: titularidad.segundaEspecialidadId,
-      },
-      { emitEvent: true }
+    this.hidratandoRubro = true;
+    this.detenerRecalcTitular$.next();
+    this.detenerRecalcPeriodo$.next();
+    try {
+      this.usuarioEditoTitular.set(false);
+      this.usuarioEditoPeriodo.set(false);
+      this.calculandoTitular.set(false);
+      this.calculandoPeriodo.set(false);
+
+      this.formularioTitular.patchValue(
+        {
+          distritoJudicialId: titularidad.distritoJudicialId,
+          fechaJuramentacion: aDateDesdeIso(titularidad.fechaJuramentacion),
+          horaJuramento: titularidad.horaJuramento ?? '',
+          fechaCese: aDateDesdeIso(titularidad.fechaCese),
+          fechaReincorporacion: aDateDesdeIso(titularidad.fechaReincorporacion),
+          primeraEspecialidadId: titularidad.primeraEspecialidadId,
+          segundaEspecialidadId: titularidad.segundaEspecialidadId,
+        },
+        { emitEvent: false }
+      );
+      this.sincronizarCamposDerivadosDelNivel();
+
+      this.formularioPeriodo.patchValue(
+        {
+          fechaInicio: aDateDesdeIso(periodoNivelAnterior.fechaInicio),
+          fechaFin: aDateDesdeIso(periodoNivelAnterior.fechaFin),
+        },
+        { emitEvent: false }
+      );
+      this.sincronizarNivelInmediatoAnterior();
+
+      this.tiempoTitular.set(titularidad.tiempoTotal);
+      this.puntajeTitular.set(titularidad.puntaje);
+      this.puntajeChange.emit(titularidad.puntaje);
+      this.tiempoPeriodo.set(periodoNivelAnterior.tiempoTotal);
+      this.provisionalidades.set(rubro.provisionalidades);
+      this.sumaProvisionalidades.set(rubro.sumaProvisionalidades);
+      this.colegiaturas.set(rubro.colegiaturas);
+
+      this.titularGuardada.set(!!rubro.id || !!titularidad.fechaJuramentacion);
+      this.antiguedadId.set(rubro.id);
+      this.periodoInmediatoId.set(
+        esIdPersistidoApi(periodoNivelAnterior.id) ? periodoNivelAnterior.id : null
+      );
+      this.periodoGuardado.set(
+        esIdPersistidoApi(periodoNivelAnterior.id) ||
+          (!!periodoNivelAnterior.fechaInicio && !!periodoNivelAnterior.fechaFin)
+      );
+      this.actualizarPuedeGuardarTitularidad();
+      this.enriquecerNombresCatalogo();
+    } finally {
+      this.hidratandoRubro = false;
+    }
+  }
+
+  private enriquecerNombresCatalogo(): void {
+    const cargos = this.cargosProvisional();
+    const colegios = this.colegios();
+
+    this.provisionalidades.update((lista) =>
+      lista.map((item) => ({
+        ...item,
+        cargoNombre:
+          cargos.find((cargo) => cargo.id === item.cargoId)?.nombre ?? item.cargoNombre,
+      }))
     );
-    this.sincronizarCamposDerivadosDelNivel();
 
-    this.formularioPeriodo.patchValue(
-      {
-        fechaInicio: aDateDesdeIso(periodoNivelAnterior.fechaInicio),
-        fechaFin: aDateDesdeIso(periodoNivelAnterior.fechaFin),
-      },
-      { emitEvent: true }
+    this.colegiaturas.update((lista) =>
+      lista.map((item) => ({
+        ...item,
+        colegioNombre:
+          colegios.find((colegio) => colegio.id === item.colegioId)?.nombre ?? item.colegioNombre,
+      }))
     );
-    this.sincronizarNivelInmediatoAnterior();
-
-    this.tiempoTitular.set(titularidad.tiempoTotal);
-    this.puntajeTitular.set(titularidad.puntaje);
-    this.puntajeChange.emit(titularidad.puntaje);
-    this.tiempoPeriodo.set(periodoNivelAnterior.tiempoTotal);
-    this.provisionalidades.set(rubro.provisionalidades);
-    this.sumaProvisionalidades.set(rubro.sumaProvisionalidades);
-    this.colegiaturas.set(rubro.colegiaturas);
-
-    this.titularGuardada.set(!!rubro.id || !!titularidad.fechaJuramentacion);
-    this.antiguedadId.set(rubro.id);
-    this.periodoGuardado.set(
-      !!periodoNivelAnterior.fechaInicio && !!periodoNivelAnterior.fechaFin
-    );
-    this.actualizarPuedeGuardarTitularidad();
-
-    this.recalcularAniosColegiaturas();
   }
 
   private sincronizarItemsDesdeRubro(rubro: RubroAntiguedad): void {
@@ -732,6 +925,7 @@ export class RubroAntiguedadComponent implements OnInit {
   private construirPeriodoNivelAnterior(): PeriodoNivelAnterior {
     const raw = this.formularioPeriodo.getRawValue();
     return {
+      id: this.periodoInmediatoId(),
       nivelInmediatoAnteriorId: raw.nivelInmediatoAnteriorId,
       fechaInicio: raw.fechaInicio ? aFechaIsoLocal(raw.fechaInicio) : null,
       fechaFin: raw.fechaFin ? aFechaIsoLocal(raw.fechaFin) : null,
@@ -762,18 +956,22 @@ export class RubroAntiguedadComponent implements OnInit {
         primeraEspecialidadId: especialidad,
         segundaEspecialidadId: '',
       },
-      { emitEvent: true }
+      { emitEvent: false }
     );
     this.sincronizarCamposDerivadosDelNivel();
+    this.usuarioEditoTitular.set(true);
+    this.solicitarRecalculoTitular();
 
     this.formularioPeriodo.patchValue(
       {
         fechaInicio: aDateDesdeIso('2003-11-18'),
         fechaFin: aDateDesdeIso('2013-04-08'),
       },
-      { emitEvent: true }
+      { emitEvent: false }
     );
     this.sincronizarNivelInmediatoAnterior();
+    this.usuarioEditoPeriodo.set(true);
+    this.solicitarRecalculoPeriodo();
 
     if (cargoProv) {
       this.provisionalidades.set([
@@ -814,7 +1012,7 @@ export class RubroAntiguedadComponent implements OnInit {
     lista.forEach((item, index) => {
       this.calcularTiempo
         .ejecutarEntreFechas(item.fechaInicio, item.fechaFin)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(take(1))
         .subscribe((resultado) => {
           if (!resultado.exito) {
             return;
@@ -837,8 +1035,11 @@ export class RubroAntiguedadComponent implements OnInit {
       .subscribe(() => this.actualizarPuedeGuardarTitularidad());
 
     this.formularioTitular.valueChanges
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.recalcularTiempoTitular());
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.usuarioEditoTitular.set(true);
+        this.solicitarRecalculoTitular();
+      });
 
     this.actualizarPuedeGuardarTitularidad();
   }
@@ -874,8 +1075,11 @@ export class RubroAntiguedadComponent implements OnInit {
       .subscribe(() => this.actualizarErrorRangoPeriodo());
 
     this.formularioPeriodo.valueChanges
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.recalcularTiempoPeriodo());
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.usuarioEditoPeriodo.set(true);
+        this.solicitarRecalculoPeriodo();
+      });
   }
 
   private actualizarErrorRangoPeriodo(): void {
@@ -893,7 +1097,11 @@ export class RubroAntiguedadComponent implements OnInit {
     }
   }
 
-  private recalcularTiempoTitular(): void {
+  private calcularTiempoTitular$() {
+    if (this.hidratandoRubro) {
+      return EMPTY;
+    }
+
     const raw = this.formularioTitular.getRawValue();
     const juramentacion = raw.fechaJuramentacion
       ? aFechaIsoLocal(raw.fechaJuramentacion)
@@ -901,13 +1109,12 @@ export class RubroAntiguedadComponent implements OnInit {
     const valoracion = this.fechaValoracion()?.slice(0, 10) ?? '';
 
     if (!juramentacion || !valoracion) {
-      this.tiempoTitular.set(TIEMPO_SERVICIO_CERO);
-      this.actualizarPuntaje(TIEMPO_SERVICIO_CERO);
-      return;
+      this.calculandoTitular.set(false);
+      return of(TIEMPO_SERVICIO_CERO);
     }
 
     this.calculandoTitular.set(true);
-    this.calcularTiempo
+    return this.calcularTiempo
       .ejecutarTiempoTitular({
         fechaJuramentacion: juramentacion,
         fechaCese: raw.fechaCese ? aFechaIsoLocal(raw.fechaCese) : null,
@@ -917,55 +1124,52 @@ export class RubroAntiguedadComponent implements OnInit {
         fechaValoracion: valoracion,
       })
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
+        map((resultado) => (resultado.exito ? resultado.tiempo : TIEMPO_SERVICIO_CERO)),
         finalize(() => this.calculandoTitular.set(false))
-      )
-      .subscribe((resultado) => {
-        const tiempo = resultado.exito ? resultado.tiempo : TIEMPO_SERVICIO_CERO;
-        this.tiempoTitular.set(tiempo);
-        this.actualizarPuntaje(tiempo);
-      });
+      );
   }
 
-  private actualizarPuntaje(tiempo: TiempoServicio): void {
-    // El puntaje del encabezado se actualiza solo tras guardar titularidad (respuesta del back).
-    this.calcularPuntaje
-      .ejecutar(tiempo)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((resultado) => {
-        this.puntajeTitular.set(resultado.exito ? resultado.puntaje : 0);
-      });
-  }
+  private calcularTiempoPeriodo$() {
+    if (this.hidratandoRubro) {
+      return EMPTY;
+    }
 
-  private recalcularTiempoPeriodo(): void {
     const raw = this.formularioPeriodo.getRawValue();
     if (!raw.fechaInicio || !raw.fechaFin) {
-      this.tiempoPeriodo.set(TIEMPO_SERVICIO_CERO);
-      return;
+      this.calculandoPeriodo.set(false);
+      return of(TIEMPO_SERVICIO_CERO);
     }
 
     this.calculandoPeriodo.set(true);
-    this.calcularTiempo
+    return this.calcularTiempo
       .ejecutarEntreFechas(
         aFechaIsoLocal(raw.fechaInicio),
         aFechaIsoLocal(raw.fechaFin)
       )
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
+        map((resultado) => (resultado.exito ? resultado.tiempo : TIEMPO_SERVICIO_CERO)),
         finalize(() => this.calculandoPeriodo.set(false))
-      )
+      );
+  }
+
+  private actualizarPuntaje(tiempo: TiempoServicio): void {
+    this.calcularPuntaje
+      .ejecutar(tiempo)
+      .pipe(take(1))
       .subscribe((resultado) => {
-        this.tiempoPeriodo.set(
-          resultado.exito ? resultado.tiempo : TIEMPO_SERVICIO_CERO
-        );
+        this.puntajeTitular.set(resultado.exito ? resultado.puntaje : 0);
       });
   }
 
   private recalcularSumaProvisionalidades(): void {
+    if (this.hidratandoRubro) {
+      return;
+    }
+
     const tiempos = this.provisionalidades().map((p) => p.tiempoTotal);
     this.calcularTiempo
       .sumar(tiempos)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(take(1))
       .subscribe((resultado) => {
         this.sumaProvisionalidades.set(
           resultado.exito ? resultado.tiempo : TIEMPO_SERVICIO_CERO
@@ -974,6 +1178,10 @@ export class RubroAntiguedadComponent implements OnInit {
   }
 
   private recalcularAniosColegiaturas(): void {
+    if (this.hidratandoRubro) {
+      return;
+    }
+
     const valoracion = this.fechaValoracion()?.slice(0, 10) ?? '';
     const lista = this.colegiaturas();
     if (!valoracion || !lista.length) {
@@ -983,7 +1191,7 @@ export class RubroAntiguedadComponent implements OnInit {
     lista.forEach((item) => {
       this.calcularAniosColegiatura
         .ejecutar(item.fechaColegiatura, valoracion)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(take(1))
         .subscribe((resultado) => {
           if (!resultado.exito) {
             return;

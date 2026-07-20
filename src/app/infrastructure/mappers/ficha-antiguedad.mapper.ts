@@ -22,6 +22,7 @@ import {
   GuardarProvisionalidadRequestDto,
   GuardarTitularidadDataDto,
   GuardarTitularidadRequestDto,
+  ObtenerAntiguedadDataDto,
 } from '../dto/remote/FichaAntiguedadResponse.dto';
 
 export function aTiempoServicioDesdePartes(
@@ -55,6 +56,11 @@ function aNumeroIdOpcional(valor: string | null | undefined): number | null {
   }
   const n = Number(crudo);
   return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+export function esIdPersistidoApi(id: string | null | undefined): boolean {
+  const crudo = String(id ?? '').trim();
+  return /^\d+$/.test(crudo);
 }
 
 function normalizarHora(hora: string): string {
@@ -138,6 +144,72 @@ export function toGuardarColegiaturaRequestDto(
   };
 }
 
+export function toRubroAntiguedadDesdeDetalle(data: ObtenerAntiguedadDataDto): RubroAntiguedad {
+  const base = crearRubroAntiguedadVacio();
+  const antiguedad = data.antiguedad;
+
+  if (!antiguedad) {
+    return base;
+  }
+
+  const provisionalidades: Provisionalidad[] = (data.provisionalidades ?? []).map((item) => ({
+    id: String(item.idProvisionalidad),
+    fechaInicio: item.fechaInicio,
+    fechaFin: item.fechaFin,
+    tiempoTotal: aTiempoServicioDesdePartes(item.anios, item.meses, item.dias),
+    cargoId: String(item.nivelMagistradoProvisionalId),
+    cargoNombre: '',
+    organoJurisdiccional: item.organoJurisdiccional ?? '',
+    documento: item.documentoSustentatorio ?? '',
+  }));
+
+  const colegiaturas: Colegiatura[] = (data.colegiaturas ?? []).map((item) => ({
+    id: String(item.idColegiatura),
+    colegioId: String(item.colegioProfesionalId),
+    colegioNombre: '',
+    fechaColegiatura: item.fechaInicio,
+    anios: Number(item.anios) || 0,
+  }));
+
+  const periodo = data.periodoInmediato;
+
+  return {
+    id: String(antiguedad.idFichaAntiguedad),
+    titularidad: {
+      distritoJudicialId: String(antiguedad.idDistritoJudicial),
+      cargoTitularId: String(antiguedad.idCargoMagistrado),
+      fechaJuramentacion: antiguedad.fechaJuramentacion,
+      horaJuramento: normalizarHora(antiguedad.horaJuramentacion),
+      fechaCese: antiguedad.fechaCese,
+      fechaReincorporacion: antiguedad.fechaReincorporacion,
+      fechaValoracion: null,
+      tiempoTotal: aTiempoServicioDesdePartes(
+        antiguedad.anios,
+        antiguedad.meses,
+        antiguedad.dias
+      ),
+      puntaje: Number(antiguedad.puntaje) || 0,
+      primeraEspecialidadId: String(antiguedad.idPrimeraEspecialidad),
+      segundaEspecialidadId:
+        antiguedad.idSegundaEspecialidad != null
+          ? String(antiguedad.idSegundaEspecialidad)
+          : '',
+    },
+    periodoNivelAnterior: periodo
+      ? {
+          id: String(periodo.idPeriodoInmediato),
+          nivelInmediatoAnteriorId: String(periodo.nivelMagistradoAnteriorId),
+          fechaInicio: periodo.fechaInicio,
+          fechaFin: periodo.fechaFin,
+          tiempoTotal: aTiempoServicioDesdePartes(periodo.anios, periodo.meses, periodo.dias),
+        }
+      : base.periodoNivelAnterior,
+    provisionalidades,
+    sumaProvisionalidades: sumarTiemposLocal(provisionalidades.map((p) => p.tiempoTotal)),
+    colegiaturas,
+  };
+}
+
 export function aplicarTitularidadEnFicha(
   ficha: FichaValoracion,
   data: TitularidadActual,
@@ -193,6 +265,7 @@ export function aplicarPeriodoEnFicha(
       id: rubro.id ?? String(respuesta.cargoAntiguedadId),
       periodoNivelAnterior: {
         ...data,
+        id: String(respuesta.idPeriodoInmediato),
         nivelInmediatoAnteriorId: String(
           respuesta.nivelMagistradoAnteriorId ?? data.nivelInmediatoAnteriorId
         ),

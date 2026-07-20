@@ -71,8 +71,8 @@
     <footer class="rubro-dialog__acciones">
       <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
       <button matButton="filled" type="submit">
-        <mat-icon>save</mat-icon>
-        Guardar colegiatura
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar colegiatura' : 'Guardar colegiatura' }}
       </button>
     </footer>
   </form>

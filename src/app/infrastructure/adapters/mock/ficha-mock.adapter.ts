@@ -156,7 +156,21 @@ export class FichaMockAdapter implements FichaPort {
     return of(ficha).pipe(delay(LATENCIA_MS));
   }
 
-  guardarTitularidad(fichaId: string, data: TitularidadActual): Observable<FichaValoracion> {
+  obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(
+        () => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha solicitada.' })
+      );
+    }
+    return of(ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  guardarTitularidad(
+    fichaId: string,
+    data: TitularidadActual,
+    antiguedadId?: string | null
+  ): Observable<FichaValoracion> {
     const ficha = this.buscar(fichaId);
     if (!ficha) {
       return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
@@ -178,8 +192,11 @@ export class FichaMockAdapter implements FichaPort {
           this.antiguedad.calcularPuntajePorAnios(tiempo).pipe(
             map((puntaje) => {
               const rubro = this.asegurarRubro(ficha);
-              if (!rubro.id) {
+              const idExistente = antiguedadId?.trim() || rubro.id;
+              if (!idExistente) {
                 rubro.id = `ant-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+              } else {
+                rubro.id = idExistente;
               }
               rubro.titularidad = {
                 ...data,
@@ -227,7 +244,11 @@ export class FichaMockAdapter implements FichaPort {
     return calc$.pipe(
       map((tiempo) => {
         const rubro = this.asegurarRubro(ficha);
-        rubro.periodoNivelAnterior = { ...data, tiempoTotal: tiempo };
+        rubro.periodoNivelAnterior = {
+          ...data,
+          id: data.id ?? rubro.periodoNivelAnterior.id ?? `per-${Date.now()}`,
+          tiempoTotal: tiempo,
+        };
         return this.persistirRubro(ficha, rubro);
       }),
       delay(LATENCIA_MS)

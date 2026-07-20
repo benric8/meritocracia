@@ -573,6 +573,13 @@ export class Registro implements OnInit {
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
+    if (ficha.fechaValoracionId) {
+      this.fechaValoracionId.set(ficha.fechaValoracionId);
+    }
+    if (ficha.fechaValoracionSnapshot) {
+      this.fechaValoracionVigente.set(ficha.fechaValoracionSnapshot);
+    }
+
     this.formulario.patchValue(
       {
         dni: ficha.datosPersonales.dni,
@@ -603,6 +610,11 @@ export class Registro implements OnInit {
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.fichaEstado.set(ficha.estado);
+  }
+
+  protected onRubroAntiguedadCargado(rubro: RubroAntiguedad): void {
+    this.rubroAntiguedad.set(rubro);
+    this.puntajeTotal.set(rubro.titularidad.puntaje);
   }
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */

@@ -32,6 +32,7 @@ import {
   crearFiltroFechaMaxima,
   crearFiltroFechaMinima,
   esFechaAnterior,
+  esIdPersistidoApi,
   nuevoIdLocal,
 } from '../../rubros.util';
 
@@ -74,6 +75,7 @@ export class FormularioProvisionalidad implements OnInit {
 
   protected readonly cargos = this.data.cargos;
   protected readonly esEdicion = !!this.data.provisionalidad;
+  protected readonly esActualizacion = esIdPersistidoApi(this.data.provisionalidad?.id);
   protected readonly tiempoTotal = signal<TiempoServicio>(
     this.data.provisionalidad?.tiempoTotal ?? TIEMPO_SERVICIO_CERO
   );

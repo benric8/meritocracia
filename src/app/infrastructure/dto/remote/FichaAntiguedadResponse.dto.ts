@@ -102,3 +102,68 @@ export interface GuardarColegiaturaDataDto {
 export interface GuardarColegiaturaResponse extends BaseResponse {
   data: GuardarColegiaturaDataDto;
 }
+
+/** Respuesta de GET /fichas-antiguedad?ficha_valoracion_id=&registrador_id=. */
+export interface AntiguedadDetalleDto {
+  idFichaAntiguedad: number;
+  idFichaValoracion: number;
+  idDistritoJudicial: number;
+  idCargoMagistrado: number;
+  fechaJuramentacion: string;
+  horaJuramentacion: string;
+  fechaCese: string | null;
+  fechaReincorporacion: string | null;
+  idPrimeraEspecialidad: number;
+  idSegundaEspecialidad: number | null;
+  anios: number;
+  meses: number;
+  dias: number;
+  puntaje: number;
+}
+
+export interface PeriodoInmediatoDetalleDto {
+  idPeriodoInmediato: number;
+  cargoAntiguedadId: number;
+  nivelMagistradoAnteriorId: number;
+  idDistritoJudicial?: number;
+  fechaInicio: string;
+  fechaFin: string;
+  anios: number;
+  meses: number;
+  dias: number;
+}
+
+export interface ProvisionalidadDetalleDto {
+  idProvisionalidad: number;
+  cargoAntiguedadId: number;
+  nivelMagistradoProvisionalId: number;
+  idDistritoJudicial?: number;
+  fechaInicio: string;
+  fechaFin: string;
+  anios: number;
+  meses: number;
+  dias: number;
+  documentoSustentatorio: string;
+  organoJurisdiccional: string;
+}
+
+export interface ColegiaturaDetalleDto {
+  idColegiatura: number;
+  cargoAntiguedadId: number;
+  colegioProfesionalId: number;
+  fechaInicio: string;
+  anios: number;
+  meses: number;
+  dias: number;
+}
+
+export interface ObtenerAntiguedadDataDto {
+  antiguedad: AntiguedadDetalleDto | null;
+  periodoInmediato: PeriodoInmediatoDetalleDto | null;
+  provisionalidades: ProvisionalidadDetalleDto[];
+  colegiaturas: ColegiaturaDetalleDto[];
+}
+
+export interface ObtenerAntiguedadResponse extends BaseResponse {
+  data: ObtenerAntiguedadDataDto;
+}

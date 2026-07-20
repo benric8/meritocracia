@@ -71,16 +71,32 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     coincide: (url) => esRutaExacta(url, fichaEndpoints.ANTIGUEDAD),
   },
   {
+    method: 'PUT',
+    coincide: (url) => esRutaAntiguedadPorId(url),
+  },
+  {
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.PERIODO_INMEDIATO),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaPeriodoInmediatoPorId(url),
   },
   {
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.PROVISIONALIDAD),
   },
   {
+    method: 'PUT',
+    coincide: (url) => esRutaProvisionalidadPorId(url),
+  },
+  {
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.COLEGIATURA),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaColegiaturaPorId(url),
   },
 ];
 
@@ -154,4 +170,24 @@ function esRutaReemplazoDocumento(url: string): boolean {
 
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/documentos\/[^/]+$/.test(path);
+}
+
+function esRutaAntiguedadPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-antiguedad\/\d+$/.test(path);
+}
+
+function esRutaPeriodoInmediatoPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-antiguedad\/periodo-inmediato\/\d+$/.test(path);
+}
+
+function esRutaProvisionalidadPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-antiguedad\/provisionalidad\/\d+$/.test(path);
+}
+
+function esRutaColegiaturaPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-antiguedad\/colegiatura\/\d+$/.test(path);
 }

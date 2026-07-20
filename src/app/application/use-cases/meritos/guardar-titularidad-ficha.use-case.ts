@@ -16,9 +16,12 @@ export class GuardarTitularidadFichaUseCase {
 
   ejecutar(
     fichaId: string,
-    data: TitularidadActual
+    data: TitularidadActual,
+    antiguedadId?: string | null
   ): Observable<GuardarTitularidadFichaResultado> {
     const id = fichaId?.trim() ?? '';
+    const idAntiguedad = antiguedadId?.trim() ?? '';
+    const esActualizacion = !!idAntiguedad;
     if (!id) {
       return of({ exito: false, mensaje: 'Identificador de ficha no válido.' });
     }
@@ -38,12 +41,17 @@ export class GuardarTitularidadFichaUseCase {
       return of({ exito: false, mensaje: 'Seleccione la primera especialidad.' });
     }
 
-    return this.fichas.guardarTitularidad(id, data).pipe(
+    return this.fichas.guardarTitularidad(id, data, idAntiguedad || null).pipe(
       map((ficha) => ({ exito: true as const, ficha })),
       catchError((error) =>
         of({
           exito: false as const,
-          detalle: aDetalleError(error, 'No se pudo guardar la titularidad.'),
+          detalle: aDetalleError(
+            error,
+            esActualizacion
+              ? 'No se pudo actualizar la titularidad.'
+              : 'No se pudo guardar la titularidad.'
+          ),
         })
       )
     );

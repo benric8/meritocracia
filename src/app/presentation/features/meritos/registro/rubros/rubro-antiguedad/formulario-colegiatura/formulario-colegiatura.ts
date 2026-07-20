@@ -25,6 +25,7 @@ import {
   aDateDesdeIso,
   aFechaIsoLocal,
   crearFiltroFechaMaxima,
+  esIdPersistidoApi,
   nuevoIdLocal,
 } from '../../rubros.util';
 
@@ -67,6 +68,7 @@ export class FormularioColegiatura implements OnInit {
 
   protected readonly colegios = this.data.colegios;
   protected readonly esEdicion = !!this.data.colegiatura;
+  protected readonly esActualizacion = esIdPersistidoApi(this.data.colegiatura?.id);
   protected readonly anios = signal(this.data.colegiatura?.anios ?? 0);
   protected readonly calculando = signal(false);
   protected readonly sinFechaValoracion = !this.data.fechaValoracion;

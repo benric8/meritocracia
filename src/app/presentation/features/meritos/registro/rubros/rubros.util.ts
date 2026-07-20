@@ -98,3 +98,9 @@ export function formatearFechaCorta(iso: string): string {
 export function nuevoIdLocal(prefijo: string): string {
   return `${prefijo}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
+
+/** True si el id proviene del backend (numérico), no de un id temporal local. */
+export function esIdPersistidoApi(id: string | null | undefined): boolean {
+  const crudo = String(id ?? '').trim();
+  return /^\d+$/.test(crudo);
+}

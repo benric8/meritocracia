@@ -18,7 +18,11 @@
       <app-rubro-produccion />
     </mat-expansion-panel>
 
-    <mat-expansion-panel class="rubros-panel__item" [expanded]="true">
+    <mat-expansion-panel
+      class="rubros-panel__item"
+      [expanded]="true"
+      (opened)="onRubroBAbierto()"
+    >
       <mat-expansion-panel-header class="rubros-panel__item-header">
         <mat-panel-title class="rubros-panel__item-title">
           <span class="rubros-panel__letter">B</span>
@@ -28,12 +32,19 @@
           {{ formatearPuntaje(puntajeAntiguedad()) }}
         </mat-panel-description>
       </mat-expansion-panel-header>
+      @if (cargandoRubroB()) {
+        <div class="rubros-panel__loading" role="status">
+          <mat-progress-spinner diameter="22" mode="indeterminate" />
+          <span>Cargando antigüedad registrada…</span>
+        </div>
+      }
       <app-rubro-antiguedad
         [fichaId]="fichaId()"
         [nivelId]="nivelId()"
         [soloLectura]="soloLectura()"
-        [rubroInicial]="rubroAntiguedad()"
+        [rubroInicial]="rubroAntiguedadLocal()"
         [fechaValoracion]="fechaValoracion()"
+        [cargandoDetalle]="cargandoRubroB()"
         (puntajeChange)="onPuntajeAntiguedad($event)"
         (fichaActualizada)="onFichaActualizada($event)"
       />

@@ -49,3 +49,47 @@ export interface CrearFichaDataDto {
 export interface CrearFichaResponse extends BaseResponse {
   data: CrearFichaDataDto;
 }
+
+/** Respuesta de GET /fichas/{idFicha}?registrador_id=. */
+export interface MagistradoFichaDto {
+  idMagistrado: number;
+  dni: string;
+  nombreCompleto: string;
+  fechaNacimiento: string;
+  sexo: string;
+  /** Ruta relativa (`/upload/...`), URL absoluta o base64. */
+  foto: string;
+}
+
+export interface RegistradoresFichaDto {
+  principal: number | null;
+  secundario: number | null;
+}
+
+export interface RubroResumenFichaDto {
+  idRubro: number;
+  codigo: string;
+  nombre: string;
+  puntajeSubtotal: number;
+  cantidadItems: number;
+  tieneDetalle: boolean;
+}
+
+export interface ObtenerFichaDataDto {
+  idFicha: number;
+  idFechaValoracion: number;
+  fechaValoracion: string;
+  idCargoMagistrado: number;
+  cargoDescripcion: string;
+  puntajeTotal: number;
+  edad: number;
+  completado: string;
+  flujo: string;
+  magistrado: MagistradoFichaDto;
+  registradores: RegistradoresFichaDto;
+  rubros: RubroResumenFichaDto[];
+}
+
+export interface ObtenerFichaResponse extends BaseResponse {
+  data: ObtenerFichaDataDto;
+}

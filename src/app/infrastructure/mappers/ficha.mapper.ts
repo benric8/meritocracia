@@ -4,11 +4,14 @@ import {
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
+import { getAppConfig } from '../config/app-runtime-config';
 import {
   CrearFichaDataDto,
   CrearFichaRequestDto,
   FlujoFichaDto,
+  ObtenerFichaDataDto,
 } from '../dto/remote/FichaResponse.dto';
+import { normalizarFotoSiga } from './juez.mapper';
 
 /**
  * El dominio puede guardar data URL para `<img>`; el API exige solo el base64.
@@ -143,6 +146,75 @@ export function toFichaValoracionDesdeCreacion(
     fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
     rubroAntiguedad: crearRubroAntiguedadVacio(),
     puntajeTotal: 0,
+    creadoEn: ahora,
+    actualizadoEn: ahora,
+  };
+}
+
+/**
+ * Resuelve foto de ficha: URL absoluta, ruta `/upload/...` (origen de urlApi) o base64.
+ */
+export function resolverUrlFotoFicha(valor: string | null | undefined): string {
+  const foto = String(valor ?? '').trim();
+  if (!foto) {
+    return '';
+  }
+
+  if (
+    foto.startsWith('data:') ||
+    foto.startsWith('http://') ||
+    foto.startsWith('https://') ||
+    foto.startsWith('blob:')
+  ) {
+    return foto;
+  }
+
+  // JPEG base64 suele empezar con `/9j/`; no confundir con rutas de archivo.
+  if (foto.startsWith('/') && !foto.startsWith('/9j/')) {
+    try {
+      const origen = new URL(getAppConfig().urlApi).origin;
+      return `${origen}${foto}`;
+    } catch {
+      return foto;
+    }
+  }
+
+  return normalizarFotoSiga(foto);
+}
+
+export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaValoracion {
+  const ahora = new Date().toISOString();
+  const completado = String(data.completado ?? '0').trim();
+  const magistrado = data.magistrado;
+  const sexoRaw = String(magistrado?.sexo ?? '')
+    .trim()
+    .toUpperCase();
+  const sexo = sexoRaw === 'F' ? 'F' : 'M';
+  const puntaje = Number(data.puntajeTotal);
+  const edad = data.edad != null ? Number(data.edad) : null;
+
+  return {
+    id: String(data.idFicha),
+    estado: completado === '1' ? 'REGISTRADA' : 'BORRADOR',
+    nivelId: String(data.idCargoMagistrado),
+    nivelNombre: String(data.cargoDescripcion ?? '').trim(),
+    fechaValoracionId: String(data.idFechaValoracion),
+    fechaValoracionSnapshot: String(data.fechaValoracion ?? '')
+      .trim()
+      .slice(0, 10),
+    datosPersonales: {
+      dni: String(magistrado?.dni ?? '').trim(),
+      nombreCompleto: String(magistrado?.nombreCompleto ?? '').trim(),
+      foto: resolverUrlFotoFicha(magistrado?.foto),
+      fechaNacimiento: String(magistrado?.fechaNacimiento ?? '')
+        .trim()
+        .slice(0, 10),
+      sexo,
+      edad: edad != null && Number.isFinite(edad) ? edad : null,
+    },
+    fichaPreviaId: null,
+    rubroAntiguedad: crearRubroAntiguedadVacio(),
+    puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
   };

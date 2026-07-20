@@ -81,6 +81,7 @@ export function crearRubroAntiguedadVacio(): RubroAntiguedad {
       segundaEspecialidadId: '',
     },
     periodoNivelAnterior: {
+      id: null,
       nivelInmediatoAnteriorId: '',
       fechaInicio: null,
       fechaFin: null,

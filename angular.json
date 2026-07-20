@@ -30,8 +30,9 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
-            ]
+              "src/styles.scss" 
+            ],
+            "baseHref": "/meritocracia/"
           },
           "configurations": {
             "production": {

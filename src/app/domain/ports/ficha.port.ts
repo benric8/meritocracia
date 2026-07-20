@@ -10,6 +10,7 @@ import {
   Colegiatura,
   PeriodoNivelAnterior,
   Provisionalidad,
+  RubroAntiguedad,
   TitularidadActual,
 } from '../models/rubro-antiguedad.model';
 
@@ -29,7 +30,13 @@ export interface FichaPort {
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion>;
 
-  guardarTitularidad(fichaId: string, data: TitularidadActual): Observable<FichaValoracion>;
+  obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad>;
+
+  guardarTitularidad(
+    fichaId: string,
+    data: TitularidadActual,
+    antiguedadId?: string | null
+  ): Observable<FichaValoracion>;
 
   guardarPeriodoNivelAnterior(
     fichaId: string,

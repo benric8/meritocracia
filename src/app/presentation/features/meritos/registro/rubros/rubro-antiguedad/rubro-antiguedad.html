@@ -3,10 +3,12 @@
     <p class="rubro-antiguedad__error" role="alert">{{ error }}</p>
   }
 
-  @if (cargandoCatalogos()) {
+  @if (cargandoCatalogos() || cargandoDetalle()) {
     <div class="rubro-antiguedad__loading" role="status">
       <mat-progress-spinner diameter="22" mode="indeterminate" />
-      <span>Cargando catálogos…</span>
+      <span>
+        {{ cargandoDetalle() ? 'Cargando antigüedad registrada…' : 'Cargando catálogos…' }}
+      </span>
     </div>
   } @else {
     <!-- Titularidad (obligatoria, aporta puntaje) -->
@@ -96,7 +98,7 @@
             <input matInput [value]="tiempoTitular().etiqueta" readonly />
             @if (calculandoTitular()) {
               <mat-hint>Calculando…</mat-hint>
-            }
+            } 
           </mat-form-field>
 
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="antiguedad-block__campo">
@@ -130,9 +132,9 @@
               @if (guardandoTitular()) {
                 <mat-progress-spinner diameter="18" mode="indeterminate" />
               } @else {
-                <mat-icon>save</mat-icon>
+                <mat-icon>{{ iconoBotonTitularidad() }}</mat-icon>
               }
-              Guardar
+              {{ etiquetaBotonTitularidad() }}
             </button>
           </div>
         }
@@ -232,9 +234,9 @@
                 @if (guardandoPeriodo()) {
                   <mat-progress-spinner diameter="18" mode="indeterminate" />
                 } @else {
-                  <mat-icon>save</mat-icon>
+                  <mat-icon>{{ iconoBotonPeriodo() }}</mat-icon>
                 }
-                Guardar
+                {{ etiquetaBotonPeriodo() }}
               </button>
             </div>
           }
