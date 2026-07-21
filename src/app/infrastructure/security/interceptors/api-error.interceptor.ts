@@ -98,6 +98,14 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     method: 'PUT',
     coincide: (url) => esRutaColegiaturaPorId(url),
   },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaProvisionalidadPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaColegiaturaPorId(url),
+  },
 ];
 
 export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {

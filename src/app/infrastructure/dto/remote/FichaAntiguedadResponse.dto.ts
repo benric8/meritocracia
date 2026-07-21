@@ -34,7 +34,7 @@ export interface GuardarTitularidadResponse extends BaseResponse {
 }
 
 export interface GuardarPeriodoInmediatoRequestDto {
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoAnteriorId: number;
   fechaInicio: string;
   fechaFin: string;
@@ -42,7 +42,7 @@ export interface GuardarPeriodoInmediatoRequestDto {
 
 export interface GuardarPeriodoInmediatoDataDto {
   idPeriodoInmediato: number;
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoAnteriorId: number;
   idDistritoJudicial?: number;
   fechaInicio: string;
@@ -57,7 +57,7 @@ export interface GuardarPeriodoInmediatoResponse extends BaseResponse {
 }
 
 export interface GuardarProvisionalidadRequestDto {
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoProvisionalId: number;
   fechaInicio: string;
   fechaFin: string;
@@ -67,7 +67,7 @@ export interface GuardarProvisionalidadRequestDto {
 
 export interface GuardarProvisionalidadDataDto {
   idProvisionalidad: number;
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoProvisionalId: number;
   idDistritoJudicial?: number;
   fechaInicio: string;
@@ -84,15 +84,15 @@ export interface GuardarProvisionalidadResponse extends BaseResponse {
 }
 
 export interface GuardarColegiaturaRequestDto {
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   colegioProfesionalId: number;
   fechaInicio: string;
 }
 
 export interface GuardarColegiaturaDataDto {
   idColegiatura: number;
-  cargoAntiguedadId: number;
-  colegioProfesionalId: number;
+  idFichaAntiguedad: number;
+  colegioProfesional: ColegioProfesionalDetalleDto;
   fechaInicio: string;
   anios: number;
   meses: number;
@@ -123,7 +123,7 @@ export interface AntiguedadDetalleDto {
 
 export interface PeriodoInmediatoDetalleDto {
   idPeriodoInmediato: number;
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoAnteriorId: number;
   idDistritoJudicial?: number;
   fechaInicio: string;
@@ -135,7 +135,7 @@ export interface PeriodoInmediatoDetalleDto {
 
 export interface ProvisionalidadDetalleDto {
   idProvisionalidad: number;
-  cargoAntiguedadId: number;
+  idFichaAntiguedad: number;
   nivelMagistradoProvisionalId: number;
   idDistritoJudicial?: number;
   fechaInicio: string;
@@ -147,10 +147,15 @@ export interface ProvisionalidadDetalleDto {
   organoJurisdiccional: string;
 }
 
+export interface ColegioProfesionalDetalleDto {
+  colegioProfesionalId: number;
+  descripcion: string | null;
+}
+
 export interface ColegiaturaDetalleDto {
   idColegiatura: number;
-  cargoAntiguedadId: number;
-  colegioProfesionalId: number;
+  idFichaAntiguedad: number;
+  colegioProfesional: ColegioProfesionalDetalleDto;
   fechaInicio: string;
   anios: number;
   meses: number;
@@ -166,4 +171,9 @@ export interface ObtenerAntiguedadDataDto {
 
 export interface ObtenerAntiguedadResponse extends BaseResponse {
   data: ObtenerAntiguedadDataDto;
+}
+
+/** DELETE provisionalidad/colegiatura: puede devolver el rubro actualizado o solo éxito. */
+export interface EliminarAntiguedadItemResponse extends BaseResponse {
+  data?: ObtenerAntiguedadDataDto | null;
 }

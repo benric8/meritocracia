@@ -29,6 +29,7 @@ import {
   GuardarPeriodoInmediatoResponse,
   GuardarProvisionalidadResponse,
   GuardarTitularidadResponse,
+  EliminarAntiguedadItemResponse,
   ObtenerAntiguedadResponse,
 } from '../../dto/remote/FichaAntiguedadResponse.dto';
 import {
@@ -42,6 +43,8 @@ import {
   aplicarPeriodoEnFicha,
   aplicarProvisionalidadEnFicha,
   aplicarTitularidadEnFicha,
+  eliminarColegiaturaEnFicha,
+  eliminarProvisionalidadEnFicha,
   esIdPersistidoApi,
   toGuardarColegiaturaRequestDto,
   toGuardarPeriodoInmediatoRequestDto,
@@ -392,10 +395,44 @@ export class FichaHttpAdapter implements FichaPort {
   }
 
   eliminarProvisionalidad(
-    _fichaId: string,
-    _itemId: string
+    fichaId: string,
+    itemId: string
   ): Observable<FichaValoracion> {
-    return this.noImplementado('eliminar provisionalidad');
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de provisionalidad no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const url = `${this.baseUrl}${fichaEndpoints.provisionalidadPorId(idItem)}`;
+
+    return this.http.delete<EliminarAntiguedadItemResponse>(url).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data?.antiguedad) {
+          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroAntiguedad: rubro,
+            puntajeTotal: rubro.titularidad.puntaje,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarProvisionalidadEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar la provisionalidad.')
+    );
   }
 
   upsertColegiatura(fichaId: string, item: Colegiatura): Observable<FichaValoracion> {
@@ -451,8 +488,41 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
-  eliminarColegiatura(_fichaId: string, _itemId: string): Observable<FichaValoracion> {
-    return this.noImplementado('eliminar colegiatura');
+  eliminarColegiatura(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de colegiatura no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const url = `${this.baseUrl}${fichaEndpoints.colegiaturaPorId(idItem)}`;
+
+    return this.http.delete<EliminarAntiguedadItemResponse>(url).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data?.antiguedad) {
+          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroAntiguedad: rubro,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarColegiaturaEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar la colegiatura.')
+    );
   }
 
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {

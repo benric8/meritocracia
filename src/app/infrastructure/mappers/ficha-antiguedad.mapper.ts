@@ -101,7 +101,7 @@ export function toGuardarTitularidadRequestDto(
 }
 
 export function toGuardarPeriodoInmediatoRequestDto(
-  cargoAntiguedadId: string,
+  idFichaAntiguedad: string,
   data: PeriodoNivelAnterior
 ): GuardarPeriodoInmediatoRequestDto {
   if (!data.fechaInicio?.trim() || !data.fechaFin?.trim()) {
@@ -109,7 +109,7 @@ export function toGuardarPeriodoInmediatoRequestDto(
   }
 
   return {
-    cargoAntiguedadId: aNumeroId(cargoAntiguedadId, 'Antigüedad'),
+    idFichaAntiguedad: aNumeroId(idFichaAntiguedad, 'Antigüedad'),
     nivelMagistradoAnteriorId: aNumeroId(
       data.nivelInmediatoAnteriorId,
       'Nivel inmediato anterior'
@@ -120,11 +120,11 @@ export function toGuardarPeriodoInmediatoRequestDto(
 }
 
 export function toGuardarProvisionalidadRequestDto(
-  cargoAntiguedadId: string,
+  idFichaAntiguedad: string,
   item: Provisionalidad
 ): GuardarProvisionalidadRequestDto {
   return {
-    cargoAntiguedadId: aNumeroId(cargoAntiguedadId, 'Antigüedad'),
+    idFichaAntiguedad: aNumeroId(idFichaAntiguedad, 'Antigüedad'),
     nivelMagistradoProvisionalId: aNumeroId(item.cargoId, 'Cargo provisional'),
     fechaInicio: item.fechaInicio.trim().slice(0, 10),
     fechaFin: item.fechaFin.trim().slice(0, 10),
@@ -134,11 +134,11 @@ export function toGuardarProvisionalidadRequestDto(
 }
 
 export function toGuardarColegiaturaRequestDto(
-  cargoAntiguedadId: string,
+  idFichaAntiguedad: string,
   item: Colegiatura
 ): GuardarColegiaturaRequestDto {
   return {
-    cargoAntiguedadId: aNumeroId(cargoAntiguedadId, 'Antigüedad'),
+    idFichaAntiguedad: aNumeroId(idFichaAntiguedad, 'Antigüedad'),
     colegioProfesionalId: aNumeroId(item.colegioId, 'Colegio profesional'),
     fechaInicio: item.fechaColegiatura.trim().slice(0, 10),
   };
@@ -165,8 +165,8 @@ export function toRubroAntiguedadDesdeDetalle(data: ObtenerAntiguedadDataDto): R
 
   const colegiaturas: Colegiatura[] = (data.colegiaturas ?? []).map((item) => ({
     id: String(item.idColegiatura),
-    colegioId: String(item.colegioProfesionalId),
-    colegioNombre: '',
+    colegioId: String(item.colegioProfesional?.colegioProfesionalId ?? ''),
+    colegioNombre: item.colegioProfesional?.descripcion?.trim() ?? '',
     fechaColegiatura: item.fechaInicio,
     anios: Number(item.anios) || 0,
   }));
@@ -262,7 +262,7 @@ export function aplicarPeriodoEnFicha(
     ...ficha,
     rubroAntiguedad: {
       ...rubro,
-      id: rubro.id ?? String(respuesta.cargoAntiguedadId),
+      id: rubro.id ?? String(respuesta.idFichaAntiguedad),
       periodoNivelAnterior: {
         ...data,
         id: String(respuesta.idPeriodoInmediato),
@@ -304,7 +304,7 @@ export function aplicarProvisionalidadEnFicha(
     ...ficha,
     rubroAntiguedad: {
       ...rubro,
-      id: rubro.id ?? String(respuesta.cargoAntiguedadId),
+      id: rubro.id ?? String(respuesta.idFichaAntiguedad),
       provisionalidades,
       sumaProvisionalidades: suma,
     },
@@ -318,10 +318,13 @@ export function aplicarColegiaturaEnFicha(
   respuesta: GuardarColegiaturaDataDto
 ): FichaValoracion {
   const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
+  const colegioRespuesta = respuesta.colegioProfesional;
   const guardada: Colegiatura = {
     ...item,
     id: String(respuesta.idColegiatura),
-    colegioId: String(respuesta.colegioProfesionalId ?? item.colegioId),
+    colegioId: String(colegioRespuesta?.colegioProfesionalId ?? item.colegioId),
+    colegioNombre:
+      colegioRespuesta?.descripcion?.trim() || item.colegioNombre,
     fechaColegiatura: respuesta.fechaInicio ?? item.fechaColegiatura,
     anios: Number(respuesta.anios) || item.anios,
   };
@@ -332,8 +335,44 @@ export function aplicarColegiaturaEnFicha(
     ...ficha,
     rubroAntiguedad: {
       ...rubro,
-      id: rubro.id ?? String(respuesta.cargoAntiguedadId),
+      id: rubro.id ?? String(respuesta.idFichaAntiguedad),
       colegiaturas: [...sinAnterior, guardada],
+    },
+    actualizadoEn: new Date().toISOString(),
+  };
+}
+
+export function eliminarProvisionalidadEnFicha(
+  ficha: FichaValoracion,
+  itemId: string
+): FichaValoracion {
+  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
+  const provisionalidades = rubro.provisionalidades.filter((p) => p.id !== itemId);
+  const suma = sumarTiemposLocal(provisionalidades.map((p) => p.tiempoTotal));
+
+  return {
+    ...ficha,
+    rubroAntiguedad: {
+      ...rubro,
+      provisionalidades,
+      sumaProvisionalidades: suma,
+    },
+    actualizadoEn: new Date().toISOString(),
+  };
+}
+
+export function eliminarColegiaturaEnFicha(
+  ficha: FichaValoracion,
+  itemId: string
+): FichaValoracion {
+  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
+  const colegiaturas = rubro.colegiaturas.filter((c) => c.id !== itemId);
+
+  return {
+    ...ficha,
+    rubroAntiguedad: {
+      ...rubro,
+      colegiaturas,
     },
     actualizadoEn: new Date().toISOString(),
   };

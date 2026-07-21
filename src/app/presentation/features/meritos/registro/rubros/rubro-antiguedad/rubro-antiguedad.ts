@@ -470,7 +470,7 @@ export class RubroAntiguedadComponent implements OnInit {
     }
 
     const fichaId = this.fichaId();
-    if (!fichaId) {
+    if (!fichaId || !esIdPersistidoApi(id)) {
       this.provisionalidades.update((lista) => lista.filter((p) => p.id !== id));
       this.recalcularSumaProvisionalidades();
       return;
@@ -479,7 +479,7 @@ export class RubroAntiguedadComponent implements OnInit {
     this.mutarItems
       .eliminarProvisionalidad(fichaId, id)
       .pipe(take(1))
-      .subscribe((resultado) => {
+      .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error('No se pudo eliminar la provisionalidad', {
             mensaje:
@@ -495,6 +495,10 @@ export class RubroAntiguedadComponent implements OnInit {
           this.sincronizarItemsDesdeRubro(rubro);
         }
         this.fichaActualizada.emit(resultado.ficha);
+        await this.alertas.exito(
+          'Provisionalidad eliminada',
+          'El periodo de provisionalidad se eliminó correctamente.'
+        );
       });
   }
 
@@ -540,7 +544,7 @@ export class RubroAntiguedadComponent implements OnInit {
     }
 
     const fichaId = this.fichaId();
-    if (!fichaId) {
+    if (!fichaId || !esIdPersistidoApi(id)) {
       this.colegiaturas.update((lista) => lista.filter((c) => c.id !== id));
       return;
     }
@@ -548,7 +552,7 @@ export class RubroAntiguedadComponent implements OnInit {
     this.mutarItems
       .eliminarColegiatura(fichaId, id)
       .pipe(take(1))
-      .subscribe((resultado) => {
+      .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error('No se pudo eliminar la colegiatura', {
             mensaje:
@@ -564,6 +568,10 @@ export class RubroAntiguedadComponent implements OnInit {
           this.sincronizarItemsDesdeRubro(rubro);
         }
         this.fichaActualizada.emit(resultado.ficha);
+        await this.alertas.exito(
+          'Colegiatura eliminada',
+          'La colegiatura se eliminó correctamente.'
+        );
       });
   }
 
