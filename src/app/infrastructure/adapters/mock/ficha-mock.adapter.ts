@@ -5,6 +5,7 @@ import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
+  crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
   FichaValoracion,
   ResultadoResolverFicha,
@@ -16,6 +17,10 @@ import {
   RubroAntiguedad,
   TitularidadActual,
 } from '../../../domain/models/rubro-antiguedad.model';
+import {
+  EstudioAmag,
+  RubroAmag,
+} from '../../../domain/models/rubro-amag.model';
 import {
   GradoTitulo,
   RubroGradosTitulos,
@@ -130,6 +135,7 @@ export class FichaMockAdapter implements FichaPort {
       fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
       rubroAntiguedad: crearRubroAntiguedadVacio(),
       rubroGradosTitulos: crearRubroGradosTitulosVacio(),
+      rubroAmag: crearRubroAmagVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -391,6 +397,48 @@ export class FichaMockAdapter implements FichaPort {
     });
   }
 
+  obtenerRubroAmag(fichaId: string): Observable<RubroAmag> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroAmag ?? crearRubroAmagVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroAmag ?? crearRubroAmagVacio();
+      const guardado: EstudioAmag = {
+        ...item,
+        id: item.id || `amag-${Date.now()}`,
+      };
+      const idx = rubro.items.findIndex((actual) => actual.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((actual, i) => (i === idx ? guardado : actual))
+          : [...rubro.items, guardado];
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroAmag: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroAmag ?? crearRubroAmagVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroAmag: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -507,6 +555,7 @@ export class FichaMockAdapter implements FichaPort {
         ...f,
         rubroAntiguedad: f.rubroAntiguedad ?? null,
         rubroGradosTitulos: f.rubroGradosTitulos ?? crearRubroGradosTitulosVacio(),
+        rubroAmag: f.rubroAmag ?? crearRubroAmagVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -539,6 +588,7 @@ export class FichaMockAdapter implements FichaPort {
         fichaPreviaId: null,
         rubroAntiguedad: null,
         rubroGradosTitulos: crearRubroGradosTitulosVacio(),
+        rubroAmag: crearRubroAmagVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

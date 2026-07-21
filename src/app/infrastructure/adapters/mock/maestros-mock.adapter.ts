@@ -101,6 +101,14 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
+  listarTiposCursoAmag(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'HABILITANTE' },
+      { id: '2', nombre: 'PROFA' },
+      { id: '3', nombre: 'ASCENSO' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
   private nivelesTitular(): NivelTitular[] {
     return [
       { id: '1', nombre: 'JUEZ SUPREMO TITULAR', abreviatura: 'SM' },

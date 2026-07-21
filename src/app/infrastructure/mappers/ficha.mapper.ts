@@ -1,6 +1,7 @@
 import {
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
+  crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
   FichaValoracion,
   ResultadoResolverFicha,
@@ -147,6 +148,7 @@ export function toFichaValoracionDesdeCreacion(
     fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
     rubroAntiguedad: crearRubroAntiguedadVacio(),
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
+    rubroAmag: crearRubroAmagVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -217,6 +219,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     fichaPreviaId: null,
     rubroAntiguedad: crearRubroAntiguedadVacio(),
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
+    rubroAmag: crearRubroAmagVacio(),
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,

@@ -21,6 +21,7 @@ export interface MaestrosPort {
   listarNivelesGrado(): Observable<CatalogoItem[]>;
   listarUniversidades(): Observable<CatalogoItem[]>;
   listarPaises(): Observable<CatalogoItem[]>;
+  listarTiposCursoAmag(): Observable<CatalogoItem[]>;
 }
 
 export const MAESTROS_PORT = new InjectionToken<MaestrosPort>('MAESTROS_PORT');

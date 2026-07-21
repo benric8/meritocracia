@@ -253,6 +253,26 @@ export class MaestrosHttpAdapter implements MaestrosPort {
       );
   }
 
+  listarTiposCursoAmag(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarMaestrosDescripcionResponse>(
+        `${this.baseUrl}${maestrosEndpoints.TIPO_CURSO_AMAG}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeDescripcion);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de curso AMAG.')
+      );
+  }
+
   private mapearLista<TDto, TOut>(
     data: TDto[] | null | undefined,
     mapear: (dto: TDto) => TOut

@@ -4,13 +4,14 @@
  */
 
 import { RubroAntiguedad } from './rubro-antiguedad.model';
+import { crearRubroAmagVacio, RubroAmag } from './rubro-amag.model';
 import {
   crearRubroGradosTitulosVacio,
   RubroGradosTitulos,
 } from './rubro-grados-titulos.model';
 import { TIEMPO_SERVICIO_CERO } from './tiempo-servicio.model';
 
-export { crearRubroGradosTitulosVacio };
+export { crearRubroAmagVacio, crearRubroGradosTitulosVacio };
 
 export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 
@@ -38,6 +39,7 @@ export interface FichaValoracion {
   fichaPreviaId: string | null;
   rubroAntiguedad: RubroAntiguedad | null;
   rubroGradosTitulos: RubroGradosTitulos | null;
+  rubroAmag: RubroAmag | null;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;

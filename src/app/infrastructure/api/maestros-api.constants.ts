@@ -12,4 +12,5 @@ export const maestrosEndpoints = {
   NIVEL_GRADO: 'maestros/nivel-grado',
   UNIVERSIDADES: 'maestros/universidades',
   PAISES: 'maestros/paises',
+  TIPO_CURSO_AMAG: 'maestros/tipo-curso-amag',
 } as const;

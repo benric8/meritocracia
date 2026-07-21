@@ -32,6 +32,7 @@ import {
 } from '../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../domain/models/rubro-antiguedad.model';
 import { RubroGradosTitulos } from '../../../../domain/models/rubro-grados-titulos.model';
+import { RubroAmag } from '../../../../domain/models/rubro-amag.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -105,6 +106,7 @@ export class Registro implements OnInit {
   protected readonly fichaSoloLectura = signal(false);
   protected readonly rubroAntiguedad = signal<RubroAntiguedad | null>(null);
   protected readonly rubroGradosTitulos = signal<RubroGradosTitulos | null>(null);
+  protected readonly rubroAmag = signal<RubroAmag | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly formatearPuntaje = formatearPuntaje;
 
@@ -573,6 +575,7 @@ export class Registro implements OnInit {
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
+    this.rubroAmag.set(ficha.rubroAmag);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -613,6 +616,7 @@ export class Registro implements OnInit {
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
+    this.rubroAmag.set(ficha.rubroAmag);
     this.fichaEstado.set(ficha.estado);
   }
 
@@ -623,6 +627,10 @@ export class Registro implements OnInit {
 
   protected onRubroGradosTitulosCargado(rubro: RubroGradosTitulos): void {
     this.rubroGradosTitulos.set(rubro);
+  }
+
+  protected onRubroAmagCargado(rubro: RubroAmag): void {
+    this.rubroAmag.set(rubro);
   }
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
@@ -649,6 +657,7 @@ export class Registro implements OnInit {
     this.fichaSoloLectura.set(false);
     this.rubroAntiguedad.set(null);
     this.rubroGradosTitulos.set(null);
+    this.rubroAmag.set(null);
     this.edad.set('');
     if (limpiarIdentidad) {
       this.limpiarIdentidad();

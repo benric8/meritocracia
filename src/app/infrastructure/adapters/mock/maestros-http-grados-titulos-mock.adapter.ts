@@ -54,4 +54,8 @@ export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
   listarPaises(): Observable<CatalogoItem[]> {
     return this.mock.listarPaises();
   }
+
+  listarTiposCursoAmag(): Observable<CatalogoItem[]> {
+    return this.mock.listarTiposCursoAmag();
+  }
 }

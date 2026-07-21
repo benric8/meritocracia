@@ -7,6 +7,7 @@ import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
+  crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
   FichaValoracion,
   ResultadoResolverFicha,
@@ -19,6 +20,7 @@ import {
   TitularidadActual,
 } from '../../../domain/models/rubro-antiguedad.model';
 import { GradoTitulo, RubroGradosTitulos } from '../../../domain/models/rubro-grados-titulos.model';
+import { EstudioAmag, RubroAmag } from '../../../domain/models/rubro-amag.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -39,6 +41,11 @@ import {
   GuardarGradoTituloResponse,
   ObtenerGradosTitulosResponse,
 } from '../../dto/remote/FichaGradosTitulosResponse.dto';
+import {
+  EliminarEstudioAmagResponse,
+  GuardarEstudioAmagResponse,
+  ObtenerEstudiosAmagResponse,
+} from '../../dto/remote/FichaAmagResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -65,6 +72,12 @@ import {
   toGuardarGradoTituloRequestDto,
   toRubroGradosTitulosDesdeDetalle,
 } from '../../mappers/ficha-grados-titulos.mapper';
+import {
+  aplicarEstudioAmagEnFicha,
+  eliminarEstudioAmagEnFicha,
+  toGuardarEstudioAmagRequestDto,
+  toRubroAmagDesdeDetalle,
+} from '../../mappers/ficha-amag.mapper';
 import {
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
@@ -674,6 +687,130 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroAmag(fichaId: string): Observable<RubroAmag> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerEstudiosAmagResponse>(`${this.baseUrl}${fichaEndpoints.AMAG}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const rubro = toRubroAmagDesdeDetalle(respuesta.data);
+          this.actualizarRubroAmagEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de estudios AMAG.')
+      );
+  }
+
+  upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    try {
+      body = toGuardarEstudioAmagRequestDto(fichaId, item, !esActualizacion);
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.estudioAmagPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.AMAG}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarEstudioAmagResponse>(url, body)
+      : this.http.post<GuardarEstudioAmagResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió el estudio AMAG actualizado.'
+              : 'El servidor no devolvió el estudio AMAG guardado.',
+          });
+        }
+        return this.guardarEnMemoria(aplicarEstudioAmagEnFicha(ficha, item, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar el estudio AMAG.'
+          : 'No se pudo guardar el estudio AMAG.'
+      )
+    );
+  }
+
+  eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de estudio AMAG no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const url = `${this.baseUrl}${fichaEndpoints.estudioAmagPorId(idItem)}`;
+
+    return this.http.delete<EliminarEstudioAmagResponse>(url).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data) {
+          const rubro = toRubroAmagDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroAmag: rubro,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarEstudioAmagEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar el estudio AMAG.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -720,6 +857,7 @@ export class FichaHttpAdapter implements FichaPort {
       fichaPreviaId: null,
       rubroAntiguedad: crearRubroAntiguedadVacio(),
       rubroGradosTitulos: crearRubroGradosTitulosVacio(),
+      rubroAmag: crearRubroAmagVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -741,11 +879,17 @@ export class FichaHttpAdapter implements FichaPort {
     const previa = this.fichasEnMemoria.get(fichaApi.id);
     const rubroPrevio = previa?.rubroAntiguedad;
     const rubroGradosPrevio = previa?.rubroGradosTitulos;
-    if (rubroPrevio?.id || (rubroGradosPrevio?.items.length ?? 0) > 0) {
+    const rubroAmagPrevio = previa?.rubroAmag;
+    if (
+      rubroPrevio?.id ||
+      (rubroGradosPrevio?.items.length ?? 0) > 0 ||
+      (rubroAmagPrevio?.items.length ?? 0) > 0
+    ) {
       return this.guardarEnMemoria({
         ...fichaApi,
         rubroAntiguedad: rubroPrevio?.id ? rubroPrevio : fichaApi.rubroAntiguedad,
         rubroGradosTitulos: rubroGradosPrevio ?? fichaApi.rubroGradosTitulos,
+        rubroAmag: rubroAmagPrevio ?? fichaApi.rubroAmag,
       });
     }
 
@@ -792,6 +936,27 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroGradosTitulos: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private actualizarRubroAmagEnMemoria(fichaId: string, rubro: RubroAmag): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroAmag: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroAmag: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }

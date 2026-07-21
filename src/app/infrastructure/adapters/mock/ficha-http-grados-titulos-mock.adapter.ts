@@ -14,18 +14,21 @@ import {
   TitularidadActual,
 } from '../../../domain/models/rubro-antiguedad.model';
 import { GradoTitulo } from '../../../domain/models/rubro-grados-titulos.model';
+import { EstudioAmag } from '../../../domain/models/rubro-amag.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
+import { FichaAmagMockAdapter } from './ficha-amag-mock.adapter';
 import { FichaGradosTitulosMockAdapter } from './ficha-grados-titulos-mock.adapter';
 
 /**
- * Ficha real vía HTTP; rubro C (grados y títulos) mock hasta que el backend esté listo.
- * Sustituir por `FichaHttpAdapter` cuando `ficha-grados-titulos` esté disponible.
+ * Ficha real vía HTTP; rubros C y D mock hasta que el backend esté listo.
+ * Sustituir por `FichaHttpAdapter` cuando `ficha-grados-titulos` y `ficha-amag` estén disponibles.
  */
 @Injectable({ providedIn: 'root' })
 export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   private readonly http = inject(FichaHttpAdapter);
   private readonly gradosMock = inject(FichaGradosTitulosMockAdapter);
+  private readonly amagMock = inject(FichaAmagMockAdapter);
 
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha> {
     return this.http.resolverDelCiclo(dni, fechaValoracionId);
@@ -46,10 +49,15 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
     return this.http.obtenerPorId(fichaId).pipe(
       switchMap((ficha) =>
         this.gradosMock.obtenerRubroGradosTitulos(fichaId).pipe(
-          map((rubro) => ({
-            ...ficha,
-            rubroGradosTitulos: rubro,
-          }))
+          switchMap((rubroGrados) =>
+            this.amagMock.obtenerRubroAmag(fichaId).pipe(
+              map((rubroAmag) => ({
+                ...ficha,
+                rubroGradosTitulos: rubroGrados,
+                rubroAmag,
+              }))
+            )
+          )
         )
       )
     );
@@ -96,24 +104,54 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   upsertGradoTitulo(fichaId: string, item: GradoTitulo): Observable<FichaValoracion> {
     return this.gradosMock.upsertGradoTitulo(fichaId, item).pipe(
-      switchMap((rubro) => this.fusionarRubroEnFicha(fichaId, rubro))
+      switchMap((rubro) => this.fusionarRubroGradosEnFicha(fichaId, rubro))
     );
   }
 
   eliminarGradoTitulo(fichaId: string, itemId: string): Observable<FichaValoracion> {
     return this.gradosMock.eliminarGradoTitulo(fichaId, itemId).pipe(
-      switchMap((rubro) => this.fusionarRubroEnFicha(fichaId, rubro))
+      switchMap((rubro) => this.fusionarRubroGradosEnFicha(fichaId, rubro))
     );
+  }
+
+  obtenerRubroAmag(fichaId: string) {
+    return this.amagMock.obtenerRubroAmag(fichaId);
+  }
+
+  upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion> {
+    return this.amagMock.upsertEstudioAmag(fichaId, item).pipe(
+      switchMap((rubro) => this.fusionarRubroAmagEnFicha(fichaId, rubro))
+    );
+  }
+
+  eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.amagMock.eliminarEstudioAmag(fichaId, itemId).pipe(
+      switchMap((rubro) => this.fusionarRubroAmagEnFicha(fichaId, rubro))
+    );
+  }
+
+  private fusionarRubroGradosEnFicha(
+    fichaId: string,
+    rubro: NonNullable<FichaValoracion['rubroGradosTitulos']>
+  ): Observable<FichaValoracion> {
+    return this.fusionarRubroEnFicha(fichaId, { rubroGradosTitulos: rubro });
+  }
+
+  private fusionarRubroAmagEnFicha(
+    fichaId: string,
+    rubro: NonNullable<FichaValoracion['rubroAmag']>
+  ): Observable<FichaValoracion> {
+    return this.fusionarRubroEnFicha(fichaId, { rubroAmag: rubro });
   }
 
   private fusionarRubroEnFicha(
     fichaId: string,
-    rubro: NonNullable<FichaValoracion['rubroGradosTitulos']>
+    parcial: Partial<Pick<FichaValoracion, 'rubroGradosTitulos' | 'rubroAmag'>>
   ): Observable<FichaValoracion> {
     return this.http.obtenerPorId(fichaId).pipe(
       map((ficha) => ({
         ...ficha,
-        rubroGradosTitulos: rubro,
+        ...parcial,
         actualizadoEn: new Date().toISOString(),
       })),
       catchError(() =>
@@ -134,8 +172,12 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
           },
           fichaPreviaId: null,
           rubroAntiguedad: null,
-          rubroGradosTitulos: rubro,
-          puntajeTotal: rubro.puntajeTotal,
+          rubroGradosTitulos: parcial.rubroGradosTitulos ?? null,
+          rubroAmag: parcial.rubroAmag ?? null,
+          puntajeTotal:
+            parcial.rubroGradosTitulos?.puntajeTotal ??
+            parcial.rubroAmag?.puntajeTotal ??
+            0,
           creadoEn: new Date().toISOString(),
           actualizadoEn: new Date().toISOString(),
         })

@@ -79,5 +79,35 @@
         (fichaActualizada)="onFichaActualizada($event)"
       />
     </mat-expansion-panel>
+
+    <mat-expansion-panel
+      class="rubros-panel__item"
+      [expanded]="false"
+      (opened)="onRubroDAbierto()"
+    >
+      <mat-expansion-panel-header class="rubros-panel__item-header">
+        <mat-panel-title class="rubros-panel__item-title">
+          <span class="rubros-panel__letter">D</span>
+          Estudios de preparación AMAG
+        </mat-panel-title>
+        <mat-panel-description class="rubros-panel__item-score">
+          {{ formatearPuntaje(puntajeAmag()) }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      @if (cargandoRubroD()) {
+        <div class="rubros-panel__loading" role="status">
+          <mat-progress-spinner diameter="22" mode="indeterminate" />
+          <span>Cargando estudios AMAG registrados…</span>
+        </div>
+      }
+      <app-rubro-amag
+        [fichaId]="fichaId()"
+        [soloLectura]="soloLectura()"
+        [rubroInicial]="rubroAmagLocal()"
+        [cargandoDetalle]="cargandoRubroD()"
+        (puntajeChange)="onPuntajeAmag($event)"
+        (fichaActualizada)="onFichaActualizada($event)"
+      />
+    </mat-expansion-panel>
   </mat-accordion>
 </section>
