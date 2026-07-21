@@ -1,0 +1,125 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Grados académicos y títulos profesionales</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Nivel de grado / título</mat-label>
+          <mat-select formControlName="gradoAcademicoId" placeholder="Seleccione…">
+            @for (item of nivelesGrado; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.gradoAcademicoId.touched &&
+            formulario.controls.gradoAcademicoId.invalid
+          ) {
+            <mat-error>Seleccione el nivel de grado.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Universidad</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="universidadBusqueda"
+            placeholder="Escriba para buscar…"
+            [matAutocomplete]="autoUniversidad"
+          />
+          <mat-autocomplete
+            #autoUniversidad="matAutocomplete"
+            (optionSelected)="onSeleccionarUniversidad($event.option.value)"
+          >
+            @for (item of universidadesFiltradas(); track item.id) {
+              <mat-option [value]="item">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (
+            formulario.controls.universidadBusqueda.touched &&
+            formulario.controls.universidadId.invalid
+          ) {
+            <mat-error>Seleccione una universidad del catálogo.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+            <mat-error>Seleccione el país.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de obtención del título</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerObtencion"
+            formControlName="fechaObtencion"
+            readonly
+            placeholder="dd/mm/aaaa"
+            (click)="pickerObtencion.open()"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerObtencion" />
+          <mat-datepicker #pickerObtencion />
+          @if (
+            formulario.controls.fechaObtencion.touched &&
+            formulario.controls.fechaObtencion.invalid
+          ) {
+            <mat-error>Seleccione la fecha de obtención.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Especialidad</mat-label>
+          <input matInput formControlName="especialidad" placeholder="Derecho" />
+          @if (
+            formulario.controls.especialidad.touched &&
+            formulario.controls.especialidad.invalid
+          ) {
+            <mat-error>Ingrese la especialidad.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Mención</mat-label>
+          <input matInput formControlName="mencion" />
+          @if (formulario.controls.mencion.touched && formulario.controls.mencion.invalid) {
+            <mat-error>Ingrese la mención.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Observación por registro</mat-label>
+          <input matInput formControlName="observacion" placeholder="Notas adicionales del registrador" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

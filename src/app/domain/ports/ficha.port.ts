@@ -13,6 +13,7 @@ import {
   RubroAntiguedad,
   TitularidadActual,
 } from '../models/rubro-antiguedad.model';
+import { GradoTitulo, RubroGradosTitulos } from '../models/rubro-grados-titulos.model';
 
 /**
  * Puerto de salida: ciclo de vida de la ficha de valoración (RF006).
@@ -50,6 +51,12 @@ export interface FichaPort {
   upsertColegiatura(fichaId: string, item: Colegiatura): Observable<FichaValoracion>;
 
   eliminarColegiatura(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroGradosTitulos(fichaId: string): Observable<RubroGradosTitulos>;
+
+  upsertGradoTitulo(fichaId: string, item: GradoTitulo): Observable<FichaValoracion>;
+
+  eliminarGradoTitulo(fichaId: string, itemId: string): Observable<FichaValoracion>;
 }
 
 export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

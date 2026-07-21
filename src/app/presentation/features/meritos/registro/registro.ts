@@ -31,6 +31,7 @@ import {
   FichaValoracion,
 } from '../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../domain/models/rubro-antiguedad.model';
+import { RubroGradosTitulos } from '../../../../domain/models/rubro-grados-titulos.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -103,6 +104,7 @@ export class Registro implements OnInit {
   protected readonly rubrosDesbloqueados = signal(false);
   protected readonly fichaSoloLectura = signal(false);
   protected readonly rubroAntiguedad = signal<RubroAntiguedad | null>(null);
+  protected readonly rubroGradosTitulos = signal<RubroGradosTitulos | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly formatearPuntaje = formatearPuntaje;
 
@@ -570,6 +572,7 @@ export class Registro implements OnInit {
     this.fichaEstado.set(ficha.estado);
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
+    this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -609,12 +612,17 @@ export class Registro implements OnInit {
   protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {
     this.puntajeTotal.set(ficha.puntajeTotal);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
+    this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.fichaEstado.set(ficha.estado);
   }
 
   protected onRubroAntiguedadCargado(rubro: RubroAntiguedad): void {
     this.rubroAntiguedad.set(rubro);
     this.puntajeTotal.set(rubro.titularidad.puntaje);
+  }
+
+  protected onRubroGradosTitulosCargado(rubro: RubroGradosTitulos): void {
+    this.rubroGradosTitulos.set(rubro);
   }
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
@@ -640,6 +648,7 @@ export class Registro implements OnInit {
     this.rubrosDesbloqueados.set(false);
     this.fichaSoloLectura.set(false);
     this.rubroAntiguedad.set(null);
+    this.rubroGradosTitulos.set(null);
     this.edad.set('');
     if (limpiarIdentidad) {
       this.limpiarIdentidad();

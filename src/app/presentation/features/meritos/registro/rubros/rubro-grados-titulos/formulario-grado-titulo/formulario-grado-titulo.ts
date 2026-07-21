@@ -1,0 +1,196 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { map, startWith } from 'rxjs';
+import { CatalogoItem } from '../../../../../../../domain/models/catalogo-item.model';
+import { GradoTitulo } from '../../../../../../../domain/models/rubro-grados-titulos.model';
+import {
+  aDateDesdeIso,
+  aFechaIsoLocal,
+  esIdPersistidoApi,
+  nuevoIdLocal,
+} from '../../rubros.util';
+
+export interface FormularioGradoTituloData {
+  nivelesGrado: CatalogoItem[];
+  universidades: CatalogoItem[];
+  paises: CatalogoItem[];
+  gradoTitulo?: GradoTitulo | null;
+}
+
+export type GradoTituloGuardado = Omit<GradoTitulo, 'id'> & { id?: string };
+
+@Component({
+  selector: 'app-formulario-grado-titulo',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatIconModule,
+    MatAutocompleteModule,
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'es-PE' },
+  ],
+  templateUrl: './formulario-grado-titulo.html',
+  styleUrl: './formulario-grado-titulo.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class FormularioGradoTitulo implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<FormularioGradoTitulo>);
+  private readonly data = inject<FormularioGradoTituloData>(MAT_DIALOG_DATA);
+
+  readonly guardar = output<GradoTituloGuardado>();
+
+  protected readonly nivelesGrado = this.data.nivelesGrado;
+  protected readonly paises = this.data.paises;
+  protected readonly esEdicion = !!this.data.gradoTitulo;
+  protected readonly esActualizacion = esIdPersistidoApi(this.data.gradoTitulo?.id);
+  protected readonly universidadesFiltradas = signal<CatalogoItem[]>([]);
+
+  protected readonly formulario = this.fb.group({
+    gradoAcademicoId: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.gradoAcademicoId ?? '',
+      Validators.required
+    ),
+    universidadBusqueda: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.universidadNombre ?? '',
+      Validators.required
+    ),
+    universidadId: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.universidadId ?? '',
+      Validators.required
+    ),
+    paisId: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.paisId ?? this.paisPorDefecto(),
+      Validators.required
+    ),
+    fechaObtencion: this.fb.control<Date | null>(
+      aDateDesdeIso(this.data.gradoTitulo?.fechaObtencion),
+      Validators.required
+    ),
+    especialidad: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.especialidad ?? '',
+      Validators.required
+    ),
+    mencion: this.fb.nonNullable.control(
+      this.data.gradoTitulo?.mencion ?? '',
+      Validators.required
+    ),
+    observacion: this.fb.nonNullable.control(this.data.gradoTitulo?.observacion ?? ''),
+  });
+
+  ngOnInit(): void {
+    this.universidadesFiltradas.set(this.data.universidades.slice(0, 50));
+    this.escucharBusquedaUniversidad();
+  }
+
+  protected onCerrar(): void {
+    this.dialogRef.close();
+  }
+
+  protected onSeleccionarUniversidad(universidad: CatalogoItem): void {
+    this.formulario.patchValue({
+      universidadBusqueda: universidad.nombre,
+      universidadId: universidad.id,
+    });
+  }
+
+  protected onGuardar(): void {
+    this.formulario.markAllAsTouched();
+    if (this.formulario.invalid) {
+      return;
+    }
+
+    const raw = this.formulario.getRawValue();
+    const nivel = this.nivelesGrado.find((item) => item.id === raw.gradoAcademicoId);
+    const universidad = this.data.universidades.find((item) => item.id === raw.universidadId);
+    const pais = this.paises.find((item) => item.id === raw.paisId);
+
+    if (!raw.fechaObtencion || !nivel || !raw.universidadId) {
+      return;
+    }
+
+    this.guardar.emit({
+      id: this.data.gradoTitulo?.id ?? nuevoIdLocal('grado'),
+      gradoAcademicoId: nivel.id,
+      gradoAcademicoNombre: nivel.nombre,
+      universidadId: raw.universidadId,
+      universidadNombre: universidad?.nombre ?? raw.universidadBusqueda.trim(),
+      paisId: raw.paisId,
+      paisNombre: pais?.nombre ?? this.data.gradoTitulo?.paisNombre ?? '',
+      fechaObtencion: aFechaIsoLocal(raw.fechaObtencion),
+      especialidad: raw.especialidad.trim(),
+      mencion: raw.mencion.trim(),
+      observacion: raw.observacion.trim(),
+      puntaje: this.data.gradoTitulo?.puntaje ?? 0,
+    });
+  }
+
+  private escucharBusquedaUniversidad(): void {
+    this.formulario.controls.universidadBusqueda.valueChanges
+      .pipe(
+        startWith(this.formulario.controls.universidadBusqueda.value),
+        map((valor) => this.filtrarUniversidades(valor ?? '')),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((filtradas) => {
+        this.universidadesFiltradas.set(filtradas);
+      });
+
+    this.formulario.controls.universidadBusqueda.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((valor) => {
+        const texto = valor?.trim() ?? '';
+        const actual = this.data.universidades.find((item) => item.nombre === texto);
+        if (!actual) {
+          this.formulario.controls.universidadId.setValue('', { emitEvent: false });
+          return;
+        }
+        if (this.formulario.controls.universidadId.value !== actual.id) {
+          this.formulario.controls.universidadId.setValue(actual.id, { emitEvent: false });
+        }
+      });
+  }
+
+  private filtrarUniversidades(termino: string): CatalogoItem[] {
+    const normalizado = termino.trim().toLowerCase();
+    const lista = this.data.universidades;
+    if (!normalizado) {
+      return lista.slice(0, 50);
+    }
+
+    return lista
+      .filter((item) => item.nombre.toLowerCase().includes(normalizado))
+      .slice(0, 50);
+  }
+
+  private paisPorDefecto(): string {
+    const peru = this.data.paises.find((pais) => pais.nombre.toLowerCase() === 'perú');
+    return peru?.id ?? this.data.paises[0]?.id ?? '';
+  }
+}

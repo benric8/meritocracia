@@ -4,6 +4,8 @@ import {
   ColegioProfesionalDto,
   DistritoJudicialDto,
   MaestroDescripcionDto,
+  PaisDto,
+  UniversidadDto,
 } from '../dto/remote/MaestrosCatalogoResponse.dto';
 
 function nombreDesdeDescripcion(dto: {
@@ -70,6 +72,38 @@ export function toCatalogoDesdeDistrito(dto: DistritoJudicialDto): CatalogoItem 
   const nombre = String(dto.nombre ?? dto.nombreCorto ?? dto.codigoSigla ?? '').trim();
   if (!nombre) {
     throw new Error('Distrito judicial recibido sin nombre');
+  }
+
+  return {
+    id: String(dto.id),
+    nombre,
+  };
+}
+
+export function toCatalogoDesdeUniversidad(dto: UniversidadDto): CatalogoItem {
+  if (dto.id == null) {
+    throw new Error('Universidad recibida sin id');
+  }
+
+  const nombre = nombreDesdeDescripcion(dto);
+  if (!nombre) {
+    throw new Error('Universidad recibida sin nombre');
+  }
+
+  return {
+    id: String(dto.id),
+    nombre,
+  };
+}
+
+export function toCatalogoDesdePais(dto: PaisDto): CatalogoItem {
+  if (dto.id == null) {
+    throw new Error('País recibido sin id');
+  }
+
+  const nombre = nombreDesdeDescripcion(dto);
+  if (!nombre) {
+    throw new Error('País recibido sin nombre');
   }
 
   return {

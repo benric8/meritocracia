@@ -1,0 +1,86 @@
+<section class="rubro-grados" aria-label="Grados académicos y títulos profesionales">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-grados__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-grados__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando grados registrados…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-grados__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-grados__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-grados__records">
+      <table class="rubro-grados__table">
+        <thead>
+          <tr>
+            <th>Nivel</th>
+            <th>Universidad</th>
+            <th>Especialidad</th>
+            <th>Fecha título</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="6" class="rubro-grados__empty">
+                Sin registros. Use "Añadir" para agregar un grado.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.gradoAcademicoNombre }}</td>
+                <td>{{ item.universidadNombre }}</td>
+                <td>{{ item.especialidad }}</td>
+                <td>{{ formatearFecha(item.fechaObtencion) }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-grados__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar grado"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar grado"
+                        (click)="eliminarGradoTitulo(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

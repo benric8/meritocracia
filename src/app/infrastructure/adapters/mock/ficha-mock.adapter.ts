@@ -5,6 +5,7 @@ import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
+  crearRubroGradosTitulosVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -15,6 +16,10 @@ import {
   RubroAntiguedad,
   TitularidadActual,
 } from '../../../domain/models/rubro-antiguedad.model';
+import {
+  GradoTitulo,
+  RubroGradosTitulos,
+} from '../../../domain/models/rubro-grados-titulos.model';
 import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
 import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -124,6 +129,7 @@ export class FichaMockAdapter implements FichaPort {
       datosPersonales: this.normalizarDatos(peticion.datosPersonales),
       fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
       rubroAntiguedad: crearRubroAntiguedadVacio(),
+      rubroGradosTitulos: crearRubroGradosTitulosVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -343,6 +349,48 @@ export class FichaMockAdapter implements FichaPort {
     });
   }
 
+  obtenerRubroGradosTitulos(fichaId: string): Observable<RubroGradosTitulos> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroGradosTitulos ?? crearRubroGradosTitulosVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  upsertGradoTitulo(fichaId: string, item: GradoTitulo): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroGradosTitulos ?? crearRubroGradosTitulosVacio();
+      const guardado: GradoTitulo = {
+        ...item,
+        id: item.id || `grado-${Date.now()}`,
+      };
+      const idx = rubro.items.findIndex((actual) => actual.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((actual, i) => (i === idx ? guardado : actual))
+          : [...rubro.items, guardado];
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroGradosTitulos: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarGradoTitulo(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroGradosTitulos ?? crearRubroGradosTitulosVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroGradosTitulos: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -458,6 +506,7 @@ export class FichaMockAdapter implements FichaPort {
       return (JSON.parse(crudo) as FichaValoracion[]).map((f) => ({
         ...f,
         rubroAntiguedad: f.rubroAntiguedad ?? null,
+        rubroGradosTitulos: f.rubroGradosTitulos ?? crearRubroGradosTitulosVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -489,6 +538,7 @@ export class FichaMockAdapter implements FichaPort {
         },
         fichaPreviaId: null,
         rubroAntiguedad: null,
+        rubroGradosTitulos: crearRubroGradosTitulosVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

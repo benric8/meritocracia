@@ -20,4 +20,7 @@ export const fichaEndpoints = {
   /** PUT colegiatura: `fichas-antiguedad/colegiatura/{id}`. */
   colegiaturaPorId: (idColegiatura: string | number) =>
     `fichas-antiguedad/colegiatura/${encodeURIComponent(String(idColegiatura).trim())}`,
+  GRADOS_TITULOS: 'ficha-grados-titulos',
+  gradoTituloPorId: (idGradoTitulo: string | number) =>
+    `ficha-grados-titulos/${encodeURIComponent(String(idGradoTitulo).trim())}`,
 } as const;

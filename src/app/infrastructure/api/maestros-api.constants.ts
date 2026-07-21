@@ -9,4 +9,7 @@ export const maestrosEndpoints = {
   COLEGIOS_PROFESIONALES: 'maestros/colegios-profesionales',
   ESPECIALIDADES: 'maestros/especialidades',
   DISTRITO_JUDICIAL: 'maestros/distrito-judicial',
+  NIVEL_GRADO: 'maestros/nivel-grado',
+  UNIVERSIDADES: 'maestros/universidades',
+  PAISES: 'maestros/paises',
 } as const;

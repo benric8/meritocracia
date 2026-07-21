@@ -4,7 +4,13 @@
  */
 
 import { RubroAntiguedad } from './rubro-antiguedad.model';
+import {
+  crearRubroGradosTitulosVacio,
+  RubroGradosTitulos,
+} from './rubro-grados-titulos.model';
 import { TIEMPO_SERVICIO_CERO } from './tiempo-servicio.model';
+
+export { crearRubroGradosTitulosVacio };
 
 export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 
@@ -31,6 +37,7 @@ export interface FichaValoracion {
   /** Trazabilidad del arrastre desde un ciclo anterior. */
   fichaPreviaId: string | null;
   rubroAntiguedad: RubroAntiguedad | null;
+  rubroGradosTitulos: RubroGradosTitulos | null;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;

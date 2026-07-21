@@ -18,8 +18,8 @@ import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
 import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/http/documentos-institucionales-http.adapter';
 import { FechaValoracionHttpAdapter } from './infrastructure/adapters/http/fecha-valoracion-http.adapter';
-import { FichaHttpAdapter } from './infrastructure/adapters/http/ficha-http.adapter';
-import { MaestrosHttpAdapter } from './infrastructure/adapters/http/maestros-http.adapter';
+import { FichaHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/ficha-http-grados-titulos-mock.adapter';
+import { MaestrosHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/maestros-http-grados-titulos-mock.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
 import { AntiguedadMockAdapter } from './infrastructure/adapters/mock/antiguedad-mock.adapter';
 import { JuezSigaHttpEdadMockAdapter } from './infrastructure/adapters/mock/juez-siga-http-edad-mock.adapter';
@@ -60,9 +60,10 @@ export const appConfig: ApplicationConfig = {
     { provide: DOCUMENTOS_INSTITUCIONALES_PORT, useClass: DocumentosInstitucionalesHttpAdapter },
     { provide: USUARIOS_PORT, useClass: UsuariosHttpAdapter },
     { provide: FECHA_VALORACION_PORT, useClass: FechaValoracionHttpAdapter },
-    { provide: MAESTROS_PORT, useClass: MaestrosHttpAdapter },
-    { provide: FICHA_PORT, useClass: FichaHttpAdapter },
+    { provide: MAESTROS_PORT, useClass: MaestrosHttpGradosTitulosMockAdapter },
+    { provide: FICHA_PORT, useClass: FichaHttpGradosTitulosMockAdapter },
     // Mocks / híbridos hasta disponer del API completo; sustituir por *HttpAdapter.
+    // Rubro C: `MaestrosHttpGradosTitulosMockAdapter` + `FichaHttpGradosTitulosMockAdapter`.
     // SIGA real (GET jueces/siga); edad aún mock.
     { provide: JUEZ_PORT, useClass: JuezSigaHttpEdadMockAdapter },
     { provide: ANTIGUEDAD_PORT, useClass: AntiguedadMockAdapter },

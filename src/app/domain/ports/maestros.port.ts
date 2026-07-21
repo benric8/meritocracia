@@ -18,6 +18,9 @@ export interface MaestrosPort {
   /** Cargo/nivel inmediato anterior según el cargo de magistrado de la ficha. */
   listarNivelesInmediatosAnteriores(cargoMagistradoId: string): Observable<CatalogoItem[]>;
   listarColegiosAbogados(): Observable<CatalogoItem[]>;
+  listarNivelesGrado(): Observable<CatalogoItem[]>;
+  listarUniversidades(): Observable<CatalogoItem[]>;
+  listarPaises(): Observable<CatalogoItem[]>;
 }
 
 export const MAESTROS_PORT = new InjectionToken<MaestrosPort>('MAESTROS_PORT');

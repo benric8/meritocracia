@@ -1,6 +1,7 @@
 import {
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
+  crearRubroGradosTitulosVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
@@ -145,6 +146,7 @@ export function toFichaValoracionDesdeCreacion(
     },
     fichaPreviaId: peticion.arrastrarDesdeFichaId?.trim() || null,
     rubroAntiguedad: crearRubroAntiguedadVacio(),
+    rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -214,6 +216,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     },
     fichaPreviaId: null,
     rubroAntiguedad: crearRubroAntiguedadVacio(),
+    rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,

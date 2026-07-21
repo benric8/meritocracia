@@ -14,6 +14,8 @@ import {
   ListarColegiosProfesionalesResponse,
   ListarDistritosJudicialesResponse,
   ListarMaestrosDescripcionResponse,
+  ListarPaisesResponse,
+  ListarUniversidadesResponse,
   ObtenerCargoMagistradoResponse,
   ObtenerMaestroDescripcionResponse,
 } from '../../dto/remote/MaestrosCatalogoResponse.dto';
@@ -24,6 +26,8 @@ import {
   toCatalogoDesdeColegio,
   toCatalogoDesdeDescripcion,
   toCatalogoDesdeDistrito,
+  toCatalogoDesdePais,
+  toCatalogoDesdeUniversidad,
 } from '../../mappers/maestros-catalogo.mapper';
 import { toNivelTitular } from '../../mappers/nivel-titular.mapper';
 
@@ -188,6 +192,64 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdeColegio);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de colegios profesionales.')
+      );
+  }
+
+  listarNivelesGrado(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarMaestrosDescripcionResponse>(
+        `${this.baseUrl}${maestrosEndpoints.NIVEL_GRADO}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeDescripcion);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de niveles de grado.')
+      );
+  }
+
+  listarUniversidades(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarUniversidadesResponse>(
+        `${this.baseUrl}${maestrosEndpoints.UNIVERSIDADES}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeUniversidad);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de universidades.')
+      );
+  }
+
+  listarPaises(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarPaisesResponse>(`${this.baseUrl}${maestrosEndpoints.PAISES}`)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdePais);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de países.')
       );
   }
 

@@ -55,3 +55,27 @@ export interface ListarColegiosProfesionalesResponse extends BaseResponse {
 export interface ListarDistritosJudicialesResponse extends BaseResponse {
   data: DistritoJudicialDto[];
 }
+
+export interface UniversidadDto {
+  id: number | string;
+  nombre?: string;
+  descripcion?: string;
+  codigo?: string;
+  paisId?: number | string;
+  activo?: string | boolean;
+}
+
+export interface PaisDto {
+  id: number | string;
+  nombre?: string;
+  descripcion?: string;
+  activo?: string | boolean;
+}
+
+export interface ListarUniversidadesResponse extends BaseResponse {
+  data: UniversidadDto[];
+}
+
+export interface ListarPaisesResponse extends BaseResponse {
+  data: PaisDto[];
+}

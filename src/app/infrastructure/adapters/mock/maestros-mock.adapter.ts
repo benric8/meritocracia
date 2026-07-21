@@ -76,6 +76,31 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
+  listarNivelesGrado(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'Doctorado' },
+      { id: '2', nombre: 'Maestría' },
+      { id: '3', nombre: 'Licenciatura' },
+      { id: '4', nombre: 'Bachiller' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarUniversidades(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '10', nombre: 'Universidad Nacional Mayor de San Marcos' },
+      { id: '11', nombre: 'Pontificia Universidad Católica del Perú' },
+      { id: '12', nombre: 'Universidad de San Martín de Porres' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarPaises(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '604', nombre: 'Perú' },
+      { id: '840', nombre: 'Estados Unidos' },
+      { id: '724', nombre: 'España' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
   private nivelesTitular(): NivelTitular[] {
     return [
       { id: '1', nombre: 'JUEZ SUPREMO TITULAR', abreviatura: 'SM' },
