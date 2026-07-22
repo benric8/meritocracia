@@ -25,12 +25,24 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+            <mat-error>Seleccione el país.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
           <mat-label>Universidad</mat-label>
           <input
             matInput
             type="text"
             formControlName="universidadBusqueda"
-            placeholder="Escriba para buscar…"
+            placeholder="Seleccione país y escriba para buscar…"
             [matAutocomplete]="autoUniversidad"
           />
           <mat-autocomplete
@@ -46,18 +58,6 @@
             formulario.controls.universidadId.invalid
           ) {
             <mat-error>Seleccione una universidad del catálogo.</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
-          <mat-label>País</mat-label>
-          <mat-select formControlName="paisId" placeholder="Seleccione…">
-            @for (item of paises; track item.id) {
-              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
-            }
-          </mat-select>
-          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
-            <mat-error>Seleccione el país.</mat-error>
           }
         </mat-form-field>
 
@@ -83,12 +83,21 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
           <mat-label>Especialidad</mat-label>
-          <input matInput formControlName="especialidad" placeholder="Derecho" />
+          <mat-select formControlName="especialidad" placeholder="Seleccione…">
+            @for (item of especialidades; track item) {
+              <mat-option
+                [value]="item"
+                [disabled]="soloEspecialidadNoJuridica() && item === 'JURIDICA'"
+              >
+                {{ etiquetaEspecialidad(item) }}
+              </mat-option>
+            }
+          </mat-select>
           @if (
             formulario.controls.especialidad.touched &&
             formulario.controls.especialidad.invalid
           ) {
-            <mat-error>Ingrese la especialidad.</mat-error>
+            <mat-error>Seleccione la especialidad.</mat-error>
           }
         </mat-form-field>
 

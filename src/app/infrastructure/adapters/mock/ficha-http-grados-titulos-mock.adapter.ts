@@ -18,16 +18,12 @@ import { EstudioAmag } from '../../../domain/models/rubro-amag.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
 import { FichaAmagMockAdapter } from './ficha-amag-mock.adapter';
-import { FichaGradosTitulosMockAdapter } from './ficha-grados-titulos-mock.adapter';
-
 /**
- * Ficha real vía HTTP; rubros C y D mock hasta que el backend esté listo.
- * Sustituir por `FichaHttpAdapter` cuando `ficha-grados-titulos` y `ficha-amag` estén disponibles.
+ * Ficha real vía HTTP; rubro D (AMAG) mock hasta que el backend esté listo.
  */
 @Injectable({ providedIn: 'root' })
 export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   private readonly http = inject(FichaHttpAdapter);
-  private readonly gradosMock = inject(FichaGradosTitulosMockAdapter);
   private readonly amagMock = inject(FichaAmagMockAdapter);
 
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha> {
@@ -48,16 +44,11 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
     return this.http.obtenerPorId(fichaId).pipe(
       switchMap((ficha) =>
-        this.gradosMock.obtenerRubroGradosTitulos(fichaId).pipe(
-          switchMap((rubroGrados) =>
-            this.amagMock.obtenerRubroAmag(fichaId).pipe(
-              map((rubroAmag) => ({
-                ...ficha,
-                rubroGradosTitulos: rubroGrados,
-                rubroAmag,
-              }))
-            )
-          )
+        this.amagMock.obtenerRubroAmag(fichaId).pipe(
+          map((rubroAmag) => ({
+            ...ficha,
+            rubroAmag,
+          }))
         )
       )
     );
@@ -99,19 +90,15 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   }
 
   obtenerRubroGradosTitulos(fichaId: string) {
-    return this.gradosMock.obtenerRubroGradosTitulos(fichaId);
+    return this.http.obtenerRubroGradosTitulos(fichaId);
   }
 
   upsertGradoTitulo(fichaId: string, item: GradoTitulo): Observable<FichaValoracion> {
-    return this.gradosMock.upsertGradoTitulo(fichaId, item).pipe(
-      switchMap((rubro) => this.fusionarRubroGradosEnFicha(fichaId, rubro))
-    );
+    return this.http.upsertGradoTitulo(fichaId, item);
   }
 
   eliminarGradoTitulo(fichaId: string, itemId: string): Observable<FichaValoracion> {
-    return this.gradosMock.eliminarGradoTitulo(fichaId, itemId).pipe(
-      switchMap((rubro) => this.fusionarRubroGradosEnFicha(fichaId, rubro))
-    );
+    return this.http.eliminarGradoTitulo(fichaId, itemId);
   }
 
   obtenerRubroAmag(fichaId: string) {
@@ -130,13 +117,6 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
     );
   }
 
-  private fusionarRubroGradosEnFicha(
-    fichaId: string,
-    rubro: NonNullable<FichaValoracion['rubroGradosTitulos']>
-  ): Observable<FichaValoracion> {
-    return this.fusionarRubroEnFicha(fichaId, { rubroGradosTitulos: rubro });
-  }
-
   private fusionarRubroAmagEnFicha(
     fichaId: string,
     rubro: NonNullable<FichaValoracion['rubroAmag']>
@@ -146,7 +126,7 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   private fusionarRubroEnFicha(
     fichaId: string,
-    parcial: Partial<Pick<FichaValoracion, 'rubroGradosTitulos' | 'rubroAmag'>>
+    parcial: Partial<Pick<FichaValoracion, 'rubroAmag'>>
   ): Observable<FichaValoracion> {
     return this.http.obtenerPorId(fichaId).pipe(
       map((ficha) => ({
@@ -172,12 +152,9 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
           },
           fichaPreviaId: null,
           rubroAntiguedad: null,
-          rubroGradosTitulos: parcial.rubroGradosTitulos ?? null,
+          rubroGradosTitulos: null,
           rubroAmag: parcial.rubroAmag ?? null,
-          puntajeTotal:
-            parcial.rubroGradosTitulos?.puntajeTotal ??
-            parcial.rubroAmag?.puntajeTotal ??
-            0,
+          puntajeTotal: parcial.rubroAmag?.puntajeTotal ?? 0,
           creadoEn: new Date().toISOString(),
           actualizadoEn: new Date().toISOString(),
         })

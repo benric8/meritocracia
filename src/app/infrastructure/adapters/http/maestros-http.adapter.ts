@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, of, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
@@ -237,6 +237,43 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdeUniversidad);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de universidades.')
+      );
+  }
+
+  buscarUniversidades(
+    termino: string,
+    paisId?: string,
+    limite = 20
+  ): Observable<CatalogoItem[]> {
+    const texto = termino.trim();
+    if (texto.length < 2) {
+      return of([]);
+    }
+
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const limiteNormalizado = Math.min(Math.max(limite, 1), 50);
+    let params = new HttpParams().set('termino', texto).set('limite', String(limiteNormalizado));
+    const pais = paisId?.trim() ?? '';
+    if (pais) {
+      params = params.set('pais_id', pais);
+    }
+
+    return this.http
+      .get<ListarUniversidadesResponse>(
+        `${this.baseUrl}${maestrosEndpoints.UNIVERSIDADES_BUSCAR}`,
+        { params }
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeUniversidad);
+        }),
+        mapearAErrorNegocioApi('No se pudo buscar universidades.')
       );
   }
 

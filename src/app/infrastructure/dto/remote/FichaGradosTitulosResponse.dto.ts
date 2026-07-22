@@ -2,6 +2,7 @@ import { BaseResponse } from './BaseResponse,dto';
 
 export interface GuardarGradoTituloRequestDto {
   fichaValoracionId?: number;
+  rubroId: number;
   gradoAcademicoId: number;
   universidadId: number;
   paisId: number;
@@ -12,7 +13,8 @@ export interface GuardarGradoTituloRequestDto {
 }
 
 export interface GradoTituloDetalleDto {
-  idFichaGradoTitulo: number;
+  idGradoTitulo?: number;
+  idFichaGradoTitulo?: number;
   idFichaValoracion?: number;
   gradoAcademicoId: number;
   gradoAcademicoNombre?: string | null;

@@ -9,8 +9,7 @@ import { MaestrosHttpAdapter } from '../http/maestros-http.adapter';
 import { MaestrosMockAdapter } from './maestros-mock.adapter';
 
 /**
- * Maestros reales vía HTTP; catálogos del rubro C mock hasta que el backend esté listo.
- * Sustituir por `MaestrosHttpAdapter` cuando `nivel-grado`, `universidades` y `paises` estén disponibles.
+ * Maestros reales vía HTTP; tipos de curso AMAG mock hasta que el backend esté listo.
  */
 @Injectable({ providedIn: 'root' })
 export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
@@ -46,15 +45,23 @@ export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
   }
 
   listarNivelesGrado(): Observable<CatalogoItem[]> {
-    return this.mock.listarNivelesGrado();
+    return this.http.listarNivelesGrado();
   }
 
   listarUniversidades(): Observable<CatalogoItem[]> {
-    return this.mock.listarUniversidades();
+    return this.http.listarUniversidades();
+  }
+
+  buscarUniversidades(
+    termino: string,
+    paisId?: string,
+    limite?: number
+  ): Observable<CatalogoItem[]> {
+    return this.http.buscarUniversidades(termino, paisId, limite);
   }
 
   listarPaises(): Observable<CatalogoItem[]> {
-    return this.mock.listarPaises();
+    return this.http.listarPaises();
   }
 
   listarTiposCursoAmag(): Observable<CatalogoItem[]> {

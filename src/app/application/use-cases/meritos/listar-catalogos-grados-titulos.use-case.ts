@@ -7,7 +7,6 @@ import { MAESTROS_PORT } from '../../../domain/ports/maestros.port';
 
 export interface CatalogosGradosTitulos {
   nivelesGrado: CatalogoItem[];
-  universidades: CatalogoItem[];
   paises: CatalogoItem[];
 }
 
@@ -22,7 +21,6 @@ export class ListarCatalogosGradosTitulosUseCase {
   ejecutar(): Observable<ListarCatalogosGradosTitulosResultado> {
     return forkJoin({
       nivelesGrado: this.maestros.listarNivelesGrado(),
-      universidades: this.maestros.listarUniversidades(),
       paises: this.maestros.listarPaises(),
     }).pipe(
       map((catalogos) => ({ exito: true as const, catalogos })),

@@ -84,6 +84,7 @@ import {
   toFichaValoracionDesdeDetalle,
   toResultadoResolverFicha,
 } from '../../mappers/ficha.mapper';
+import { RubrosMaestroStore } from '../../stores/rubros-maestro.store';
 
 function esRespuestaEnvuelta(
   respuesta: FlujoFichaResponse | FlujoFichaDto
@@ -95,6 +96,7 @@ function esRespuestaEnvuelta(
 export class FichaHttpAdapter implements FichaPort {
   private readonly http = inject(HttpClient);
   private readonly sesion = inject(SESION_PORT);
+  private readonly rubrosMaestro = inject(RubrosMaestroStore);
   /** Cache local para mutaciones de rubros tras crear/obtener la ficha. */
   private readonly fichasEnMemoria = new Map<string, FichaValoracion>();
 
@@ -606,7 +608,9 @@ export class FichaHttpAdapter implements FichaPort {
     const esActualizacion = esIdPersistidoApi(itemId);
 
     let body;
+    let rubroId: number;
     try {
+      rubroId = this.obtenerIdRubroGradosTitulos();
       body = toGuardarGradoTituloRequestDto(
         fichaId,
         {
@@ -618,6 +622,7 @@ export class FichaHttpAdapter implements FichaPort {
           mencion: item.mencion,
           observacion: item.observacion,
         },
+        rubroId,
         !esActualizacion
       );
     } catch (error) {
@@ -668,9 +673,17 @@ export class FichaHttpAdapter implements FichaPort {
     }
 
     const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroGradosTitulos();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
     const url = `${this.baseUrl}${fichaEndpoints.gradoTituloPorId(idItem)}`;
 
-    return this.http.delete<EliminarGradoTituloResponse>(url).pipe(
+    return this.http.delete<EliminarGradoTituloResponse>(url, { params }).pipe(
       map((respuesta) => {
         assertRespuestaExitosa(respuesta);
         if (respuesta.data) {
@@ -979,6 +992,16 @@ export class FichaHttpAdapter implements FichaPort {
       });
     }
     return id;
+  }
+
+  private obtenerIdRubroGradosTitulos(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'C');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro C en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
   }
 
   private asegurarTokenOpciones(): void {

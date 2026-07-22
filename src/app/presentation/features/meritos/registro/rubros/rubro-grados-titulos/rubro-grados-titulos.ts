@@ -21,6 +21,7 @@ import { CatalogoItem } from '../../../../../../domain/models/catalogo-item.mode
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import {
   GradoTitulo,
+  etiquetaEspecialidadGrado,
   RubroGradosTitulos,
 } from '../../../../../../domain/models/rubro-grados-titulos.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
@@ -64,11 +65,11 @@ export class RubroGradosTitulosComponent implements OnInit {
   protected readonly puntajeRubro = signal(0);
 
   protected readonly nivelesGrado = signal<CatalogoItem[]>([]);
-  protected readonly universidades = signal<CatalogoItem[]>([]);
   protected readonly paises = signal<CatalogoItem[]>([]);
 
   protected readonly formatearFecha = formatearFechaCorta;
   protected readonly formatearPuntaje = formatearPuntaje;
+  protected readonly formatearEspecialidad = etiquetaEspecialidadGrado;
 
   private catalogosCargados = false;
   private ultimoRubroHidratadoClave: string | null = null;
@@ -156,7 +157,6 @@ export class RubroGradosTitulosComponent implements OnInit {
 
     const data: FormularioGradoTituloData = {
       nivelesGrado: this.nivelesGrado(),
-      universidades: this.universidades(),
       paises: this.paises(),
       gradoTitulo: existente ?? null,
     };
@@ -257,7 +257,6 @@ export class RubroGradosTitulosComponent implements OnInit {
         }
 
         this.nivelesGrado.set(resultado.catalogos.nivelesGrado);
-        this.universidades.set(resultado.catalogos.universidades);
         this.paises.set(resultado.catalogos.paises);
         this.catalogosCargados = true;
 
@@ -281,7 +280,6 @@ export class RubroGradosTitulosComponent implements OnInit {
 
   private enriquecerNombresCatalogo(): void {
     const niveles = this.nivelesGrado();
-    const universidades = this.universidades();
     const paises = this.paises();
 
     this.items.update((lista) =>
@@ -290,9 +288,6 @@ export class RubroGradosTitulosComponent implements OnInit {
         gradoAcademicoNombre:
           niveles.find((nivel) => nivel.id === item.gradoAcademicoId)?.nombre ??
           item.gradoAcademicoNombre,
-        universidadNombre:
-          universidades.find((univ) => univ.id === item.universidadId)?.nombre ??
-          item.universidadNombre,
         paisNombre: paises.find((pais) => pais.id === item.paisId)?.nombre ?? item.paisNombre,
       }))
     );

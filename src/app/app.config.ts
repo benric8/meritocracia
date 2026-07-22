@@ -63,7 +63,7 @@ export const appConfig: ApplicationConfig = {
     { provide: MAESTROS_PORT, useClass: MaestrosHttpGradosTitulosMockAdapter },
     { provide: FICHA_PORT, useClass: FichaHttpGradosTitulosMockAdapter },
     // Mocks / híbridos hasta disponer del API completo; sustituir por *HttpAdapter.
-    // Rubros C y D: `MaestrosHttpGradosTitulosMockAdapter` + `FichaHttpGradosTitulosMockAdapter`.
+    // Rubro D (AMAG): `FichaHttpGradosTitulosMockAdapter` mantiene mock solo para AMAG.
     // SIGA real (GET jueces/siga); edad aún mock.
     { provide: JUEZ_PORT, useClass: JuezSigaHttpEdadMockAdapter },
     { provide: ANTIGUEDAD_PORT, useClass: AntiguedadMockAdapter },

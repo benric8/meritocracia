@@ -22,6 +22,12 @@ export interface MaestrosPort {
   listarColegiosAbogados(): Observable<CatalogoItem[]>;
   listarNivelesGrado(): Observable<CatalogoItem[]>;
   listarUniversidades(): Observable<CatalogoItem[]>;
+  /** Autocompletado de universidades (mínimo 2 caracteres en `termino`). */
+  buscarUniversidades(
+    termino: string,
+    paisId?: string,
+    limite?: number
+  ): Observable<CatalogoItem[]>;
   listarPaises(): Observable<CatalogoItem[]>;
   listarTiposCursoAmag(): Observable<CatalogoItem[]>;
   listarRubros(): Observable<RubroMaestro[]>;

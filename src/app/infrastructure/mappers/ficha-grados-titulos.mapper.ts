@@ -22,8 +22,13 @@ function aNumeroId(valor: string, etiqueta: string): number {
 }
 
 function aGradoTituloDesdeDto(dto: GradoTituloDetalleDto): GradoTitulo {
+  const id = dto.idGradoTitulo ?? dto.idFichaGradoTitulo;
+  if (id == null) {
+    throw new Error('Grado o título recibido sin identificador.');
+  }
+
   return {
-    id: String(dto.idFichaGradoTitulo),
+    id: String(id),
     gradoAcademicoId: String(dto.gradoAcademicoId),
     gradoAcademicoNombre: dto.gradoAcademicoNombre?.trim() ?? '',
     universidadId: String(dto.universidadId),
@@ -75,13 +80,19 @@ export function toRubroGradosTitulosDesdeDetalle(
 export function toGuardarGradoTituloRequestDto(
   fichaId: string,
   data: GradoTituloFormulario,
+  rubroId: number,
   incluirFicha: boolean
 ): GuardarGradoTituloRequestDto {
   if (!data.fechaObtencion?.trim()) {
     throw new Error('Fecha de obtención requerida.');
   }
 
+  if (!Number.isFinite(rubroId) || rubroId <= 0) {
+    throw new Error('Rubro no válido.');
+  }
+
   const body: GuardarGradoTituloRequestDto = {
+    rubroId,
     gradoAcademicoId: aNumeroId(data.gradoAcademicoId, 'Grado académico'),
     universidadId: aNumeroId(data.universidadId, 'Universidad'),
     paisId: aNumeroId(data.paisId, 'País'),

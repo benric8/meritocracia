@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { delay, Observable, of } from 'rxjs';
+import { delay, map, Observable, of } from 'rxjs';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
@@ -93,6 +93,25 @@ export class MaestrosMockAdapter implements MaestrosPort {
       { id: '11', nombre: 'Pontificia Universidad Católica del Perú' },
       { id: '12', nombre: 'Universidad de San Martín de Porres' },
     ]).pipe(delay(LATENCIA_MS));
+  }
+
+  buscarUniversidades(
+    termino: string,
+    paisId?: string,
+    limite = 20
+  ): Observable<CatalogoItem[]> {
+    const texto = termino.trim().toLowerCase();
+    if (texto.length < 2) {
+      return of([]);
+    }
+
+    return this.listarUniversidades().pipe(
+      map((lista) =>
+        lista
+          .filter((item) => item.nombre.toLowerCase().includes(texto))
+          .slice(0, Math.min(Math.max(limite, 1), 50))
+      )
+    );
   }
 
   listarPaises(): Observable<CatalogoItem[]> {

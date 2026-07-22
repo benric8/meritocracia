@@ -61,6 +61,7 @@ export interface UniversidadDto {
   nombre?: string;
   descripcion?: string;
   codigo?: string;
+  idPais?: number | string;
   paisId?: number | string;
   activo?: string | boolean;
 }

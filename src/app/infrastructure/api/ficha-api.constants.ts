@@ -20,9 +20,9 @@ export const fichaEndpoints = {
   /** PUT colegiatura: `fichas-antiguedad/colegiatura/{id}`. */
   colegiaturaPorId: (idColegiatura: string | number) =>
     `fichas-antiguedad/colegiatura/${encodeURIComponent(String(idColegiatura).trim())}`,
-  GRADOS_TITULOS: 'ficha-grados-titulos',
+  GRADOS_TITULOS: 'fichas-grados-titulos',
   gradoTituloPorId: (idGradoTitulo: string | number) =>
-    `ficha-grados-titulos/${encodeURIComponent(String(idGradoTitulo).trim())}`,
+    `fichas-grados-titulos/${encodeURIComponent(String(idGradoTitulo).trim())}`,
   AMAG: 'ficha-amag',
   estudioAmagPorId: (idEstudioAmag: string | number) =>
     `ficha-amag/${encodeURIComponent(String(idEstudioAmag).trim())}`,

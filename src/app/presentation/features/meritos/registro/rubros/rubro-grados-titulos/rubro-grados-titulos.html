@@ -49,7 +49,7 @@
               <tr>
                 <td>{{ item.gradoAcademicoNombre }}</td>
                 <td>{{ item.universidadNombre }}</td>
-                <td>{{ item.especialidad }}</td>
+                <td>{{ formatearEspecialidad(item.especialidad) }}</td>
                 <td>{{ formatearFecha(item.fechaObtencion) }}</td>
                 <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
                 <td>
