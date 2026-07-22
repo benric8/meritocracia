@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
+import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
+import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
 import { MaestrosPort } from '../../../domain/ports/maestros.port';
 
 const LATENCIA_MS = 300;
@@ -107,6 +109,163 @@ export class MaestrosMockAdapter implements MaestrosPort {
       { id: '2', nombre: 'PROFA' },
       { id: '3', nombre: 'ASCENSO' },
     ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarRubros(): Observable<RubroMaestro[]> {
+    return of(this.rubrosMaestro()).pipe(delay(LATENCIA_MS));
+  }
+
+  listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]> {
+    return of(this.subrubrosMaestro(idRubro)).pipe(delay(LATENCIA_MS));
+  }
+
+  private subrubrosMaestro(idRubro: number): SubrubroMaestro[] {
+    if (idRubro !== 5) {
+      return [];
+    }
+
+    return [
+      {
+        idSubrubro: 1,
+        idRubro: 5,
+        codigo: 'E1',
+        nombre: 'Estudios de doctorado y/o maestría',
+        orden: 1,
+        puntajeMaximo: null,
+        aniosVigencia: null,
+      },
+      {
+        idSubrubro: 2,
+        idRubro: 5,
+        codigo: 'E2',
+        nombre: 'Pasantía',
+        orden: 2,
+        puntajeMaximo: null,
+        aniosVigencia: 5,
+      },
+      {
+        idSubrubro: 3,
+        idRubro: 5,
+        codigo: 'E3',
+        nombre: 'Cursos de especialización, postgrado y diplomados',
+        orden: 3,
+        puntajeMaximo: null,
+        aniosVigencia: 5,
+      },
+      {
+        idSubrubro: 4,
+        idRubro: 5,
+        codigo: 'E4',
+        nombre: 'Certámenes académicos (expositor/ponente/panelista)',
+        orden: 4,
+        puntajeMaximo: null,
+        aniosVigencia: 5,
+      },
+      {
+        idSubrubro: 5,
+        idRubro: 5,
+        codigo: 'E5',
+        nombre: 'Asistencia a eventos académicos',
+        orden: 5,
+        puntajeMaximo: null,
+        aniosVigencia: 5,
+      },
+      {
+        idSubrubro: 6,
+        idRubro: 5,
+        codigo: 'E6',
+        nombre: 'Estudios de ofimática',
+        orden: 6,
+        puntajeMaximo: null,
+        aniosVigencia: null,
+      },
+    ];
+  }
+
+  private rubrosMaestro(): RubroMaestro[] {
+    return [
+      {
+        idRubro: 1,
+        codigo: 'A',
+        nombre: 'Producción jurisdiccional',
+        orden: 1,
+        puntajeMaximo: null,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 2,
+        codigo: 'B',
+        nombre: 'Antigüedad en el cargo',
+        orden: 2,
+        puntajeMaximo: 12,
+        tieneDetalle: true,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 3,
+        codigo: 'C',
+        nombre: 'Grados académicos y títulos profesionales',
+        orden: 3,
+        puntajeMaximo: 17,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 4,
+        codigo: 'D',
+        nombre: 'Estudios de preparación AMAG',
+        orden: 4,
+        puntajeMaximo: 8,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 5,
+        codigo: 'E',
+        nombre: 'Estudios de perfeccionamiento',
+        orden: 5,
+        puntajeMaximo: 14,
+        tieneDetalle: false,
+        tieneSubrubros: true,
+      },
+      {
+        idRubro: 7,
+        codigo: 'F',
+        nombre: 'Publicaciones de índole jurídico',
+        orden: 6,
+        puntajeMaximo: 3,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 8,
+        codigo: 'G',
+        nombre: 'Distinciones y condecoraciones',
+        orden: 7,
+        puntajeMaximo: 3,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 9,
+        codigo: 'H',
+        nombre: 'Docencia universitaria',
+        orden: 8,
+        puntajeMaximo: 3,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+      {
+        idRubro: 10,
+        codigo: 'I',
+        nombre: 'Deméritos',
+        orden: 9,
+        puntajeMaximo: null,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
+    ];
   }
 
   private nivelesTitular(): NivelTitular[] {

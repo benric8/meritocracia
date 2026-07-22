@@ -1,0 +1,39 @@
+<section class="rubro-subrubros-panel" [attr.aria-label]="'Subrubros del rubro ' + idRubro()">
+  @if (error(); as mensajeError) {
+    <p class="rubro-subrubros-panel__error" role="alert">{{ mensajeError }}</p>
+  }
+
+  @if (cargando()) {
+    <div class="rubro-subrubros-panel__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>Cargando subrubros…</span>
+    </div>
+  } @else if (subrubros().length === 0) {
+    <p class="rubro-subrubros-panel__aviso" role="status">No hay subrubros configurados.</p>
+  } @else {
+    <mat-accordion class="rubro-subrubros-panel__accordion" multi>
+      @for (subrubro of subrubros(); track subrubro.idSubrubro) {
+        <mat-expansion-panel class="rubro-subrubros-panel__item">
+          <mat-expansion-panel-header class="rubro-subrubros-panel__item-header">
+            <mat-panel-title class="rubro-subrubros-panel__item-title">
+              <span class="rubro-subrubros-panel__code">{{ subrubro.codigo }}</span>
+              {{ subrubro.nombre }}
+            </mat-panel-title>
+            <mat-panel-description class="rubro-subrubros-panel__item-score">
+              {{ formatearPuntaje(0) }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <p class="rubro-subrubros-panel__pendiente" role="status">
+            Disponible en una fase posterior.
+            @if (subrubro.aniosVigencia != null) {
+              <span class="rubro-subrubros-panel__vigencia">
+                Vigencia: {{ subrubro.aniosVigencia }} años.
+              </span>
+            }
+          </p>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</section>

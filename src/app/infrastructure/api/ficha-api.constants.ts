@@ -13,7 +13,7 @@ export const fichaEndpoints = {
   periodoInmediatoPorId: (idPeriodoInmediato: string | number) =>
     `fichas-antiguedad/periodo-inmediato/${encodeURIComponent(String(idPeriodoInmediato).trim())}`,
   PROVISIONALIDAD: 'fichas-antiguedad/provisionalidad',
-  /** PUT provisionalidad: `fichas-antiguedad/provisionalidad/{id}`. */
+  /** PUT provisionalidad: `fichas-antiguedad/provisionalidad/{id}`. */ 
   provisionalidadPorId: (idProvisionalidad: string | number) =>
     `fichas-antiguedad/provisionalidad/${encodeURIComponent(String(idProvisionalidad).trim())}`,
   COLEGIATURA: 'fichas-antiguedad/colegiatura',

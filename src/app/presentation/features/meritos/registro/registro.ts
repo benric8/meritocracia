@@ -48,6 +48,7 @@ import {
   VALIDADORES_SEXO,
 } from './ficha-valoracion.util';
 import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
+import { RubrosMaestroStore } from '../../../../infrastructure/stores/rubros-maestro.store';
 import { RubrosPanel } from './rubros/rubros-panel/rubros-panel';
 import { aDateDesdeIso, formatearPuntaje } from './rubros/rubros.util';
 
@@ -88,6 +89,7 @@ export class Registro implements OnInit {
   private readonly crearBorrador = inject(CrearBorradorFichaUseCase);
   private readonly actualizarDatosPersonales = inject(ActualizarDatosPersonalesFichaUseCase);
   private readonly obtenerFicha = inject(ObtenerFichaUseCase);
+  private readonly rubrosMaestroStore = inject(RubrosMaestroStore);
 
   protected readonly niveles = signal<NivelTitular[]>([]);
   protected readonly cargandoNiveles = signal(false);
@@ -108,6 +110,14 @@ export class Registro implements OnInit {
   protected readonly rubroGradosTitulos = signal<RubroGradosTitulos | null>(null);
   protected readonly rubroAmag = signal<RubroAmag | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
+  protected readonly rubrosMaestro = this.rubrosMaestroStore.rubros;
+  protected readonly cargandoRubrosMaestro = this.rubrosMaestroStore.cargando;
+  protected readonly rubroInicioEtiqueta = computed(() => {
+    const primero = this.rubrosMaestro().find((rubro) => rubro.tieneDetalle);
+    return primero
+      ? `el rubro ${primero.codigo} — ${primero.nombre}`
+      : 'el rubro B — Antigüedad en el cargo';
+  });
   protected readonly formatearPuntaje = formatearPuntaje;
 
   /**
@@ -193,6 +203,7 @@ export class Registro implements OnInit {
 
   ngOnInit(): void {
     this.cargarNiveles();
+    this.cargarRubrosMaestro();
     this.cargarFechaValoracionVigente();
     this.escucharFechaNacimiento();
   }
@@ -692,6 +703,20 @@ export class Registro implements OnInit {
         }
 
         this.niveles.set(resultado.niveles);
+      });
+  }
+
+  private cargarRubrosMaestro(): void {
+    this.rubrosMaestroStore
+      .asegurarCargado()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((exito) => {
+        if (!exito) {
+          const mensajeRubros = this.rubrosMaestroStore.error();
+          if (mensajeRubros && !this.errorCarga()) {
+            this.errorCarga.set(mensajeRubros);
+          }
+        }
       });
   }
 

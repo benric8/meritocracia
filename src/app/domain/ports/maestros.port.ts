@@ -2,6 +2,8 @@ import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CatalogoItem } from '../models/catalogo-item.model';
 import { NivelTitular } from '../models/nivel-titular.model';
+import { RubroMaestro } from '../models/rubro-maestro.model';
+import { SubrubroMaestro } from '../models/subrubro-maestro.model';
 
 /**
  * Puerto de salida: catálogos maestros (RF006 — ficha de valoración).
@@ -22,6 +24,8 @@ export interface MaestrosPort {
   listarUniversidades(): Observable<CatalogoItem[]>;
   listarPaises(): Observable<CatalogoItem[]>;
   listarTiposCursoAmag(): Observable<CatalogoItem[]>;
+  listarRubros(): Observable<RubroMaestro[]>;
+  listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]>;
 }
 
 export const MAESTROS_PORT = new InjectionToken<MaestrosPort>('MAESTROS_PORT');

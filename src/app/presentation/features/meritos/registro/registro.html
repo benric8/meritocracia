@@ -246,7 +246,7 @@
   @if (!rubrosDesbloqueados()) {
     <div class="ficha-valoracion__rubros-locked" role="status">
       <strong>Registro de rubros pendiente</strong>
-      Complete y guarde el nivel y los datos personales para comenzar con el rubro B — Antigüedad en el cargo.
+      Complete y guarde el nivel y los datos personales para comenzar con {{ rubroInicioEtiqueta() }}.
     </div>
   } @else {
     <div class="ficha-valoracion__rubros">
@@ -266,6 +266,7 @@
         [fichaId]="fichaId()"
         [nivelId]="nivelIdFicha()"
         [soloLectura]="fichaSoloLectura()"
+        [rubrosMaestro]="rubrosMaestro()"
         [rubroAntiguedad]="rubroAntiguedad()"
         [rubroGradosTitulos]="rubroGradosTitulos()"
         [rubroAmag]="rubroAmag()"

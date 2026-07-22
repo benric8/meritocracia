@@ -4,110 +4,84 @@
     <span class="rubros-panel__puntaje-label">Puntaje</span>
   </header>
 
-  <mat-accordion class="rubros-panel__accordion" multi>
-    <mat-expansion-panel class="rubros-panel__item" [expanded]="false">
-      <mat-expansion-panel-header class="rubros-panel__item-header">
-        <mat-panel-title class="rubros-panel__item-title">
-          <span class="rubros-panel__letter">A</span>
-          Producción jurisdiccional
-        </mat-panel-title>
-        <mat-panel-description class="rubros-panel__item-score">
-          {{ formatearPuntaje(puntajeProduccion) }}
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <app-rubro-produccion />
-    </mat-expansion-panel>
+  @if (rubrosMaestro().length === 0) {
+    <p class="rubros-panel__aviso" role="status">Cargando catálogo de rubros…</p>
+  } @else {
+    <mat-accordion class="rubros-panel__accordion" multi>
+      @for (rubro of rubrosMaestro(); track rubro.idRubro) {
+        <mat-expansion-panel
+          class="rubros-panel__item"
+          [expanded]="expandidoPorDefecto(rubro.codigo)"
+          (opened)="onRubroAbierto(rubro)"
+        >
+          <mat-expansion-panel-header class="rubros-panel__item-header">
+            <mat-panel-title class="rubros-panel__item-title">
+              <span class="rubros-panel__letter">{{ rubro.codigo }}</span>
+              {{ rubro.nombre }}
+            </mat-panel-title>
+            <mat-panel-description class="rubros-panel__item-score">
+              {{ formatearPuntaje(puntajeRubro(rubro.codigo)) }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-    <mat-expansion-panel
-      class="rubros-panel__item"
-      [expanded]="true"
-      (opened)="onRubroBAbierto()"
-    >
-      <mat-expansion-panel-header class="rubros-panel__item-header">
-        <mat-panel-title class="rubros-panel__item-title">
-          <span class="rubros-panel__letter">B</span>
-          Antigüedad en el cargo
-        </mat-panel-title>
-        <mat-panel-description class="rubros-panel__item-score">
-          {{ formatearPuntaje(puntajeAntiguedad()) }}
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      @if (cargandoRubroB()) {
-        <div class="rubros-panel__loading" role="status">
-          <mat-progress-spinner diameter="22" mode="indeterminate" />
-          <span>Cargando antigüedad registrada…</span>
-        </div>
-      }
-      <app-rubro-antiguedad
-        [fichaId]="fichaId()"
-        [nivelId]="nivelId()"
-        [soloLectura]="soloLectura()"
-        [rubroInicial]="rubroAntiguedadLocal()"
-        [fechaValoracion]="fechaValoracion()"
-        [cargandoDetalle]="cargandoRubroB()"
-        (puntajeChange)="onPuntajeAntiguedad($event)"
-        (fichaActualizada)="onFichaActualizada($event)"
-      />
-    </mat-expansion-panel>
+          @if (!rubro.tieneSubrubros && cargandoRubro(rubro)) {
+            <div class="rubros-panel__loading" role="status">
+              <mat-progress-spinner diameter="22" mode="indeterminate" />
+              <span>{{ mensajeCargaRubro(rubro) }}</span>
+            </div>
+          }
 
-    <mat-expansion-panel
-      class="rubros-panel__item"
-      [expanded]="false"
-      (opened)="onRubroCAbierto()"
-    >
-      <mat-expansion-panel-header class="rubros-panel__item-header">
-        <mat-panel-title class="rubros-panel__item-title">
-          <span class="rubros-panel__letter">C</span>
-          Grados académicos y títulos profesionales
-        </mat-panel-title>
-        <mat-panel-description class="rubros-panel__item-score">
-          {{ formatearPuntaje(puntajeGradosTitulos()) }}
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      @if (cargandoRubroC()) {
-        <div class="rubros-panel__loading" role="status">
-          <mat-progress-spinner diameter="22" mode="indeterminate" />
-          <span>Cargando grados registrados…</span>
-        </div>
+          @if (rubro.tieneSubrubros) {
+            <app-rubro-subrubros-panel
+              [idRubro]="rubro.idRubro"
+              [soloLectura]="soloLectura()"
+            />
+          } @else {
+            @switch (rubro.codigo) {
+              @case ('A') {
+                <app-rubro-produccion />
+              }
+              @case ('B') {
+                <app-rubro-antiguedad
+                  [fichaId]="fichaId()"
+                  [nivelId]="nivelId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroAntiguedadLocal()"
+                  [fechaValoracion]="fechaValoracion()"
+                  [cargandoDetalle]="cargandoRubroB()"
+                  (puntajeChange)="onPuntajeAntiguedad($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('C') {
+                <app-rubro-grados-titulos
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroGradosTitulosLocal()"
+                  [cargandoDetalle]="cargandoRubroC()"
+                  (puntajeChange)="onPuntajeGradosTitulos($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('D') {
+                <app-rubro-amag
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroAmagLocal()"
+                  [cargandoDetalle]="cargandoRubroD()"
+                  (puntajeChange)="onPuntajeAmag($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @default {
+                <p class="rubros-panel__pendiente" role="status">
+                  Disponible en una fase posterior.
+                </p>
+              }
+            }
+          }
+        </mat-expansion-panel>
       }
-      <app-rubro-grados-titulos
-        [fichaId]="fichaId()"
-        [soloLectura]="soloLectura()"
-        [rubroInicial]="rubroGradosTitulosLocal()"
-        [cargandoDetalle]="cargandoRubroC()"
-        (puntajeChange)="onPuntajeGradosTitulos($event)"
-        (fichaActualizada)="onFichaActualizada($event)"
-      />
-    </mat-expansion-panel>
-
-    <mat-expansion-panel
-      class="rubros-panel__item"
-      [expanded]="false"
-      (opened)="onRubroDAbierto()"
-    >
-      <mat-expansion-panel-header class="rubros-panel__item-header">
-        <mat-panel-title class="rubros-panel__item-title">
-          <span class="rubros-panel__letter">D</span>
-          Estudios de preparación AMAG
-        </mat-panel-title>
-        <mat-panel-description class="rubros-panel__item-score">
-          {{ formatearPuntaje(puntajeAmag()) }}
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      @if (cargandoRubroD()) {
-        <div class="rubros-panel__loading" role="status">
-          <mat-progress-spinner diameter="22" mode="indeterminate" />
-          <span>Cargando estudios AMAG registrados…</span>
-        </div>
-      }
-      <app-rubro-amag
-        [fichaId]="fichaId()"
-        [soloLectura]="soloLectura()"
-        [rubroInicial]="rubroAmagLocal()"
-        [cargandoDetalle]="cargandoRubroD()"
-        (puntajeChange)="onPuntajeAmag($event)"
-        (fichaActualizada)="onFichaActualizada($event)"
-      />
-    </mat-expansion-panel>
-  </mat-accordion>
+    </mat-accordion>
+  }
 </section>

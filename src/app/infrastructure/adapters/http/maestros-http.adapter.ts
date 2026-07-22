@@ -4,6 +4,8 @@ import { map, Observable, of, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
+import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
+import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
 import { MaestrosPort } from '../../../domain/ports/maestros.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -20,6 +22,7 @@ import {
   ObtenerMaestroDescripcionResponse,
 } from '../../dto/remote/MaestrosCatalogoResponse.dto';
 import { ListarNivelesTitularResponse } from '../../dto/remote/MaestrosNivelResponse.dto';
+import { ListarRubrosMaestroResponse, ListarSubrubrosMaestroResponse } from '../../dto/remote/MaestrosRubroResponse.dto';
 import {
   aListaCatalogoUnico,
   toCatalogoDesdeCargoMagistrado,
@@ -30,6 +33,8 @@ import {
   toCatalogoDesdeUniversidad,
 } from '../../mappers/maestros-catalogo.mapper';
 import { toNivelTitular } from '../../mappers/nivel-titular.mapper';
+import { toRubroMaestro } from '../../mappers/rubro-maestro.mapper';
+import { toSubrubroMaestro } from '../../mappers/subrubro-maestro.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class MaestrosHttpAdapter implements MaestrosPort {
@@ -250,6 +255,48 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdePais);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de países.')
+      );
+  }
+
+  listarRubros(): Observable<RubroMaestro[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarRubrosMaestroResponse>(`${this.baseUrl}${maestrosEndpoints.RUBROS}`)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toRubroMaestro);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de rubros.')
+      );
+  }
+
+  listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]> {
+    if (!Number.isFinite(idRubro) || idRubro <= 0) {
+      return of([]);
+    }
+
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarSubrubrosMaestroResponse>(
+        `${this.baseUrl}${maestrosEndpoints.SUBRUBROS(idRubro)}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toSubrubroMaestro);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de subrubros.')
       );
   }
 
