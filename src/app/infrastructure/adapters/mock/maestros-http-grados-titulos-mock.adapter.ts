@@ -6,15 +6,13 @@ import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
 import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
 import { MaestrosPort } from '../../../domain/ports/maestros.port';
 import { MaestrosHttpAdapter } from '../http/maestros-http.adapter';
-import { MaestrosMockAdapter } from './maestros-mock.adapter';
 
 /**
- * Maestros reales vía HTTP; tipos de curso AMAG mock hasta que el backend esté listo.
+ * Maestros reales vía HTTP (incluye catálogo de cursos AMAG).
  */
 @Injectable({ providedIn: 'root' })
 export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
   private readonly http = inject(MaestrosHttpAdapter);
-  private readonly mock = inject(MaestrosMockAdapter);
 
   listarNivelesTitular(): Observable<NivelTitular[]> {
     return this.http.listarNivelesTitular();
@@ -65,7 +63,7 @@ export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
   }
 
   listarTiposCursoAmag(): Observable<CatalogoItem[]> {
-    return this.mock.listarTiposCursoAmag();
+    return this.http.listarTiposCursoAmag();
   }
 
   listarRubros(): Observable<RubroMaestro[]> {

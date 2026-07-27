@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
 import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
@@ -17,14 +17,11 @@ import { GradoTitulo } from '../../../domain/models/rubro-grados-titulos.model';
 import { EstudioAmag } from '../../../domain/models/rubro-amag.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
-import { FichaAmagMockAdapter } from './ficha-amag-mock.adapter';
-/**
- * Ficha real vía HTTP; rubro D (AMAG) mock hasta que el backend esté listo.
- */
+
+/** Ficha real vía HTTP (rubros B, C y D). */
 @Injectable({ providedIn: 'root' })
 export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   private readonly http = inject(FichaHttpAdapter);
-  private readonly amagMock = inject(FichaAmagMockAdapter);
 
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha> {
     return this.http.resolverDelCiclo(dni, fechaValoracionId);
@@ -42,16 +39,7 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   }
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
-    return this.http.obtenerPorId(fichaId).pipe(
-      switchMap((ficha) =>
-        this.amagMock.obtenerRubroAmag(fichaId).pipe(
-          map((rubroAmag) => ({
-            ...ficha,
-            rubroAmag,
-          }))
-        )
-      )
-    );
+    return this.http.obtenerPorId(fichaId);
   }
 
   obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad> {
@@ -102,63 +90,14 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
   }
 
   obtenerRubroAmag(fichaId: string) {
-    return this.amagMock.obtenerRubroAmag(fichaId);
+    return this.http.obtenerRubroAmag(fichaId);
   }
 
   upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion> {
-    return this.amagMock.upsertEstudioAmag(fichaId, item).pipe(
-      switchMap((rubro) => this.fusionarRubroAmagEnFicha(fichaId, rubro))
-    );
+    return this.http.upsertEstudioAmag(fichaId, item);
   }
 
   eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion> {
-    return this.amagMock.eliminarEstudioAmag(fichaId, itemId).pipe(
-      switchMap((rubro) => this.fusionarRubroAmagEnFicha(fichaId, rubro))
-    );
-  }
-
-  private fusionarRubroAmagEnFicha(
-    fichaId: string,
-    rubro: NonNullable<FichaValoracion['rubroAmag']>
-  ): Observable<FichaValoracion> {
-    return this.fusionarRubroEnFicha(fichaId, { rubroAmag: rubro });
-  }
-
-  private fusionarRubroEnFicha(
-    fichaId: string,
-    parcial: Partial<Pick<FichaValoracion, 'rubroAmag'>>
-  ): Observable<FichaValoracion> {
-    return this.http.obtenerPorId(fichaId).pipe(
-      map((ficha) => ({
-        ...ficha,
-        ...parcial,
-        actualizadoEn: new Date().toISOString(),
-      })),
-      catchError(() =>
-        of({
-          id: fichaId,
-          estado: 'BORRADOR' as const,
-          nivelId: '',
-          nivelNombre: '',
-          fechaValoracionId: '',
-          fechaValoracionSnapshot: '',
-          datosPersonales: {
-            dni: '',
-            nombreCompleto: '',
-            foto: '',
-            fechaNacimiento: '',
-            sexo: 'M' as const,
-            edad: null,
-          },
-          fichaPreviaId: null,
-          rubroAntiguedad: null,
-          rubroGradosTitulos: null,
-          rubroAmag: parcial.rubroAmag ?? null,
-          puntajeTotal: parcial.rubroAmag?.puntajeTotal ?? 0,
-          creadoEn: new Date().toISOString(),
-          actualizadoEn: new Date().toISOString(),
-        })
-      )
-    );
+    return this.http.eliminarEstudioAmag(fichaId, itemId);
   }
 }

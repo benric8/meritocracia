@@ -15,8 +15,13 @@ function aNumeroId(valor: string, etiqueta: string): number {
 }
 
 function aEstudioAmagDesdeDto(dto: EstudioAmagDetalleDto, tipoNombre = ''): EstudioAmag {
+  const id = dto.idMagistratura ?? dto.idEstudioAmag ?? dto.id;
+  if (id == null) {
+    throw new Error('Estudio AMAG recibido sin identificador.');
+  }
+
   return {
-    id: String(dto.idMagistratura),
+    id: String(id),
     tipoCursoId: String(dto.tipoCurso),
     tipoCursoNombre: tipoNombre,
     nota: Number(dto.nota) || 0,
@@ -63,10 +68,16 @@ export function toRubroAmagDesdeDetalle(
 export function toGuardarEstudioAmagRequestDto(
   fichaId: string,
   item: EstudioAmag,
+  rubroId: number,
   incluirFicha: boolean
 ): GuardarEstudioAmagRequestDto {
+  if (!Number.isFinite(rubroId) || rubroId <= 0) {
+    throw new Error('Rubro no válido.');
+  }
+
   const body: GuardarEstudioAmagRequestDto = {
-    tipoCurso: aNumeroId(item.tipoCursoId, 'Tipo de curso'),
+    rubroId,
+    cursoAmagId: aNumeroId(item.tipoCursoId, 'Tipo de curso'),
     nota: Number(item.nota),
     descripcion: item.descripcion.trim(),
     anio: Number(item.anio),

@@ -2,14 +2,17 @@ import { BaseResponse } from './BaseResponse,dto';
 
 export interface GuardarEstudioAmagRequestDto {
   fichaValoracionId?: number;
-  tipoCurso: number;
+  rubroId?: number;
+  cursoAmagId: number;
   nota: number;
   descripcion: string;
   anio: number;
 }
 
 export interface EstudioAmagDetalleDto {
-  idMagistratura: number;
+  id?: number;
+  idMagistratura?: number;
+  idEstudioAmag?: number;
   fichaValoracionId: number;
   tipoCurso: number;
   nota: number;

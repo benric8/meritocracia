@@ -5,6 +5,7 @@ export interface MaestroDescripcionDto {
   id: number | string;
   descripcion?: string;
   nombre?: string;
+  nombreCorto?: string;
   activo?: string | boolean;
 }
 

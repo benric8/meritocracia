@@ -10,9 +10,10 @@ import {
 
 function nombreDesdeDescripcion(dto: {
   nombre?: string;
+  nombreCorto?: string;
   descripcion?: string;
 }): string {
-  return String(dto.nombre ?? dto.descripcion ?? '').trim();
+  return String(dto.nombre ?? dto.nombreCorto ?? dto.descripcion ?? '').trim();
 }
 
 export function toCatalogoDesdeDescripcion(dto: MaestroDescripcionDto): CatalogoItem {

@@ -753,8 +753,10 @@ export class FichaHttpAdapter implements FichaPort {
     const esActualizacion = esIdPersistidoApi(itemId);
 
     let body;
+    let rubroId: number;
     try {
-      body = toGuardarEstudioAmagRequestDto(fichaId, item, !esActualizacion);
+      rubroId = this.obtenerIdRubroAmag();
+      body = toGuardarEstudioAmagRequestDto(fichaId, item, rubroId, !esActualizacion);
     } catch (error) {
       return throwError(() => error);
     }
@@ -805,9 +807,17 @@ export class FichaHttpAdapter implements FichaPort {
     }
 
     const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroAmag();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
     const url = `${this.baseUrl}${fichaEndpoints.estudioAmagPorId(idItem)}`;
 
-    return this.http.delete<EliminarEstudioAmagResponse>(url).pipe(
+    return this.http.delete<EliminarEstudioAmagResponse>(url, { params }).pipe(
       map((respuesta) => {
         assertRespuestaExitosa(respuesta);
         if (respuesta.data) {
@@ -999,6 +1009,16 @@ export class FichaHttpAdapter implements FichaPort {
     if (!rubro) {
       throw new ErrorNegocioApi({
         mensaje: 'No se encontró el rubro C en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  private obtenerIdRubroAmag(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'D');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro D en el catálogo maestro.',
       });
     }
     return rubro.idRubro;

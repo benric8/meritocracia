@@ -13,7 +13,7 @@ export const maestrosEndpoints = {
   UNIVERSIDADES: 'maestros/universidades',
   UNIVERSIDADES_BUSCAR: 'maestros/universidades/buscar',
   PAISES: 'maestros/paises',
-  TIPO_CURSO_AMAG: 'maestros/tipo-curso-amag',
+  TIPO_CURSO_AMAG: 'maestros/cursos-amag',
   RUBROS: 'maestros/rubros',
   SUBRUBROS: (idRubro: number | string) => `maestros/rubros/${idRubro}/subrubros`,
 } as const;

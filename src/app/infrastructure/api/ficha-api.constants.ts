@@ -23,7 +23,7 @@ export const fichaEndpoints = {
   GRADOS_TITULOS: 'fichas-grados-titulos',
   gradoTituloPorId: (idGradoTitulo: string | number) =>
     `fichas-grados-titulos/${encodeURIComponent(String(idGradoTitulo).trim())}`,
-  AMAG: 'ficha-amag',
+  AMAG: 'fichas-estudios-amag',
   estudioAmagPorId: (idEstudioAmag: string | number) =>
-    `ficha-amag/${encodeURIComponent(String(idEstudioAmag).trim())}`,
+    `fichas-estudios-amag/${encodeURIComponent(String(idEstudioAmag).trim())}`,
 } as const;
