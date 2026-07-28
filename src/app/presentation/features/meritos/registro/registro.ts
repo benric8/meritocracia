@@ -577,7 +577,7 @@ export class Registro implements OnInit {
         edad: Number.isFinite(edadNum) ? edadNum : null,
       },
     });
-  }
+  } 
 
   private aplicarFichaEnUi(ficha: FichaValoracion, soloLectura: boolean): void {
     this.fichaId.set(ficha.id);

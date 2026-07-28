@@ -243,10 +243,15 @@ export class MaestrosHttpAdapter implements MaestrosPort {
   buscarUniversidades(
     termino: string,
     paisId?: string,
-    limite = 20
+    _limite = 20
   ): Observable<CatalogoItem[]> {
     const texto = termino.trim();
     if (texto.length < 2) {
+      return of([]);
+    }
+
+    const pais = paisId?.trim() ?? '';
+    if (!pais) {
       return of([]);
     }
 
@@ -256,16 +261,14 @@ export class MaestrosHttpAdapter implements MaestrosPort {
       return throwError(() => error);
     }
 
-    const limiteNormalizado = Math.min(Math.max(limite, 1), 50);
-    let params = new HttpParams().set('termino', texto).set('limite', String(limiteNormalizado));
-    const pais = paisId?.trim() ?? '';
-    if (pais) {
-      params = params.set('pais_id', pais);
-    }
+    const params = new HttpParams()
+      .set('termino', texto)
+      .set('pais_id', pais)
+      .set('tipo_institucion_id', '1');
 
     return this.http
       .get<ListarUniversidadesResponse>(
-        `${this.baseUrl}${maestrosEndpoints.UNIVERSIDADES_BUSCAR}`,
+        `${this.baseUrl}${maestrosEndpoints.INSTITUCIONES_BUSCAR}`,
         { params }
       )
       .pipe(
