@@ -9,6 +9,7 @@ import {
   crearRubroAntiguedadVacio,
   crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
+  crearRubroIdiomaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -21,6 +22,7 @@ import {
 } from '../../../domain/models/rubro-antiguedad.model';
 import { GradoTitulo, RubroGradosTitulos } from '../../../domain/models/rubro-grados-titulos.model';
 import { EstudioAmag, RubroAmag } from '../../../domain/models/rubro-amag.model';
+import { EstudioIdioma, RubroIdioma } from '../../../domain/models/rubro-idioma.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -46,6 +48,11 @@ import {
   GuardarEstudioAmagResponse,
   ObtenerEstudiosAmagResponse,
 } from '../../dto/remote/FichaAmagResponse.dto';
+import {
+  EliminarEstudioIdiomaResponse,
+  GuardarEstudioIdiomaResponse,
+  ObtenerEstudiosIdiomaResponse,
+} from '../../dto/remote/FichaIdiomaResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -78,6 +85,12 @@ import {
   toGuardarEstudioAmagRequestDto,
   toRubroAmagDesdeDetalle,
 } from '../../mappers/ficha-amag.mapper';
+import {
+  aplicarEstudioIdiomaEnFicha,
+  eliminarEstudioIdiomaEnFicha,
+  toGuardarEstudioIdiomaRequestDto,
+  toRubroIdiomaDesdeDetalle,
+} from '../../mappers/ficha-idioma.mapper';
 import {
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
@@ -834,6 +847,143 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroIdioma(fichaId: string): Observable<RubroIdioma> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerEstudiosIdiomaResponse>(
+        `${this.baseUrl}${fichaEndpoints.ESTUDIOS_IDIOMA}`,
+        { params }
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const rubro = toRubroIdiomaDesdeDetalle(respuesta.data);
+          this.actualizarRubroIdiomaEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de estudios de idioma.')
+      );
+  }
+
+  upsertEstudioIdioma(fichaId: string, item: EstudioIdioma): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroIdioma();
+      body = toGuardarEstudioIdiomaRequestDto(fichaId, item, rubroId, !esActualizacion);
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.estudioIdiomaPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.ESTUDIOS_IDIOMA}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarEstudioIdiomaResponse>(url, body)
+      : this.http.post<GuardarEstudioIdiomaResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió el estudio de idioma actualizado.'
+              : 'El servidor no devolvió el estudio de idioma guardado.',
+          });
+        }
+        return this.guardarEnMemoria(aplicarEstudioIdiomaEnFicha(ficha, item, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar el estudio de idioma.'
+          : 'No se pudo guardar el estudio de idioma.'
+      )
+    );
+  }
+
+  eliminarEstudioIdioma(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de estudio de idioma no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroIdioma();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.estudioIdiomaPorId(idItem)}`;
+
+    return this.http.delete<EliminarEstudioIdiomaResponse>(url, { params }).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data?.length) {
+          const rubro = toRubroIdiomaDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroIdioma: rubro,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarEstudioIdiomaEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar el estudio de idioma.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -881,6 +1031,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroAntiguedad: crearRubroAntiguedadVacio(),
       rubroGradosTitulos: crearRubroGradosTitulosVacio(),
       rubroAmag: crearRubroAmagVacio(),
+      rubroIdioma: crearRubroIdiomaVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -903,16 +1054,19 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroPrevio = previa?.rubroAntiguedad;
     const rubroGradosPrevio = previa?.rubroGradosTitulos;
     const rubroAmagPrevio = previa?.rubroAmag;
+    const rubroIdiomaPrevio = previa?.rubroIdioma;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
-      (rubroAmagPrevio?.items.length ?? 0) > 0
+      (rubroAmagPrevio?.items.length ?? 0) > 0 ||
+      (rubroIdiomaPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
         rubroAntiguedad: rubroPrevio?.id ? rubroPrevio : fichaApi.rubroAntiguedad,
         rubroGradosTitulos: rubroGradosPrevio ?? fichaApi.rubroGradosTitulos,
         rubroAmag: rubroAmagPrevio ?? fichaApi.rubroAmag,
+        rubroIdioma: rubroIdiomaPrevio ?? fichaApi.rubroIdioma,
       });
     }
 
@@ -984,6 +1138,27 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
+  private actualizarRubroIdiomaEnMemoria(fichaId: string, rubro: RubroIdioma): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroIdioma: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroIdioma: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
   private noImplementado(operacion: string): Observable<FichaValoracion> {
     return throwError(
       () =>
@@ -1019,6 +1194,16 @@ export class FichaHttpAdapter implements FichaPort {
     if (!rubro) {
       throw new ErrorNegocioApi({
         mensaje: 'No se encontró el rubro D en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  private obtenerIdRubroIdioma(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'F');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro F en el catálogo maestro.',
       });
     }
     return rubro.idRubro;

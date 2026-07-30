@@ -5,13 +5,14 @@
 
 import { RubroAntiguedad } from './rubro-antiguedad.model';
 import { crearRubroAmagVacio, RubroAmag } from './rubro-amag.model';
+import { crearRubroIdiomaVacio, RubroIdioma } from './rubro-idioma.model';
 import {
   crearRubroGradosTitulosVacio,
   RubroGradosTitulos,
 } from './rubro-grados-titulos.model';
 import { TIEMPO_SERVICIO_CERO } from './tiempo-servicio.model';
 
-export { crearRubroAmagVacio, crearRubroGradosTitulosVacio };
+export { crearRubroAmagVacio, crearRubroGradosTitulosVacio, crearRubroIdiomaVacio };
 
 export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 
@@ -40,6 +41,7 @@ export interface FichaValoracion {
   rubroAntiguedad: RubroAntiguedad | null;
   rubroGradosTitulos: RubroGradosTitulos | null;
   rubroAmag: RubroAmag | null;
+  rubroIdioma: RubroIdioma | null;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;

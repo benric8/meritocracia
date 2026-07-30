@@ -15,6 +15,7 @@ import {
 } from '../../../domain/models/rubro-antiguedad.model';
 import { GradoTitulo } from '../../../domain/models/rubro-grados-titulos.model';
 import { EstudioAmag } from '../../../domain/models/rubro-amag.model';
+import { EstudioIdioma } from '../../../domain/models/rubro-idioma.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
 
@@ -99,5 +100,17 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion> {
     return this.http.eliminarEstudioAmag(fichaId, itemId);
+  }
+
+  obtenerRubroIdioma(fichaId: string) {
+    return this.http.obtenerRubroIdioma(fichaId);
+  }
+
+  upsertEstudioIdioma(fichaId: string, item: EstudioIdioma): Observable<FichaValoracion> {
+    return this.http.upsertEstudioIdioma(fichaId, item);
+  }
+
+  eliminarEstudioIdioma(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.http.eliminarEstudioIdioma(fichaId, itemId);
   }
 }

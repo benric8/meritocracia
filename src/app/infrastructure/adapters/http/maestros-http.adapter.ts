@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable, of, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
+import { IdiomaCatalogoItem, TipoIdioma } from '../../../domain/models/rubro-idioma.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
 import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
@@ -21,6 +22,11 @@ import {
   ObtenerCargoMagistradoResponse,
   ObtenerMaestroDescripcionResponse,
 } from '../../dto/remote/MaestrosCatalogoResponse.dto';
+import {
+  ListarIdiomasResponse,
+  ListarNivelesIdiomaResponse,
+  ListarTiposDocumentoIdiomaResponse,
+} from '../../dto/remote/MaestrosIdiomaResponse.dto';
 import { ListarNivelesTitularResponse } from '../../dto/remote/MaestrosNivelResponse.dto';
 import { ListarRubrosMaestroResponse, ListarSubrubrosMaestroResponse } from '../../dto/remote/MaestrosRubroResponse.dto';
 import {
@@ -32,6 +38,11 @@ import {
   toCatalogoDesdePais,
   toCatalogoDesdeUniversidad,
 } from '../../mappers/maestros-catalogo.mapper';
+import {
+  toCatalogoDesdeNivelIdioma,
+  toCatalogoDesdeTipoDocumentoIdioma,
+  toIdiomaDesdeDto,
+} from '../../mappers/maestros-idioma.mapper';
 import { toNivelTitular } from '../../mappers/nivel-titular.mapper';
 import { toRubroMaestro } from '../../mappers/rubro-maestro.mapper';
 import { toSubrubroMaestro } from '../../mappers/subrubro-maestro.mapper';
@@ -245,13 +256,25 @@ export class MaestrosHttpAdapter implements MaestrosPort {
     paisId?: string,
     _limite = 20
   ): Observable<CatalogoItem[]> {
-    const texto = termino.trim();
-    if (texto.length < 2) {
+    const pais = paisId?.trim() ?? '';
+    if (!pais) {
       return of([]);
     }
 
-    const pais = paisId?.trim() ?? '';
-    if (!pais) {
+    return this.buscarInstitucionesPorTipo(termino, 1, pais);
+  }
+
+  buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]> {
+    return this.buscarInstitucionesPorTipo(termino, 2);
+  }
+
+  private buscarInstitucionesPorTipo(
+    termino: string,
+    tipoInstitucionId: number,
+    paisId?: string
+  ): Observable<CatalogoItem[]> {
+    const texto = termino.trim();
+    if (texto.length < 2) {
       return of([]);
     }
 
@@ -261,10 +284,14 @@ export class MaestrosHttpAdapter implements MaestrosPort {
       return throwError(() => error);
     }
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('termino', texto)
-      .set('pais_id', pais)
-      .set('tipo_institucion_id', '1');
+      .set('tipo_institucion_id', String(tipoInstitucionId));
+
+    const pais = paisId?.trim() ?? '';
+    if (pais) {
+      params = params.set('pais_id', pais);
+    }
 
     return this.http
       .get<ListarUniversidadesResponse>(
@@ -276,7 +303,7 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           assertRespuestaExitosa(respuesta);
           return this.mapearLista(respuesta.data, toCatalogoDesdeUniversidad);
         }),
-        mapearAErrorNegocioApi('No se pudo buscar universidades.')
+        mapearAErrorNegocioApi('No se pudo buscar instituciones.')
       );
   }
 
@@ -357,6 +384,69 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdeDescripcion);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de curso AMAG.')
+      );
+  }
+
+  listarIdiomas(tipo?: TipoIdioma): Observable<IdiomaCatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    let params = new HttpParams();
+    if (tipo) {
+      params = params.set('tipo', tipo);
+    }
+
+    return this.http
+      .get<ListarIdiomasResponse>(`${this.baseUrl}${maestrosEndpoints.IDIOMAS}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toIdiomaDesdeDto);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de idiomas.')
+      );
+  }
+
+  listarNivelesIdioma(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarNivelesIdiomaResponse>(
+        `${this.baseUrl}${maestrosEndpoints.NIVELES_IDIOMA}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeNivelIdioma);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de niveles de idioma.')
+      );
+  }
+
+  listarTiposDocumentoIdioma(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarTiposDocumentoIdiomaResponse>(
+        `${this.baseUrl}${maestrosEndpoints.TIPOS_DOCUMENTO_IDIOMA}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeTipoDocumentoIdioma);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de documento.')
       );
   }
 

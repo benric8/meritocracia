@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, map, Observable, of } from 'rxjs';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
+import { IdiomaCatalogoItem, TipoIdioma } from '../../../domain/models/rubro-idioma.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
 import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
@@ -127,6 +128,41 @@ export class MaestrosMockAdapter implements MaestrosPort {
       { id: '1', nombre: 'HABILITANTE' },
       { id: '2', nombre: 'PROFA' },
       { id: '3', nombre: 'ASCENSO' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarIdiomas(_tipo?: TipoIdioma): Observable<IdiomaCatalogoItem[]> {
+    const idiomas: IdiomaCatalogoItem[] = [
+      { id: '1', nombre: 'Quechua', tipo: 'NATIVO' },
+      { id: '4', nombre: 'Inglés', tipo: 'EXTRANJERO' },
+    ];
+    return of(idiomas).pipe(delay(LATENCIA_MS));
+  }
+
+  listarNivelesIdioma(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'Básico' },
+      { id: '2', nombre: 'Intermedio' },
+      { id: '3', nombre: 'Avanzado' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarTiposDocumentoIdioma(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'Certificado' },
+      { id: '2', nombre: 'Diploma' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]> {
+    const texto = termino.trim().toLowerCase();
+    if (texto.length < 2) {
+      return of([]);
+    }
+
+    return of([
+      { id: '101', nombre: 'Instituto de Idiomas XYZ' },
+      { id: '102', nombre: 'Centro de Idiomas ABC' },
     ]).pipe(delay(LATENCIA_MS));
   }
 

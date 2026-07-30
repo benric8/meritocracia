@@ -15,15 +15,18 @@ import { finalize, take } from 'rxjs';
 import { ObtenerRubroAntiguedadFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-antiguedad-ficha.use-case';
 import { ObtenerRubroGradosTitulosFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-grados-titulos-ficha.use-case';
 import { ObtenerRubroAmagFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-amag-ficha.use-case';
+import { ObtenerRubroIdiomaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-idioma-ficha.use-case';
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../../../domain/models/rubro-antiguedad.model';
 import { RubroAmag } from '../../../../../../domain/models/rubro-amag.model';
+import { RubroIdioma } from '../../../../../../domain/models/rubro-idioma.model';
 import { RubroGradosTitulos } from '../../../../../../domain/models/rubro-grados-titulos.model';
 import { RubroMaestro } from '../../../../../../domain/models/rubro-maestro.model';
 import { RubrosMaestroStore } from '../../../../../../infrastructure/stores/rubros-maestro.store';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
 import { formatearPuntaje } from '../rubros.util';
 import { RubroAmagComponent } from '../rubro-amag/rubro-amag';
+import { RubroIdiomaComponent } from '../rubro-idioma/rubro-idioma';
 import { RubroGradosTitulosComponent } from '../rubro-grados-titulos/rubro-grados-titulos';
 import { RubroProduccion } from '../rubro-produccion/rubro-produccion';
 import { RubroAntiguedadComponent } from '../rubro-antiguedad/rubro-antiguedad';
@@ -39,6 +42,7 @@ import { RubroSubrubrosPanel } from '../rubro-subrubros-panel/rubro-subrubros-pa
     RubroAntiguedadComponent,
     RubroGradosTitulosComponent,
     RubroAmagComponent,
+    RubroIdiomaComponent,
     RubroSubrubrosPanel,
   ],
   templateUrl: './rubros-panel.html',
@@ -51,6 +55,7 @@ export class RubrosPanel {
   private readonly obtenerRubroAntiguedad = inject(ObtenerRubroAntiguedadFichaUseCase);
   private readonly obtenerRubroGradosTitulos = inject(ObtenerRubroGradosTitulosFichaUseCase);
   private readonly obtenerRubroAmag = inject(ObtenerRubroAmagFichaUseCase);
+  private readonly obtenerRubroIdioma = inject(ObtenerRubroIdiomaFichaUseCase);
   private readonly rubrosMaestroStore = inject(RubrosMaestroStore);
 
   readonly fechaValoracion = input<string | null>(null);
@@ -60,28 +65,34 @@ export class RubrosPanel {
   readonly rubroAntiguedad = input<RubroAntiguedad | null>(null);
   readonly rubroGradosTitulos = input<RubroGradosTitulos | null>(null);
   readonly rubroAmag = input<RubroAmag | null>(null);
+  readonly rubroIdioma = input<RubroIdioma | null>(null);
   readonly rubrosMaestro = input<RubroMaestro[]>([]);
 
   readonly fichaActualizada = output<FichaValoracion>();
   readonly rubroAntiguedadCargado = output<RubroAntiguedad>();
   readonly rubroGradosTitulosCargado = output<RubroGradosTitulos>();
   readonly rubroAmagCargado = output<RubroAmag>();
+  readonly rubroIdiomaCargado = output<RubroIdioma>();
 
   protected readonly puntajeProduccion = 0;
   protected readonly puntajeAntiguedad = signal(0);
   protected readonly puntajeGradosTitulos = signal(0);
   protected readonly puntajeAmag = signal(0);
+  protected readonly puntajeIdioma = signal(0);
   protected readonly rubroAntiguedadLocal = signal<RubroAntiguedad | null>(null);
   protected readonly rubroGradosTitulosLocal = signal<RubroGradosTitulos | null>(null);
   protected readonly rubroAmagLocal = signal<RubroAmag | null>(null);
+  protected readonly rubroIdiomaLocal = signal<RubroIdioma | null>(null);
   protected readonly cargandoRubroB = signal(false);
   protected readonly cargandoRubroC = signal(false);
   protected readonly cargandoRubroD = signal(false);
+  protected readonly cargandoRubroF = signal(false);
   protected readonly formatearPuntaje = formatearPuntaje;
 
   private rubroBCargadoParaFichaId: string | null = null;
   private rubroCCargadoParaFichaId: string | null = null;
   private rubroDCargadoParaFichaId: string | null = null;
+  private rubroFCargadoParaFichaId: string | null = null;
 
   constructor() {
     effect(() => {
@@ -89,6 +100,7 @@ export class RubrosPanel {
       const inicialB = this.rubroAntiguedad();
       const inicialC = this.rubroGradosTitulos();
       const inicialD = this.rubroAmag();
+      const inicialF = this.rubroIdioma();
 
       if (!fichaId || fichaId !== this.rubroBCargadoParaFichaId) {
         this.rubroBCargadoParaFichaId = null;
@@ -106,6 +118,12 @@ export class RubrosPanel {
         this.rubroDCargadoParaFichaId = null;
         this.rubroAmagLocal.set(inicialD);
         this.puntajeAmag.set(inicialD?.puntajeTotal ?? 0);
+      }
+
+      if (!fichaId || fichaId !== this.rubroFCargadoParaFichaId) {
+        this.rubroFCargadoParaFichaId = null;
+        this.rubroIdiomaLocal.set(inicialF);
+        this.puntajeIdioma.set(inicialF?.puntajeTotal ?? 0);
       }
     });
   }
@@ -137,6 +155,15 @@ export class RubrosPanel {
     this.cargarRubroD(fichaId);
   }
 
+  protected onRubroFAbierto(): void {
+    const fichaId = this.fichaId();
+    if (!fichaId || this.rubroFCargadoParaFichaId === fichaId || this.cargandoRubroF()) {
+      return;
+    }
+
+    this.cargarRubroF(fichaId);
+  }
+
   protected onPuntajeAntiguedad(puntaje: number): void {
     this.puntajeAntiguedad.set(puntaje);
   }
@@ -149,10 +176,15 @@ export class RubrosPanel {
     this.puntajeAmag.set(puntaje);
   }
 
+  protected onPuntajeIdioma(puntaje: number): void {
+    this.puntajeIdioma.set(puntaje);
+  }
+
   protected onFichaActualizada(ficha: FichaValoracion): void {
     this.puntajeAntiguedad.set(ficha.rubroAntiguedad?.titularidad.puntaje ?? 0);
     this.puntajeGradosTitulos.set(ficha.rubroGradosTitulos?.puntajeTotal ?? 0);
     this.puntajeAmag.set(ficha.rubroAmag?.puntajeTotal ?? 0);
+    this.puntajeIdioma.set(ficha.rubroIdioma?.puntajeTotal ?? 0);
     this.fichaActualizada.emit(ficha);
   }
 
@@ -181,6 +213,9 @@ export class RubrosPanel {
       case 'D':
         this.onRubroDAbierto();
         break;
+      case 'F':
+        this.onRubroFAbierto();
+        break;
     }
   }
 
@@ -194,6 +229,8 @@ export class RubrosPanel {
         return this.puntajeGradosTitulos();
       case 'D':
         return this.puntajeAmag();
+      case 'F':
+        return this.puntajeIdioma();
       default:
         return 0;
     }
@@ -232,6 +269,8 @@ export class RubrosPanel {
         return this.cargandoRubroC();
       case 'D':
         return this.cargandoRubroD();
+      case 'F':
+        return this.cargandoRubroF();
       default:
         return false;
     }
@@ -245,6 +284,8 @@ export class RubrosPanel {
         return 'Cargando grados registrados…';
       case 'D':
         return 'Cargando estudios AMAG registrados…';
+      case 'F':
+        return 'Cargando estudios de idioma registrados…';
       default:
         return 'Cargando…';
     }
@@ -331,6 +372,34 @@ export class RubrosPanel {
         this.rubroAmagLocal.set(resultado.rubro);
         this.puntajeAmag.set(resultado.rubro.puntajeTotal);
         this.rubroAmagCargado.emit(resultado.rubro);
+      });
+  }
+
+  private cargarRubroF(fichaId: string): void {
+    this.cargandoRubroF.set(true);
+
+    this.obtenerRubroIdioma
+      .ejecutar(fichaId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargandoRubroF.set(false))
+      )
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo cargar el rubro F', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
+          });
+          return;
+        }
+
+        this.rubroFCargadoParaFichaId = fichaId;
+        this.rubroIdiomaLocal.set(resultado.rubro);
+        this.puntajeIdioma.set(resultado.rubro.puntajeTotal);
+        this.rubroIdiomaCargado.emit(resultado.rubro);
       });
   }
 }

@@ -26,4 +26,7 @@ export const fichaEndpoints = {
   AMAG: 'fichas-estudios-amag',
   estudioAmagPorId: (idEstudioAmag: string | number) =>
     `fichas-estudios-amag/${encodeURIComponent(String(idEstudioAmag).trim())}`,
+  ESTUDIOS_IDIOMA: 'fichas-estudios-idioma',
+  estudioIdiomaPorId: (idEstudioIdioma: string | number) =>
+    `fichas-estudios-idioma/${encodeURIComponent(String(idEstudioIdioma).trim())}`,
 } as const;

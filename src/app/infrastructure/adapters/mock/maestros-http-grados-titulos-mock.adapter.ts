@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
+import { TipoIdioma } from '../../../domain/models/rubro-idioma.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
 import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
@@ -64,6 +65,22 @@ export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
 
   listarTiposCursoAmag(): Observable<CatalogoItem[]> {
     return this.http.listarTiposCursoAmag();
+  }
+
+  listarIdiomas(tipo?: TipoIdioma) {
+    return this.http.listarIdiomas(tipo);
+  }
+
+  listarNivelesIdioma(): Observable<CatalogoItem[]> {
+    return this.http.listarNivelesIdioma();
+  }
+
+  listarTiposDocumentoIdioma(): Observable<CatalogoItem[]> {
+    return this.http.listarTiposDocumentoIdioma();
+  }
+
+  buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]> {
+    return this.http.buscarInstitucionesIdioma(termino);
   }
 
   listarRubros(): Observable<RubroMaestro[]> {

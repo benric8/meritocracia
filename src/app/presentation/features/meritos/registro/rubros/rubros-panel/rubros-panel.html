@@ -73,6 +73,16 @@
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
+              @case ('F') {
+                <app-rubro-idioma
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroIdiomaLocal()"
+                  [cargandoDetalle]="cargandoRubroF()"
+                  (puntajeChange)="onPuntajeIdioma($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
               @default {
                 <p class="rubros-panel__pendiente" role="status">
                   Disponible en una fase posterior.

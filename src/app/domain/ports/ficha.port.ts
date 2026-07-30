@@ -14,6 +14,7 @@ import {
   TitularidadActual,
 } from '../models/rubro-antiguedad.model';
 import { EstudioAmag, RubroAmag } from '../models/rubro-amag.model';
+import { EstudioIdioma, RubroIdioma } from '../models/rubro-idioma.model';
 import { GradoTitulo, RubroGradosTitulos } from '../models/rubro-grados-titulos.model';
 
 /**
@@ -64,6 +65,12 @@ export interface FichaPort {
   upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion>;
 
   eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroIdioma(fichaId: string): Observable<RubroIdioma>;
+
+  upsertEstudioIdioma(fichaId: string, item: EstudioIdioma): Observable<FichaValoracion>;
+
+  eliminarEstudioIdioma(fichaId: string, itemId: string): Observable<FichaValoracion>;
 }
 
 export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

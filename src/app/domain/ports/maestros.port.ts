@@ -1,6 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CatalogoItem } from '../models/catalogo-item.model';
+import { IdiomaCatalogoItem, TipoIdioma } from '../models/rubro-idioma.model';
 import { NivelTitular } from '../models/nivel-titular.model';
 import { RubroMaestro } from '../models/rubro-maestro.model';
 import { SubrubroMaestro } from '../models/subrubro-maestro.model';
@@ -30,6 +31,11 @@ export interface MaestrosPort {
   ): Observable<CatalogoItem[]>;
   listarPaises(): Observable<CatalogoItem[]>;
   listarTiposCursoAmag(): Observable<CatalogoItem[]>;
+  listarIdiomas(tipo?: TipoIdioma): Observable<IdiomaCatalogoItem[]>;
+  listarNivelesIdioma(): Observable<CatalogoItem[]>;
+  listarTiposDocumentoIdioma(): Observable<CatalogoItem[]>;
+  /** Autocompletado de instituciones para rubro F (`tipo_institucion_id = 2`). */
+  buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]>;
   listarRubros(): Observable<RubroMaestro[]>;
   listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]>;
 }

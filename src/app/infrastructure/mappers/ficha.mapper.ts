@@ -3,6 +3,7 @@ import {
   crearRubroAntiguedadVacio,
   crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
+  crearRubroIdiomaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
@@ -149,6 +150,7 @@ export function toFichaValoracionDesdeCreacion(
     rubroAntiguedad: crearRubroAntiguedadVacio(),
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     rubroAmag: crearRubroAmagVacio(),
+    rubroIdioma: crearRubroIdiomaVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -220,6 +222,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     rubroAntiguedad: crearRubroAntiguedadVacio(),
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     rubroAmag: crearRubroAmagVacio(),
+    rubroIdioma: crearRubroIdiomaVacio(),
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
