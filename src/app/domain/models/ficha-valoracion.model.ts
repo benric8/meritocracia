@@ -11,12 +11,16 @@ import {
   RubroPublicacionJuridica,
 } from './rubro-publicacion-juridica.model';
 import {
+  crearRubroDistincionVacio,
+  RubroDistincion,
+} from './rubro-distincion.model';
+import {
   crearRubroGradosTitulosVacio,
   RubroGradosTitulos,
 } from './rubro-grados-titulos.model';
 import { TIEMPO_SERVICIO_CERO } from './tiempo-servicio.model';
 
-export { crearRubroAmagVacio, crearRubroGradosTitulosVacio, crearRubroIdiomaVacio, crearRubroPublicacionJuridicaVacio };
+export { crearRubroAmagVacio, crearRubroGradosTitulosVacio, crearRubroIdiomaVacio, crearRubroPublicacionJuridicaVacio, crearRubroDistincionVacio };
 
 export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 
@@ -47,6 +51,7 @@ export interface FichaValoracion {
   rubroAmag: RubroAmag | null;
   rubroIdioma: RubroIdioma | null;
   rubroPublicacionJuridica: RubroPublicacionJuridica | null;
+  rubroDistincion: RubroDistincion | null;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;

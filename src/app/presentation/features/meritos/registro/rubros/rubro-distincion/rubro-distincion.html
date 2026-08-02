@@ -1,0 +1,86 @@
+<section class="rubro-distincion" aria-label="Distinciones y condecoraciones">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-distincion__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-distincion__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando distinciones registradas…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-distincion__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-distincion__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir distinción
+        </button>
+      }
+    </div>
+
+    <div class="rubro-distincion__records">
+      <table class="rubro-distincion__table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Documento</th>
+            <th>Fecha</th>
+            <th>Institución</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="6" class="rubro-distincion__empty">
+                Sin registros. Use "Añadir distinción" para agregar una distinción.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.tipoDistincionNombre }}</td>
+                <td>{{ item.tipoDocumentoDistincionNombre }}</td>
+                <td>{{ item.fechaDistincion }}</td>
+                <td>{{ item.institucionOtorgante || '—' }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-distincion__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar distinción"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar distinción"
+                        (click)="eliminarDistincion(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

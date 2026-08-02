@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { delay, map, Observable, of } from 'rxjs';
 import { CatalogoItem } from '../../../domain/models/catalogo-item.model';
 import { IdiomaCatalogoItem, TipoIdioma } from '../../../domain/models/rubro-idioma.model';
+import { TipoDistincionCatalogoItem } from '../../../domain/models/rubro-distincion.model';
 import { NivelTitular } from '../../../domain/models/nivel-titular.model';
 import { RubroMaestro } from '../../../domain/models/rubro-maestro.model';
 import { SubrubroMaestro } from '../../../domain/models/subrubro-maestro.model';
@@ -170,6 +171,29 @@ export class MaestrosMockAdapter implements MaestrosPort {
     return of([
       { id: '1', nombre: 'Libro' },
       { id: '2', nombre: 'Artículo' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarTiposDocumentoDistincion(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'Carta' },
+      { id: '2', nombre: 'Certificado' },
+      { id: '6', nombre: 'Oficio' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
+  listarTiposDistincion(): Observable<TipoDistincionCatalogoItem[]> {
+    return of([
+      {
+        id: '1',
+        nombre: 'Reconocimiento por quehacer jurisdiccional',
+        codigo: 'RECONOCIMIENTO_JUDICIAL',
+      },
+      {
+        id: '2',
+        nombre: 'Elección de Presidente de Corte, Consejero…',
+        codigo: 'CARGO_DIRECTIVO',
+      },
     ]).pipe(delay(LATENCIA_MS));
   }
 

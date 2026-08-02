@@ -9,6 +9,7 @@ import {
   crearRubroGradosTitulosVacio,
   crearRubroIdiomaVacio,
   crearRubroPublicacionJuridicaVacio,
+  crearRubroDistincionVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -32,6 +33,7 @@ import {
   PublicacionJuridica,
   RubroPublicacionJuridica,
 } from '../../../domain/models/rubro-publicacion-juridica.model';
+import { Distincion, RubroDistincion } from '../../../domain/models/rubro-distincion.model';
 import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
 import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -145,6 +147,7 @@ export class FichaMockAdapter implements FichaPort {
       rubroAmag: crearRubroAmagVacio(),
       rubroIdioma: crearRubroIdiomaVacio(),
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
+      rubroDistincion: crearRubroDistincionVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -537,6 +540,48 @@ export class FichaMockAdapter implements FichaPort {
     });
   }
 
+  obtenerRubroDistincion(fichaId: string): Observable<RubroDistincion> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroDistincion ?? crearRubroDistincionVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  upsertDistincion(fichaId: string, item: Distincion): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDistincion ?? crearRubroDistincionVacio();
+      const guardado: Distincion = {
+        ...item,
+        id: item.id || `dist-${Date.now()}`,
+      };
+      const idx = rubro.items.findIndex((actual) => actual.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((actual, i) => (i === idx ? guardado : actual))
+          : [...rubro.items, guardado];
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroDistincion: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarDistincion(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDistincion ?? crearRubroDistincionVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      const puntajeTotal = items.reduce((sum, actual) => sum + (actual.puntaje || 0), 0);
+      return {
+        ...ficha,
+        rubroDistincion: { items, puntajeTotal },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -657,6 +702,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroIdioma: f.rubroIdioma ?? crearRubroIdiomaVacio(),
         rubroPublicacionJuridica:
           f.rubroPublicacionJuridica ?? crearRubroPublicacionJuridicaVacio(),
+        rubroDistincion: f.rubroDistincion ?? crearRubroDistincionVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -692,6 +738,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroAmag: crearRubroAmagVacio(),
         rubroIdioma: crearRubroIdiomaVacio(),
         rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
+        rubroDistincion: crearRubroDistincionVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

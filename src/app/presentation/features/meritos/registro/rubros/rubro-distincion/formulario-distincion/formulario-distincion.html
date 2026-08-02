@@ -1,0 +1,106 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Distinciones y condecoraciones</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        Tope del rubro: {{ topeRubro }} pts. El puntaje de cada línea lo calcula el servidor.
+      </p>
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Tipo de distinción</mat-label>
+          <mat-select formControlName="tipoDistincionId" placeholder="Seleccione…">
+            @for (item of tiposDistincion; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoDistincionId.touched &&
+            formulario.controls.tipoDistincionId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de distinción.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (puntajeReferencia(); as referencia) {
+          <p class="rubro-dialog__hint rubro-dialog__campo--wide">
+            Puntaje de referencia: {{ referencia }}
+          </p>
+        }
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="tipoDocumentoDistincionId" placeholder="Seleccione…">
+            @for (item of tiposDocumento; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoDocumentoDistincionId.touched &&
+            formulario.controls.tipoDocumentoDistincionId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de documento.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Descripción</mat-label>
+          <input matInput type="text" formControlName="descripcion" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de distinción</mat-label>
+          <input matInput [matDatepicker]="pickerFecha" formControlName="fechaDistincion" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFecha" />
+          <mat-datepicker #pickerFecha />
+          @if (
+            formulario.controls.fechaDistincion.touched &&
+            formulario.controls.fechaDistincion.invalid
+          ) {
+            <mat-error>Seleccione la fecha de distinción.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Institución otorgante</mat-label>
+          <input matInput type="text" formControlName="institucionOtorgante" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            <mat-option value="">—</mat-option>
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

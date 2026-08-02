@@ -93,6 +93,16 @@
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
+              @case ('H') {
+                <app-rubro-distincion
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDistincionLocal()"
+                  [cargandoDetalle]="cargandoRubroH()"
+                  (puntajeChange)="onPuntajeDistincion($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
               @default {
                 <p class="rubros-panel__pendiente" role="status">
                   Disponible en una fase posterior.

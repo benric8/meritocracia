@@ -11,6 +11,7 @@ import {
   crearRubroGradosTitulosVacio,
   crearRubroIdiomaVacio,
   crearRubroPublicacionJuridicaVacio,
+  crearRubroDistincionVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -28,6 +29,10 @@ import {
   PublicacionJuridica,
   RubroPublicacionJuridica,
 } from '../../../domain/models/rubro-publicacion-juridica.model';
+import {
+  Distincion,
+  RubroDistincion,
+} from '../../../domain/models/rubro-distincion.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -63,6 +68,11 @@ import {
   GuardarPublicacionJuridicaResponse,
   ObtenerPublicacionesJuridicasResponse,
 } from '../../dto/remote/FichaPublicacionJuridicaResponse.dto';
+import {
+  EliminarDistincionResponse,
+  GuardarDistincionResponse,
+  ObtenerDistincionesResponse,
+} from '../../dto/remote/FichaDistincionResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -107,6 +117,12 @@ import {
   toGuardarPublicacionJuridicaRequestDto,
   toRubroPublicacionJuridicaDesdeDetalle,
 } from '../../mappers/ficha-publicacion-juridica.mapper';
+import {
+  aplicarDistincionEnFicha,
+  eliminarDistincionEnFicha,
+  toGuardarDistincionRequestDto,
+  toRubroDistincionDesdeDetalle,
+} from '../../mappers/ficha-distincion.mapper';
 import {
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
@@ -1142,6 +1158,142 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroDistincion(fichaId: string): Observable<RubroDistincion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerDistincionesResponse>(`${this.baseUrl}${fichaEndpoints.DISTINCIONES}`, {
+        params,
+      })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const rubro = toRubroDistincionDesdeDetalle(respuesta.data);
+          this.actualizarRubroDistincionEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de distinciones.')
+      );
+  }
+
+  upsertDistincion(fichaId: string, item: Distincion): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroDistincion();
+      body = toGuardarDistincionRequestDto(fichaId, item, rubroId, !esActualizacion);
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.distincionPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.DISTINCIONES}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarDistincionResponse>(url, body)
+      : this.http.post<GuardarDistincionResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió la distinción actualizada.'
+              : 'El servidor no devolvió la distinción guardada.',
+          });
+        }
+        return this.guardarEnMemoria(aplicarDistincionEnFicha(ficha, item, respuesta.data));
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar la distinción.'
+          : 'No se pudo guardar la distinción.'
+      )
+    );
+  }
+
+  eliminarDistincion(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de distinción no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroDistincion();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.distincionPorId(idItem)}`;
+
+    return this.http.delete<EliminarDistincionResponse>(url, { params }).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data?.length) {
+          const rubro = toRubroDistincionDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroDistincion: rubro,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarDistincionEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar la distinción.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -1191,6 +1343,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroAmag: crearRubroAmagVacio(),
       rubroIdioma: crearRubroIdiomaVacio(),
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
+      rubroDistincion: crearRubroDistincionVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -1215,12 +1368,14 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroAmagPrevio = previa?.rubroAmag;
     const rubroIdiomaPrevio = previa?.rubroIdioma;
     const rubroPublicacionPrevio = previa?.rubroPublicacionJuridica;
+    const rubroDistincionPrevio = previa?.rubroDistincion;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
       (rubroAmagPrevio?.items.length ?? 0) > 0 ||
       (rubroIdiomaPrevio?.items.length ?? 0) > 0 ||
-      (rubroPublicacionPrevio?.items.length ?? 0) > 0
+      (rubroPublicacionPrevio?.items.length ?? 0) > 0 ||
+      (rubroDistincionPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
@@ -1230,6 +1385,7 @@ export class FichaHttpAdapter implements FichaPort {
         rubroIdioma: rubroIdiomaPrevio ?? fichaApi.rubroIdioma,
         rubroPublicacionJuridica:
           rubroPublicacionPrevio ?? fichaApi.rubroPublicacionJuridica,
+        rubroDistincion: rubroDistincionPrevio ?? fichaApi.rubroDistincion,
       });
     }
 
@@ -1346,6 +1502,27 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
+  private actualizarRubroDistincionEnMemoria(fichaId: string, rubro: RubroDistincion): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroDistincion: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroDistincion: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
   private noImplementado(operacion: string): Observable<FichaValoracion> {
     return throwError(
       () =>
@@ -1401,6 +1578,16 @@ export class FichaHttpAdapter implements FichaPort {
     if (!rubro) {
       throw new ErrorNegocioApi({
         mensaje: 'No se encontró el rubro G en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  private obtenerIdRubroDistincion(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'H');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro H en el catálogo maestro.',
       });
     }
     return rubro.idRubro;

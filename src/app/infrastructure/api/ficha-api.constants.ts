@@ -32,4 +32,7 @@ export const fichaEndpoints = {
   PUBLICACIONES_JURIDICAS: 'fichas-publicaciones-juridicas',
   publicacionJuridicaPorId: (idPublicacion: string | number) =>
     `fichas-publicaciones-juridicas/${encodeURIComponent(String(idPublicacion).trim())}`,
+  DISTINCIONES: 'fichas-distinciones',
+  distincionPorId: (idDistincion: string | number) =>
+    `fichas-distinciones/${encodeURIComponent(String(idDistincion).trim())}`,
 } as const;

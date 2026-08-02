@@ -28,6 +28,10 @@ import {
   ListarTiposDocumentoIdiomaResponse,
 } from '../../dto/remote/MaestrosIdiomaResponse.dto';
 import { ListarTiposPublicacionResponse } from '../../dto/remote/MaestrosPublicacionResponse.dto';
+import {
+  ListarTiposDocumentoDistincionResponse,
+  ListarTiposDistincionResponse,
+} from '../../dto/remote/MaestrosDistincionResponse.dto';
 import { ListarNivelesTitularResponse } from '../../dto/remote/MaestrosNivelResponse.dto';
 import { ListarRubrosMaestroResponse, ListarSubrubrosMaestroResponse } from '../../dto/remote/MaestrosRubroResponse.dto';
 import {
@@ -48,6 +52,11 @@ import { toNivelTitular } from '../../mappers/nivel-titular.mapper';
 import { toRubroMaestro } from '../../mappers/rubro-maestro.mapper';
 import { toSubrubroMaestro } from '../../mappers/subrubro-maestro.mapper';
 import { toCatalogoDesdeTipoPublicacion } from '../../mappers/maestros-publicacion.mapper';
+import {
+  toCatalogoDesdeTipoDocumentoDistincion,
+  toTipoDistincionDesdeDto,
+} from '../../mappers/maestros-distincion.mapper';
+import { TipoDistincionCatalogoItem } from '../../../domain/models/rubro-distincion.model';
 
 @Injectable({ providedIn: 'root' })
 export class MaestrosHttpAdapter implements MaestrosPort {
@@ -469,6 +478,44 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdeTipoPublicacion);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de publicación.')
+      );
+  }
+
+  listarTiposDocumentoDistincion(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarTiposDocumentoDistincionResponse>(
+        `${this.baseUrl}${maestrosEndpoints.TIPOS_DOCUMENTO_DISTINCION}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeTipoDocumentoDistincion);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de documento distinción.')
+      );
+  }
+
+  listarTiposDistincion(): Observable<TipoDistincionCatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarTiposDistincionResponse>(`${this.baseUrl}${maestrosEndpoints.TIPOS_DISTINCION}`)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toTipoDistincionDesdeDto);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de distinción.')
       );
   }
 

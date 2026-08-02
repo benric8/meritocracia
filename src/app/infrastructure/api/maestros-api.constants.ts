@@ -18,6 +18,8 @@ export const maestrosEndpoints = {
   NIVELES_IDIOMA: 'maestros/niveles-idioma',
   TIPOS_DOCUMENTO_IDIOMA: 'maestros/tipos-documento-idioma',
   TIPOS_PUBLICACION: 'maestros/tipos-publicacion',
+  TIPOS_DOCUMENTO_DISTINCION: 'maestros/tipos-documento-distincion',
+  TIPOS_DISTINCION: 'maestros/tipos-distincion',
   RUBROS: 'maestros/rubros',
   SUBRUBROS: (idRubro: number | string) => `maestros/rubros/${idRubro}/subrubros`,
 } as const;

@@ -5,6 +5,7 @@ import { IdiomaCatalogoItem, TipoIdioma } from '../models/rubro-idioma.model';
 import { NivelTitular } from '../models/nivel-titular.model';
 import { RubroMaestro } from '../models/rubro-maestro.model';
 import { SubrubroMaestro } from '../models/subrubro-maestro.model';
+import { TipoDistincionCatalogoItem } from '../models/rubro-distincion.model';
 
 /**
  * Puerto de salida: catálogos maestros (RF006 — ficha de valoración).
@@ -37,6 +38,8 @@ export interface MaestrosPort {
   /** Autocompletado de instituciones para rubro F (`tipo_institucion_id = 2`). */
   buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]>;
   listarTiposPublicacion(): Observable<CatalogoItem[]>;
+  listarTiposDocumentoDistincion(): Observable<CatalogoItem[]>;
+  listarTiposDistincion(): Observable<TipoDistincionCatalogoItem[]>;
   listarRubros(): Observable<RubroMaestro[]>;
   listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]>;
 }
