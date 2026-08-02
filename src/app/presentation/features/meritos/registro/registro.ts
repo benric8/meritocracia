@@ -34,6 +34,7 @@ import { RubroAntiguedad } from '../../../../domain/models/rubro-antiguedad.mode
 import { RubroGradosTitulos } from '../../../../domain/models/rubro-grados-titulos.model';
 import { RubroAmag } from '../../../../domain/models/rubro-amag.model';
 import { RubroIdioma } from '../../../../domain/models/rubro-idioma.model';
+import { RubroPublicacionJuridica } from '../../../../domain/models/rubro-publicacion-juridica.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -111,6 +112,7 @@ export class Registro implements OnInit {
   protected readonly rubroGradosTitulos = signal<RubroGradosTitulos | null>(null);
   protected readonly rubroAmag = signal<RubroAmag | null>(null);
   protected readonly rubroIdioma = signal<RubroIdioma | null>(null);
+  protected readonly rubroPublicacionJuridica = signal<RubroPublicacionJuridica | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly rubrosMaestro = this.rubrosMaestroStore.rubros;
   protected readonly cargandoRubrosMaestro = this.rubrosMaestroStore.cargando;
@@ -590,6 +592,7 @@ export class Registro implements OnInit {
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.rubroAmag.set(ficha.rubroAmag);
     this.rubroIdioma.set(ficha.rubroIdioma);
+    this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -632,6 +635,7 @@ export class Registro implements OnInit {
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.rubroAmag.set(ficha.rubroAmag);
     this.rubroIdioma.set(ficha.rubroIdioma);
+    this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.fichaEstado.set(ficha.estado);
   }
 
@@ -650,6 +654,10 @@ export class Registro implements OnInit {
 
   protected onRubroIdiomaCargado(rubro: RubroIdioma): void {
     this.rubroIdioma.set(rubro);
+  }
+
+  protected onRubroPublicacionJuridicaCargado(rubro: RubroPublicacionJuridica): void {
+    this.rubroPublicacionJuridica.set(rubro);
   }
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
@@ -678,6 +686,7 @@ export class Registro implements OnInit {
     this.rubroGradosTitulos.set(null);
     this.rubroAmag.set(null);
     this.rubroIdioma.set(null);
+    this.rubroPublicacionJuridica.set(null);
     this.edad.set('');
     if (limpiarIdentidad) {
       this.limpiarIdentidad();

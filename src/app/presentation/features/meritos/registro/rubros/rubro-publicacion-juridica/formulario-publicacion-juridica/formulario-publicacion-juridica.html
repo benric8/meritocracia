@@ -1,0 +1,155 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Publicación de índole jurídico</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de publicación</mat-label>
+          <mat-select formControlName="tipoPublicacionId" placeholder="Seleccione…">
+            @for (item of tiposPublicacion; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoPublicacionId.touched &&
+            formulario.controls.tipoPublicacionId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de publicación.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>¿Tiene premio?</mat-label>
+          <mat-select formControlName="premiada">
+            @for (opcion of opcionesPremiada; track opcion.valor) {
+              <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.premiada.touched && formulario.controls.premiada.invalid) {
+            <mat-error>Indique si la publicación tiene premio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Título</mat-label>
+          <input matInput type="text" formControlName="titulo" />
+          @if (formulario.controls.titulo.touched && formulario.controls.titulo.invalid) {
+            <mat-error>Ingrese el título.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Editorial</mat-label>
+          <input matInput type="text" formControlName="editorial" />
+          @if (formulario.controls.editorial.touched && formulario.controls.editorial.invalid) {
+            <mat-error>Ingrese la editorial.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Número de páginas</mat-label>
+          <input matInput type="number" min="1" formControlName="paginas" />
+          @if (formulario.controls.paginas.touched && formulario.controls.paginas.invalid) {
+            <mat-error>El número de páginas debe ser mayor a cero.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Número de edición</mat-label>
+          <input matInput type="text" formControlName="numEdicion" />
+          @if (formulario.controls.numEdicion.touched && formulario.controls.numEdicion.invalid) {
+            <mat-error>Ingrese el número de edición.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Auspicio</mat-label>
+          <input matInput type="text" formControlName="auspicio" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+            <mat-error>Seleccione el país.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Orden jurídico</mat-label>
+          <mat-select formControlName="ordenJuridico">
+            @for (opcion of opcionesOrdenJuridico; track opcion.valor) {
+              <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Especialidad en derecho</mat-label>
+          <input matInput type="text" formControlName="especialidad" />
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Institución</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="institucionBusqueda"
+            placeholder="Escriba para buscar…"
+            [matAutocomplete]="autoInstitucion"
+          />
+          <mat-autocomplete
+            #autoInstitucion="matAutocomplete"
+            (optionSelected)="onSeleccionarInstitucion($event.option.value)"
+          >
+            @for (item of institucionesFiltradas(); track item.id) {
+              <mat-option [value]="item">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de publicación</mat-label>
+          <input matInput [matDatepicker]="pickerFecha" formControlName="fechaPublicacion" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFecha" />
+          <mat-datepicker #pickerFecha />
+          @if (
+            formulario.controls.fechaPublicacion.touched &&
+            formulario.controls.fechaPublicacion.invalid
+          ) {
+            <mat-error>Seleccione la fecha de publicación.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

@@ -35,7 +35,8 @@ function aEstudioIdiomaDesdeDto(
     nivelIdiomaNombre: nombres.nivelIdiomaNombre ?? '',
     tipoDocumentoIdiomaId: String(dto.tipoDocumentoIdiomaId),
     tipoDocumentoNombre: nombres.tipoDocumentoNombre ?? '',
-    institucion: dto.institucion?.trim() ?? '',
+    institucionId: dto.institucionId != null ? String(dto.institucionId) : '',
+    institucionNombre: nombres.institucionNombre ?? '',
     fechaObtencion: dto.fechaObtencion?.trim().slice(0, 10) ?? '',
     archivoId: dto.archivoId != null ? String(dto.archivoId) : null,
     puntaje: Number(dto.puntaje) || 0,
@@ -78,7 +79,9 @@ export function toGuardarEstudioIdiomaRequestDto(
     idiomaId: aNumeroId(item.idiomaId, 'Idioma'),
     nivelIdiomaId: aNumeroId(item.nivelIdiomaId, 'Nivel de idioma'),
     tipoDocumentoIdiomaId: aNumeroId(item.tipoDocumentoIdiomaId, 'Tipo de documento'),
-    institucion: item.institucion?.trim() ? item.institucion.trim() : null,
+    institucionId: item.institucionId?.trim()
+      ? aNumeroId(item.institucionId, 'Institución')
+      : null,
     fechaObtencion: fecha,
     archivoId: item.archivoId ? aNumeroId(item.archivoId, 'Archivo') : null,
   };
@@ -101,6 +104,7 @@ export function aplicarEstudioIdiomaEnFicha(
     idiomaTipo: item.idiomaTipo,
     nivelIdiomaNombre: item.nivelIdiomaNombre,
     tipoDocumentoNombre: item.tipoDocumentoNombre,
+    institucionNombre: item.institucionNombre,
   });
 
   const sinAnterior = rubro.items.filter(

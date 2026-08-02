@@ -83,6 +83,16 @@
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
+              @case ('G') {
+                <app-rubro-publicacion-juridica
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroPublicacionJuridicaLocal()"
+                  [cargandoDetalle]="cargandoRubroG()"
+                  (puntajeChange)="onPuntajePublicacionJuridica($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
               @default {
                 <p class="rubros-panel__pendiente" role="status">
                   Disponible en una fase posterior.

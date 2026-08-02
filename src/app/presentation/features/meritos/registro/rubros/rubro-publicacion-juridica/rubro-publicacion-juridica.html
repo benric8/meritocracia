@@ -1,39 +1,39 @@
-<section class="rubro-idioma" aria-label="Idioma nativo o extranjero">
+<section class="rubro-publicacion" aria-label="Publicaciones de índole jurídico">
   @if (errorCatalogos(); as error) {
-    <p class="rubro-idioma__error" role="alert">{{ error }}</p>
+    <p class="rubro-publicacion__error" role="alert">{{ error }}</p>
   }
 
   @if (cargandoCatalogos() || cargandoDetalle()) {
-    <div class="rubro-idioma__loading" role="status">
+    <div class="rubro-publicacion__loading" role="status">
       <mat-progress-spinner diameter="22" mode="indeterminate" />
       <span>
-        {{ cargandoDetalle() ? 'Cargando estudios registrados…' : 'Cargando catálogos…' }}
+        {{ cargandoDetalle() ? 'Cargando publicaciones registradas…' : 'Cargando catálogos…' }}
       </span>
     </div>
   } @else {
-    <div class="rubro-idioma__toolbar">
+    <div class="rubro-publicacion__toolbar">
       @if (!soloLectura()) {
         <button
           matButton="filled"
           type="button"
-          class="rubro-idioma__btn-add"
+          class="rubro-publicacion__btn-add"
           (click)="onAbrirFormulario()"
         >
           <mat-icon>add</mat-icon>
-          Añadir idioma
+          Añadir publicación
         </button>
       }
     </div>
 
-    <div class="rubro-idioma__records">
-      <table class="rubro-idioma__table">
+    <div class="rubro-publicacion__records">
+      <table class="rubro-publicacion__table">
         <thead>
           <tr>
-            <th>Idioma</th>
-            <th>Institución</th>
-            <th>Nivel</th>
-            <th>Documento</th>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Editorial</th>
             <th>Fecha</th>
+            <th>Premio</th>
             <th>Puntaje</th>
             <th></th>
           </tr>
@@ -41,27 +41,27 @@
         <tbody>
           @if (!items().length) {
             <tr>
-              <td colspan="7" class="rubro-idioma__empty">
-                Sin registros. Use "Añadir idioma" para agregar un estudio.
+              <td colspan="7" class="rubro-publicacion__empty">
+                Sin registros. Use "Añadir publicación" para agregar una publicación.
               </td>
             </tr>
           } @else {
             @for (item of items(); track item.id) {
               <tr>
-                <td>{{ item.idiomaNombre }}</td>
-                <td>{{ item.institucionNombre || '—' }}</td>
-                <td>{{ item.nivelIdiomaNombre }}</td>
-                <td>{{ item.tipoDocumentoNombre }}</td>
-                <td>{{ item.fechaObtencion }}</td>
+                <td>{{ item.tipoPublicacionNombre }}</td>
+                <td>{{ item.titulo }}</td>
+                <td>{{ item.editorial }}</td>
+                <td>{{ item.fechaPublicacion }}</td>
+                <td>{{ etiquetaPremiada(item.premiada) }}</td>
                 <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
                 <td>
                   @if (!soloLectura()) {
-                    <div class="rubro-idioma__actions">
+                    <div class="rubro-publicacion__actions">
                       <button
                         matIconButton
                         type="button"
                         title="Editar"
-                        aria-label="Editar estudio de idioma"
+                        aria-label="Editar publicación"
                         (click)="onEditar(item)"
                       >
                         <mat-icon>edit</mat-icon>
@@ -70,8 +70,8 @@
                         matIconButton
                         type="button"
                         title="Eliminar"
-                        aria-label="Eliminar estudio de idioma"
-                        (click)="eliminarEstudioIdioma(item.id)"
+                        aria-label="Eliminar publicación"
+                        (click)="eliminarPublicacion(item.id)"
                       >
                         <mat-icon>delete</mat-icon>
                       </button>

@@ -27,6 +27,7 @@ import {
   ListarNivelesIdiomaResponse,
   ListarTiposDocumentoIdiomaResponse,
 } from '../../dto/remote/MaestrosIdiomaResponse.dto';
+import { ListarTiposPublicacionResponse } from '../../dto/remote/MaestrosPublicacionResponse.dto';
 import { ListarNivelesTitularResponse } from '../../dto/remote/MaestrosNivelResponse.dto';
 import { ListarRubrosMaestroResponse, ListarSubrubrosMaestroResponse } from '../../dto/remote/MaestrosRubroResponse.dto';
 import {
@@ -46,6 +47,7 @@ import {
 import { toNivelTitular } from '../../mappers/nivel-titular.mapper';
 import { toRubroMaestro } from '../../mappers/rubro-maestro.mapper';
 import { toSubrubroMaestro } from '../../mappers/subrubro-maestro.mapper';
+import { toCatalogoDesdeTipoPublicacion } from '../../mappers/maestros-publicacion.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class MaestrosHttpAdapter implements MaestrosPort {
@@ -447,6 +449,26 @@ export class MaestrosHttpAdapter implements MaestrosPort {
           return this.mapearLista(respuesta.data, toCatalogoDesdeTipoDocumentoIdioma);
         }),
         mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de documento.')
+      );
+  }
+
+  listarTiposPublicacion(): Observable<CatalogoItem[]> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarTiposPublicacionResponse>(
+        `${this.baseUrl}${maestrosEndpoints.TIPOS_PUBLICACION}`
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return this.mapearLista(respuesta.data, toCatalogoDesdeTipoPublicacion);
+        }),
+        mapearAErrorNegocioApi('No se pudo cargar el catálogo de tipos de publicación.')
       );
   }
 

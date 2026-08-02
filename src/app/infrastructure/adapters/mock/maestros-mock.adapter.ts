@@ -166,6 +166,13 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
+  listarTiposPublicacion(): Observable<CatalogoItem[]> {
+    return of([
+      { id: '1', nombre: 'Libro' },
+      { id: '2', nombre: 'Artículo' },
+    ]).pipe(delay(LATENCIA_MS));
+  }
+
   listarRubros(): Observable<RubroMaestro[]> {
     return of(this.rubrosMaestro()).pipe(delay(LATENCIA_MS));
   }

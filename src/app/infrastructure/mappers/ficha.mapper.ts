@@ -4,6 +4,7 @@ import {
   crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
   crearRubroIdiomaVacio,
+  crearRubroPublicacionJuridicaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
@@ -151,6 +152,7 @@ export function toFichaValoracionDesdeCreacion(
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     rubroAmag: crearRubroAmagVacio(),
     rubroIdioma: crearRubroIdiomaVacio(),
+    rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -223,6 +225,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     rubroGradosTitulos: crearRubroGradosTitulosVacio(),
     rubroAmag: crearRubroAmagVacio(),
     rubroIdioma: crearRubroIdiomaVacio(),
+    rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,

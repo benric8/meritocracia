@@ -19,7 +19,8 @@ export interface EstudioIdioma {
   nivelIdiomaNombre: string;
   tipoDocumentoIdiomaId: string;
   tipoDocumentoNombre: string;
-  institucion: string;
+  institucionId: string;
+  institucionNombre: string;
   fechaObtencion: string;
   archivoId: string | null;
   puntaje: number;

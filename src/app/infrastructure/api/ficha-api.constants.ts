@@ -29,4 +29,7 @@ export const fichaEndpoints = {
   ESTUDIOS_IDIOMA: 'fichas-estudios-idioma',
   estudioIdiomaPorId: (idEstudioIdioma: string | number) =>
     `fichas-estudios-idioma/${encodeURIComponent(String(idEstudioIdioma).trim())}`,
+  PUBLICACIONES_JURIDICAS: 'fichas-publicaciones-juridicas',
+  publicacionJuridicaPorId: (idPublicacion: string | number) =>
+    `fichas-publicaciones-juridicas/${encodeURIComponent(String(idPublicacion).trim())}`,
 } as const;

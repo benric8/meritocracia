@@ -15,41 +15,40 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize, take } from 'rxjs';
-import { ListarCatalogosIdiomaUseCase } from '../../../../../../application/use-cases/meritos/listar-catalogos-idioma.use-case';
-import { MutarItemsRubroIdiomaUseCase } from '../../../../../../application/use-cases/meritos/mutar-items-rubro-idioma.use-case';
+import { ListarCatalogosPublicacionJuridicaUseCase } from '../../../../../../application/use-cases/meritos/listar-catalogos-publicacion-juridica.use-case';
+import { MutarItemsRubroPublicacionJuridicaUseCase } from '../../../../../../application/use-cases/meritos/mutar-items-rubro-publicacion-juridica.use-case';
 import { CatalogoItem } from '../../../../../../domain/models/catalogo-item.model';
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import {
-  EstudioIdioma,
-  IdiomaCatalogoItem,
-  RubroIdioma,
-} from '../../../../../../domain/models/rubro-idioma.model';
+  PublicacionJuridica,
+  RubroPublicacionJuridica,
+} from '../../../../../../domain/models/rubro-publicacion-juridica.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
 import { esIdPersistidoApi, formatearPuntaje } from '../rubros.util';
 import {
-  EstudioIdiomaGuardado,
-  FormularioIdioma,
-  FormularioIdiomaData,
-} from './formulario-idioma/formulario-idioma';
+  FormularioPublicacionJuridica,
+  FormularioPublicacionJuridicaData,
+  PublicacionJuridicaGuardada,
+} from './formulario-publicacion-juridica/formulario-publicacion-juridica';
 
 @Component({
-  selector: 'app-rubro-idioma',
+  selector: 'app-rubro-publicacion-juridica',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
-  templateUrl: './rubro-idioma.html',
-  styleUrl: './rubro-idioma.scss',
+  templateUrl: './rubro-publicacion-juridica.html',
+  styleUrl: './rubro-publicacion-juridica.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RubroIdiomaComponent implements OnInit {
+export class RubroPublicacionJuridicaComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly alertas = inject(ALERTAS_PORT);
-  private readonly listarCatalogos = inject(ListarCatalogosIdiomaUseCase);
-  private readonly mutarItems = inject(MutarItemsRubroIdiomaUseCase);
+  private readonly listarCatalogos = inject(ListarCatalogosPublicacionJuridicaUseCase);
+  private readonly mutarItems = inject(MutarItemsRubroPublicacionJuridicaUseCase);
 
   readonly fichaId = input<string | null>(null);
   readonly soloLectura = input(false);
-  readonly rubroInicial = input<RubroIdioma | null>(null);
+  readonly rubroInicial = input<RubroPublicacionJuridica | null>(null);
   readonly cargandoDetalle = input(false);
 
   readonly puntajeChange = output<number>();
@@ -57,12 +56,11 @@ export class RubroIdiomaComponent implements OnInit {
 
   protected readonly cargandoCatalogos = signal(false);
   protected readonly errorCatalogos = signal<string | null>(null);
-  protected readonly items = signal<EstudioIdioma[]>([]);
+  protected readonly items = signal<PublicacionJuridica[]>([]);
   protected readonly puntajeRubro = signal(0);
 
-  protected readonly idiomas = signal<IdiomaCatalogoItem[]>([]);
-  protected readonly nivelesIdioma = signal<CatalogoItem[]>([]);
-  protected readonly tiposDocumento = signal<CatalogoItem[]>([]);
+  protected readonly tiposPublicacion = signal<CatalogoItem[]>([]);
+  protected readonly paises = signal<CatalogoItem[]>([]);
 
   protected readonly formatearPuntaje = formatearPuntaje;
 
@@ -90,19 +88,23 @@ export class RubroIdiomaComponent implements OnInit {
     this.cargarCatalogos();
   }
 
+  protected etiquetaPremiada(premiada: boolean): string {
+    return premiada ? 'Sí' : 'No';
+  }
+
   protected onAbrirFormulario(): void {
     this.abrirModal();
   }
 
-  protected onEditar(item: EstudioIdioma): void {
+  protected onEditar(item: PublicacionJuridica): void {
     this.abrirModal(item);
   }
 
-  protected async eliminarEstudioIdioma(id: string): Promise<void> {
+  protected async eliminarPublicacion(id: string): Promise<void> {
     const ok = await this.alertas.confirmar({
       icono: 'warning',
-      titulo: 'Eliminar estudio de idioma',
-      html: '¿Confirma que desea eliminar este estudio de idioma?',
+      titulo: 'Eliminar publicación',
+      html: '¿Confirma que desea eliminar esta publicación jurídica?',
       textoConfirmar: 'Eliminar',
     });
     if (!ok) {
@@ -118,11 +120,11 @@ export class RubroIdiomaComponent implements OnInit {
     }
 
     this.mutarItems
-      .eliminarEstudioIdioma(fichaId, id)
+      .eliminarPublicacionJuridica(fichaId, id)
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar el estudio de idioma', {
+          void this.alertas.error('No se pudo eliminar la publicación', {
             mensaje:
               resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
             codigo: resultado.detalle?.codigo,
@@ -131,7 +133,7 @@ export class RubroIdiomaComponent implements OnInit {
           return;
         }
 
-        const rubro = resultado.ficha.rubroIdioma;
+        const rubro = resultado.ficha.rubroPublicacionJuridica;
         if (rubro) {
           this.hidratarRubro(rubro);
           this.ultimoRubroHidratadoClave = this.claveRubro(rubro);
@@ -139,26 +141,25 @@ export class RubroIdiomaComponent implements OnInit {
 
         this.fichaActualizada.emit(resultado.ficha);
         await this.alertas.exito(
-          'Estudio eliminado',
-          'El estudio de idioma se eliminó correctamente.'
+          'Publicación eliminada',
+          'La publicación jurídica se eliminó correctamente.'
         );
       });
   }
 
-  private abrirModal(existente?: EstudioIdioma): void {
+  private abrirModal(existente?: PublicacionJuridica): void {
     if (this.soloLectura() || !this.catalogosCargados) {
       return;
     }
 
-    const data: FormularioIdiomaData = {
-      idiomas: this.idiomas(),
-      nivelesIdioma: this.nivelesIdioma(),
-      tiposDocumento: this.tiposDocumento(),
-      estudioIdioma: existente ?? null,
+    const data: FormularioPublicacionJuridicaData = {
+      tiposPublicacion: this.tiposPublicacion(),
+      paises: this.paises(),
+      publicacion: existente ?? null,
     };
 
-    const ref = this.dialog.open(FormularioIdioma, {
-      width: '760px',
+    const ref = this.dialog.open(FormularioPublicacionJuridica, {
+      width: '820px',
       maxWidth: '95vw',
       autoFocus: 'first-tabbable',
       panelClass: 'mc-dialog-panel',
@@ -166,32 +167,37 @@ export class RubroIdiomaComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
-      this.onGuardarEstudioIdioma(item, ref);
+      this.onGuardarPublicacion(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
   }
 
-  private onGuardarEstudioIdioma(
-    item: EstudioIdiomaGuardado,
-    ref: MatDialogRef<FormularioIdioma>
+  private onGuardarPublicacion(
+    item: PublicacionJuridicaGuardada,
+    ref: MatDialogRef<FormularioPublicacionJuridica>
   ): void {
     const fichaId = this.fichaId();
     if (!fichaId) {
       return;
     }
 
-    const registro: EstudioIdioma = {
+    const registro: PublicacionJuridica = {
       id: item.id!,
-      idiomaId: item.idiomaId,
-      idiomaNombre: item.idiomaNombre,
-      idiomaTipo: item.idiomaTipo,
-      nivelIdiomaId: item.nivelIdiomaId,
-      nivelIdiomaNombre: item.nivelIdiomaNombre,
-      tipoDocumentoIdiomaId: item.tipoDocumentoIdiomaId,
-      tipoDocumentoNombre: item.tipoDocumentoNombre,
+      tipoPublicacionId: item.tipoPublicacionId,
+      tipoPublicacionNombre: item.tipoPublicacionNombre,
+      titulo: item.titulo,
+      editorial: item.editorial,
+      paginas: item.paginas,
+      numEdicion: item.numEdicion,
+      auspicio: item.auspicio,
+      paisId: item.paisId,
+      paisNombre: item.paisNombre,
+      ordenJuridico: item.ordenJuridico,
+      especialidad: item.especialidad,
       institucionId: item.institucionId,
       institucionNombre: item.institucionNombre,
-      fechaObtencion: item.fechaObtencion,
+      fechaPublicacion: item.fechaPublicacion,
+      premiada: item.premiada,
       archivoId: item.archivoId,
       puntaje: item.puntaje,
     };
@@ -199,14 +205,14 @@ export class RubroIdiomaComponent implements OnInit {
     const esActualizacion = esIdPersistidoApi(registro.id);
 
     this.mutarItems
-      .upsertEstudioIdioma(fichaId, registro)
+      .upsertPublicacionJuridica(fichaId, registro)
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion
-              ? 'No se pudo actualizar el estudio de idioma'
-              : 'No se pudo guardar el estudio de idioma',
+              ? 'No se pudo actualizar la publicación'
+              : 'No se pudo guardar la publicación',
             {
               mensaje:
                 resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
@@ -217,7 +223,7 @@ export class RubroIdiomaComponent implements OnInit {
           return;
         }
 
-        const rubro = resultado.ficha.rubroIdioma;
+        const rubro = resultado.ficha.rubroPublicacionJuridica;
         if (rubro) {
           this.hidratarRubro(rubro);
           this.ultimoRubroHidratadoClave = this.claveRubro(rubro);
@@ -227,10 +233,10 @@ export class RubroIdiomaComponent implements OnInit {
         ref.close();
 
         await this.alertas.exito(
-          esActualizacion ? 'Estudio actualizado' : 'Estudio guardado',
+          esActualizacion ? 'Publicación actualizada' : 'Publicación guardada',
           esActualizacion
-            ? 'El estudio de idioma se actualizó correctamente.'
-            : 'El estudio de idioma se guardó correctamente.'
+            ? 'La publicación jurídica se actualizó correctamente.'
+            : 'La publicación jurídica se guardó correctamente.'
         );
       });
   }
@@ -250,14 +256,13 @@ export class RubroIdiomaComponent implements OnInit {
           this.errorCatalogos.set(
             resultado.detalle?.mensaje ??
               resultado.mensaje ??
-              'No se pudieron cargar los catálogos del rubro F.'
+              'No se pudieron cargar los catálogos del rubro G.'
           );
           return;
         }
 
-        this.idiomas.set(resultado.catalogos.idiomas);
-        this.nivelesIdioma.set(resultado.catalogos.nivelesIdioma);
-        this.tiposDocumento.set(resultado.catalogos.tiposDocumento);
+        this.tiposPublicacion.set(resultado.catalogos.tiposPublicacion);
+        this.paises.set(resultado.catalogos.paises);
         this.catalogosCargados = true;
 
         const rubro = this.rubroInicial();
@@ -271,7 +276,7 @@ export class RubroIdiomaComponent implements OnInit {
       });
   }
 
-  private hidratarRubro(rubro: RubroIdioma): void {
+  private hidratarRubro(rubro: RubroPublicacionJuridica): void {
     this.items.set(rubro.items);
     this.puntajeRubro.set(rubro.puntajeTotal);
     this.puntajeChange.emit(rubro.puntajeTotal);
@@ -279,34 +284,27 @@ export class RubroIdiomaComponent implements OnInit {
   }
 
   private enriquecerNombresCatalogo(): void {
-    const idiomas = this.idiomas();
-    const niveles = this.nivelesIdioma();
-    const tipos = this.tiposDocumento();
+    const tipos = this.tiposPublicacion();
+    const paises = this.paises();
 
     this.items.update((lista) =>
-      lista.map((item) => {
-        const idioma = idiomas.find((opcion) => opcion.id === item.idiomaId);
-        return {
-          ...item,
-          idiomaNombre: idioma?.nombre ?? item.idiomaNombre,
-          idiomaTipo: idioma?.tipo ?? item.idiomaTipo,
-          nivelIdiomaNombre:
-            niveles.find((opcion) => opcion.id === item.nivelIdiomaId)?.nombre ??
-            item.nivelIdiomaNombre,
-          tipoDocumentoNombre:
-            tipos.find((opcion) => opcion.id === item.tipoDocumentoIdiomaId)?.nombre ??
-            item.tipoDocumentoNombre,
-        };
-      })
+      lista.map((item) => ({
+        ...item,
+        tipoPublicacionNombre:
+          tipos.find((opcion) => opcion.id === item.tipoPublicacionId)?.nombre ??
+          item.tipoPublicacionNombre,
+        paisNombre: paises.find((opcion) => opcion.id === item.paisId)?.nombre ?? item.paisNombre,
+      }))
     );
   }
 
-  private claveRubro(rubro: RubroIdioma): string {
+  private claveRubro(rubro: RubroPublicacionJuridica): string {
     return [
       rubro.puntajeTotal,
       rubro.items.length,
       ...rubro.items.map(
-        (item) => `${item.id}|${item.idiomaId}|${item.nivelIdiomaId}|${item.puntaje}`
+        (item) =>
+          `${item.id}|${item.tipoPublicacionId}|${item.premiada}|${item.fechaPublicacion}|${item.puntaje}`
       ),
     ].join('::');
   }

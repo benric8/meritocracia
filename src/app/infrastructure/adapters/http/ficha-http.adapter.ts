@@ -10,6 +10,7 @@ import {
   crearRubroAmagVacio,
   crearRubroGradosTitulosVacio,
   crearRubroIdiomaVacio,
+  crearRubroPublicacionJuridicaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -23,6 +24,10 @@ import {
 import { GradoTitulo, RubroGradosTitulos } from '../../../domain/models/rubro-grados-titulos.model';
 import { EstudioAmag, RubroAmag } from '../../../domain/models/rubro-amag.model';
 import { EstudioIdioma, RubroIdioma } from '../../../domain/models/rubro-idioma.model';
+import {
+  PublicacionJuridica,
+  RubroPublicacionJuridica,
+} from '../../../domain/models/rubro-publicacion-juridica.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -53,6 +58,11 @@ import {
   GuardarEstudioIdiomaResponse,
   ObtenerEstudiosIdiomaResponse,
 } from '../../dto/remote/FichaIdiomaResponse.dto';
+import {
+  EliminarPublicacionJuridicaResponse,
+  GuardarPublicacionJuridicaResponse,
+  ObtenerPublicacionesJuridicasResponse,
+} from '../../dto/remote/FichaPublicacionJuridicaResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -91,6 +101,12 @@ import {
   toGuardarEstudioIdiomaRequestDto,
   toRubroIdiomaDesdeDetalle,
 } from '../../mappers/ficha-idioma.mapper';
+import {
+  aplicarPublicacionJuridicaEnFicha,
+  eliminarPublicacionJuridicaEnFicha,
+  toGuardarPublicacionJuridicaRequestDto,
+  toRubroPublicacionJuridicaDesdeDetalle,
+} from '../../mappers/ficha-publicacion-juridica.mapper';
 import {
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
@@ -984,6 +1000,148 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroPublicacionJuridica(fichaId: string): Observable<RubroPublicacionJuridica> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerPublicacionesJuridicasResponse>(
+        `${this.baseUrl}${fichaEndpoints.PUBLICACIONES_JURIDICAS}`,
+        { params }
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const rubro = toRubroPublicacionJuridicaDesdeDetalle(respuesta.data);
+          this.actualizarRubroPublicacionJuridicaEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de publicaciones jurídicas.')
+      );
+  }
+
+  upsertPublicacionJuridica(
+    fichaId: string,
+    item: PublicacionJuridica
+  ): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroPublicacionJuridica();
+      body = toGuardarPublicacionJuridicaRequestDto(fichaId, item, rubroId, !esActualizacion);
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.publicacionJuridicaPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.PUBLICACIONES_JURIDICAS}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarPublicacionJuridicaResponse>(url, body)
+      : this.http.post<GuardarPublicacionJuridicaResponse>(url, body);
+
+    return request$.pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió la publicación actualizada.'
+              : 'El servidor no devolvió la publicación guardada.',
+          });
+        }
+        return this.guardarEnMemoria(
+          aplicarPublicacionJuridicaEnFicha(ficha, item, respuesta.data)
+        );
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar la publicación jurídica.'
+          : 'No se pudo guardar la publicación jurídica.'
+      )
+    );
+  }
+
+  eliminarPublicacionJuridica(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de publicación no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroPublicacionJuridica();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.publicacionJuridicaPorId(idItem)}`;
+
+    return this.http.delete<EliminarPublicacionJuridicaResponse>(url, { params }).pipe(
+      map((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (respuesta.data?.length) {
+          const rubro = toRubroPublicacionJuridicaDesdeDetalle(respuesta.data);
+          return this.guardarEnMemoria({
+            ...ficha,
+            rubroPublicacionJuridica: rubro,
+            actualizadoEn: new Date().toISOString(),
+          });
+        }
+        return this.guardarEnMemoria(eliminarPublicacionJuridicaEnFicha(ficha, idItem));
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar la publicación jurídica.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -1032,6 +1190,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroGradosTitulos: crearRubroGradosTitulosVacio(),
       rubroAmag: crearRubroAmagVacio(),
       rubroIdioma: crearRubroIdiomaVacio(),
+      rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -1055,11 +1214,13 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroGradosPrevio = previa?.rubroGradosTitulos;
     const rubroAmagPrevio = previa?.rubroAmag;
     const rubroIdiomaPrevio = previa?.rubroIdioma;
+    const rubroPublicacionPrevio = previa?.rubroPublicacionJuridica;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
       (rubroAmagPrevio?.items.length ?? 0) > 0 ||
-      (rubroIdiomaPrevio?.items.length ?? 0) > 0
+      (rubroIdiomaPrevio?.items.length ?? 0) > 0 ||
+      (rubroPublicacionPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
@@ -1067,6 +1228,8 @@ export class FichaHttpAdapter implements FichaPort {
         rubroGradosTitulos: rubroGradosPrevio ?? fichaApi.rubroGradosTitulos,
         rubroAmag: rubroAmagPrevio ?? fichaApi.rubroAmag,
         rubroIdioma: rubroIdiomaPrevio ?? fichaApi.rubroIdioma,
+        rubroPublicacionJuridica:
+          rubroPublicacionPrevio ?? fichaApi.rubroPublicacionJuridica,
       });
     }
 
@@ -1159,6 +1322,30 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
+  private actualizarRubroPublicacionJuridicaEnMemoria(
+    fichaId: string,
+    rubro: RubroPublicacionJuridica
+  ): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroPublicacionJuridica: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroPublicacionJuridica: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
   private noImplementado(operacion: string): Observable<FichaValoracion> {
     return throwError(
       () =>
@@ -1204,6 +1391,16 @@ export class FichaHttpAdapter implements FichaPort {
     if (!rubro) {
       throw new ErrorNegocioApi({
         mensaje: 'No se encontró el rubro F en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  private obtenerIdRubroPublicacionJuridica(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'G');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro G en el catálogo maestro.',
       });
     }
     return rubro.idRubro;

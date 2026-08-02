@@ -6,7 +6,7 @@ export interface GuardarEstudioIdiomaRequestDto {
   idiomaId: number;
   nivelIdiomaId: number;
   tipoDocumentoIdiomaId: number;
-  institucion?: string | null;
+  institucionId?: number | null;
   fechaObtencion: string;
   archivoId?: number | null;
 }
@@ -18,7 +18,7 @@ export interface EstudioIdiomaDetalleDto {
   idiomaId: number;
   nivelIdiomaId: number;
   tipoDocumentoIdiomaId: number;
-  institucion?: string | null;
+  institucionId?: number | null;
   fechaObtencion: string;
   archivoId?: number | null;
   puntaje: number;

@@ -15,6 +15,10 @@ import {
 } from '../models/rubro-antiguedad.model';
 import { EstudioAmag, RubroAmag } from '../models/rubro-amag.model';
 import { EstudioIdioma, RubroIdioma } from '../models/rubro-idioma.model';
+import {
+  PublicacionJuridica,
+  RubroPublicacionJuridica,
+} from '../models/rubro-publicacion-juridica.model';
 import { GradoTitulo, RubroGradosTitulos } from '../models/rubro-grados-titulos.model';
 
 /**
@@ -71,6 +75,15 @@ export interface FichaPort {
   upsertEstudioIdioma(fichaId: string, item: EstudioIdioma): Observable<FichaValoracion>;
 
   eliminarEstudioIdioma(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroPublicacionJuridica(fichaId: string): Observable<RubroPublicacionJuridica>;
+
+  upsertPublicacionJuridica(
+    fichaId: string,
+    item: PublicacionJuridica
+  ): Observable<FichaValoracion>;
+
+  eliminarPublicacionJuridica(fichaId: string, itemId: string): Observable<FichaValoracion>;
 }
 
 export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

@@ -29,10 +29,11 @@ import {
 import { BuscarInstitucionesIdiomaUseCase } from '../../../../../../../application/use-cases/meritos/buscar-instituciones-idioma.use-case';
 import { CatalogoItem } from '../../../../../../../domain/models/catalogo-item.model';
 import {
-  EstudioIdioma,
-  IdiomaCatalogoItem,
-  TipoIdioma,
-} from '../../../../../../../domain/models/rubro-idioma.model';
+  OPCIONES_ORDEN_JURIDICO,
+  OPCIONES_PREMIADA,
+  OrdenJuridico,
+  PublicacionJuridica,
+} from '../../../../../../../domain/models/rubro-publicacion-juridica.model';
 import {
   aDateDesdeIso,
   aFechaIsoLocal,
@@ -40,22 +41,16 @@ import {
   nuevoIdLocal,
 } from '../../rubros.util';
 
-export interface FormularioIdiomaData {
-  idiomas: IdiomaCatalogoItem[];
-  nivelesIdioma: CatalogoItem[];
-  tiposDocumento: CatalogoItem[];
-  estudioIdioma?: EstudioIdioma | null;
+export interface FormularioPublicacionJuridicaData {
+  tiposPublicacion: CatalogoItem[];
+  paises: CatalogoItem[];
+  publicacion?: PublicacionJuridica | null;
 }
 
-export type EstudioIdiomaGuardado = Omit<EstudioIdioma, 'id'> & { id?: string };
-
-const TIPOS_IDIOMA: { valor: TipoIdioma; etiqueta: string }[] = [
-  { valor: 'NATIVO', etiqueta: 'Nativo' },
-  { valor: 'EXTRANJERO', etiqueta: 'Extranjero' },
-];
+export type PublicacionJuridicaGuardada = Omit<PublicacionJuridica, 'id'> & { id?: string };
 
 @Component({
-  selector: 'app-formulario-idioma',
+  selector: 'app-formulario-publicacion-juridica',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -71,57 +66,67 @@ const TIPOS_IDIOMA: { valor: TipoIdioma; etiqueta: string }[] = [
     provideNativeDateAdapter(),
     { provide: MAT_DATE_LOCALE, useValue: 'es-PE' },
   ],
-  templateUrl: './formulario-idioma.html',
-  styleUrl: './formulario-idioma.scss',
+  templateUrl: './formulario-publicacion-juridica.html',
+  styleUrl: './formulario-publicacion-juridica.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormularioIdioma implements OnInit {
+export class FormularioPublicacionJuridica implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<FormularioIdioma>);
-  private readonly data = inject<FormularioIdiomaData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(MatDialogRef<FormularioPublicacionJuridica>);
+  private readonly data = inject<FormularioPublicacionJuridicaData>(MAT_DIALOG_DATA);
   private readonly buscarInstituciones = inject(BuscarInstitucionesIdiomaUseCase);
 
-  readonly guardar = output<EstudioIdiomaGuardado>();
+  readonly guardar = output<PublicacionJuridicaGuardada>();
 
-  protected readonly tiposIdioma = TIPOS_IDIOMA;
-  protected readonly nivelesIdioma = this.data.nivelesIdioma;
-  protected readonly tiposDocumento = this.data.tiposDocumento;
-  protected readonly esActualizacion = esIdPersistidoApi(this.data.estudioIdioma?.id);
-  protected readonly idiomasFiltrados = signal<IdiomaCatalogoItem[]>([]);
+  protected readonly tiposPublicacion = this.data.tiposPublicacion;
+  protected readonly paises = this.data.paises;
+  protected readonly opcionesOrdenJuridico = OPCIONES_ORDEN_JURIDICO;
+  protected readonly opcionesPremiada = OPCIONES_PREMIADA;
+  protected readonly esActualizacion = esIdPersistidoApi(this.data.publicacion?.id);
   protected readonly institucionesFiltradas = signal<CatalogoItem[]>([]);
   protected readonly buscandoInstituciones = signal(false);
 
   protected readonly formulario = this.fb.group({
-    tipoIdioma: this.fb.nonNullable.control<TipoIdioma>(
-      this.data.estudioIdioma?.idiomaTipo || 'EXTRANJERO',
+    tipoPublicacionId: this.fb.nonNullable.control(
+      this.data.publicacion?.tipoPublicacionId ?? '',
       Validators.required
     ),
-    idiomaId: this.fb.nonNullable.control(
-      this.data.estudioIdioma?.idiomaId ?? '',
+    titulo: this.fb.nonNullable.control(this.data.publicacion?.titulo ?? '', Validators.required),
+    editorial: this.fb.nonNullable.control(
+      this.data.publicacion?.editorial ?? '',
       Validators.required
     ),
+    paginas: this.fb.nonNullable.control(this.data.publicacion?.paginas ?? 1, [
+      Validators.required,
+      Validators.min(1),
+    ]),
+    numEdicion: this.fb.nonNullable.control(
+      this.data.publicacion?.numEdicion ?? '',
+      Validators.required
+    ),
+    auspicio: this.fb.nonNullable.control(this.data.publicacion?.auspicio ?? ''),
+    paisId: this.fb.nonNullable.control(this.data.publicacion?.paisId ?? '', Validators.required),
+    ordenJuridico: this.fb.nonNullable.control<OrdenJuridico>(
+      this.data.publicacion?.ordenJuridico ?? 'JURIDICO',
+      Validators.required
+    ),
+    especialidad: this.fb.nonNullable.control(this.data.publicacion?.especialidad ?? ''),
     institucionBusqueda: this.fb.nonNullable.control(
-      this.data.estudioIdioma?.institucionNombre ?? ''
+      this.data.publicacion?.institucionNombre ?? ''
     ),
-    institucionId: this.fb.nonNullable.control(this.data.estudioIdioma?.institucionId ?? ''),
-    nivelIdiomaId: this.fb.nonNullable.control(
-      this.data.estudioIdioma?.nivelIdiomaId ?? '',
+    institucionId: this.fb.nonNullable.control(this.data.publicacion?.institucionId ?? ''),
+    fechaPublicacion: this.fb.control<Date | null>(
+      aDateDesdeIso(this.data.publicacion?.fechaPublicacion),
       Validators.required
     ),
-    tipoDocumentoIdiomaId: this.fb.nonNullable.control(
-      this.data.estudioIdioma?.tipoDocumentoIdiomaId ?? '',
-      Validators.required
-    ),
-    fechaObtencion: this.fb.control<Date | null>(
-      aDateDesdeIso(this.data.estudioIdioma?.fechaObtencion),
+    premiada: this.fb.nonNullable.control<boolean>(
+      this.data.publicacion?.premiada ?? false,
       Validators.required
     ),
   });
 
   ngOnInit(): void {
-    this.actualizarIdiomasPorTipo(this.formulario.controls.tipoIdioma.value);
-    this.escucharTipoIdioma();
     this.escucharBusquedaInstitucion();
   }
 
@@ -143,49 +148,34 @@ export class FormularioIdioma implements OnInit {
     }
 
     const raw = this.formulario.getRawValue();
-    const idioma = this.idiomasFiltrados().find((item) => item.id === raw.idiomaId)
-      ?? this.data.idiomas.find((item) => item.id === raw.idiomaId);
-    const nivel = this.nivelesIdioma.find((item) => item.id === raw.nivelIdiomaId);
-    const tipoDocumento = this.tiposDocumento.find(
-      (item) => item.id === raw.tipoDocumentoIdiomaId
-    );
-    const fecha = raw.fechaObtencion ? aFechaIsoLocal(raw.fechaObtencion) : '';
+    const tipo = this.tiposPublicacion.find((item) => item.id === raw.tipoPublicacionId);
+    const pais = this.paises.find((item) => item.id === raw.paisId);
+    const fecha = raw.fechaPublicacion ? aFechaIsoLocal(raw.fechaPublicacion) : '';
 
-    if (!idioma || !nivel || !tipoDocumento || !fecha) {
+    if (!tipo || !pais || !fecha) {
       return;
     }
 
     this.guardar.emit({
-      id: this.data.estudioIdioma?.id ?? nuevoIdLocal('idioma'),
-      idiomaId: idioma.id,
-      idiomaNombre: idioma.nombre,
-      idiomaTipo: idioma.tipo,
-      nivelIdiomaId: nivel.id,
-      nivelIdiomaNombre: nivel.nombre,
-      tipoDocumentoIdiomaId: tipoDocumento.id,
-      tipoDocumentoNombre: tipoDocumento.nombre,
+      id: this.data.publicacion?.id ?? nuevoIdLocal('pub-jur'),
+      tipoPublicacionId: tipo.id,
+      tipoPublicacionNombre: tipo.nombre,
+      titulo: raw.titulo.trim(),
+      editorial: raw.editorial.trim(),
+      paginas: Number(raw.paginas),
+      numEdicion: raw.numEdicion.trim(),
+      auspicio: raw.auspicio.trim(),
+      paisId: pais.id,
+      paisNombre: pais.nombre,
+      ordenJuridico: raw.ordenJuridico,
+      especialidad: raw.especialidad.trim(),
       institucionId: raw.institucionId.trim(),
       institucionNombre: raw.institucionBusqueda.trim(),
-      fechaObtencion: fecha,
-      archivoId: this.data.estudioIdioma?.archivoId ?? null,
-      puntaje: this.data.estudioIdioma?.puntaje ?? 0,
+      fechaPublicacion: fecha,
+      premiada: raw.premiada,
+      archivoId: this.data.publicacion?.archivoId ?? null,
+      puntaje: this.data.publicacion?.puntaje ?? 0,
     });
-  }
-
-  private escucharTipoIdioma(): void {
-    this.formulario.controls.tipoIdioma.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((tipo) => {
-        this.actualizarIdiomasPorTipo(tipo);
-        const actual = this.formulario.controls.idiomaId.value;
-        if (!this.idiomasFiltrados().some((item) => item.id === actual)) {
-          this.formulario.controls.idiomaId.setValue('');
-        }
-      });
-  }
-
-  private actualizarIdiomasPorTipo(tipo: TipoIdioma): void {
-    this.idiomasFiltrados.set(this.data.idiomas.filter((item) => item.tipo === tipo));
   }
 
   private escucharBusquedaInstitucion(): void {

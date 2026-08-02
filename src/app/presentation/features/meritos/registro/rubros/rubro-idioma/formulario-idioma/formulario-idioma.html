@@ -38,13 +38,17 @@
           <mat-label>Institución</mat-label>
           <input
             matInput
-            formControlName="institucion"
+            type="text"
+            formControlName="institucionBusqueda"
+            placeholder="Escriba para buscar…"
             [matAutocomplete]="autoInstitucion"
-            placeholder="Buscar institución…"
           />
-          <mat-autocomplete #autoInstitucion="matAutocomplete">
+          <mat-autocomplete
+            #autoInstitucion="matAutocomplete"
+            (optionSelected)="onSeleccionarInstitucion($event.option.value)"
+          >
             @for (item of institucionesFiltradas(); track item.id) {
-              <mat-option [value]="item.nombre">{{ item.nombre }}</mat-option>
+              <mat-option [value]="item">{{ item.nombre }}</mat-option>
             }
           </mat-autocomplete>
         </mat-form-field>

@@ -36,6 +36,7 @@ export interface MaestrosPort {
   listarTiposDocumentoIdioma(): Observable<CatalogoItem[]>;
   /** Autocompletado de instituciones para rubro F (`tipo_institucion_id = 2`). */
   buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]>;
+  listarTiposPublicacion(): Observable<CatalogoItem[]>;
   listarRubros(): Observable<RubroMaestro[]>;
   listarSubrubros(idRubro: number): Observable<SubrubroMaestro[]>;
 }
