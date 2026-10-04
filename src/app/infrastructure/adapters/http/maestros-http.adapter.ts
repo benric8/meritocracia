@@ -279,6 +279,10 @@ export class MaestrosHttpAdapter implements MaestrosPort {
     return this.buscarInstitucionesPorTipo(termino, 2);
   }
 
+  buscarInstitucionesUniversitarias(termino: string): Observable<CatalogoItem[]> {
+    return this.buscarInstitucionesPorTipo(termino, 1);
+  }
+
   private buscarInstitucionesPorTipo(
     termino: string,
     tipoInstitucionId: number,

@@ -103,6 +103,16 @@
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
+              @case ('I') {
+                <app-rubro-docencia
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDocenciaLocal()"
+                  [cargandoDetalle]="cargandoRubroI()"
+                  (puntajeChange)="onPuntajeDocencia($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
               @default {
                 <p class="rubros-panel__pendiente" role="status">
                   Disponible en una fase posterior.

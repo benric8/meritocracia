@@ -36,6 +36,7 @@ import { RubroAmag } from '../../../../domain/models/rubro-amag.model';
 import { RubroIdioma } from '../../../../domain/models/rubro-idioma.model';
 import { RubroPublicacionJuridica } from '../../../../domain/models/rubro-publicacion-juridica.model';
 import { RubroDistincion } from '../../../../domain/models/rubro-distincion.model';
+import { RubroDocencia } from '../../../../domain/models/rubro-docencia.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -115,6 +116,7 @@ export class Registro implements OnInit {
   protected readonly rubroIdioma = signal<RubroIdioma | null>(null);
   protected readonly rubroPublicacionJuridica = signal<RubroPublicacionJuridica | null>(null);
   protected readonly rubroDistincion = signal<RubroDistincion | null>(null);
+  protected readonly rubroDocencia = signal<RubroDocencia | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly rubrosMaestro = this.rubrosMaestroStore.rubros;
   protected readonly cargandoRubrosMaestro = this.rubrosMaestroStore.cargando;
@@ -596,6 +598,7 @@ export class Registro implements OnInit {
     this.rubroIdioma.set(ficha.rubroIdioma);
     this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.rubroDistincion.set(ficha.rubroDistincion);
+    this.rubroDocencia.set(ficha.rubroDocencia);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -640,6 +643,7 @@ export class Registro implements OnInit {
     this.rubroIdioma.set(ficha.rubroIdioma);
     this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.rubroDistincion.set(ficha.rubroDistincion);
+    this.rubroDocencia.set(ficha.rubroDocencia);
     this.fichaEstado.set(ficha.estado);
   }
 
@@ -666,6 +670,10 @@ export class Registro implements OnInit {
 
   protected onRubroDistincionCargado(rubro: RubroDistincion): void {
     this.rubroDistincion.set(rubro);
+  }
+
+  protected onRubroDocenciaCargado(rubro: RubroDocencia): void {
+    this.rubroDocencia.set(rubro);
   }
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
@@ -696,6 +704,7 @@ export class Registro implements OnInit {
     this.rubroIdioma.set(null);
     this.rubroPublicacionJuridica.set(null);
     this.rubroDistincion.set(null);
+    this.rubroDocencia.set(null);
     this.edad.set('');
     if (limpiarIdentidad) {
       this.limpiarIdentidad();

@@ -18,12 +18,14 @@ import { ObtenerRubroAmagFichaUseCase } from '../../../../../../application/use-
 import { ObtenerRubroIdiomaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-idioma-ficha.use-case';
 import { ObtenerRubroPublicacionJuridicaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-publicacion-juridica-ficha.use-case';
 import { ObtenerRubroDistincionFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-distincion-ficha.use-case';
+import { ObtenerRubroDocenciaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-docencia-ficha.use-case';
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../../../domain/models/rubro-antiguedad.model';
 import { RubroAmag } from '../../../../../../domain/models/rubro-amag.model';
 import { RubroIdioma } from '../../../../../../domain/models/rubro-idioma.model';
 import { RubroPublicacionJuridica } from '../../../../../../domain/models/rubro-publicacion-juridica.model';
 import { RubroDistincion } from '../../../../../../domain/models/rubro-distincion.model';
+import { RubroDocencia } from '../../../../../../domain/models/rubro-docencia.model';
 import { RubroGradosTitulos } from '../../../../../../domain/models/rubro-grados-titulos.model';
 import { RubroMaestro } from '../../../../../../domain/models/rubro-maestro.model';
 import { RubrosMaestroStore } from '../../../../../../infrastructure/stores/rubros-maestro.store';
@@ -33,6 +35,7 @@ import { RubroAmagComponent } from '../rubro-amag/rubro-amag';
 import { RubroIdiomaComponent } from '../rubro-idioma/rubro-idioma';
 import { RubroPublicacionJuridicaComponent } from '../rubro-publicacion-juridica/rubro-publicacion-juridica';
 import { RubroDistincionComponent } from '../rubro-distincion/rubro-distincion';
+import { RubroDocenciaComponent } from '../rubro-docencia/rubro-docencia';
 import { RubroGradosTitulosComponent } from '../rubro-grados-titulos/rubro-grados-titulos';
 import { RubroProduccion } from '../rubro-produccion/rubro-produccion';
 import { RubroAntiguedadComponent } from '../rubro-antiguedad/rubro-antiguedad';
@@ -51,6 +54,7 @@ import { RubroSubrubrosPanel } from '../rubro-subrubros-panel/rubro-subrubros-pa
     RubroIdiomaComponent,
     RubroPublicacionJuridicaComponent,
     RubroDistincionComponent,
+    RubroDocenciaComponent,
     RubroSubrubrosPanel,
   ],
   templateUrl: './rubros-panel.html',
@@ -66,6 +70,7 @@ export class RubrosPanel {
   private readonly obtenerRubroIdioma = inject(ObtenerRubroIdiomaFichaUseCase);
   private readonly obtenerRubroPublicacionJuridica = inject(ObtenerRubroPublicacionJuridicaFichaUseCase);
   private readonly obtenerRubroDistincion = inject(ObtenerRubroDistincionFichaUseCase);
+  private readonly obtenerRubroDocencia = inject(ObtenerRubroDocenciaFichaUseCase);
   private readonly rubrosMaestroStore = inject(RubrosMaestroStore);
 
   readonly fechaValoracion = input<string | null>(null);
@@ -78,6 +83,7 @@ export class RubrosPanel {
   readonly rubroIdioma = input<RubroIdioma | null>(null);
   readonly rubroPublicacionJuridica = input<RubroPublicacionJuridica | null>(null);
   readonly rubroDistincion = input<RubroDistincion | null>(null);
+  readonly rubroDocencia = input<RubroDocencia | null>(null);
   readonly rubrosMaestro = input<RubroMaestro[]>([]);
 
   readonly fichaActualizada = output<FichaValoracion>();
@@ -87,6 +93,7 @@ export class RubrosPanel {
   readonly rubroIdiomaCargado = output<RubroIdioma>();
   readonly rubroPublicacionJuridicaCargado = output<RubroPublicacionJuridica>();
   readonly rubroDistincionCargado = output<RubroDistincion>();
+  readonly rubroDocenciaCargado = output<RubroDocencia>();
 
   protected readonly puntajeProduccion = 0;
   protected readonly puntajeAntiguedad = signal(0);
@@ -95,18 +102,21 @@ export class RubrosPanel {
   protected readonly puntajeIdioma = signal(0);
   protected readonly puntajePublicacionJuridica = signal(0);
   protected readonly puntajeDistincion = signal(0);
+  protected readonly puntajeDocencia = signal(0);
   protected readonly rubroAntiguedadLocal = signal<RubroAntiguedad | null>(null);
   protected readonly rubroGradosTitulosLocal = signal<RubroGradosTitulos | null>(null);
   protected readonly rubroAmagLocal = signal<RubroAmag | null>(null);
   protected readonly rubroIdiomaLocal = signal<RubroIdioma | null>(null);
   protected readonly rubroPublicacionJuridicaLocal = signal<RubroPublicacionJuridica | null>(null);
   protected readonly rubroDistincionLocal = signal<RubroDistincion | null>(null);
+  protected readonly rubroDocenciaLocal = signal<RubroDocencia | null>(null);
   protected readonly cargandoRubroB = signal(false);
   protected readonly cargandoRubroC = signal(false);
   protected readonly cargandoRubroD = signal(false);
   protected readonly cargandoRubroF = signal(false);
   protected readonly cargandoRubroG = signal(false);
   protected readonly cargandoRubroH = signal(false);
+  protected readonly cargandoRubroI = signal(false);
   protected readonly formatearPuntaje = formatearPuntaje;
 
   private rubroBCargadoParaFichaId: string | null = null;
@@ -115,6 +125,7 @@ export class RubrosPanel {
   private rubroFCargadoParaFichaId: string | null = null;
   private rubroGCargadoParaFichaId: string | null = null;
   private rubroHCargadoParaFichaId: string | null = null;
+  private rubroICargadoParaFichaId: string | null = null;
 
   constructor() {
     effect(() => {
@@ -125,6 +136,7 @@ export class RubrosPanel {
       const inicialF = this.rubroIdioma();
       const inicialG = this.rubroPublicacionJuridica();
       const inicialH = this.rubroDistincion();
+      const inicialI = this.rubroDocencia();
 
       if (!fichaId || fichaId !== this.rubroBCargadoParaFichaId) {
         this.rubroBCargadoParaFichaId = null;
@@ -160,6 +172,12 @@ export class RubrosPanel {
         this.rubroHCargadoParaFichaId = null;
         this.rubroDistincionLocal.set(inicialH);
         this.puntajeDistincion.set(inicialH?.puntajeTotal ?? 0);
+      }
+
+      if (!fichaId || fichaId !== this.rubroICargadoParaFichaId) {
+        this.rubroICargadoParaFichaId = null;
+        this.rubroDocenciaLocal.set(inicialI);
+        this.puntajeDocencia.set(inicialI?.puntajeTotal ?? 0);
       }
     });
   }
@@ -218,6 +236,15 @@ export class RubrosPanel {
     this.cargarRubroH(fichaId);
   }
 
+  protected onRubroIAbierto(): void {
+    const fichaId = this.fichaId();
+    if (!fichaId || this.rubroICargadoParaFichaId === fichaId || this.cargandoRubroI()) {
+      return;
+    }
+
+    this.cargarRubroI(fichaId);
+  }
+
   protected onPuntajeAntiguedad(puntaje: number): void {
     this.puntajeAntiguedad.set(puntaje);
   }
@@ -242,6 +269,10 @@ export class RubrosPanel {
     this.puntajeDistincion.set(puntaje);
   }
 
+  protected onPuntajeDocencia(puntaje: number): void {
+    this.puntajeDocencia.set(puntaje);
+  }
+
   protected onFichaActualizada(ficha: FichaValoracion): void {
     this.puntajeAntiguedad.set(ficha.rubroAntiguedad?.titularidad.puntaje ?? 0);
     this.puntajeGradosTitulos.set(ficha.rubroGradosTitulos?.puntajeTotal ?? 0);
@@ -249,6 +280,7 @@ export class RubrosPanel {
     this.puntajeIdioma.set(ficha.rubroIdioma?.puntajeTotal ?? 0);
     this.puntajePublicacionJuridica.set(ficha.rubroPublicacionJuridica?.puntajeTotal ?? 0);
     this.puntajeDistincion.set(ficha.rubroDistincion?.puntajeTotal ?? 0);
+    this.puntajeDocencia.set(ficha.rubroDocencia?.puntajeTotal ?? 0);
     this.fichaActualizada.emit(ficha);
   }
 
@@ -286,6 +318,9 @@ export class RubrosPanel {
       case 'H':
         this.onRubroHAbierto();
         break;
+      case 'I':
+        this.onRubroIAbierto();
+        break;
     }
   }
 
@@ -305,6 +340,8 @@ export class RubrosPanel {
         return this.puntajePublicacionJuridica();
       case 'H':
         return this.puntajeDistincion();
+      case 'I':
+        return this.puntajeDocencia();
       default:
         return 0;
     }
@@ -349,6 +386,8 @@ export class RubrosPanel {
         return this.cargandoRubroG();
       case 'H':
         return this.cargandoRubroH();
+      case 'I':
+        return this.cargandoRubroI();
       default:
         return false;
     }
@@ -368,6 +407,8 @@ export class RubrosPanel {
         return 'Cargando publicaciones jurídicas registradas…';
       case 'H':
         return 'Cargando distinciones registradas…';
+      case 'I':
+        return 'Cargando docencia registrada…';
       default:
         return 'Cargando…';
     }
@@ -538,6 +579,34 @@ export class RubrosPanel {
         this.rubroDistincionLocal.set(resultado.rubro);
         this.puntajeDistincion.set(resultado.rubro.puntajeTotal);
         this.rubroDistincionCargado.emit(resultado.rubro);
+      });
+  }
+
+  private cargarRubroI(fichaId: string): void {
+    this.cargandoRubroI.set(true);
+
+    this.obtenerRubroDocencia
+      .ejecutar(fichaId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargandoRubroI.set(false))
+      )
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo cargar el rubro I', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
+          });
+          return;
+        }
+
+        this.rubroICargadoParaFichaId = fichaId;
+        this.rubroDocenciaLocal.set(resultado.rubro);
+        this.puntajeDocencia.set(resultado.rubro.puntajeTotal);
+        this.rubroDocenciaCargado.emit(resultado.rubro);
       });
   }
 }

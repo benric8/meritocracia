@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { ErrorNegocioApi } from '../../../domain/errors/error-negocio-api';
 import {
@@ -12,6 +12,7 @@ import {
   crearRubroIdiomaVacio,
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
+  crearRubroDocenciaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -33,6 +34,11 @@ import {
   Distincion,
   RubroDistincion,
 } from '../../../domain/models/rubro-distincion.model';
+import {
+  DocenciaUniversitaria,
+  RubroDocencia,
+  TOPE_PUNTAJE_RUBRO_DOCENCIA,
+} from '../../../domain/models/rubro-docencia.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -73,6 +79,11 @@ import {
   GuardarDistincionResponse,
   ObtenerDistincionesResponse,
 } from '../../dto/remote/FichaDistincionResponse.dto';
+import {
+  EliminarDocenciaResponse,
+  GuardarDocenciaResponse,
+  ObtenerDocenciasResponse,
+} from '../../dto/remote/FichaDocenciaResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -124,6 +135,14 @@ import {
   toRubroDistincionDesdeDetalle,
 } from '../../mappers/ficha-distincion.mapper';
 import {
+  aplicarDocenciaEnFicha,
+  eliminarDocenciaEnFicha,
+  reemplazarDocenciasEnFicha,
+  toGuardarDocenciaRequestDto,
+  toRubroDocenciaDesdeDetalle,
+} from '../../mappers/ficha-docencia.mapper';
+import {
+  puntajeSubtotalPorCodigo,
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
   toFichaValoracionDesdeDetalle,
@@ -255,7 +274,10 @@ export class FichaHttpAdapter implements FichaPort {
             });
           }
           const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
-          return this.fusionarConMemoria(ficha);
+          return this.aplicarSubtotalDocencia(
+            this.fusionarConMemoria(ficha),
+            respuesta.data.rubros
+          );
         }),
         mapearAErrorNegocioApi('No se pudo obtener la ficha.')
       );
@@ -1294,6 +1316,145 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroDocencia(fichaId: string): Observable<RubroDocencia> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerDocenciasResponse>(`${this.baseUrl}${fichaEndpoints.DOCENCIA}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const lineas = toRubroDocenciaDesdeDetalle(respuesta.data);
+          const puntajePrevio = this.fichasEnMemoria.get(id)?.rubroDocencia?.puntajeTotal ?? 0;
+          const rubro: RubroDocencia = {
+            items: lineas.items,
+            puntajeTotal: puntajePrevio,
+          };
+          this.actualizarRubroDocenciaEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de docencia.')
+      );
+  }
+
+  upsertDocencia(fichaId: string, item: DocenciaUniversitaria): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    try {
+      body = toGuardarDocenciaRequestDto(
+        fichaId,
+        item,
+        this.obtenerIdRubroDocencia(),
+        !esActualizacion
+      );
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.docenciaPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.DOCENCIA}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarDocenciaResponse>(url, body)
+      : this.http.post<GuardarDocenciaResponse>(url, body);
+
+    return request$.pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió la docencia actualizada.'
+              : 'El servidor no devolvió la docencia guardada.',
+          });
+        }
+        this.guardarEnMemoria(aplicarDocenciaEnFicha(ficha, item, respuesta.data));
+        return this.refrescarFichaTrasDocencia(fichaId);
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar la docencia.'
+          : 'No se pudo guardar la docencia.'
+      )
+    );
+  }
+
+  eliminarDocencia(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de docencia no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroDocencia();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.docenciaPorId(idItem)}`;
+
+    return this.http.delete<EliminarDocenciaResponse>(url, { params }).pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        const actualizada = respuesta.data?.length
+          ? reemplazarDocenciasEnFicha(ficha, respuesta.data)
+          : eliminarDocenciaEnFicha(ficha, idItem);
+        this.guardarEnMemoria(actualizada);
+        return this.refrescarFichaTrasDocencia(fichaId);
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar la docencia.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -1344,6 +1505,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroIdioma: crearRubroIdiomaVacio(),
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
       rubroDistincion: crearRubroDistincionVacio(),
+      rubroDocencia: crearRubroDocenciaVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -1369,13 +1531,15 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroIdiomaPrevio = previa?.rubroIdioma;
     const rubroPublicacionPrevio = previa?.rubroPublicacionJuridica;
     const rubroDistincionPrevio = previa?.rubroDistincion;
+    const rubroDocenciaPrevio = previa?.rubroDocencia;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
       (rubroAmagPrevio?.items.length ?? 0) > 0 ||
       (rubroIdiomaPrevio?.items.length ?? 0) > 0 ||
       (rubroPublicacionPrevio?.items.length ?? 0) > 0 ||
-      (rubroDistincionPrevio?.items.length ?? 0) > 0
+      (rubroDistincionPrevio?.items.length ?? 0) > 0 ||
+      (rubroDocenciaPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
@@ -1386,6 +1550,10 @@ export class FichaHttpAdapter implements FichaPort {
         rubroPublicacionJuridica:
           rubroPublicacionPrevio ?? fichaApi.rubroPublicacionJuridica,
         rubroDistincion: rubroDistincionPrevio ?? fichaApi.rubroDistincion,
+        rubroDocencia:
+          rubroDocenciaPrevio && rubroDocenciaPrevio.items.length > 0
+            ? rubroDocenciaPrevio
+            : fichaApi.rubroDocencia,
       });
     }
 
@@ -1591,6 +1759,85 @@ export class FichaHttpAdapter implements FichaPort {
       });
     }
     return rubro.idRubro;
+  }
+
+  private obtenerIdRubroDocencia(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'I');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro I en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  /**
+   * El listado de docencia no trae el subtotal topado. Tras guardar o eliminar
+   * se vuelve a leer la ficha para refrescar ese subtotal y el total.
+   */
+  private refrescarFichaTrasDocencia(fichaId: string): Observable<FichaValoracion> {
+    return this.obtenerPorId(fichaId).pipe(
+      catchError(() => of(this.conTopeLocalDocencia(fichaId)))
+    );
+  }
+
+  private aplicarSubtotalDocencia(
+    ficha: FichaValoracion,
+    rubros: ObtenerFichaResponse['data']['rubros']
+  ): FichaValoracion {
+    const puntaje = puntajeSubtotalPorCodigo(rubros, 'I');
+    if (puntaje == null) {
+      return ficha;
+    }
+
+    const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroDocencia: {
+        ...rubro,
+        puntajeTotal: puntaje,
+      },
+    });
+  }
+
+  private conTopeLocalDocencia(fichaId: string): FichaValoracion {
+    const actual = this.fichasEnMemoria.get(fichaId.trim());
+    if (!actual) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
+      });
+    }
+
+    const rubro = actual.rubroDocencia ?? crearRubroDocenciaVacio();
+    const suma = rubro.items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return this.guardarEnMemoria({
+      ...actual,
+      rubroDocencia: {
+        ...rubro,
+        puntajeTotal: Math.min(TOPE_PUNTAJE_RUBRO_DOCENCIA, suma),
+      },
+    });
+  }
+
+  private actualizarRubroDocenciaEnMemoria(fichaId: string, rubro: RubroDocencia): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroDocencia: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroDocencia: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
   }
 
   private asegurarTokenOpciones(): void {

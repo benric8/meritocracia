@@ -6,6 +6,7 @@ import {
   crearRubroIdiomaVacio,
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
+  crearRubroDocenciaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
@@ -155,6 +156,7 @@ export function toFichaValoracionDesdeCreacion(
     rubroIdioma: crearRubroIdiomaVacio(),
     rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
     rubroDistincion: crearRubroDistincionVacio(),
+    rubroDocencia: crearRubroDocenciaVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -190,6 +192,22 @@ export function resolverUrlFotoFicha(valor: string | null | undefined): string {
   }
 
   return normalizarFotoSiga(foto);
+}
+
+/** Subtotal de un rubro en GET /fichas/{id}. `null` si el código no viene en `rubros`. */
+export function puntajeSubtotalPorCodigo(
+  rubros: ObtenerFichaDataDto['rubros'] | null | undefined,
+  codigo: string
+): number | null {
+  const buscado = codigo.trim().toUpperCase();
+  const encontrado = (rubros ?? []).find(
+    (item) => String(item.codigo ?? '').trim().toUpperCase() === buscado
+  );
+  if (!encontrado) {
+    return null;
+  }
+  const puntaje = Number(encontrado.puntajeSubtotal);
+  return Number.isFinite(puntaje) ? puntaje : null;
 }
 
 export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaValoracion {
@@ -229,6 +247,10 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     rubroIdioma: crearRubroIdiomaVacio(),
     rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
     rubroDistincion: crearRubroDistincionVacio(),
+    rubroDocencia: {
+      items: [],
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'I') ?? 0,
+    },
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,

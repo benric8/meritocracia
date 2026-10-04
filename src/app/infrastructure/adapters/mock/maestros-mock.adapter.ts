@@ -155,6 +155,21 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
+  buscarInstitucionesUniversitarias(termino: string): Observable<CatalogoItem[]> {
+    const texto = termino.trim().toLowerCase();
+    if (texto.length < 2) {
+      return of([]);
+    }
+
+    return of(
+      [
+        { id: '1', nombre: 'Universidad de Lima' },
+        { id: '2', nombre: 'Pontificia Universidad Católica del Perú' },
+        { id: '3', nombre: 'Universidad Nacional Mayor de San Marcos' },
+      ].filter((item) => item.nombre.toLowerCase().includes(texto))
+    ).pipe(delay(LATENCIA_MS));
+  }
+
   buscarInstitucionesIdioma(termino: string): Observable<CatalogoItem[]> {
     const texto = termino.trim().toLowerCase();
     if (texto.length < 2) {

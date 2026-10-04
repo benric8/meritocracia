@@ -10,6 +10,7 @@ import {
   crearRubroIdiomaVacio,
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
+  crearRubroDocenciaVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -34,6 +35,11 @@ import {
   RubroPublicacionJuridica,
 } from '../../../domain/models/rubro-publicacion-juridica.model';
 import { Distincion, RubroDistincion } from '../../../domain/models/rubro-distincion.model';
+import {
+  DocenciaUniversitaria,
+  RubroDocencia,
+  TOPE_PUNTAJE_RUBRO_DOCENCIA,
+} from '../../../domain/models/rubro-docencia.model';
 import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
 import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -148,6 +154,7 @@ export class FichaMockAdapter implements FichaPort {
       rubroIdioma: crearRubroIdiomaVacio(),
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
       rubroDistincion: crearRubroDistincionVacio(),
+      rubroDocencia: crearRubroDocenciaVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -582,6 +589,60 @@ export class FichaMockAdapter implements FichaPort {
     });
   }
 
+  obtenerRubroDocencia(fichaId: string): Observable<RubroDocencia> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroDocencia ?? crearRubroDocenciaVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  upsertDocencia(fichaId: string, item: DocenciaUniversitaria): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
+      const guardado: DocenciaUniversitaria = {
+        ...item,
+        id: item.id || `doc-${Date.now()}`,
+        puntaje: this.puntajeLineaDocencia(item),
+      };
+      const idx = rubro.items.findIndex((actual) => actual.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((actual, i) => (i === idx ? guardado : actual))
+          : [...rubro.items, guardado];
+      return {
+        ...ficha,
+        rubroDocencia: { items, puntajeTotal: this.puntajeRubroDocencia(items) },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarDocencia(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      return {
+        ...ficha,
+        rubroDocencia: { items, puntajeTotal: this.puntajeRubroDocencia(items) },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  private puntajeLineaDocencia(item: DocenciaUniversitaria): number {
+    const horas = Number(item.horasSemanales);
+    if (!Number.isInteger(horas) || horas <= 0) {
+      return 0;
+    }
+    return Math.round(horas * 375) / 1000;
+  }
+
+  private puntajeRubroDocencia(items: DocenciaUniversitaria[]): number {
+    const suma = items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return Math.min(TOPE_PUNTAJE_RUBRO_DOCENCIA, Math.round(suma * 1000) / 1000);
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -703,6 +764,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroPublicacionJuridica:
           f.rubroPublicacionJuridica ?? crearRubroPublicacionJuridicaVacio(),
         rubroDistincion: f.rubroDistincion ?? crearRubroDistincionVacio(),
+        rubroDocencia: f.rubroDocencia ?? crearRubroDocenciaVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -739,6 +801,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroIdioma: crearRubroIdiomaVacio(),
         rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
         rubroDistincion: crearRubroDistincionVacio(),
+        rubroDocencia: crearRubroDocenciaVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

@@ -35,4 +35,7 @@ export const fichaEndpoints = {
   DISTINCIONES: 'fichas-distinciones',
   distincionPorId: (idDistincion: string | number) =>
     `fichas-distinciones/${encodeURIComponent(String(idDistincion).trim())}`,
+  DOCENCIA: 'fichas-docencia',
+  docenciaPorId: (idDocencia: string | number) =>
+    `fichas-docencia/${encodeURIComponent(String(idDocencia).trim())}`,
 } as const;
