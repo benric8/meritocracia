@@ -13,6 +13,7 @@ import {
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
   crearRubroDocenciaVacio,
+  crearRubroDemeritoVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -39,6 +40,7 @@ import {
   RubroDocencia,
   TOPE_PUNTAJE_RUBRO_DOCENCIA,
 } from '../../../domain/models/rubro-docencia.model';
+import { Demerito, RubroDemerito } from '../../../domain/models/rubro-demerito.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -84,6 +86,11 @@ import {
   GuardarDocenciaResponse,
   ObtenerDocenciasResponse,
 } from '../../dto/remote/FichaDocenciaResponse.dto';
+import {
+  EliminarDemeritoResponse,
+  GuardarDemeritoResponse,
+  ObtenerDemeritosResponse,
+} from '../../dto/remote/FichaDemeritoResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -141,6 +148,13 @@ import {
   toGuardarDocenciaRequestDto,
   toRubroDocenciaDesdeDetalle,
 } from '../../mappers/ficha-docencia.mapper';
+import {
+  aplicarDemeritoEnFicha,
+  eliminarDemeritoEnFicha,
+  reemplazarDemeritosEnFicha,
+  toGuardarDemeritoRequestDto,
+  toRubroDemeritoDesdeDetalle,
+} from '../../mappers/ficha-demerito.mapper';
 import {
   puntajeSubtotalPorCodigo,
   toCrearFichaRequestDto,
@@ -274,8 +288,9 @@ export class FichaHttpAdapter implements FichaPort {
             });
           }
           const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
-          return this.aplicarSubtotalDocencia(
-            this.fusionarConMemoria(ficha),
+          const fusionada = this.fusionarConMemoria(ficha);
+          return this.aplicarSubtotalDemerito(
+            this.aplicarSubtotalDocencia(fusionada, respuesta.data.rubros),
             respuesta.data.rubros
           );
         }),
@@ -1455,6 +1470,143 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroDemerito(fichaId: string): Observable<RubroDemerito> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerDemeritosResponse>(`${this.baseUrl}${fichaEndpoints.DEMERITOS}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const lineas = toRubroDemeritoDesdeDetalle(respuesta.data);
+          const puntajePrevio = this.fichasEnMemoria.get(id)?.rubroDemerito?.puntajeTotal ?? 0;
+          const rubro: RubroDemerito = {
+            items: lineas.items,
+            puntajeTotal: puntajePrevio,
+          };
+          this.actualizarRubroDemeritoEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el rubro de deméritos.')
+      );
+  }
+
+  upsertDemerito(fichaId: string, item: Demerito): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    try {
+      body = toGuardarDemeritoRequestDto(
+        fichaId,
+        item,
+        this.obtenerIdRubroDemerito(),
+        !esActualizacion
+      );
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.demeritoPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.DEMERITOS}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarDemeritoResponse>(url, body)
+      : this.http.post<GuardarDemeritoResponse>(url, body);
+
+    return request$.pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió el demérito actualizado.'
+              : 'El servidor no devolvió el demérito guardado.',
+          });
+        }
+        this.guardarEnMemoria(aplicarDemeritoEnFicha(ficha, item, respuesta.data));
+        return this.refrescarFichaTrasDemerito(fichaId);
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion ? 'No se pudo actualizar el demérito.' : 'No se pudo guardar el demérito.'
+      )
+    );
+  }
+
+  eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de demérito no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroDemerito();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.demeritoPorId(idItem)}`;
+
+    return this.http.delete<EliminarDemeritoResponse>(url, { params }).pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        const actualizada = respuesta.data?.length
+          ? reemplazarDemeritosEnFicha(ficha, respuesta.data)
+          : eliminarDemeritoEnFicha(ficha, idItem);
+        this.guardarEnMemoria(actualizada);
+        return this.refrescarFichaTrasDemerito(fichaId);
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar el demérito.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -1506,6 +1658,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
       rubroDistincion: crearRubroDistincionVacio(),
       rubroDocencia: crearRubroDocenciaVacio(),
+      rubroDemerito: crearRubroDemeritoVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -1532,6 +1685,7 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroPublicacionPrevio = previa?.rubroPublicacionJuridica;
     const rubroDistincionPrevio = previa?.rubroDistincion;
     const rubroDocenciaPrevio = previa?.rubroDocencia;
+    const rubroDemeritoPrevio = previa?.rubroDemerito;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
@@ -1539,7 +1693,8 @@ export class FichaHttpAdapter implements FichaPort {
       (rubroIdiomaPrevio?.items.length ?? 0) > 0 ||
       (rubroPublicacionPrevio?.items.length ?? 0) > 0 ||
       (rubroDistincionPrevio?.items.length ?? 0) > 0 ||
-      (rubroDocenciaPrevio?.items.length ?? 0) > 0
+      (rubroDocenciaPrevio?.items.length ?? 0) > 0 ||
+      (rubroDemeritoPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
@@ -1554,6 +1709,10 @@ export class FichaHttpAdapter implements FichaPort {
           rubroDocenciaPrevio && rubroDocenciaPrevio.items.length > 0
             ? rubroDocenciaPrevio
             : fichaApi.rubroDocencia,
+        rubroDemerito:
+          rubroDemeritoPrevio && rubroDemeritoPrevio.items.length > 0
+            ? rubroDemeritoPrevio
+            : fichaApi.rubroDemerito,
       });
     }
 
@@ -1769,6 +1928,85 @@ export class FichaHttpAdapter implements FichaPort {
       });
     }
     return rubro.idRubro;
+  }
+
+  private obtenerIdRubroDemerito(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'J');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro J en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
+  /**
+   * El listado de deméritos no trae el subtotal. Tras guardar o eliminar
+   * se vuelve a leer la ficha para refrescar esa suma y el total.
+   */
+  private refrescarFichaTrasDemerito(fichaId: string): Observable<FichaValoracion> {
+    return this.obtenerPorId(fichaId).pipe(
+      catchError(() => of(this.conSumaLocalDemerito(fichaId)))
+    );
+  }
+
+  private aplicarSubtotalDemerito(
+    ficha: FichaValoracion,
+    rubros: ObtenerFichaResponse['data']['rubros']
+  ): FichaValoracion {
+    const puntaje = puntajeSubtotalPorCodigo(rubros, 'J');
+    if (puntaje == null) {
+      return ficha;
+    }
+
+    const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroDemerito: {
+        ...rubro,
+        puntajeTotal: puntaje,
+      },
+    });
+  }
+
+  private conSumaLocalDemerito(fichaId: string): FichaValoracion {
+    const actual = this.fichasEnMemoria.get(fichaId.trim());
+    if (!actual) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
+      });
+    }
+
+    const rubro = actual.rubroDemerito ?? crearRubroDemeritoVacio();
+    const suma = rubro.items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return this.guardarEnMemoria({
+      ...actual,
+      rubroDemerito: {
+        ...rubro,
+        puntajeTotal: suma,
+      },
+    });
+  }
+
+  private actualizarRubroDemeritoEnMemoria(fichaId: string, rubro: RubroDemerito): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroDemerito: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroDemerito: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
   }
 
   /**

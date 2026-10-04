@@ -21,6 +21,7 @@ import {
 } from '../models/rubro-publicacion-juridica.model';
 import { Distincion, RubroDistincion } from '../models/rubro-distincion.model';
 import { DocenciaUniversitaria, RubroDocencia } from '../models/rubro-docencia.model';
+import { Demerito, RubroDemerito } from '../models/rubro-demerito.model';
 import { GradoTitulo, RubroGradosTitulos } from '../models/rubro-grados-titulos.model';
 
 /**
@@ -98,6 +99,12 @@ export interface FichaPort {
   upsertDocencia(fichaId: string, item: DocenciaUniversitaria): Observable<FichaValoracion>;
 
   eliminarDocencia(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroDemerito(fichaId: string): Observable<RubroDemerito>;
+
+  upsertDemerito(fichaId: string, item: Demerito): Observable<FichaValoracion>;
+
+  eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion>;
 }
 
 export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

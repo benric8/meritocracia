@@ -1,0 +1,95 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Deméritos</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        El puntaje lo calcula el servidor: cantidad × tasa de la medida. El año de valoración lo
+        toma de la fecha de valoración de la ficha. No hay tope: la suma resta del total de la
+        ficha.
+      </p>
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de medida</mat-label>
+          <mat-select formControlName="tipoMedida" placeholder="Seleccione…">
+            @for (item of opcionesMedida; track item.valor) {
+              <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.tipoMedida.touched && formulario.controls.tipoMedida.invalid) {
+            <mat-error>Seleccione el tipo de medida.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" min="1" step="1" formControlName="cantidad" />
+          @if (formulario.controls.cantidad.touched && formulario.controls.cantidad.invalid) {
+            <mat-error>Ingrese un entero mayor que 0.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (puntajeReferencia(); as referencia) {
+          <p class="rubro-dialog__hint rubro-dialog__campo--wide">
+            Puntaje de referencia: {{ referencia }}
+          </p>
+        }
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="descripcionDocumento" placeholder="Seleccione…">
+            @for (item of tiposDocumento; track item.valor) {
+              <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.descripcionDocumento.touched &&
+            formulario.controls.descripcionDocumento.invalid
+          ) {
+            <mat-error>Seleccione el tipo de documento.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Observación</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            formControlName="observacion"
+            [maxlength]="limiteObservacion"
+          ></textarea>
+          @if (formulario.controls.observacion.touched && formulario.controls.observacion.invalid) {
+            <mat-error>
+              @if (formulario.controls.observacion.hasError('required')) {
+                Ingrese la observación.
+              } @else {
+                Máximo {{ limiteObservacion }} caracteres.
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

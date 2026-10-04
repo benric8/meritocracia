@@ -19,6 +19,7 @@ import { EstudioIdioma } from '../../../domain/models/rubro-idioma.model';
 import { PublicacionJuridica } from '../../../domain/models/rubro-publicacion-juridica.model';
 import { Distincion } from '../../../domain/models/rubro-distincion.model';
 import { DocenciaUniversitaria } from '../../../domain/models/rubro-docencia.model';
+import { Demerito } from '../../../domain/models/rubro-demerito.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
 
@@ -151,5 +152,17 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   eliminarDocencia(fichaId: string, itemId: string): Observable<FichaValoracion> {
     return this.http.eliminarDocencia(fichaId, itemId);
+  }
+
+  obtenerRubroDemerito(fichaId: string) {
+    return this.http.obtenerRubroDemerito(fichaId);
+  }
+
+  upsertDemerito(fichaId: string, item: Demerito): Observable<FichaValoracion> {
+    return this.http.upsertDemerito(fichaId, item);
+  }
+
+  eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.http.eliminarDemerito(fichaId, itemId);
   }
 }

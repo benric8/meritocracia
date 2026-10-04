@@ -7,6 +7,7 @@ import {
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
   crearRubroDocenciaVacio,
+  crearRubroDemeritoVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
@@ -157,6 +158,7 @@ export function toFichaValoracionDesdeCreacion(
     rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
     rubroDistincion: crearRubroDistincionVacio(),
     rubroDocencia: crearRubroDocenciaVacio(),
+    rubroDemerito: crearRubroDemeritoVacio(),
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -250,6 +252,10 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     rubroDocencia: {
       items: [],
       puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'I') ?? 0,
+    },
+    rubroDemerito: {
+      items: [],
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'J') ?? 0,
     },
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,

@@ -37,6 +37,7 @@ import { RubroIdioma } from '../../../../domain/models/rubro-idioma.model';
 import { RubroPublicacionJuridica } from '../../../../domain/models/rubro-publicacion-juridica.model';
 import { RubroDistincion } from '../../../../domain/models/rubro-distincion.model';
 import { RubroDocencia } from '../../../../domain/models/rubro-docencia.model';
+import { RubroDemerito } from '../../../../domain/models/rubro-demerito.model';
 import { NivelTitular } from '../../../../domain/models/nivel-titular.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
 import {
@@ -117,6 +118,7 @@ export class Registro implements OnInit {
   protected readonly rubroPublicacionJuridica = signal<RubroPublicacionJuridica | null>(null);
   protected readonly rubroDistincion = signal<RubroDistincion | null>(null);
   protected readonly rubroDocencia = signal<RubroDocencia | null>(null);
+  protected readonly rubroDemerito = signal<RubroDemerito | null>(null);
   protected readonly errorCarga = signal<string | null>(null);
   protected readonly rubrosMaestro = this.rubrosMaestroStore.rubros;
   protected readonly cargandoRubrosMaestro = this.rubrosMaestroStore.cargando;
@@ -599,6 +601,7 @@ export class Registro implements OnInit {
     this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.rubroDistincion.set(ficha.rubroDistincion);
     this.rubroDocencia.set(ficha.rubroDocencia);
+    this.rubroDemerito.set(ficha.rubroDemerito);
     this.rubrosDesbloqueados.set(true);
     this.fichaSoloLectura.set(soloLectura);
 
@@ -644,6 +647,7 @@ export class Registro implements OnInit {
     this.rubroPublicacionJuridica.set(ficha.rubroPublicacionJuridica);
     this.rubroDistincion.set(ficha.rubroDistincion);
     this.rubroDocencia.set(ficha.rubroDocencia);
+    this.rubroDemerito.set(ficha.rubroDemerito);
     this.fichaEstado.set(ficha.estado);
   }
 
@@ -676,6 +680,10 @@ export class Registro implements OnInit {
     this.rubroDocencia.set(rubro);
   }
 
+  protected onRubroDemeritoCargado(rubro: RubroDemerito): void {
+    this.rubroDemerito.set(rubro);
+  }
+
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
   private sincronizarResolucionConDni(dni: string): void {
     const resuelto = this.dniResuelto();
@@ -705,6 +713,7 @@ export class Registro implements OnInit {
     this.rubroPublicacionJuridica.set(null);
     this.rubroDistincion.set(null);
     this.rubroDocencia.set(null);
+    this.rubroDemerito.set(null);
     this.edad.set('');
     if (limpiarIdentidad) {
       this.limpiarIdentidad();

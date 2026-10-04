@@ -19,7 +19,10 @@
               <span class="rubros-panel__letter">{{ rubro.codigo }}</span>
               {{ rubro.nombre }}
             </mat-panel-title>
-            <mat-panel-description class="rubros-panel__item-score">
+            <mat-panel-description
+              class="rubros-panel__item-score"
+              [class.rubros-panel__item-score--negativo]="puntajeRubro(rubro.codigo) < 0"
+            >
               {{ formatearPuntaje(puntajeRubro(rubro.codigo)) }}
             </mat-panel-description>
           </mat-expansion-panel-header>
@@ -110,6 +113,16 @@
                   [rubroInicial]="rubroDocenciaLocal()"
                   [cargandoDetalle]="cargandoRubroI()"
                   (puntajeChange)="onPuntajeDocencia($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('J') {
+                <app-rubro-demerito
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDemeritoLocal()"
+                  [cargandoDetalle]="cargandoRubroJ()"
+                  (puntajeChange)="onPuntajeDemerito($event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }

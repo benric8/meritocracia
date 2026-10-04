@@ -1,0 +1,86 @@
+<section class="rubro-demerito" aria-label="Deméritos">
+  @if (cargandoDetalle()) {
+    <div class="rubro-demerito__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>Cargando deméritos registrados…</span>
+    </div>
+  } @else {
+    <div class="rubro-demerito__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-demerito__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir demérito
+        </button>
+      }
+    </div>
+
+    <div class="rubro-demerito__records">
+      <table class="rubro-demerito__table">
+        <thead>
+          <tr>
+            <th>Medida</th>
+            <th>Cantidad</th>
+            <th>Documento</th>
+            <th>Año</th>
+            <th>Observación</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="7" class="rubro-demerito__empty">
+                Sin registros. Use "Añadir demérito" para agregar un demérito.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ etiquetaMedida(item.tipoMedida) }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ etiquetaDocumento(item.descripcionDocumento) }}</td>
+                <td>{{ item.anioValoracion }}</td>
+                <td>{{ item.observacion }}</td>
+                <td>
+                  <strong [class.rubro-demerito__puntaje--negativo]="item.puntaje < 0">
+                    {{ formatearPuntaje(item.puntaje) }}
+                  </strong>
+                </td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-demerito__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar demérito"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar demérito"
+                        (click)="eliminarDemerito(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

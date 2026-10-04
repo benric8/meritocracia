@@ -11,6 +11,7 @@ import {
   crearRubroPublicacionJuridicaVacio,
   crearRubroDistincionVacio,
   crearRubroDocenciaVacio,
+  crearRubroDemeritoVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -40,6 +41,11 @@ import {
   RubroDocencia,
   TOPE_PUNTAJE_RUBRO_DOCENCIA,
 } from '../../../domain/models/rubro-docencia.model';
+import {
+  Demerito,
+  RubroDemerito,
+  TipoMedidaDemerito,
+} from '../../../domain/models/rubro-demerito.model';
 import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
 import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -155,6 +161,7 @@ export class FichaMockAdapter implements FichaPort {
       rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
       rubroDistincion: crearRubroDistincionVacio(),
       rubroDocencia: crearRubroDocenciaVacio(),
+      rubroDemerito: crearRubroDemeritoVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -643,6 +650,74 @@ export class FichaMockAdapter implements FichaPort {
     return Math.min(TOPE_PUNTAJE_RUBRO_DOCENCIA, Math.round(suma * 1000) / 1000);
   }
 
+  obtenerRubroDemerito(fichaId: string): Observable<RubroDemerito> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroDemerito ?? crearRubroDemeritoVacio()).pipe(delay(LATENCIA_MS));
+  }
+
+  upsertDemerito(fichaId: string, item: Demerito): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
+      const anioFicha = Number(String(ficha.fechaValoracionSnapshot ?? '').slice(0, 4));
+      const conAnio: Demerito = {
+        ...item,
+        anioValoracion: Number.isInteger(anioFicha) && anioFicha > 0 ? anioFicha : item.anioValoracion,
+      };
+      const guardado: Demerito = {
+        ...conAnio,
+        id: item.id || `dem-${Date.now()}`,
+        puntaje: this.puntajeLineaDemerito(conAnio, ficha.fechaValoracionSnapshot),
+      };
+      const idx = rubro.items.findIndex((actual) => actual.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((actual, i) => (i === idx ? guardado : actual))
+          : [...rubro.items, guardado];
+      return {
+        ...ficha,
+        rubroDemerito: { items, puntajeTotal: this.puntajeRubroDemerito(items) },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      return {
+        ...ficha,
+        rubroDemerito: { items, puntajeTotal: this.puntajeRubroDemerito(items) },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  private puntajeLineaDemerito(item: Demerito, fechaValoracion: string): number {
+    const anioFicha = Number(String(fechaValoracion ?? '').slice(0, 4));
+    if (!Number.isInteger(anioFicha) || item.anioValoracion !== anioFicha) {
+      return 0;
+    }
+    const tasas: Record<TipoMedidaDemerito, number> = {
+      AMONESTACION: -0.5,
+      MULTA: -1,
+      SUSPENSION: -2,
+    };
+    const cantidad = Number(item.cantidad);
+    if (!Number.isInteger(cantidad) || cantidad <= 0) {
+      return 0;
+    }
+    return Math.round(cantidad * tasas[item.tipoMedida] * 1000) / 1000;
+  }
+
+  private puntajeRubroDemerito(items: Demerito[]): number {
+    const suma = items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return Math.round(suma * 1000) / 1000;
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -765,6 +840,7 @@ export class FichaMockAdapter implements FichaPort {
           f.rubroPublicacionJuridica ?? crearRubroPublicacionJuridicaVacio(),
         rubroDistincion: f.rubroDistincion ?? crearRubroDistincionVacio(),
         rubroDocencia: f.rubroDocencia ?? crearRubroDocenciaVacio(),
+        rubroDemerito: f.rubroDemerito ?? crearRubroDemeritoVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -802,6 +878,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
         rubroDistincion: crearRubroDistincionVacio(),
         rubroDocencia: crearRubroDocenciaVacio(),
+        rubroDemerito: crearRubroDemeritoVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

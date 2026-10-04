@@ -366,6 +366,15 @@ export class MaestrosMockAdapter implements MaestrosPort {
         tieneDetalle: false,
         tieneSubrubros: false,
       },
+      {
+        idRubro: 11,
+        codigo: 'J',
+        nombre: 'Deméritos',
+        orden: 10,
+        puntajeMaximo: null,
+        tieneDetalle: false,
+        tieneSubrubros: false,
+      },
     ];
   }
 

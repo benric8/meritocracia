@@ -84,6 +84,10 @@
   color: var(--mc-primary);
 }
 
+.rubros-panel__item-score--negativo {
+  color: #b42318;
+}
+
 ::ng-deep .rubros-panel__item .mat-expansion-panel-body {
   padding: 8px 18px 18px;
 }
