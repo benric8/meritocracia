@@ -37,7 +37,14 @@
           @if (rubro.tieneSubrubros) {
             <app-rubro-subrubros-panel
               [idRubro]="rubro.idRubro"
+              [codigoRubro]="rubro.codigo"
+              [fichaId]="fichaId()"
               [soloLectura]="soloLectura()"
+              [rubroEstudiosPosgrado]="rubroEstudiosPosgradoLocal()"
+              [cargandoEstudiosPosgrado]="cargandoRubroE()"
+              [puntajeEstudiosPosgrado]="puntajeEstudiosPosgrado()"
+              (puntajeEstudiosPosgradoChange)="onPuntajeEstudiosPosgrado($event)"
+              (fichaActualizada)="onFichaActualizada($event)"
             />
           } @else {
             @switch (rubro.codigo) {

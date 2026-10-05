@@ -20,6 +20,7 @@ import { PublicacionJuridica } from '../../../domain/models/rubro-publicacion-ju
 import { Distincion } from '../../../domain/models/rubro-distincion.model';
 import { DocenciaUniversitaria } from '../../../domain/models/rubro-docencia.model';
 import { Demerito } from '../../../domain/models/rubro-demerito.model';
+import { EstudioPosgrado } from '../../../domain/models/rubro-estudios-posgrado.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { FichaHttpAdapter } from '../http/ficha-http.adapter';
 
@@ -164,5 +165,20 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion> {
     return this.http.eliminarDemerito(fichaId, itemId);
+  }
+
+  obtenerRubroEstudiosPosgrado(fichaId: string) {
+    return this.http.obtenerRubroEstudiosPosgrado(fichaId);
+  }
+
+  upsertEstudioPosgrado(
+    fichaId: string,
+    item: EstudioPosgrado
+  ): Observable<FichaValoracion> {
+    return this.http.upsertEstudioPosgrado(fichaId, item);
+  }
+
+  eliminarEstudioPosgrado(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.http.eliminarEstudioPosgrado(fichaId, itemId);
   }
 }

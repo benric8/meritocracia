@@ -41,4 +41,7 @@ export const fichaEndpoints = {
   DEMERITOS: 'fichas-demeritos',
   demeritoPorId: (idDemerito: string | number) =>
     `fichas-demeritos/${encodeURIComponent(String(idDemerito).trim())}`,
+  ESTUDIOS_POSGRADO: 'fichas-estudios-posgrado',
+  estudioPosgradoPorId: (idEstudioPosgrado: string | number) =>
+    `fichas-estudios-posgrado/${encodeURIComponent(String(idEstudioPosgrado).trim())}`,
 } as const;

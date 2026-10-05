@@ -14,6 +14,7 @@ import {
   crearRubroDistincionVacio,
   crearRubroDocenciaVacio,
   crearRubroDemeritoVacio,
+  crearRubroEstudiosPosgradoVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -41,6 +42,11 @@ import {
   TOPE_PUNTAJE_RUBRO_DOCENCIA,
 } from '../../../domain/models/rubro-docencia.model';
 import { Demerito, RubroDemerito } from '../../../domain/models/rubro-demerito.model';
+import {
+  EstudioPosgrado,
+  RubroEstudiosPosgrado,
+  TOPE_PUNTAJE_ESTUDIOS_POSGRADO,
+} from '../../../domain/models/rubro-estudios-posgrado.model';
 import { FichaPort } from '../../../domain/ports/ficha.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
@@ -91,6 +97,11 @@ import {
   GuardarDemeritoResponse,
   ObtenerDemeritosResponse,
 } from '../../dto/remote/FichaDemeritoResponse.dto';
+import {
+  EliminarEstudioPosgradoResponse,
+  GuardarEstudioPosgradoResponse,
+  ObtenerEstudiosPosgradoResponse,
+} from '../../dto/remote/FichaEstudiosPosgradoResponse.dto';
 import {
   CrearFichaResponse,
   FlujoFichaDto,
@@ -155,6 +166,12 @@ import {
   toGuardarDemeritoRequestDto,
   toRubroDemeritoDesdeDetalle,
 } from '../../mappers/ficha-demerito.mapper';
+import {
+  aplicarEstudioPosgradoEnFicha,
+  eliminarEstudioPosgradoEnFicha,
+  toGuardarEstudioPosgradoRequestDto,
+  toRubroEstudiosPosgradoDesdeDetalle,
+} from '../../mappers/ficha-estudios-posgrado.mapper';
 import {
   puntajeSubtotalPorCodigo,
   toCrearFichaRequestDto,
@@ -289,8 +306,11 @@ export class FichaHttpAdapter implements FichaPort {
           }
           const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
           const fusionada = this.fusionarConMemoria(ficha);
-          return this.aplicarSubtotalDemerito(
-            this.aplicarSubtotalDocencia(fusionada, respuesta.data.rubros),
+          return this.aplicarSubtotalEstudiosPosgrado(
+            this.aplicarSubtotalDemerito(
+              this.aplicarSubtotalDocencia(fusionada, respuesta.data.rubros),
+              respuesta.data.rubros
+            ),
             respuesta.data.rubros
           );
         }),
@@ -1607,6 +1627,152 @@ export class FichaHttpAdapter implements FichaPort {
     );
   }
 
+  obtenerRubroEstudiosPosgrado(fichaId: string): Observable<RubroEstudiosPosgrado> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    let registradorId: number;
+    try {
+      registradorId = this.obtenerRegistradorId();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', id)
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerEstudiosPosgradoResponse>(
+        `${this.baseUrl}${fichaEndpoints.ESTUDIOS_POSGRADO}`,
+        { params }
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const lineas = toRubroEstudiosPosgradoDesdeDetalle(respuesta.data);
+          const previo = this.fichasEnMemoria.get(id)?.rubroEstudiosPosgrado;
+          const rubro: RubroEstudiosPosgrado = {
+            items: lineas.items.map((item) => {
+              const anterior = previo?.items.find((actual) => actual.id === item.id);
+              return {
+                ...item,
+                institucionNombre: item.institucionNombre || anterior?.institucionNombre || '',
+                paisNombre: item.paisNombre || anterior?.paisNombre || '',
+              };
+            }),
+            puntajeTotal: previo?.puntajeTotal ?? 0,
+          };
+          this.actualizarRubroEstudiosPosgradoEnMemoria(id, rubro);
+          return rubro;
+        }),
+        mapearAErrorNegocioApi('No se pudo obtener el subrubro E1.')
+      );
+  }
+
+  upsertEstudioPosgrado(fichaId: string, item: EstudioPosgrado): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    const itemId = item.id?.trim() ?? '';
+    const esActualizacion = esIdPersistidoApi(itemId);
+
+    let body;
+    try {
+      body = toGuardarEstudioPosgradoRequestDto(
+        fichaId,
+        item,
+        this.obtenerIdRubroEstudiosPosgrado(),
+        !esActualizacion
+      );
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const url = esActualizacion
+      ? `${this.baseUrl}${fichaEndpoints.estudioPosgradoPorId(itemId)}`
+      : `${this.baseUrl}${fichaEndpoints.ESTUDIOS_POSGRADO}`;
+
+    const request$ = esActualizacion
+      ? this.http.put<GuardarEstudioPosgradoResponse>(url, body)
+      : this.http.post<GuardarEstudioPosgradoResponse>(url, body);
+
+    return request$.pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        if (!respuesta.data) {
+          throw new ErrorNegocioApi({
+            mensaje: esActualizacion
+              ? 'El servidor no devolvió el semestre actualizado.'
+              : 'El servidor no devolvió el semestre guardado.',
+          });
+        }
+        this.guardarEnMemoria(aplicarEstudioPosgradoEnFicha(ficha, item, respuesta.data));
+        return this.refrescarFichaTrasEstudiosPosgrado(fichaId);
+      }),
+      mapearAErrorNegocioApi(
+        esActualizacion
+          ? 'No se pudo actualizar el semestre de posgrado.'
+          : 'No se pudo guardar el semestre de posgrado.'
+      )
+    );
+  }
+
+  eliminarEstudioPosgrado(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const idItem = itemId?.trim() ?? '';
+    if (!esIdPersistidoApi(idItem)) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de estudio de posgrado no válido.',
+          })
+      );
+    }
+
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    let rubroId: number;
+    try {
+      rubroId = this.obtenerIdRubroEstudiosPosgrado();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const params = new HttpParams().set('rubro_id', String(rubroId));
+    const url = `${this.baseUrl}${fichaEndpoints.estudioPosgradoPorId(idItem)}`;
+
+    return this.http.delete<EliminarEstudioPosgradoResponse>(url, { params }).pipe(
+      switchMap((respuesta) => {
+        assertRespuestaExitosa(respuesta);
+        this.guardarEnMemoria(eliminarEstudioPosgradoEnFicha(ficha, idItem));
+        return this.refrescarFichaTrasEstudiosPosgrado(fichaId);
+      }),
+      mapearAErrorNegocioApi('No se pudo eliminar el semestre de posgrado.')
+    );
+  }
+
   private extraerFlujoDto(respuesta: FlujoFichaResponse | FlujoFichaDto): FlujoFichaDto {
     if (esRespuestaEnvuelta(respuesta)) {
       assertRespuestaExitosa(respuesta as BaseResponse);
@@ -1659,6 +1825,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroDistincion: crearRubroDistincionVacio(),
       rubroDocencia: crearRubroDocenciaVacio(),
       rubroDemerito: crearRubroDemeritoVacio(),
+      rubroEstudiosPosgrado: crearRubroEstudiosPosgradoVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -1686,6 +1853,7 @@ export class FichaHttpAdapter implements FichaPort {
     const rubroDistincionPrevio = previa?.rubroDistincion;
     const rubroDocenciaPrevio = previa?.rubroDocencia;
     const rubroDemeritoPrevio = previa?.rubroDemerito;
+    const rubroEstudiosPosgradoPrevio = previa?.rubroEstudiosPosgrado;
     if (
       rubroPrevio?.id ||
       (rubroGradosPrevio?.items.length ?? 0) > 0 ||
@@ -1694,7 +1862,8 @@ export class FichaHttpAdapter implements FichaPort {
       (rubroPublicacionPrevio?.items.length ?? 0) > 0 ||
       (rubroDistincionPrevio?.items.length ?? 0) > 0 ||
       (rubroDocenciaPrevio?.items.length ?? 0) > 0 ||
-      (rubroDemeritoPrevio?.items.length ?? 0) > 0
+      (rubroDemeritoPrevio?.items.length ?? 0) > 0 ||
+      (rubroEstudiosPosgradoPrevio?.items.length ?? 0) > 0
     ) {
       return this.guardarEnMemoria({
         ...fichaApi,
@@ -1713,6 +1882,10 @@ export class FichaHttpAdapter implements FichaPort {
           rubroDemeritoPrevio && rubroDemeritoPrevio.items.length > 0
             ? rubroDemeritoPrevio
             : fichaApi.rubroDemerito,
+        rubroEstudiosPosgrado:
+          rubroEstudiosPosgradoPrevio && rubroEstudiosPosgradoPrevio.items.length > 0
+            ? rubroEstudiosPosgradoPrevio
+            : fichaApi.rubroEstudiosPosgrado,
       });
     }
 
@@ -1940,6 +2113,16 @@ export class FichaHttpAdapter implements FichaPort {
     return rubro.idRubro;
   }
 
+  private obtenerIdRubroEstudiosPosgrado(): number {
+    const rubro = this.rubrosMaestro.rubros().find((item) => item.codigo === 'E');
+    if (!rubro) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se encontró el rubro E en el catálogo maestro.',
+      });
+    }
+    return rubro.idRubro;
+  }
+
   /**
    * El listado de deméritos no trae el subtotal. Tras guardar o eliminar
    * se vuelve a leer la ficha para refrescar esa suma y el total.
@@ -2054,6 +2237,79 @@ export class FichaHttpAdapter implements FichaPort {
         ...rubro,
         puntajeTotal: Math.min(TOPE_PUNTAJE_RUBRO_DOCENCIA, suma),
       },
+    });
+  }
+
+  /**
+   * El listado de semestres no trae el subtotal topado. Tras guardar o eliminar
+   * se vuelve a leer la ficha para refrescar ese subtotal y el total.
+   */
+  private refrescarFichaTrasEstudiosPosgrado(fichaId: string): Observable<FichaValoracion> {
+    return this.obtenerPorId(fichaId).pipe(
+      catchError(() => of(this.conTopeLocalEstudiosPosgrado(fichaId)))
+    );
+  }
+
+  private aplicarSubtotalEstudiosPosgrado(
+    ficha: FichaValoracion,
+    rubros: ObtenerFichaResponse['data']['rubros']
+  ): FichaValoracion {
+    const puntaje =
+      puntajeSubtotalPorCodigo(rubros, 'E1') ?? puntajeSubtotalPorCodigo(rubros, 'E');
+    if (puntaje == null) {
+      return ficha;
+    }
+
+    const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroEstudiosPosgrado: {
+        ...rubro,
+        puntajeTotal: puntaje,
+      },
+    });
+  }
+
+  private conTopeLocalEstudiosPosgrado(fichaId: string): FichaValoracion {
+    const actual = this.fichasEnMemoria.get(fichaId.trim());
+    if (!actual) {
+      throw new ErrorNegocioApi({
+        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
+      });
+    }
+
+    const rubro = actual.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+    const suma = rubro.items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return this.guardarEnMemoria({
+      ...actual,
+      rubroEstudiosPosgrado: {
+        ...rubro,
+        puntajeTotal: Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, suma),
+      },
+    });
+  }
+
+  private actualizarRubroEstudiosPosgradoEnMemoria(
+    fichaId: string,
+    rubro: RubroEstudiosPosgrado
+  ): void {
+    const id = fichaId.trim();
+    const existente = this.fichasEnMemoria.get(id);
+    if (existente) {
+      this.guardarEnMemoria({
+        ...existente,
+        rubroEstudiosPosgrado: rubro,
+        actualizadoEn: new Date().toISOString(),
+      });
+      return;
+    }
+
+    this.asegurarFichaEnMemoria(id);
+    const stub = this.fichasEnMemoria.get(id)!;
+    this.guardarEnMemoria({
+      ...stub,
+      rubroEstudiosPosgrado: rubro,
+      actualizadoEn: new Date().toISOString(),
     });
   }
 

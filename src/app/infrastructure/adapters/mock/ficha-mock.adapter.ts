@@ -12,6 +12,7 @@ import {
   crearRubroDistincionVacio,
   crearRubroDocenciaVacio,
   crearRubroDemeritoVacio,
+  crearRubroEstudiosPosgradoVacio,
   FichaValoracion,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
@@ -46,6 +47,12 @@ import {
   RubroDemerito,
   TipoMedidaDemerito,
 } from '../../../domain/models/rubro-demerito.model';
+import {
+  EstudioPosgrado,
+  RubroEstudiosPosgrado,
+  semestrePosgradoDuplicado,
+  TOPE_PUNTAJE_ESTUDIOS_POSGRADO,
+} from '../../../domain/models/rubro-estudios-posgrado.model';
 import { TIEMPO_SERVICIO_CERO } from '../../../domain/models/tiempo-servicio.model';
 import { ANTIGUEDAD_PORT } from '../../../domain/ports/antiguedad.port';
 import { FichaPort } from '../../../domain/ports/ficha.port';
@@ -162,6 +169,7 @@ export class FichaMockAdapter implements FichaPort {
       rubroDistincion: crearRubroDistincionVacio(),
       rubroDocencia: crearRubroDocenciaVacio(),
       rubroDemerito: crearRubroDemeritoVacio(),
+      rubroEstudiosPosgrado: crearRubroEstudiosPosgradoVacio(),
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -718,6 +726,133 @@ export class FichaMockAdapter implements FichaPort {
     return Math.round(suma * 1000) / 1000;
   }
 
+  obtenerRubroEstudiosPosgrado(fichaId: string): Observable<RubroEstudiosPosgrado> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+    return of(ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio()).pipe(
+      delay(LATENCIA_MS)
+    );
+  }
+
+  upsertEstudioPosgrado(fichaId: string, item: EstudioPosgrado): Observable<FichaValoracion> {
+    const actual = this.buscar(fichaId);
+    if (!actual) {
+      return throwError(() => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha.' }));
+    }
+
+    const rubroActual = actual.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+    if (
+      semestrePosgradoDuplicado(
+        rubroActual.items.filter((existente) => existente.id !== item.id),
+        item
+      )
+    ) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Ese semestre ya está registrado.',
+            codigo: 'N074',
+          })
+      );
+    }
+
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+      const guardado: EstudioPosgrado = {
+        ...item,
+        id: item.id || `posgrado-${Date.now()}`,
+        promedio: this.promedioNotasAprobadas(item.notas),
+        puntaje: this.puntajeLineaEstudioPosgrado(item, ficha),
+      };
+      const idx = rubro.items.findIndex((existente) => existente.id === guardado.id);
+      const items =
+        idx >= 0
+          ? rubro.items.map((existente, i) => (i === idx ? guardado : existente))
+          : [...rubro.items, guardado];
+      return {
+        ...ficha,
+        rubroEstudiosPosgrado: {
+          items,
+          puntajeTotal: this.puntajeRubroEstudiosPosgrado(items),
+        },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  eliminarEstudioPosgrado(fichaId: string, itemId: string): Observable<FichaValoracion> {
+    return this.conFichaEditable(fichaId, (ficha) => {
+      const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+      const items = rubro.items.filter((item) => item.id !== itemId);
+      return {
+        ...ficha,
+        rubroEstudiosPosgrado: {
+          items,
+          puntajeTotal: this.puntajeRubroEstudiosPosgrado(items),
+        },
+        actualizadoEn: new Date().toISOString(),
+      };
+    });
+  }
+
+  private promedioNotasAprobadas(notas: number[]): number | null {
+    const aprobadas = notas.filter((nota) => Number.isFinite(nota) && nota >= 11);
+    if (aprobadas.length === 0) {
+      return notas.length ? 0 : null;
+    }
+    const promedio = aprobadas.reduce((total, nota) => total + nota, 0) / aprobadas.length;
+    return Math.round(promedio * 1000) / 1000;
+  }
+
+  private puntajeLineaEstudioPosgrado(item: EstudioPosgrado, ficha: FichaValoracion): number {
+    const mencion = this.normalizarClave(item.mencion);
+    const duplicaGrado = (ficha.rubroGradosTitulos?.items ?? []).some((grado) => {
+      const nombre = this.quitarTildes(grado.gradoAcademicoNombre).toLowerCase();
+      const esMaestroODoctor =
+        nombre.includes('maestr') || nombre.includes('doctor') || nombre.includes('magister');
+      return (
+        esMaestroODoctor &&
+        grado.universidadId === item.institucionId &&
+        this.normalizarClave(grado.mencion) === mencion
+      );
+    });
+    if (duplicaGrado) {
+      return 0;
+    }
+
+    const promedio = this.promedioNotasAprobadas(item.notas);
+    if (promedio == null || promedio < 13) {
+      return 0;
+    }
+    if (promedio >= 18.01 && promedio <= 20) {
+      return 1;
+    }
+    if (promedio >= 15 && promedio < 18.01) {
+      return 0.75;
+    }
+    if (promedio >= 13 && promedio < 15) {
+      return 0.5;
+    }
+    return 0;
+  }
+
+  private puntajeRubroEstudiosPosgrado(items: EstudioPosgrado[]): number {
+    const suma = items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+    return Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, Math.round(suma * 1000) / 1000);
+  }
+
+  private quitarTildes(valor: string): string {
+    return String(valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private normalizarClave(valor: string): string {
+    return this.quitarTildes(valor).trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
   private mutarLista(
     fichaId: string,
     mutar: (rubro: RubroAntiguedad) => Observable<RubroAntiguedad>
@@ -841,6 +976,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroDistincion: f.rubroDistincion ?? crearRubroDistincionVacio(),
         rubroDocencia: f.rubroDocencia ?? crearRubroDocenciaVacio(),
         rubroDemerito: f.rubroDemerito ?? crearRubroDemeritoVacio(),
+        rubroEstudiosPosgrado: f.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio(),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -879,6 +1015,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroDistincion: crearRubroDistincionVacio(),
         rubroDocencia: crearRubroDocenciaVacio(),
         rubroDemerito: crearRubroDemeritoVacio(),
+        rubroEstudiosPosgrado: crearRubroEstudiosPosgradoVacio(),
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

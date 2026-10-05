@@ -20,18 +20,29 @@
               {{ subrubro.nombre }}
             </mat-panel-title>
             <mat-panel-description class="rubro-subrubros-panel__item-score">
-              {{ formatearPuntaje(0) }}
+              {{ formatearPuntaje(puntajeSubrubro(subrubro.codigo)) }}
             </mat-panel-description>
           </mat-expansion-panel-header>
 
-          <p class="rubro-subrubros-panel__pendiente" role="status">
-            Disponible en una fase posterior.
-            @if (subrubro.aniosVigencia != null) {
-              <span class="rubro-subrubros-panel__vigencia">
-                Vigencia: {{ subrubro.aniosVigencia }} años.
-              </span>
-            }
-          </p>
+          @if (esEstudiosPosgrado(subrubro.codigo)) {
+            <app-rubro-estudios-posgrado
+              [fichaId]="fichaId()"
+              [soloLectura]="soloLectura()"
+              [rubroInicial]="rubroEstudiosPosgrado()"
+              [cargandoDetalle]="cargandoEstudiosPosgrado()"
+              (puntajeChange)="puntajeEstudiosPosgradoChange.emit($event)"
+              (fichaActualizada)="fichaActualizada.emit($event)"
+            />
+          } @else {
+            <p class="rubro-subrubros-panel__pendiente" role="status">
+              Disponible en una fase posterior.
+              @if (subrubro.aniosVigencia != null) {
+                <span class="rubro-subrubros-panel__vigencia">
+                  Vigencia: {{ subrubro.aniosVigencia }} años.
+                </span>
+              }
+            </p>
+          }
         </mat-expansion-panel>
       }
     </mat-accordion>

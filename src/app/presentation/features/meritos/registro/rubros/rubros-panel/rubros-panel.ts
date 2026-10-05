@@ -20,6 +20,7 @@ import { ObtenerRubroPublicacionJuridicaFichaUseCase } from '../../../../../../a
 import { ObtenerRubroDistincionFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-distincion-ficha.use-case';
 import { ObtenerRubroDocenciaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-docencia-ficha.use-case';
 import { ObtenerRubroDemeritoFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-demerito-ficha.use-case';
+import { ObtenerRubroEstudiosPosgradoFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-estudios-posgrado-ficha.use-case';
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../../../domain/models/rubro-antiguedad.model';
 import { RubroAmag } from '../../../../../../domain/models/rubro-amag.model';
@@ -28,6 +29,7 @@ import { RubroPublicacionJuridica } from '../../../../../../domain/models/rubro-
 import { RubroDistincion } from '../../../../../../domain/models/rubro-distincion.model';
 import { RubroDocencia } from '../../../../../../domain/models/rubro-docencia.model';
 import { RubroDemerito } from '../../../../../../domain/models/rubro-demerito.model';
+import { RubroEstudiosPosgrado } from '../../../../../../domain/models/rubro-estudios-posgrado.model';
 import { RubroGradosTitulos } from '../../../../../../domain/models/rubro-grados-titulos.model';
 import { RubroMaestro } from '../../../../../../domain/models/rubro-maestro.model';
 import { RubrosMaestroStore } from '../../../../../../infrastructure/stores/rubros-maestro.store';
@@ -76,6 +78,7 @@ export class RubrosPanel {
   private readonly obtenerRubroDistincion = inject(ObtenerRubroDistincionFichaUseCase);
   private readonly obtenerRubroDocencia = inject(ObtenerRubroDocenciaFichaUseCase);
   private readonly obtenerRubroDemerito = inject(ObtenerRubroDemeritoFichaUseCase);
+  private readonly obtenerRubroEstudiosPosgrado = inject(ObtenerRubroEstudiosPosgradoFichaUseCase);
   private readonly rubrosMaestroStore = inject(RubrosMaestroStore);
 
   readonly fechaValoracion = input<string | null>(null);
@@ -90,6 +93,7 @@ export class RubrosPanel {
   readonly rubroDistincion = input<RubroDistincion | null>(null);
   readonly rubroDocencia = input<RubroDocencia | null>(null);
   readonly rubroDemerito = input<RubroDemerito | null>(null);
+  readonly rubroEstudiosPosgrado = input<RubroEstudiosPosgrado | null>(null);
   readonly rubrosMaestro = input<RubroMaestro[]>([]);
 
   readonly fichaActualizada = output<FichaValoracion>();
@@ -101,6 +105,7 @@ export class RubrosPanel {
   readonly rubroDistincionCargado = output<RubroDistincion>();
   readonly rubroDocenciaCargado = output<RubroDocencia>();
   readonly rubroDemeritoCargado = output<RubroDemerito>();
+  readonly rubroEstudiosPosgradoCargado = output<RubroEstudiosPosgrado>();
 
   protected readonly puntajeProduccion = 0;
   protected readonly puntajeAntiguedad = signal(0);
@@ -111,6 +116,7 @@ export class RubrosPanel {
   protected readonly puntajeDistincion = signal(0);
   protected readonly puntajeDocencia = signal(0);
   protected readonly puntajeDemerito = signal(0);
+  protected readonly puntajeEstudiosPosgrado = signal(0);
   protected readonly rubroAntiguedadLocal = signal<RubroAntiguedad | null>(null);
   protected readonly rubroGradosTitulosLocal = signal<RubroGradosTitulos | null>(null);
   protected readonly rubroAmagLocal = signal<RubroAmag | null>(null);
@@ -119,6 +125,7 @@ export class RubrosPanel {
   protected readonly rubroDistincionLocal = signal<RubroDistincion | null>(null);
   protected readonly rubroDocenciaLocal = signal<RubroDocencia | null>(null);
   protected readonly rubroDemeritoLocal = signal<RubroDemerito | null>(null);
+  protected readonly rubroEstudiosPosgradoLocal = signal<RubroEstudiosPosgrado | null>(null);
   protected readonly cargandoRubroB = signal(false);
   protected readonly cargandoRubroC = signal(false);
   protected readonly cargandoRubroD = signal(false);
@@ -127,6 +134,7 @@ export class RubrosPanel {
   protected readonly cargandoRubroH = signal(false);
   protected readonly cargandoRubroI = signal(false);
   protected readonly cargandoRubroJ = signal(false);
+  protected readonly cargandoRubroE = signal(false);
   protected readonly formatearPuntaje = formatearPuntaje;
 
   private rubroBCargadoParaFichaId: string | null = null;
@@ -137,6 +145,7 @@ export class RubrosPanel {
   private rubroHCargadoParaFichaId: string | null = null;
   private rubroICargadoParaFichaId: string | null = null;
   private rubroJCargadoParaFichaId: string | null = null;
+  private rubroECargadoParaFichaId: string | null = null;
 
   constructor() {
     effect(() => {
@@ -149,6 +158,7 @@ export class RubrosPanel {
       const inicialH = this.rubroDistincion();
       const inicialI = this.rubroDocencia();
       const inicialJ = this.rubroDemerito();
+      const inicialE = this.rubroEstudiosPosgrado();
 
       if (!fichaId || fichaId !== this.rubroBCargadoParaFichaId) {
         this.rubroBCargadoParaFichaId = null;
@@ -196,6 +206,12 @@ export class RubrosPanel {
         this.rubroJCargadoParaFichaId = null;
         this.rubroDemeritoLocal.set(inicialJ);
         this.puntajeDemerito.set(inicialJ?.puntajeTotal ?? 0);
+      }
+
+      if (!fichaId || fichaId !== this.rubroECargadoParaFichaId) {
+        this.rubroECargadoParaFichaId = null;
+        this.rubroEstudiosPosgradoLocal.set(inicialE);
+        this.puntajeEstudiosPosgrado.set(inicialE?.puntajeTotal ?? 0);
       }
     });
   }
@@ -304,6 +320,10 @@ export class RubrosPanel {
     this.puntajeDemerito.set(puntaje);
   }
 
+  protected onPuntajeEstudiosPosgrado(puntaje: number): void {
+    this.puntajeEstudiosPosgrado.set(puntaje);
+  }
+
   protected onFichaActualizada(ficha: FichaValoracion): void {
     this.puntajeAntiguedad.set(ficha.rubroAntiguedad?.titularidad.puntaje ?? 0);
     this.puntajeGradosTitulos.set(ficha.rubroGradosTitulos?.puntajeTotal ?? 0);
@@ -313,6 +333,10 @@ export class RubrosPanel {
     this.puntajeDistincion.set(ficha.rubroDistincion?.puntajeTotal ?? 0);
     this.puntajeDocencia.set(ficha.rubroDocencia?.puntajeTotal ?? 0);
     this.puntajeDemerito.set(ficha.rubroDemerito?.puntajeTotal ?? 0);
+    this.puntajeEstudiosPosgrado.set(ficha.rubroEstudiosPosgrado?.puntajeTotal ?? 0);
+    if (ficha.rubroEstudiosPosgrado) {
+      this.rubroEstudiosPosgradoLocal.set(ficha.rubroEstudiosPosgrado);
+    }
     this.fichaActualizada.emit(ficha);
   }
 
@@ -328,6 +352,9 @@ export class RubrosPanel {
   protected onRubroAbierto(rubro: RubroMaestro): void {
     if (rubro.tieneSubrubros) {
       this.cargarSubrubros(rubro);
+      if (rubro.codigo === 'E') {
+        this.onRubroEAbierto();
+      }
       return;
     }
 
@@ -379,6 +406,8 @@ export class RubrosPanel {
         return this.puntajeDocencia();
       case 'J':
         return this.puntajeDemerito();
+      case 'E':
+        return this.puntajeEstudiosPosgrado();
       default:
         return 0;
     }
@@ -676,6 +705,43 @@ export class RubrosPanel {
         this.rubroDemeritoLocal.set(resultado.rubro);
         this.puntajeDemerito.set(resultado.rubro.puntajeTotal);
         this.rubroDemeritoCargado.emit(resultado.rubro);
+      });
+  }
+
+  private onRubroEAbierto(): void {
+    const fichaId = this.fichaId();
+    if (!fichaId || this.rubroECargadoParaFichaId === fichaId || this.cargandoRubroE()) {
+      return;
+    }
+
+    this.cargarRubroE(fichaId);
+  }
+
+  private cargarRubroE(fichaId: string): void {
+    this.cargandoRubroE.set(true);
+
+    this.obtenerRubroEstudiosPosgrado
+      .ejecutar(fichaId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargandoRubroE.set(false))
+      )
+      .subscribe((resultado) => {
+        if (!resultado.exito) {
+          void this.alertas.error('No se pudo cargar el subrubro E1', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
+          });
+          return;
+        }
+
+        this.rubroECargadoParaFichaId = fichaId;
+        this.rubroEstudiosPosgradoLocal.set(resultado.rubro);
+        this.puntajeEstudiosPosgrado.set(resultado.rubro.puntajeTotal);
+        this.rubroEstudiosPosgradoCargado.emit(resultado.rubro);
       });
   }
 }
