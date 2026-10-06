@@ -1,0 +1,320 @@
+<section class="ficha-valoracion">
+  <header class="ficha-valoracion__toolbar">
+    <div class="ficha-valoracion__encabezado">
+      <h1 class="ficha-valoracion__titulo">Ficha de valoración de méritos</h1>
+    </div>
+  </header>
+
+  @if (errorCarga(); as mensajeError) {
+    <p class="ficha-valoracion__error" role="alert">{{ mensajeError }}</p>
+  }
+
+  @if (!fechaValoracionVigente()) {
+    <p class="ficha-valoracion__aviso" role="status">
+      No hay fecha de valoración vigente. La edad se calculará cuando exista una configuración
+      activa.
+    </p>
+  } @else {
+    <p class="ficha-valoracion__meta" role="status">
+      Fecha de valoración vigente:
+      <strong>{{ formatearFecha(fechaValoracionVigente()!) }}</strong>
+    </p>
+  }
+
+  <article class="ficha-valoracion__card">
+    <header class="ficha-valoracion__card-head">
+      <h2 class="ficha-valoracion__card-titulo">Nivel y datos personales del juez</h2>
+      <p class="ficha-valoracion__card-desc">
+        Busque el DNI para resolver si existe borrador o ficha del proceso anterior. Solo en un
+        registro nuevo se consulta SIGA para cargar foto y nombres.
+      </p>
+    </header>
+
+    <form class="ficha-valoracion__form" [formGroup]="formulario" novalidate>
+      <div class="ficha-valoracion__magistrado">
+        <aside
+          class="ficha-valoracion__foto-panel"
+          [class.ficha-valoracion__foto-panel--con-imagen]="!!fotoSiga()"
+        >
+          <div class="ficha-valoracion__foto" aria-label="Foto del juez">
+            @if (fotoSiga(); as foto) {
+              <img [src]="foto" alt="Foto del juez" class="ficha-valoracion__foto-img" />
+            } @else {
+              <div class="ficha-valoracion__foto-vacia">
+                <mat-icon aria-hidden="true">badge</mat-icon>
+                <small>Busque el DNI</small>
+              </div>
+            }
+          </div>
+        </aside>
+
+        <div class="ficha-valoracion__datos">
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--dni"
+          >
+            <mat-label>DNI</mat-label>
+            <input
+              matInput
+              formControlName="dni"
+              inputmode="numeric"
+              maxlength="8"
+              autocomplete="off"
+              (input)="onDniInput($event)"
+              (keydown.enter)="onBuscarDni($event)"
+            />
+            <button
+              matIconButton
+              matSuffix
+              type="button"
+              class="ficha-valoracion__btn-buscar"
+              [disabled]="
+                buscandoDni() ||
+                guardandoFicha() ||
+                formulario.controls.dni.invalid ||
+                dniYaResuelto()
+              "
+              (click)="onBuscarDni()"
+              title="Buscar ficha o SIGA"
+              aria-label="Buscar ficha o SIGA"
+            >
+              @if (buscandoDni()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <mat-icon>search</mat-icon>
+              }
+            </button>
+            @if (mensajeErrorCampo(formulario.controls.dni, 'dni'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--nombre"
+          >
+            <mat-label>Apellidos y nombres completos</mat-label>
+            <input
+              matInput
+              formControlName="nombreCompleto"
+              autocomplete="name"
+              placeholder="Obtenido desde SIGA"
+              readonly
+            />
+            @if (
+              mensajeErrorCampo(formulario.controls.nombreCompleto, 'nombreCompleto');
+              as error
+            ) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--nivel"
+          >
+            <mat-label>Nivel</mat-label>
+            <mat-select formControlName="nivelId" placeholder="Seleccione...">
+              @for (nivel of niveles(); track nivel.id) {
+                <mat-option [value]="nivel.id">{{ nivel.nombre }}</mat-option>
+              }
+            </mat-select>
+            @if (mensajeErrorCampo(formulario.controls.nivelId, 'nivelId'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+            @if (cargandoNiveles()) {
+              <mat-hint>Cargando niveles...</mat-hint>
+            }
+          </mat-form-field>
+
+          <div class="ficha-valoracion__nacimiento-con-edad">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="ficha-valoracion__campo ficha-valoracion__campo--nacimiento"
+            >
+              <mat-label>Fecha de nacimiento</mat-label>
+              <input
+                matInput
+                [matDatepicker]="pickerNacimiento"
+                formControlName="fechaNacimiento"
+                [max]="maxFechaNacimiento"
+                [matDatepickerFilter]="filtroFechaNacimiento"
+                readonly
+                placeholder="dd/mm/aaaa"
+                (click)="pickerNacimiento.open()"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="pickerNacimiento" />
+              <mat-datepicker
+                #pickerNacimiento
+                startView="multi-year"
+                [startAt]="fechaNacimientoInicio"
+              />
+              @if (
+                mensajeErrorCampo(formulario.controls.fechaNacimiento, 'fechaNacimiento');
+                as error
+              ) {
+                <mat-error>{{ error }}</mat-error>
+              }
+            </mat-form-field>
+
+            <div
+              class="ficha-valoracion__edad"
+              role="status"
+              aria-live="polite"
+              [attr.aria-busy]="calculandoEdad()"
+            >
+              <span class="ficha-valoracion__edad-etiqueta">Edad</span>
+              <div class="ficha-valoracion__edad-contenido">
+                @if (calculandoEdad()) {
+                  <span class="ficha-valoracion__edad-valor ficha-valoracion__edad-valor--cargando"
+                    >…</span
+                  >
+                } @else if (edad(); as valorEdad) {
+                  <span class="ficha-valoracion__edad-valor">{{ valorEdad }}</span>
+                  <span class="ficha-valoracion__edad-unidad">años</span>
+                } @else {
+                  <span class="ficha-valoracion__edad-valor ficha-valoracion__edad-valor--vacio"
+                    >—</span
+                  >
+                }
+              </div>
+            </div>
+          </div>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="ficha-valoracion__campo ficha-valoracion__campo--sexo"
+          >
+            <mat-label>Sexo</mat-label>
+            <mat-select formControlName="sexo" placeholder="Seleccione...">
+              @for (opcion of opcionesSexo; track opcion.valor) {
+                <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+              }
+            </mat-select>
+            @if (mensajeErrorCampo(formulario.controls.sexo, 'sexo'); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <footer class="ficha-valoracion__acciones">
+        @if (mensajeEstadoBusqueda(); as mensajeEstado) {
+          <p class="ficha-valoracion__estado-busqueda" role="status">{{ mensajeEstado }}</p>
+        }
+        <div class="ficha-valoracion__acciones-botones">
+          <button
+            matButton="outlined"
+            type="button"
+            (click)="onLimpiarDatosPersonales()"
+            [disabled]="guardandoFicha() || buscandoDni()"
+          >
+            <mat-icon>cleaning_services</mat-icon>
+            Limpiar
+          </button>
+          <button
+            matButton="filled"
+            type="button"
+            class="ficha-valoracion__btn-continuar"
+            (click)="onAccionCabecera()"
+            [disabled]="
+              guardandoFicha() ||
+              buscandoDni() ||
+              fichaSoloLectura() ||
+              !fechaValoracionVigente() ||
+              !modoAccionCabecera() ||
+              modoAccionCabecera() === 'BLOQUEADA'
+            "
+          >
+            @if (guardandoFicha()) {
+              <mat-progress-spinner diameter="18" mode="indeterminate" />
+            } @else {
+              <mat-icon>{{ iconoBotonPrincipal() }}</mat-icon>
+            }
+            {{ etiquetaBotonPrincipal() }}
+          </button>
+        </div>
+      </footer>
+    </form>
+  </article>
+
+  @if (!rubrosDesbloqueados()) {
+    <div class="ficha-valoracion__rubros-locked" role="status">
+      <strong>Registro de rubros pendiente</strong>
+      Complete y guarde el nivel y los datos personales para comenzar con {{ rubroInicioEtiqueta() }}.
+    </div>
+  } @else {
+    <div class="ficha-valoracion__rubros">
+      @if (fichaEstado(); as estado) {
+        <p class="ficha-valoracion__ficha-meta" role="status">
+          Ficha
+          <strong>{{ fichaId() }}</strong>
+          · Estado: <strong>{{ estado }}</strong>
+          @if (fichaSoloLectura()) {
+            · <span class="ficha-valoracion__solo-lectura">Solo lectura</span>
+          }
+        </p>
+      }
+
+      <app-rubros-panel
+        [fechaValoracion]="fechaValoracionVigente()"
+        [fichaId]="fichaId()"
+        [nivelId]="nivelIdFicha()"
+        [soloLectura]="fichaSoloLectura()"
+        [rubrosMaestro]="rubrosMaestro()"
+        [rubroAntiguedad]="rubroAntiguedad()"
+        [rubroGradosTitulos]="rubroGradosTitulos()"
+        [rubroAmag]="rubroAmag()"
+        [rubroIdioma]="rubroIdioma()"
+        [rubroPublicacionJuridica]="rubroPublicacionJuridica()"
+        [rubroDistincion]="rubroDistincion()"
+        [rubroDocencia]="rubroDocencia()"
+        [rubroDemerito]="rubroDemerito()"
+        [rubroEstudiosPosgrado]="rubroEstudiosPosgrado()"
+        [rubroPasantias]="rubroPasantias()"
+        [rubroCursosEspecializacion]="rubroCursosEspecializacion()"
+        [rubroCertamenesAcademicos]="rubroCertamenesAcademicos()"
+        [rubroAsistenciasEventos]="rubroAsistenciasEventos()"
+        [rubroOfimatica]="rubroOfimatica()"
+        (fichaActualizada)="onFichaActualizadaDesdeRubros($event)"
+        (rubroAntiguedadCargado)="onRubroAntiguedadCargado($event)"
+        (rubroGradosTitulosCargado)="onRubroGradosTitulosCargado($event)"
+        (rubroAmagCargado)="onRubroAmagCargado($event)"
+        (rubroIdiomaCargado)="onRubroIdiomaCargado($event)"
+        (rubroPublicacionJuridicaCargado)="onRubroPublicacionJuridicaCargado($event)"
+        (rubroDistincionCargado)="onRubroDistincionCargado($event)"
+        (rubroDocenciaCargado)="onRubroDocenciaCargado($event)"
+        (rubroDemeritoCargado)="onRubroDemeritoCargado($event)"
+        (rubroEstudiosPosgradoCargado)="onRubroEstudiosPosgradoCargado($event)"
+        (rubroPasantiasCargado)="onRubroPasantiasCargado($event)"
+        (rubroCursosEspecializacionCargado)="onRubroCursosEspecializacionCargado($event)"
+        (rubroCertamenesAcademicosCargado)="onRubroCertamenesAcademicosCargado($event)"
+        (rubroAsistenciasEventosCargado)="onRubroAsistenciasEventosCargado($event)"
+        (rubroOfimaticaCargado)="onRubroOfimaticaCargado($event)"
+      />
+
+      <footer class="ficha-valoracion__sticky-footer" aria-label="Acciones de la ficha">
+        <div class="ficha-valoracion__footer-total">
+          <span>Puntaje total de la ficha</span>
+          <strong>{{ formatearPuntaje(puntajeTotal()) }}</strong>
+          <small>Se recalcula en el servidor con cada guardado.</small>
+        </div>
+        <div class="ficha-valoracion__footer-acciones">
+          <button matButton="outlined" type="button" disabled title="Disponible en una fase posterior">
+            <mat-icon>cleaning_services</mat-icon>
+            Limpiar
+          </button>
+          <button matButton="filled" type="button" disabled title="Disponible en una fase posterior">
+            <mat-icon>task_alt</mat-icon>
+            Finalizar registro
+          </button>
+        </div>
+      </footer>
+    </div>
+  }
+</section>

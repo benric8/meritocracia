@@ -1,0 +1,8 @@
+/** Endpoints de gestión de usuarios (relativos a `getAppConfig().urlApi`). */
+export const usuariosEndpoints = {
+  LISTAR: 'usuarios',
+  REGISTRAR: 'usuarios',
+  RESETEAR_CLAVE: (id: string) => `usuarios/resetear-clave/${id}`,
+  DESACTIVAR: (id: string) => `usuarios/desactivar/${id}`,
+  CAMBIAR_CONTRASENA: 'usuarios/cambiar-contrasena',
+} as const;

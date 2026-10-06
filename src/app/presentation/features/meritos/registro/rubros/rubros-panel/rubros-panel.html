@@ -1,0 +1,167 @@
+<section class="rubros-panel" aria-label="Rubros de valoración">
+  <header class="rubros-panel__header">
+    <span class="rubros-panel__titulo">Rubros de valoración</span>
+    <span class="rubros-panel__puntaje-label">Puntaje</span>
+  </header>
+
+  @if (rubrosMaestro().length === 0) {
+    <p class="rubros-panel__aviso" role="status">Cargando catálogo de rubros…</p>
+  } @else {
+    <mat-accordion class="rubros-panel__accordion" multi>
+      @for (rubro of rubrosMaestro(); track rubro.idRubro) {
+        <mat-expansion-panel
+          class="rubros-panel__item"
+          [expanded]="expandidoPorDefecto(rubro.codigo)"
+          (opened)="onRubroAbierto(rubro)"
+        >
+          <mat-expansion-panel-header class="rubros-panel__item-header">
+            <mat-panel-title class="rubros-panel__item-title">
+              <span class="rubros-panel__letter">{{ rubro.codigo }}</span>
+              {{ rubro.nombre }}
+            </mat-panel-title>
+            <mat-panel-description
+              class="rubros-panel__item-score"
+              [class.rubros-panel__item-score--negativo]="puntajeRubro(rubro.codigo) < 0"
+            >
+              {{ formatearPuntaje(puntajeRubro(rubro.codigo)) }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          @if (!rubro.tieneSubrubros && cargandoRubro(rubro)) {
+            <div class="rubros-panel__loading" role="status">
+              <mat-progress-spinner diameter="22" mode="indeterminate" />
+              <span>{{ mensajeCargaRubro(rubro) }}</span>
+            </div>
+          }
+
+          @if (rubro.tieneSubrubros) {
+            <app-rubro-subrubros-panel
+              [idRubro]="rubro.idRubro"
+              [codigoRubro]="rubro.codigo"
+              [fichaId]="fichaId()"
+              [soloLectura]="soloLectura()"
+              [rubroEstudiosPosgrado]="rubroEstudiosPosgradoLocal()"
+              [cargandoEstudiosPosgrado]="cargandoRubroE()"
+              [puntajeEstudiosPosgrado]="puntajeEstudiosPosgrado()"
+              [rubroPasantias]="rubroPasantiasLocal()"
+              [cargandoPasantias]="cargandoPasantias()"
+              [puntajePasantias]="puntajePasantias()"
+              [rubroCursosEspecializacion]="rubroCursosEspecializacionLocal()"
+              [cargandoCursosEspecializacion]="cargandoCursosEspecializacion()"
+              [puntajeCursosEspecializacion]="puntajeCursosEspecializacion()"
+              [rubroCertamenesAcademicos]="rubroCertamenesAcademicosLocal()"
+              [cargandoCertamenesAcademicos]="cargandoCertamenesAcademicos()"
+              [puntajeCertamenesAcademicos]="puntajeCertamenesAcademicos()"
+              [rubroAsistenciasEventos]="rubroAsistenciasEventosLocal()"
+              [cargandoAsistenciasEventos]="cargandoAsistenciasEventos()"
+              [puntajeAsistenciasEventos]="puntajeAsistenciasEventos()"
+              [rubroOfimatica]="rubroOfimaticaLocal()"
+              [cargandoOfimatica]="cargandoOfimatica()"
+              [puntajeOfimatica]="puntajeOfimatica()"
+              (puntajeEstudiosPosgradoChange)="onPuntajeEstudiosPosgrado($event)"
+              (puntajePasantiasChange)="onPuntajePasantias($event)"
+              (puntajeCursosEspecializacionChange)="onPuntajeCursosEspecializacion($event)"
+              (puntajeCertamenesAcademicosChange)="onPuntajeCertamenesAcademicos($event)"
+              (puntajeAsistenciasEventosChange)="onPuntajeAsistenciasEventos($event)"
+              (puntajeOfimaticaChange)="onPuntajeOfimatica($event)"
+              (fichaActualizada)="onFichaActualizada($event)"
+            />
+          } @else {
+            @switch (rubro.codigo) {
+              @case ('A') {
+                <app-rubro-produccion />
+              }
+              @case ('B') {
+                <app-rubro-antiguedad
+                  [fichaId]="fichaId()"
+                  [nivelId]="nivelId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroAntiguedadLocal()"
+                  [fechaValoracion]="fechaValoracion()"
+                  [cargandoDetalle]="cargandoRubroB()"
+                  (puntajeChange)="onPuntajeAntiguedad($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('C') {
+                <app-rubro-grados-titulos
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroGradosTitulosLocal()"
+                  [cargandoDetalle]="cargandoRubroC()"
+                  (puntajeChange)="onPuntajeGradosTitulos($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('D') {
+                <app-rubro-amag
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroAmagLocal()"
+                  [cargandoDetalle]="cargandoRubroD()"
+                  (puntajeChange)="onPuntajeAmag($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('F') {
+                <app-rubro-idioma
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroIdiomaLocal()"
+                  [cargandoDetalle]="cargandoRubroF()"
+                  (puntajeChange)="onPuntajeIdioma($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('G') {
+                <app-rubro-publicacion-juridica
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroPublicacionJuridicaLocal()"
+                  [cargandoDetalle]="cargandoRubroG()"
+                  (puntajeChange)="onPuntajePublicacionJuridica($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('H') {
+                <app-rubro-distincion
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDistincionLocal()"
+                  [cargandoDetalle]="cargandoRubroH()"
+                  (puntajeChange)="onPuntajeDistincion($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('I') {
+                <app-rubro-docencia
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDocenciaLocal()"
+                  [cargandoDetalle]="cargandoRubroI()"
+                  (puntajeChange)="onPuntajeDocencia($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @case ('J') {
+                <app-rubro-demerito
+                  [fichaId]="fichaId()"
+                  [soloLectura]="soloLectura()"
+                  [rubroInicial]="rubroDemeritoLocal()"
+                  [cargandoDetalle]="cargandoRubroJ()"
+                  (puntajeChange)="onPuntajeDemerito($event)"
+                  (fichaActualizada)="onFichaActualizada($event)"
+                />
+              }
+              @default {
+                <p class="rubros-panel__pendiente" role="status">
+                  Disponible en una fase posterior.
+                </p>
+              }
+            }
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</section>

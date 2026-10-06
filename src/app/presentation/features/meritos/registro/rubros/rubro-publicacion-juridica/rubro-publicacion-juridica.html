@@ -1,0 +1,88 @@
+<section class="rubro-publicacion" aria-label="Publicaciones de índole jurídico">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-publicacion__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-publicacion__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando publicaciones registradas…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-publicacion__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-publicacion__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir publicación
+        </button>
+      }
+    </div>
+
+    <div class="rubro-publicacion__records">
+      <table class="rubro-publicacion__table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Editorial</th>
+            <th>Fecha</th>
+            <th>Premio</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="7" class="rubro-publicacion__empty">
+                Sin registros. Use "Añadir publicación" para agregar una publicación.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.tipoPublicacionNombre }}</td>
+                <td>{{ item.titulo }}</td>
+                <td>{{ item.editorial }}</td>
+                <td>{{ item.fechaPublicacion }}</td>
+                <td>{{ etiquetaPremiada(item.premiada) }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-publicacion__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar publicación"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar publicación"
+                        (click)="eliminarPublicacion(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

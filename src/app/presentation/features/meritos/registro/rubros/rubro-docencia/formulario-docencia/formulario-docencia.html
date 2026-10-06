@@ -1,0 +1,173 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Docencia universitaria</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        Tope del rubro: {{ topeRubro }} pts. Cada línea vale horas semanales × 0.375; si el periodo
+        queda fuera de los 7 años anteriores a la fecha de valoración, queda en 0. El puntaje lo
+        calcula el servidor.
+      </p>
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="descripcionDocumento" placeholder="Seleccione…">
+            @for (item of tiposDocumento; track item.valor) {
+              <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.descripcionDocumento.touched &&
+            formulario.controls.descripcionDocumento.invalid
+          ) {
+            <mat-error>Seleccione el tipo de documento.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Orden jurídico</mat-label>
+          <mat-select formControlName="ordenJuridico">
+            @for (opcion of opcionesOrden; track opcion.valor) {
+              <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Universidad</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="universidad"
+            placeholder="Escriba para buscar…"
+            [matAutocomplete]="autoUniversidad"
+            [maxlength]="limites.universidad"
+          />
+          <mat-autocomplete #autoUniversidad="matAutocomplete">
+            @for (item of universidadesFiltradas(); track item.id) {
+              <mat-option [value]="item.nombre">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (formulario.controls.universidad.touched && formulario.controls.universidad.invalid) {
+            <mat-error>
+              @if (formulario.controls.universidad.hasError('required')) {
+                Ingrese la universidad.
+              } @else {
+                Máximo {{ limites.universidad }} caracteres.
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Materia</mat-label>
+          <input matInput type="text" formControlName="materia" [maxlength]="limites.materia" />
+          @if (formulario.controls.materia.touched && formulario.controls.materia.invalid) {
+            <mat-error>
+              @if (formulario.controls.materia.hasError('required')) {
+                Ingrese la materia.
+              } @else {
+                Máximo {{ limites.materia }} caracteres.
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Especialidad</mat-label>
+          <mat-select formControlName="especialidad" placeholder="Seleccione…">
+            <mat-option value="">—</mat-option>
+            @for (item of especialidades; track item.id) {
+              <mat-option [value]="item.nombre">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.especialidad.touched && formulario.controls.especialidad.invalid
+          ) {
+            <mat-error>Máximo {{ limites.especialidad }} caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Horas semanales</mat-label>
+          <input matInput type="number" min="1" step="1" formControlName="horasSemanales" />
+          @if (
+            formulario.controls.horasSemanales.touched &&
+            formulario.controls.horasSemanales.invalid
+          ) {
+            <mat-error>Ingrese un entero mayor que 0.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de inicio</mat-label>
+          <input matInput [matDatepicker]="pickerInicio" formControlName="fechaInicio" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio" />
+          <mat-datepicker #pickerInicio />
+          @if (formulario.controls.fechaInicio.touched && formulario.controls.fechaInicio.invalid) {
+            <mat-error>Seleccione la fecha de inicio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerFin"
+            [matDatepickerFilter]="filtroFechaFin"
+            formControlName="fechaFin"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFin" />
+          <mat-datepicker #pickerFin />
+          @if (formulario.controls.fechaFin.touched && formulario.controls.fechaFin.hasError('required')) {
+            <mat-error>Seleccione la fecha de fin.</mat-error>
+          }
+          @if (formulario.hasError('fechaFinAnterior') && formulario.controls.fechaFin.touched) {
+            <mat-error>La fecha de fin no puede ser anterior a la de inicio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Categoría</mat-label>
+          <input matInput type="text" formControlName="categoria" [maxlength]="limites.categoria" />
+          @if (formulario.controls.categoria.touched && formulario.controls.categoria.invalid) {
+            <mat-error>Máximo {{ limites.categoria }} caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Condición</mat-label>
+          <input matInput type="text" formControlName="condicion" [maxlength]="limites.condicion" />
+          @if (formulario.controls.condicion.touched && formulario.controls.condicion.invalid) {
+            <mat-error>Máximo {{ limites.condicion }} caracteres.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,1720 @@
+{
+	"info": {
+		"_postman_id": "35ce47d9-79ff-4e7b-b281-ef8619a8ea24",
+		"name": "meritocracia-api-rest v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Usuario",
+			"item": [
+				{
+					"name": "usuarios/listar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios?tamanio=1&pagina=1",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios"
+							],
+							"query": [
+								{
+									"key": "tamanio",
+									"value": "1"
+								},
+								{
+									"key": "pagina",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "usuarios/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios/1",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "usuarios/registrar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuario\": \"rbendezuv\",\r\n    \"nombreCompleto\": \"Carlos Mendoza Ruiz\",\r\n    \"cargo\": \"Analista\",\r\n    \"idPerfil\": \"1\",\r\n    \"dependencia\": \"Subgerencia Registros Laborales\",\r\n    \"email\": \"cmendozar@pj.gob.pe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "usuarios/actualizar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuario\": \"rbendezuv\",\r\n    \"nombreCompleto\": \"Carlos Mendoza Ruiz\",\r\n    \"cargo\": \"Analista\",\r\n    \"idPerfil\": \"1\",\r\n    \"dependencia\": \"Subgerencia Registros Laborales\",\r\n    \"email\": \"cmendozar@pj.gob.pe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "usuarios/existe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtAuthenticate}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/existe?login=PRUEBA_POST_2",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"existe"
+							],
+							"query": [
+								{
+									"key": "login",
+									"value": "PRUEBA_POST_2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "activar/desactivar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "activo",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios/desactivar/22",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios",
+								"desactivar",
+								"22"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resetar Clave",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios/resetear-clave/29",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios",
+								"resetear-clave",
+								"29"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar contraseña",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJzZWN1cmUtYXBpIiwiYXVkIjoic2VjdXJlLWFwcCIsInN1YiI6IjAwMDQyMDAwMSIsImV4cCI6MTc3MTI5MTA0NywiWC1Sb2xlcy1BdXRoZW50aWNhdGUiOlsiQURNQUpVUEoiXSwiWC1Sb2wtQXV0aGVudGljYXRlIjoiQlNDQUpVUEoiLCJYLVVzdWFyaW8tQXV0aGVudGljYXRlIjoiMDAwNDIwMDAxIiwiWC1Sb2wtQXBsaWNhdGl2byI6IkFETUFKVVBKIiwiWC1Vc3VhcmlvLUFwbGljYXRpdm8iOiJTWVNBRE1JTiIsIlgtSXAtQXV0aGVudGljYXRlIjoiMTI3LjAuMC4xIiwiVC1MaW1pdGUiOjE3NzEyOTI4NDczNDZ9.tacjOtli6FOk9dLuQWTDSiev_JCZL_XKDjtq4AVc-xSIhTqMoFAjLJmXr5Rft9NuK0fbL6D_qveSHoR5fkdSjg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"claveActual\": \"123456\",\r\n  \"nuevaClave\": \"123456\",\r\n  \"confirmarClave\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios/cambiar-contrasena",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios",
+								"cambiar-contrasena"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "datos-session",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJzZWN1cmUtYXBpIiwiYXVkIjoic2VjdXJlLWFwcCIsInN1YiI6IjAwMDQyMDAwMSIsImV4cCI6MTc3MTg4Nzk4NSwiWC1Sb2xlcy1BdXRoZW50aWNhdGUiOlsiU0NUQUpVUEoiXSwiWC1Sb2wtQXV0aGVudGljYXRlIjoiQlNDQUpVUEoiLCJYLVVzdWFyaW8tQXV0aGVudGljYXRlIjoiMDAwNDIwMDAxIiwiWC1Sb2wtQXBsaWNhdGl2byI6IlNDVEFKVVBKIiwiWC1Vc3VhcmlvLUFwbGljYXRpdm8iOiJTRUNSRVRBUklPUFJVRUJBIiwiWC1JcC1BdXRoZW50aWNhdGUiOiIxMjcuMC4wLjEiLCJULUxpbWl0ZSI6MTc3MTg4OTc4NTk0OX0.lGPPHi-7sbG00HDEYpfkLBwfvvddRGxIu9tsWAmzA-SoohptfiYgmHT9qb8w7iFONiqWiZ9sFovJdyr3Rhowbg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/usuarios/datos-sesion",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"usuarios",
+								"datos-sesion"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Maestros",
+			"item": [
+				{
+					"name": "maestros/distritos-judiciales",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/maestros/distrito-judicial",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"maestros",
+								"distrito-judicial"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Documentos",
+			"item": [
+				{
+					"name": "documentos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos?pagina=1&tamanio=5",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos"
+							],
+							"query": [
+								{
+									"key": "pagina",
+									"value": "1"
+								},
+								{
+									"key": "tamanio",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "documentos/[0-9]+",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos/7",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "documentos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.dtX_r9o2Yd30vnT5Wsubt3rZ3kvG7aBmbS6DYUclMwV74-vKmMtwdIn-Ub6yDEkfSyPaHLbfO7JqCjdzU9yqxjXgZM478Nq6vIlXl3HDsw8iLD3bSooXy0TM0dy3HqoZPap98y5M5SBZefc_ucVfjMt7LLR2X5lqQ3map6vaGlx6jrTomAprq9bAC2gzT1kQ4rHkSHu7p0B4om2bpXzN10394j8_0nd1jH-KPHkqeeMENzWho2sgTidAIysdv-mkw6ac2f6n0zLRXP_NfnOyeRcrNJHoAk0gbcKE8CkZzLMyjNPenLkl8Ddm6LTpYQMZDAZC_1NqIATR-mWtL_BlfHNc4DQnXLBj9h-LOquZLpNVvZz-FnScjmd42MWaEG_n2FDm9sM6Cqy-umCKb-0Z8Wu9EGdyGD8ynujLenZnLdtwRVQxHZA2q7DZZq7FFMB1I2K7xIumT8dxukf5200ns_ikmDJKDYbQ1XQ0Te0SCmQKTgu8C1P8-oklJwOCZvPbWAMnSITS-MSgCGyvIxQdhz4hPlAA2sGZ-R8JOX_lfxRs-s5blHaeC78Csrpljy-iWnf8xO5bIxaLInNzP4X8gT-QojfYLEfYJ3ekttzHbKnPdOZj8BjoVIN8ZN_LCIbw5zX57hYvQVjSFdt0DHKzvZVRGesF6MK3EYM4WH9iuMk._EUsp-yNxpGrLqXq.DAiY8B8eJ0a9tKi4isr6HjrF85PZIX5TCpDt8uK3aaSGmLqlhn-PJXE9jOFmPO3RtDhUmMvx2ebQn2D-cvpSVKGyZ_00PsNOaMp6fJd4YOvD1l5mV2HHqF2qAsQGsIHRJ2d_2JjCaofF8mUKmNWgI2kQx5yBd6GV1naWeHgwTxrzoLaptkeL71TEOVkMAfFLVSV9ox42-xQYdWqixH8h2RIyb8hX5wC5N2Rl1JbDS6HFcz0lRqYjLiWIXS3ZUxcwEH5nwh_P7iYLE9AzLwIA2jtVDBI8_LFASoW_C3tz5P1jt9zNyWGIZ63z7gGXKxww17vChC__Ypo06vsj5mUtrVJvPXnT66QaT5gagI2fqbRbEvPKk-_BRk75wkgPLARheEUJQS2r8Ng_rMM8gqfMMgfeac6bhYW3IKo53MJZDHKYVjIQyg_6EvUvOYdWU-UD3g3weaaMrmKSkjqyYF0VJ856uHASylom08Iz4PRtiwmCg77rZ3PGv3Z92HEo2_hHMODMQZlnRst2BB4t9ugdp9pEG_r0l0pKCxN-unqOyJcP6fsrl1JFIhTlxkThk8Lt-1I6skFs6k9q_9Ltyu4KhAzMY0xYJ7FVk4x6Hk5THkboeCTptNQNtJFN9NKYKqultjkfyv63FKP6dTE8k40npVqqvb2OLS32MKXrCIsuqmf6U0DPXXgG1J2u-XgLzwiHg0puvFaVSgt4KrUEMeQARve3cZQUPMCyJoY5HY3LagtrK8MYXAhy-foYLd4hSGj0Mcvdk4RnlWhKRK0jvef8E7hl8yW3sKNiy12wXYachG7Xfz8ep_nf5sNgw9NNniYmRh6QCM-wJUdC4pAChz9-J-wN1-diLWbMsYs6q_tiHU_30TjriN0M9OSnKE_bZf4j2PFUS9l9tNGQRVmBqyLCtFlx11FBlm6eNo4ibiTILxh46aNZ1nodtJE-fNWFIkoaVVgq-6L2sqCddZvhyKprZMXzPWNOGvO4sjqMLVrY3OgayEZ1cl-6Dn8MugQER3WPwrtcnYBcTsIMtXhdpVzUEYGjuyMlH8qO1x2ViouhdNpt8Q0xdFnXEYX90mQTa9uUGMJLYRtB7RNU8fcV4qAgB7LtoNdhe8ElXeti27U59b6n5yPQlQkMq4-yI7OOsXdJFUfKDhL3i-ehJBg9SK7f9Pal6jDIzhrCCoFWjTe5mnqRfKPF5kNYwF9SGUHZYyMn5LCnPf3v9J-mhNGFHntuwGmD3h1M55YKrQHsYvLYlkXGEeSG9Ca0tAbU6Zo7_XqeQ6DnsmiFNpO7-aT1qvBeJ3unQjWJTv8MwgT_Wcwq-wIqXesFJ_ozYW6tMWEUkKnfU05UaFvhz7MuUWZoE19VKEGkqwnr6ZO9tp2OQWQvx62iDUBz8I0e8jw-DAcPetfIE5UlqZGThiFk-F9l0qfJIb9Jg8zRx8JeZkxnKWAkzRrzEA6DsP5FFKuEHKNlE8FtQNgsOuuvO19mseB8ghy9Zvki4ng.kciiqgfwUNwq5ErqzfaNcg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "prueba_meritocracia01.pdf",
+									"type": "text"
+								},
+								{
+									"key": "archivo",
+									"type": "file",
+									"src": "/D:/Usuarios/aperalesb.PJUDICIAL/Documents/blank.pdf"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "documentos/[0-9]+",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.Jgde9u-M9MBoMfnjTYsmtlgcIFeyzvUdgiMxuIAeTp1dXW1j62F0wfqZbw_LX2cVBTypvRS14ElQ5pSSuCDEwRWZCa4mIyHD1WW_RpaPKnq0rU0zxyPU-Cu--8NXY7sxMapdWfNJFoQndIvyhpPtyLPugbDcsGWhHpDEAZ45hekBQ2DdTzJlnIxrl1V2iMVGcK4kAAQGKXwLTrOZZ_fiKOB3Ti2cCyBqQCTCbrP9MMQbn7Avx15XTbNZPn_TmWKW349JeMiU282AC4u2iR5YC8i9gLHJsI-VqWsj3G-NhXkpE9JRC5qsecw4-JPyHjjG8wB4MtiK18sZ4N5N8ZNOjNhFrKVnJM633Q0Tr0w2UJzzFnlveSQ2znTQpHF9Ze0aJdHZbTAIvo2G_8maRoIT9A3qAjdlQqwavBP5TPACrSkSzaXjtqvmBEZ8ZWqfu96RYjoG48aoKFNnE3Cj3vLdDbUzG0e8j2QeCm-FNwayhJGVHBkPVJAvEqzOINjFbL7MYIOPiHrmiPr2c5ZNTi2Tjbbzz-N49TTSzAMkcZtivUlFzBC7qP7dmpDhg6DvUCFcsVkENIhYxUnV1n9Nw0YtXxvUK6cDUWlctlHp7-womc58JXcl91ggy-7g6rosnqFrKm_CVo0TcPwy-7QSREAb6s0_sT2oXYZ2OIJ_aSI7fKs.7vk8J2ADJdlrMcAR.JNnTDb87qU1LByekFrq4oyLuQ_Y28dwml3jVbG3Jmj8s1T2S8mNmJsReUlLZDBFpdJ3Vg-bO_vktc0ZOGV_sT8txEw3jilUDH5OJADCDKdeSQoS-eEHoyiSSujnrP5LLNk74ot5Cv2tw_YF1hTUt5fcp3jTX6TUskVcHqYdkxGnYgENIE76UMY9MpdimtAOy-aBakUpbCuuyXTAhCGBaVDVwNiCzf_eJw-Dl2-0Z3VKoSmbFNbyQjTq5cr8q-v66qRmA_wchtxHoPEKqMm2-0QazhvJ3g18jIBs-ytObgKEq4XAGXv87jENlaxgomhhUvDk_dPUcizPQVFCwbVqsv0FiuulUI9QjEsUCVhnGU_8w4u0LFusi3IJJ_rrjR2aa4HbZD44vaeO7WKYAx1ueyi5T4bIma9jrn8k9-tgB6HHVisUsE4J9E-n6n5TLali752_QCxcvYwpCVk9yHuPhfWnLSA0akUaoqTkEac-TqMuHDtVDWwO_pWnKZcuSS3SaXmB9Gve3Xe_KHAFTnth1ECqVT3Z9z1K4iAo14Kl8Ke2K9epQmu0EmGZr_rWkc6bflfet4RHvD2Zq1wuPTr2NY74LVfgJCheRNFdTL9Or_5VM9sr8sPzft68rpQc1XA2kV-wjYGLKEGmpVM7n3AZYhc6ThY3rGbroPo8_dmUrLWAQBZGNcxkhiUucKJnhN1_oyocmUC5O2U9XiCCK3NBnvoC5dYl57GMJG5q0NOIX1Zdo77E6cm95_3ZKqab_MP0Wsy5s1BDbDhXjsY6j53IsHhzzWOdUsA51D_h9vClS_utC6J-udwH5Ht8WLJQ8OvNPuR8cUTOVL13eInuOUOZ2f716Xmi0QEnFyIDEhxFUyM3H8FIU5AV0aMmciciq5EutwDist0sY9cYAnazJeTuy6jpoo7Kt5Cik9eUsD7hUYoIMtvmR-L5inRPbVB1frL5q6BBAR_9uTa9t9hWwehst1eor9jTBRf__NVpKYceGKXO7t_1ZPQ-eBaTqTKmaQgFFn39hn7ouCvCrVAw82W0NDjQD5qgOZqw9NmHc_Ww6zdVPMX1NnvpFfrsnsFYcju5zX2QYapb8dSjqDS2DK980zUa8mDCGaZ8lHlgY_aZYM7k_xKi8fcUid-DjTWeeL8eZh5E9a2DnZ7LRVFnnrql9FUFWo_ZK-7_uSwlL8z0uOLyjo96fZIl4Pxy5rrooO63hQUBrjyBBO7I5qxH8Vgail-mnlojn4ihMLJ9qSny7ZE8VVWR-rIwyGwXg_9_yL2bdl-_4k_H2B72F2VQdraGRyz0iWejHNEVOSDFjBXuDuxVnoeEqpFMEoDGU2P-xh2beXSjOvGMJc-uebvfqK2Y2A91HhGbLgrIovq2aZiRvF1Ypbv9xNA1NiJoGm2pxhxyNLFZmBKGeiIZyX3cTD-4SAkUS6BjIE3LjxRTRDoiAblgJREFmkZlCSDg1c_rPDir46BOhrMoLmLr9YOlUc9Q0ng59ZVA.FzFN0971g3HkQ4PpO49ZZA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "prueba_meritocracia02.pdf",
+									"type": "text"
+								},
+								{
+									"key": "archivo",
+									"type": "file",
+									"src": "/D:/Usuarios/aperalesb.PJUDICIAL/Documents/blank.pdf"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos/1",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "documentos/[0-9]+",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.XYDulC8HG9uGz_vFp6exwXZgK0E56E5lxy483w_xywn8gJlEI9ksXO9T36m6Dl8bjzKUdtnv9qOzpgNTpZMSN8Utl4WrGhjbqNaZolalTXvjdIDNYoS6TKrt-cmFnTgeho5NDirBzeuuZ_vi4TWmQUTLgzxceUg3qlKpjk-ijPC_vScuB-XjACRMGJGEFnzEHYjyp6ZuXKJOjVikOPqTWwji3-qHeVYpqAEXCUirftvLVkVj2WBL26GiK4lIv1hD7kxUCCaphMk-6BvC9aizjFPk_GTK5VQKGa4D670Q5qwgzGupTY1cWm_PnR1eapwzqRtt1gsUAR6KVQYR6Urzibf4QgdxpLExI53bzkKWaDwBlBAVv9BDH1xsfACeNEyEGMfM5W_ofjm_8_O9yVhxHazZwk-Dq-htJArUmhkqOu_zQoQgE-w5LzuX_FHWXl_p2XYqd70Ak62ZQ7Ql23eur_LaNR_b3Z-UxJuI8VzerYBYYbuA_8R2ekVWZfwrOJfn36PQiJ5VhSe9rYSBAGjhk4fTwICsCGpTcLEvj1B2G0ur-l7onq4R4sS28JVgKB50Zg-RXw_pMuRjjtXA-80gS0tud2WSIcVHF5rbgH9t3asdhemwBBYNUeDOFaqKvO6Fz0n50DCK_ZUtqmXSqmwHmN7FpBKS1nEfFja-QE6Y8x0.npUbe7KZXFhUsTae.APGgClhx--JMhWMQYa7LZdYzszeMj_UUQOrTav_ARts3TLAgD6S8FSPNFeEVuiKngpOznGKlo3cdiFB3LjEaFGp-9uSdFCxXqkldHf9RPu7uDbxmIdawtrklgV8TRrrakeyLVsuNtQWAZP5hTfEaZ-t1ANwducLOymIaeeK2xPTv47cdM2A_kjPs1ezk_N93f4heZyLuYcrG9gCd6Yb-K9sHwb0NeiKx_qF7zqml9aF83RBWYS8SbpV8xjcORWrNLT57NyBv64D4MLLLCGQsluZ_k4xgO2jYUTNtVvcU-rqxJrNX_0B32SQv6ImLKTGCvgQeQTGF1X9i0SpjQpw0HtAdGqhW31w3K2TQ-YfVYjjuG2OwrW4i1QvXF1BK0XPGiehJlHEHqaX-byq6--xdoM12rlpTbeGSOdJXXzwOsNAlEbLtDQE0tDivEN2sI7TNmQwgA28C2K4RXYtMhSAfx2e1-SS2IBu3vQsuNN014qxzvSpJ_SS-AHt8f3Rz-PZ9bNICWl_x9eOSI0kHAmsv-u9IaUv7ZaaFcXPHFix3MEp7CJ6HR0LawLkiGAehBEuFtAt2RnJrQBWnq18aeKxNcfF3_v3XP3pal3tIBBfrK23maetAq-wScwSYX24X2N61VU1qRLK4ksxREFaPAprMKPikcE0fWtzVwpOuu43lgvS6_CKLXoPSkOEcN3OlXzj2KGkF9m8xD_3tNZzugJjzB0IBzjh8YQjWT8ArO2wHxItZY22_Aey8KMinSPWlrnPp7L4dyr9CuVKRFCqtMMCTugJboc6gCfU0yXS-ZXqd8m01c-ls4gzf76Nxoun7PlfQe_nhB0JrTZJbV66Pu9v6r58rIYp_dTy7WG9Yv0LuE7PUP44MQeF1JHR2XPvkDr3Y-fTcqxAcGxO5--WGna54gEGhUxOQwTu9l6G--xpttu2A49MCGhryyMXMCtZwICuVT_pDCdWRiNXlKuFU501vbzMGeCykrTAQfqU3Ala1T3w3vWnEiMwDckjsGN9VZ7tXgH4pY8ByuuAsyqKt2kmQFIOjvS7ie9gjnPlxBsl5C6NmCmsm-eTUkACg9A_PjzEv6tVvih-ZoedyDe9dRagG1YJRHmRr4gWCY_kGkpOuSKDb2_ZdVaw8aUbsfikKc7TYwcPsNSJxIHkr609iaZeBV6-qng5XmYl0PLtgLzKThyVLqFAIeqnW8uj2PSnHtjh-T7k-SAnUyIMeD1HnqJq6GTDQtkH2Bl1vdE0fBvLq-KBVAkem8kj81eEYaqEkqv-u1sEKDol4QIW1lKfLfUlMMy8SRHw3BTn0iPiAhnr67j_gAcdBw3F3GNCOsiqprSl0P98LE3xHwxlsLqlH-It3M8nX7_9362KEt5oUqakdIIn4uV-ULQZ-QDXojsbJoQZ-hBiz82dAey8fPgzS7kTRbwFKtuwb7uRqSXMYiJek_MkYGxK06Jc95KDWi_eovAe1YelEcIdeDltMLmoYULbFeXACHN0.0nwDf1LWm6GpdjDmVaRcGw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos/1",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "documentos/descargar/[0-9+]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"type": "text",
+								"value": "46099060"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"type": "text",
+								"value": "oruizb"
+							},
+							{
+								"key": "X-Request-Ip",
+								"type": "text",
+								"value": "172.34.12.71"
+							},
+							{
+								"key": "X-Request-Pc",
+								"type": "text",
+								"value": "pc-oruizb"
+							},
+							{
+								"key": "X-Request-Mac",
+								"type": "text",
+								"value": "aa-bb-cc-dd-ee-ff"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/documentos/descargar/7",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"documentos",
+								"descargar",
+								"7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "JUECES",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/jueces/siga?numero_documento=11111111",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"jueces",
+								"siga"
+							],
+							"query": [
+								{
+									"key": "numero_documento",
+									"value": "11111111"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fechas",
+			"item": [
+				{
+					"name": "fechas-valoracion/vigente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion/vigente",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion",
+								"vigente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fechas-valoracion-listar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fechas-valoracion-crear",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fechaValoracion\":\"2026-07-15\",\r\n    \"resolucion\": \"reesolucion uventada\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fechas-valoracion-crear Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtOpciones}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Request-Usuario-Aplicativo",
+								"value": "46099060",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Usuario-Red",
+								"value": "oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Ip",
+								"value": "172.34.12.71",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Pc",
+								"value": "pc-oruizb",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Mac",
+								"value": "aa-bb-cc-dd-ee-ff",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{servidor}}/{{contexto}}/fechas-valoracion/16/inactivar",
+							"host": [
+								"{{servidor}}"
+							],
+							"path": [
+								"{{contexto}}",
+								"fechas-valoracion",
+								"16",
+								"inactivar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "healthcheck",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/healthcheck",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"healthcheck"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "seguridad/refresh",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtOpciones}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Request-Usuario-Aplicativo",
+						"value": "46099060",
+						"type": "text"
+					},
+					{
+						"key": "X-Request-Usuario-Red",
+						"value": "oruizb",
+						"type": "text"
+					},
+					{
+						"key": "X-Request-Ip",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "X-Request-Pc",
+						"value": "pc-oruizb",
+						"type": "text"
+					},
+					{
+						"key": "X-Request-Mac",
+						"value": "aa-bb-cc-dd-ee-ff",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/seguridad/refresh?token={{jwtOpciones}}",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"seguridad",
+						"refresh"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "{{jwtOpciones}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/authenticate",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "username",
+						"value": "{{usuario}}",
+						"type": "text"
+					},
+					{
+						"key": "password",
+						"value": "{{clave}}",
+						"type": "text"
+					},
+					{
+						"key": "codigoRol",
+						"value": "{{rol}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/api/authenticate",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"api",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authenticate/login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtAuthenticate}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-Usuario-Aplicativo",
+						"value": "46099060",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Usuario-Red",
+						"value": "oruizb",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Ip",
+						"value": "172.34.12.71",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Pc",
+						"value": "pc-oruizb",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Mac",
+						"value": "aa-bb-cc-dd-ee-ff",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario\": \"benric08\",\r\n    \"clave\": \"456123\",\r\n    \"aplicaCaptcha\": \"N\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/authenticate/login",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"authenticate",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authenticate/opciones",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtLogin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-Usuario-Aplicativo",
+						"value": "46099060",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Usuario-Red",
+						"value": "oruizb",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Ip",
+						"value": "172.34.12.71",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Pc",
+						"value": "pc-oruizb",
+						"type": "default"
+					},
+					{
+						"key": "X-Request-Mac",
+						"value": "aa-bb-cc-dd-ee-ff",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario\": \"benric08\",\r\n    \"idPerfil\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/authenticate/opciones",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"authenticate",
+						"opciones"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authenticate/cerrar-sesion",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.M6177xlu09pdTDeDZNvsPw3jFx1YvtzB0A8QjUAPgiaGnKMFnaRTdr9ygEw4VEe587uB51XJ1j8igKe7VbH4SX5FxZjO-ZDcjgjQ7bgEv7llwCick_WV8nBYyyUn16FykFU7IF9wT0E3M60XQy0STl5ogunRTlbEftkWOsiMMeyhG_o4MofoLnGuxLZ8cYFSd9bfvvgG3xPPRyOYpBxbdhsTCf_fZ1aIed3JDtVWlKVZrqjuJazqg8E6Ptz0Dia3WcQJxkc_utAdZczUr_DCZDDHotySDxw5oxHi6cKn_fOStcQq5_r9qQGJbTUgpTRm-KxcFfZN3rmr8IXr3UbfvS_w4XF51CWvAgUugceW-hMr9lFXRccdtrNbMNA9_n4i-WZ3npAZFvhBTzuzNWlL7kdyKXQ2u-cA92b1Xr4GxWTqW-fYC1tnRf-81tWQBT3zaqlPE4TDir9qWJmeWzaek1V4890QnaHX9q-qJo1oGdnkUpEVy0vtRy1ICQvybAWqouYen8XeEL3AsJcsK2h8WceYDpVgWwwxwrR649tcwbHkWstQoSUUAOFQRUJwnZCy9VuiFhl7Yv1a17JfKgZsSZWThJpx-y8pdOUnkS8amK_guu7D_OBoiBkRTuAYqvHUxcWbTFXd_-bJLt7nRgEl7iqCTKfsKJvjj0EZnbsqJEU.WxWYnou0You-DDKJ.SGxx2gmU1bpnjwX3sA5XsT3a-6lK9IYESSzFli7j-ps_iSi9faBiR_b5Ozx72h7rZbl5qreM6OHRlo0W9Xm6hYAxG4MqabY-96G-9rWfI772uqn1GwC0htC0CvNsqf_vwwUa4Cc4hqfl4m8wNa9Fjn2duNbq4MUt1TEWwMLxsmrr1-mx1V87YE1FLXLZiZ6QtNl-YaZV4yiYwZzaWQoQORjWIKnPbfDQf1u7z4AvMNaCWIfQN7ua0JsLVwr8AMm9azKRGp1xWuXfAIRAT5ZVSIDgCkV2mz-YcN4jpsJC86rsaAEKQgH2jdLRpn26Y68Ty12w-7dRvpQzjS20KaEWd0P59ReHQxjxaLG8pJnHlkYPswAFYIZeDIYMGkKuq0GTpVCW8frIJB1mBnWjrBpMp-v7G-LEOMe5g_Cz_2waDS-iFK0ZjKeBpCEa4w_lBMm2-75DukOrZNYsTB_-O8Fq5XfD83jvpZVO4IfPj6pAZbzmYxWYoPI50v-3b9IA783UDPOB87jc0_8OA9tenz-crgVIuniZ34sj3FSZqpdqdkuhm6YgYcwxaxROD0hSW6C-UVAAeNWvU_GZJ-T5wfymMStoQf6_2EQRBjR_QDmwaqRLkiROTQ2nYMY1R292xsgq5FTXrwIIQwqG7jP7A_AzqqNO4jq2Feu3F0ZYsppLg9kgjUfvGM1q26fDOt6H8iXOAeZUcOm9ltuxlgVXwV4LXJrDlTwfy0d-E_7Hs5bsZU5suUpsUxFK56XJVJ6RhGMd10REnTLpnfTNiAP64vDdhVEAC3KEmfTACfQFUMNctECBNjoij0PcyCtK3nIHEVmTQylNb46ZkxV9PSjOqRNHgabzux1blEABak13Xauv9_hc-thqkvZNVIgC97RK0S7xHTLMxp0ybaWfFYUTOPEecH-uUKv-FBLxHAKueUXjf0UIGMoiaGxcyOheeDidscTzDM4Gexmm_6dSQlHQ_-5vuhCExvUqdkh6nLDibMHL7BLqna8ERvqbDImXocZf61onIrX1MC1IpEtotGSF5mi6NcSUGf5-MglLlTERzDMPKS7pNL7FmJKlWEB8P6fygFdHDffEm-wBE3mPjIza7TXkleiSOo0HUJdk4eH-GtWXCi1v8eKv0drkQZKa1uLyvGoQXQmKXQDZqIePalDPQQDijM4NwKpOM7UsCXh4rg-gJ2FyVfjE9OlfMn_s1e74iYWoMHTTaGc3lRk6MBvGwDXDAQTqj8vg1SU64CFfRMhZE-lM3xZ4cHl0yfD8imqx1A-BVy3_ANZPMCp6jrAs5fJdhdhvimXt_mqZMIFIm2mAR_YjlD8wD_2Zq4ZlT9WDmnrp9143BeIVcUYEfo8bZ0KlkFwazKjSG0BIBtBkLgRPDXfTToOeX-DwI7ZaXPoNkrTvVcpLPNuzIrupy1QeqidkT1nyKJsQOfkLZnycNm17GSBNBLDLDlpHp0I3Kdvn5WJDewnJeTtN2ykToxjO3WLXFNmScLo.QSEg9KsdKufbUDqxWAUdkg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-Usuario-Aplicativo",
+						"type": "default",
+						"value": "46099060"
+					},
+					{
+						"key": "X-Request-Usuario-Red",
+						"type": "default",
+						"value": "oruizb"
+					},
+					{
+						"key": "X-Request-Ip",
+						"type": "default",
+						"value": "172.34.12.71"
+					},
+					{
+						"key": "X-Request-Pc",
+						"type": "default",
+						"value": "pc-oruizb"
+					},
+					{
+						"key": "X-Request-Mac",
+						"type": "default",
+						"value": "aa-bb-cc-dd-ee-ff"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idSesion\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{servidor}}/{{contexto}}/authenticate/cerrar-sesion",
+					"host": [
+						"{{servidor}}"
+					],
+					"path": [
+						"{{contexto}}",
+						"authenticate",
+						"cerrar-sesion"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const moment = require('moment');",
+					"",
+					"const CONFIG = {",
+					"    headersComunes: {",
+					"        'Content-Type': 'application/json',",
+					"        'X-Request-Usuario-Aplicativo': '46099060',",
+					"        'X-Request-Usuario-Red': 'oruizb',",
+					"        'X-Request-Ip': '172.34.12.71',",
+					"        'X-Request-Pc': 'pc-oruizb',",
+					"        'X-Request-Mac': 'aa-bb-cc-dd-ee-ff'",
+					"    }",
+					"};",
+					"",
+					"const getVar = (key) => pm.collectionVariables.get(key);",
+					"const setVar = (key, value) => pm.collectionVariables.set(key, value);",
+					"const buildUrl = (endpoint) => `${getVar('servidor')}/${getVar('contexto')}/${getVar(endpoint)}`;",
+					"",
+					"// 1. OBTENER OPERACIÓN ACTUAL",
+					"const urlString = typeof request.url === 'string' ? request.url : request.url.toString();",
+					"const operacion = urlString.split('?')[0].split('servicio-prueba-api')[1];",
+					"const rutasIgnoradas = ['/healthcheck', '/api/authenticate', '/seguridad/refresh'];",
+					"",
+					"if (!rutasIgnoradas.includes(operacion)) {",
+					"    const vars = pm.collectionVariables.toObject();",
+					"    const hayLoNecesario = _.has(vars, 'jwtOpciones') || _.has(vars, 'refreshToken') || _.has(vars, 'expiredToken');",
+					"    const ahora = moment().valueOf();",
+					"    const refreshTokenVal = parseInt(getVar('refreshToken')) || 0;",
+					"    const expiredTokenVal = parseInt(getVar('expiredToken')) || 0;",
+					"",
+					"    if (!hayLoNecesario || ahora >= refreshTokenVal) {",
+					"        console.log('--- [PASO 0] Token inválido o expirado. Iniciando flujo síncrono estricto... ---');",
+					"        ejecutarAuthenticate();",
+					"    } else if (ahora > expiredTokenVal && ahora < refreshTokenVal) {",
+					"        console.log('--- [PASO 0] Token en ventana de refresh. Iniciando actualización... ---');",
+					"        ejecutarRefresh();",
+					"    } else {",
+					"        console.log('--- [PASO 0] Token aún válido. No se requieren peticiones previas. ---');",
+					"    }",
+					"}",
+					"",
+					"// 2. FLUJO COMPLETO EN CADENA (CALLBACKS CONTROLADOS)",
+					"function ejecutarAuthenticate() {",
+					"    console.log(' Lanzando /urlAuthenticate...');",
+					"    pm.sendRequest({",
+					"        url: buildUrl('urlAuthenticate'),",
+					"        method: 'POST',",
+					"        header: {",
+					"            'Content-Type': 'application/json',",
+					"            'username': getVar('usuario'),",
+					"            'password': getVar('clave'),",
+					"            'codigoCliente': getVar('cliente'),",
+					"            'codigoRol': getVar('rol')",
+					"        },",
+					"        body: {}",
+					"    }, function (err, resAuth) {",
+					"        if (err || !resAuth || resAuth.code !== 200 || !resAuth.json()) {",
+					"            console.error('❌ Error crítico en /urlAuthenticate');",
+					"            setVar('jwtAuthenticate', null);",
+					"            return;",
+					"        }",
+					"",
+					"        const authData = resAuth.json();",
+					"        const tokenAuth = authData.token;",
+					"        ",
+					"        setVar('jwtAuthenticate', tokenAuth);",
+					"        setVar('texps', parseInt(authData.exps) || 0);",
+					"        setVar('trefs', parseInt(authData.refs) || 0);",
+					"        console.log('✅ jwtAuthenticate guardado.');",
+					"",
+					"        // Siguiente eslabón de la cadena",
+					"        ejecutarLogin(tokenAuth);",
+					"    });",
+					"}",
+					"",
+					"function ejecutarLogin(tokenAuth) {",
+					"    console.log(' Lanzando /urlLogin...');",
+					"    pm.sendRequest({",
+					"        url: buildUrl('urlLogin'),",
+					"        method: 'POST',",
+					"        header: { ...CONFIG.headersComunes, 'Authorization': 'Bearer ' + tokenAuth },",
+					"        body: {",
+					"            mode: 'raw',",
+					"            raw: JSON.stringify({",
+					"                usuario: getVar('userlogin'),",
+					"                clave: getVar('passlogin'),",
+					"                aplicaCaptcha: \"N\",",
+					"                tokenCaptcha: \"\"",
+					"            })",
+					"        }",
+					"    }, function (err, resLogin) {",
+					"        if (err || !resLogin || resLogin.code !== 200 || !resLogin.json() || resLogin.json().codigo !== '0000') {",
+					"            console.error('❌ Error crítico en /urlLogin');",
+					"            return;",
+					"        }",
+					"",
+					"        const tokenLogin = resLogin.json().data.token;",
+					"        const perfil = resLogin.json().data.perfiles[0].idPerfil",
+					"        setVar('jwtLogin', tokenLogin);",
+					"        console.log('✅ jwtLogin guardado.');",
+					"",
+					"        // Siguiente eslabón de la cadena",
+					"        ejecutarOpciones(tokenLogin,perfil);",
+					"    });",
+					"}",
+					"",
+					"function ejecutarOpciones(tokenLogin,perfil) {",
+					"    console.log(' Lanzando /urlOpciones...');",
+					"    pm.sendRequest({",
+					"        url: buildUrl('urlOpciones'),",
+					"        method: 'POST',",
+					"        header: { ...CONFIG.headersComunes, 'Authorization': 'Bearer ' + tokenLogin },",
+					"        body: {",
+					"            mode: 'raw',",
+					"            raw: JSON.stringify({ usuario: getVar('userlogin'), idPerfil: perfil })",
+					"        }",
+					"    }, function (err, resOpciones) {",
+					"        if (!err && resOpciones && resOpciones.code === 200 && resOpciones.json() && resOpciones.json().codigo === '0000') {",
+					"            const tokenFinal = resOpciones.json().data.token; ",
+					"            const vexp = parseInt(getVar('texps')) || 0;",
+					"            const vref = vexp + (parseInt(getVar('trefs')) || 0);",
+					"            ",
+					"            setVar('jwtOpciones', tokenFinal);",
+					"            setVar('expiredToken', moment().add(vexp, 's').valueOf());",
+					"            setVar('refreshToken', moment().add(vref, 's').valueOf());",
+					"            console.log('🎉 Flujo completo exitoso. Petición principal liberada.');",
+					"        } else {",
+					"            setVar('jwtOpciones', null);",
+					"            setVar('expiredToken', 0);",
+					"            setVar('refreshToken', 0);",
+					"            console.warn('⚠ El flujo falló en el paso de Opciones. Se resetearon los tokens.');",
+					"        }",
+					"    });",
+					"}",
+					"",
+					"function ejecutarRefresh() {",
+					"    const jwtOpciones = getVar('jwtOpciones');",
+					"    pm.sendRequest({",
+					"        url: buildUrl('urlRefresh') + '?token=' + jwtOpciones,",
+					"        method: 'GET',",
+					"        header: { ...CONFIG.headersComunes, 'Authorization': 'Bearer ' + jwtOpciones },",
+					"        body: {}",
+					"    }, function (err, resRefresh) {",
+					"        if (!err && resRefresh && resRefresh.code === 200 && resRefresh.json() && resRefresh.json().codigo === '0000') {",
+					"            const tokenFinal = resRefresh.json().data.token;",
+					"            const vexp = parseInt(getVar('texps')) || 0;",
+					"            const vref = vexp + (parseInt(getVar('trefs')) || 0);",
+					"            ",
+					"            setVar('jwtOpciones', tokenFinal);",
+					"            setVar('expiredToken', moment().add(vexp, 's').valueOf());",
+					"            setVar('refreshToken', moment().add(vref, 's').valueOf());",
+					"            console.log('🔄 Token refrescado con éxito.');",
+					"        } else {",
+					"            setVar('expiredToken', 0);",
+					"            setVar('refreshToken', 0);",
+					"            console.error('❌ Error al intentar refrescar el token.');",
+					"        }",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "servidor",
+			"value": "http://172.19.9.35:8080",
+			"disabled": true
+		},
+		{
+			"key": "contexto",
+			"value": "meritocracia-api-rest"
+		},
+		{
+			"key": "usuario",
+			"value": "kNeeHs/iT/J5k0yu8iUrxw=="
+		},
+		{
+			"key": "clave",
+			"value": "ndAUiY58oUA="
+		},
+		{
+			"key": "rol",
+			"value": "QXeK+ABfEEKtz1FzgAPBGg=="
+		},
+		{
+			"key": "urlAuthenticate",
+			"value": "api/authenticate"
+		},
+		{
+			"key": "urlRefresh",
+			"value": "seguridad/refresh"
+		},
+		{
+			"key": "urlLogin",
+			"value": "authenticate/login"
+		},
+		{
+			"key": "urlOpciones",
+			"value": "authenticate/opciones"
+		},
+		{
+			"key": "jwtAuthenticate",
+			"value": ""
+		},
+		{
+			"key": "jwtLogin",
+			"value": ""
+		},
+		{
+			"key": "jwtOpciones",
+			"value": ""
+		},
+		{
+			"key": "expiredToken",
+			"value": ""
+		},
+		{
+			"key": "refreshToken",
+			"value": ""
+		},
+		{
+			"key": "texps",
+			"value": ""
+		},
+		{
+			"key": "trefs",
+			"value": ""
+		},
+		{
+			"key": "servidor",
+			"value": "localhost:8083"
+		},
+		{
+			"key": "userlogin",
+			"value": "SYSADMIN",
+			"type": "default"
+		},
+		{
+			"key": "passlogin",
+			"value": "123456",
+			"type": "default"
+		}
+	]
+}

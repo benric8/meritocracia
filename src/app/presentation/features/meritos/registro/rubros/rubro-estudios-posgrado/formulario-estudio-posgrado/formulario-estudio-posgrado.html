@@ -1,0 +1,221 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <div>
+      <h2 class="rubro-dialog__titulo">Estudios de doctorado y/o maestría</h2>
+      <p class="rubro-dialog__subtitulo">E.1 · cada registro es un semestre</p>
+    </div>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        Primero registre los datos del programa. Luego indique el semestre y sus notas: pulse
+        Enter o coma para agregar cada nota. El promedio y el puntaje los calcula el servidor.
+        13.00 a 14.99 = 0.500, 15.00 a 18.00 = 0.750 y 18.01 a 20.00 = 1.000. La suma del rubro E
+        se corta en {{ formatearPuntaje(tope) }}. Si el rubro C ya tiene grado de maestro o
+        doctor en la misma universidad y la misma mención, el semestre vuelve con 0.000.
+      </p>
+
+      @if (errorSemestre(); as mensaje) {
+        <p class="rubro-dialog__hint" role="alert">{{ mensaje }}</p>
+      }
+
+      <section class="e1-section" aria-labelledby="e1-datos-title">
+        <h3 class="e1-section__titulo" id="e1-datos-title"><span>1</span> Datos del estudio</h3>
+        <div class="rubro-dialog__grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>País</mat-label>
+            <mat-select formControlName="paisId" placeholder="Seleccione…">
+              @for (item of paises; track item.id) {
+                <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+              }
+            </mat-select>
+            @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+              <mat-error>Seleccione el país.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>Universidad</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="universidadBusqueda"
+              placeholder="Escriba para buscar…"
+              [matAutocomplete]="autoUniversidad"
+            />
+            <mat-autocomplete
+              #autoUniversidad="matAutocomplete"
+              (optionSelected)="onSeleccionarUniversidad($event.option.value)"
+            >
+              @for (item of universidadesFiltradas(); track item.id) {
+                <mat-option [value]="item">{{ item.nombre }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (
+              formulario.controls.universidadBusqueda.touched &&
+              formulario.controls.institucionId.invalid
+            ) {
+              <mat-error>Seleccione una universidad del catálogo.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>Especialidad</mat-label>
+            <mat-select formControlName="especialidad" placeholder="Seleccione…">
+              @for (item of opcionesEspecialidad; track item.valor) {
+                <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+              }
+            </mat-select>
+            @if (
+              formulario.controls.especialidad.touched && formulario.controls.especialidad.invalid
+            ) {
+              <mat-error>Seleccione la especialidad.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>Mención</mat-label>
+            <input
+              matInput
+              formControlName="mencion"
+              placeholder="Ej. Derecho constitucional"
+              [attr.maxlength]="limiteMencion"
+            />
+            @if (formulario.controls.mencion.touched && formulario.controls.mencion.invalid) {
+              <mat-error>Ingrese la mención, máximo {{ limiteMencion }} caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="rubro-dialog__campo rubro-dialog__campo--wide"
+          >
+            <mat-label>Condición académica</mat-label>
+            <mat-select formControlName="condicionAcademica" placeholder="Seleccione…">
+              @for (item of opcionesCondicion; track item.valor) {
+                <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+              }
+            </mat-select>
+            @if (
+              formulario.controls.condicionAcademica.touched &&
+              formulario.controls.condicionAcademica.invalid
+            ) {
+              <mat-error>Seleccione la condición académica.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="e1-section" aria-labelledby="e1-semestre-title">
+        <div class="e1-section__cabeza">
+          <h3 class="e1-section__titulo" id="e1-semestre-title"><span>2</span> Semestre académico</h3>
+          <p class="e1-section__meta">Ingrese la nota y pulse Enter o coma para agregarla</p>
+        </div>
+
+        <div class="rubro-dialog__grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>N.º semestre</mat-label>
+            <input
+              matInput
+              type="number"
+              [attr.min]="semestreMin"
+              [attr.max]="semestreMax"
+              step="1"
+              formControlName="numeroSemestre"
+            />
+            @if (
+              formulario.controls.numeroSemestre.touched &&
+              formulario.controls.numeroSemestre.invalid
+            ) {
+              <mat-error>Ingrese un entero de {{ semestreMin }} a {{ semestreMax }}.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>Año de inicio</mat-label>
+            <input
+              matInput
+              type="number"
+              [attr.min]="anioMin"
+              [attr.max]="anioMax"
+              step="1"
+              formControlName="anioInicio"
+            />
+            @if (formulario.controls.anioInicio.touched && formulario.controls.anioInicio.invalid) {
+              <mat-error>Ingrese un año entre {{ anioMin }} y {{ anioMax }}.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+            <mat-label>Año de fin</mat-label>
+            <input
+              matInput
+              type="number"
+              [attr.min]="anioMin"
+              [attr.max]="anioMax"
+              step="1"
+              formControlName="anioFin"
+            />
+            @if (formulario.controls.anioFin.touched && formulario.controls.anioFin.invalid) {
+              <mat-error>Ingrese un año entre {{ anioMin }} y {{ anioMax }}.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (formulario.touched && formulario.hasError('anioFin')) {
+          <p class="rubro-dialog__hint" role="alert">
+            El año de fin no puede ser anterior al de inicio.
+          </p>
+        }
+
+        <div class="e1-notas">
+          <span class="e1-notas__etiqueta">Notas del semestre</span>
+          <div class="e1-notas__wrap">
+            @for (nota of notas(); track $index) {
+              <span class="e1-notas__chip">
+                {{ nota.toFixed(2) }}
+                <button type="button" title="Quitar nota" (click)="quitarNota($index)">×</button>
+              </span>
+            }
+            <input
+              class="e1-notas__input"
+              type="text"
+              inputmode="decimal"
+              placeholder="Nota"
+              aria-label="Agregar nota"
+              formControlName="notaPendiente"
+              (keydown)="onNotaTecla($event)"
+            />
+          </div>
+          @if (errorNota(); as mensajeNota) {
+            <p class="e1-notas__error" role="alert">{{ mensajeNota }}</p>
+          }
+        </div>
+
+        <dl class="e1-resultado">
+          <div>
+            <dt>Promedio</dt>
+            <dd>{{ promedioReferencia() ?? '—' }}</dd>
+          </div>
+          <div>
+            <dt>Puntaje</dt>
+            <dd>{{ puntajeReferencia() ?? '—' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar semestre' : 'Guardar estudio' }}
+      </button>
+    </footer>
+  </form>
+</div>

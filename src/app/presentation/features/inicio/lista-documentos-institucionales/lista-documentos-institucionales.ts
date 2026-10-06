@@ -1,0 +1,189 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DomSanitizer } from '@angular/platform-browser';
+import { finalize } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { DescargarDocumentoInstitucionalUseCase } from '../../../../application/use-cases/inicio/descargar-documento-institucional.use-case';
+import { ListarDocumentosInstitucionalesUseCase } from '../../../../application/use-cases/inicio/listar-documentos-institucionales.use-case';
+import {
+  DocumentoInstitucional,
+  ETIQUETAS_TIPO_DOCUMENTO,
+  TipoDocumentoInstitucional,
+} from '../../../../domain/models/documento-institucional.model';
+import { PAGINACION_POR_DEFECTO } from '../../../../domain/models/paginacion.model';
+import { VistaPreviaDocumentoDialog } from '../vista-previa-documento-dialog/vista-previa-documento-dialog';
+
+@Component({
+  selector: 'app-lista-documentos-institucionales',
+  standalone: true,
+  imports: [MatIconModule, MatButtonModule, MatPaginatorModule],
+  templateUrl: './lista-documentos-institucionales.html',
+  styleUrl: './lista-documentos-institucionales.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ListaDocumentosInstitucionales implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly listarDocumentos = inject(ListarDocumentosInstitucionalesUseCase);
+  private readonly descargarDocumento = inject(DescargarDocumentoInstitucionalUseCase);
+
+  private blobVistaPrevia: string | null = null;
+  private dialogVistaPrevia: MatDialogRef<VistaPreviaDocumentoDialog> | null = null;
+
+  readonly permitirReemplazo = input(false);
+  readonly solicitarReemplazo = output<DocumentoInstitucional>();
+
+  protected readonly documentos = signal<DocumentoInstitucional[]>([]);
+  protected readonly paginaActual = signal(PAGINACION_POR_DEFECTO.pagina);
+  protected readonly tamanioPagina = signal(PAGINACION_POR_DEFECTO.tamanio);
+  protected readonly totalRegistros = signal(0);
+  protected readonly opcionesTamanioPagina = [5, 10, 20];
+  protected readonly cargando = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly previsualizandoId = signal<string | null>(null);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.dialogVistaPrevia?.close();
+      this.revocarBlobVistaPrevia();
+    });
+  }
+
+  ngOnInit(): void {
+    this.cargar();
+  }
+
+  recargar(pagina = PAGINACION_POR_DEFECTO.pagina): void {
+    this.paginaActual.set(pagina);
+    this.cargar(pagina);
+  }
+
+  protected onPaginaCambiada(evento: PageEvent): void {
+    this.paginaActual.set(evento.pageIndex + 1);
+    this.tamanioPagina.set(evento.pageSize);
+    this.cargar();
+  }
+
+  protected descargar(documento: DocumentoInstitucional): void {
+    this.error.set(null);
+    this.descargarDocumento
+      .ejecutar(documento.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => this.dispararDescarga(blob, documento.nombreArchivo),
+        error: () => undefined,
+      });
+  }
+
+  protected verVistaPrevia(documento: DocumentoInstitucional): void {
+    this.error.set(null);
+    this.previsualizandoId.set(documento.id);
+
+    this.dialogVistaPrevia?.close();
+    const ref = this.dialog.open(VistaPreviaDocumentoDialog, {
+      width: '960px',
+      maxWidth: '95vw',
+      autoFocus: 'dialog',
+      panelClass: 'mc-dialog-panel',
+      data: { titulo: documento.nombreArchivo },
+    });
+    this.dialogVistaPrevia = ref;
+
+    ref.afterClosed().subscribe(() => {
+      this.revocarBlobVistaPrevia();
+      if (this.dialogVistaPrevia === ref) {
+        this.dialogVistaPrevia = null;
+      }
+    });
+
+    this.descargarDocumento
+      .ejecutar(documento.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.previsualizandoId.set(null))
+      )
+      .subscribe({
+        next: (blob) => {
+          if (this.dialogVistaPrevia !== ref) {
+            return;
+          }
+          this.revocarBlobVistaPrevia();
+          this.blobVistaPrevia = URL.createObjectURL(blob);
+          ref.componentInstance.mostrarDocumento(
+            this.sanitizer.bypassSecurityTrustResourceUrl(this.blobVistaPrevia)
+          );
+        },
+        error: () => {
+          if (this.dialogVistaPrevia === ref) {
+            ref.close();
+          }
+        },
+      });
+  }
+
+  protected etiquetaTipo(tipo: TipoDocumentoInstitucional): string {
+    return ETIQUETAS_TIPO_DOCUMENTO[tipo];
+  }
+
+  protected fechaFormateada(iso: string): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date(iso));
+  }
+
+  private cargar(pagina = this.paginaActual()): void {
+    this.cargando.set(true);
+    this.error.set(null);
+
+    this.listarDocumentos
+      .ejecutar({ pagina, tamanio: this.tamanioPagina() })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargando.set(false))
+      )
+      .subscribe({
+        next: (resultado) => {
+          this.documentos.set(resultado.elementos);
+          this.totalRegistros.set(resultado.totalRegistros);
+          this.paginaActual.set(resultado.paginaActual);
+          this.tamanioPagina.set(resultado.tamanioPagina);
+
+          if (resultado.elementos.length === 0 && resultado.totalRegistros > 0 && pagina > 1) {
+            this.recargar(pagina - 1);
+          }
+        },
+        error: () => undefined,
+      });
+  }
+
+  private dispararDescarga(blob: Blob, nombreArchivo: string): void {
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombreArchivo.endsWith('.pdf') ? nombreArchivo : `${nombreArchivo}.pdf`;
+    enlace.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private revocarBlobVistaPrevia(): void {
+    if (this.blobVistaPrevia) {
+      URL.revokeObjectURL(this.blobVistaPrevia);
+      this.blobVistaPrevia = null;
+    }
+  }
+}

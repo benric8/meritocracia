@@ -1,0 +1,112 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <h2 class="rubro-dialog__titulo">Idioma nativo o extranjero</h2>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de idioma</mat-label>
+          <mat-select formControlName="tipoIdioma">
+            @for (tipo of tiposIdioma; track tipo.valor) {
+              <mat-option [value]="tipo.valor">{{ tipo.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Idioma</mat-label>
+          <mat-select formControlName="idiomaId" placeholder="Seleccione…">
+            @for (item of idiomasFiltrados(); track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.idiomaId.touched && formulario.controls.idiomaId.invalid) {
+            <mat-error>Seleccione el idioma.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Institución</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="institucionBusqueda"
+            placeholder="Escriba para buscar…"
+            [matAutocomplete]="autoInstitucion"
+          />
+          <mat-autocomplete
+            #autoInstitucion="matAutocomplete"
+            (optionSelected)="onSeleccionarInstitucion($event.option.value)"
+          >
+            @for (item of institucionesFiltradas(); track item.id) {
+              <mat-option [value]="item">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Nivel</mat-label>
+          <mat-select formControlName="nivelIdiomaId" placeholder="Seleccione…">
+            @for (item of nivelesIdioma; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.nivelIdiomaId.touched &&
+            formulario.controls.nivelIdiomaId.invalid
+          ) {
+            <mat-error>Seleccione el nivel.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="tipoDocumentoIdiomaId" placeholder="Seleccione…">
+            @for (item of tiposDocumento; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoDocumentoIdiomaId.touched &&
+            formulario.controls.tipoDocumentoIdiomaId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de documento.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de obtención</mat-label>
+          <input matInput [matDatepicker]="pickerFecha" formControlName="fechaObtencion" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFecha" />
+          <mat-datepicker #pickerFecha />
+          @if (
+            formulario.controls.fechaObtencion.touched &&
+            formulario.controls.fechaObtencion.invalid
+          ) {
+            <mat-error>Ingrese la fecha de obtención.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit">
+        <mat-icon>{{ esActualizacion ? 'sync' : 'save' }}</mat-icon>
+        {{ esActualizacion ? 'Actualizar registro' : 'Guardar registro' }}
+      </button>
+    </footer>
+  </form>
+</div>

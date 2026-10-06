@@ -1,0 +1,17 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Poder Judicial del Perú">
+  <!-- Cuatro formas estilizadas en cuadrícula (réplica visual del mockup) -->
+  <g stroke="white" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="4" width="40" height="40" rx="2"/>
+    <rect x="52" y="4" width="40" height="40" rx="2"/>
+    <rect x="4" y="52" width="40" height="40" rx="2"/>
+    <rect x="52" y="52" width="40" height="40" rx="2"/>
+    <!-- P superior izquierda -->
+    <path d="M16 18v28M16 18h14a10 10 0 0 1 0 20H16"/>
+    <!-- J superior derecha (estilizada) -->
+    <path d="M64 18h16M72 18v22a10 10 0 0 1-10 10"/>
+    <!-- P inferior izquierda -->
+    <path d="M16 66v28M16 66h14a10 10 0 0 1 0 20H16"/>
+    <!-- J inferior derecha -->
+    <path d="M64 66h16M72 66v22a10 10 0 0 1-10 10"/>
+  </g>
+</svg>

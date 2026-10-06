@@ -1,0 +1,92 @@
+<section class="rubro-docencia" aria-label="Docencia universitaria">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-docencia__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-docencia__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando docencia registrada…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-docencia__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-docencia__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir docencia
+        </button>
+      }
+    </div>
+
+    <div class="rubro-docencia__records">
+      <table class="rubro-docencia__table">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Universidad</th>
+            <th>Materia</th>
+            <th>Periodo</th>
+            <th>Horas</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="7" class="rubro-docencia__empty">
+                Sin registros. Use "Añadir docencia" para agregar una docencia.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ etiquetaDocumento(item.descripcionDocumento) }}</td>
+                <td>{{ item.universidad }}</td>
+                <td>{{ item.materia }}</td>
+                <td>
+                  {{ formatearFechaCorta(item.fechaInicio) }}
+                  –
+                  {{ formatearFechaCorta(item.fechaFin) }}
+                </td>
+                <td>{{ item.horasSemanales }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-docencia__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar docencia"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar docencia"
+                        (click)="eliminarDocencia(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

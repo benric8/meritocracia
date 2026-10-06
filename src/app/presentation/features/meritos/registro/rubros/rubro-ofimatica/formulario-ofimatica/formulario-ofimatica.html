@@ -1,0 +1,146 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <div>
+      <h2 class="rubro-dialog__titulo">Estudio de ofimática</h2>
+      <p class="rubro-dialog__subtitulo">E.6 · el puntaje lo calcula el servidor</p>
+    </div>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        Básico vale 0.500, intermedio 0.750 y avanzado 1.000. Si el nivel ya está registrado, la
+        otra línea queda en 0.000. El tope de {{ tope.toFixed(3) }} se aplica al subtotal, no a
+        cada línea.
+      </p>
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Curso</mat-label>
+          <input matInput type="text" formControlName="nombreCurso" [maxlength]="limiteCurso" />
+          @if (
+            formulario.controls.nombreCurso.touched &&
+            formulario.controls.nombreCurso.hasError('required')
+          ) {
+            <mat-error>Indique el nombre del curso.</mat-error>
+          }
+          @if (
+            formulario.controls.nombreCurso.touched &&
+            formulario.controls.nombreCurso.hasError('maxlength')
+          ) {
+            <mat-error>Máximo {{ limiteCurso }} caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+            <mat-error>Seleccione el país.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Horas</mat-label>
+          <input matInput type="number" formControlName="duracionHoras" min="1" step="1" />
+          @if (
+            formulario.controls.duracionHoras.touched && formulario.controls.duracionHoras.invalid
+          ) {
+            <mat-error>Indique una duración mayor que cero.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Institución</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="institucionBusqueda"
+            placeholder="Escriba entre 2 y 100 caracteres…"
+            [matAutocomplete]="autoInstitucion"
+          />
+          <mat-autocomplete
+            #autoInstitucion="matAutocomplete"
+            (optionSelected)="onSeleccionarInstitucion($event.option.value)"
+          >
+            @for (item of institucionesFiltradas(); track item.id) {
+              <mat-option [value]="item.nombre">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (
+            formulario.controls.institucionBusqueda.touched &&
+            formulario.controls.institucionId.invalid
+          ) {
+            <mat-error>Seleccione una institución del catálogo.</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="rubro-dialog__campo rubro-dialog__campo--wide rubro-dialog__check">
+          <mat-checkbox formControlName="sinNivel">El certificado no indica nivel</mat-checkbox>
+        </div>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Nivel</mat-label>
+          <mat-select formControlName="nivelOfimaticaId" placeholder="Seleccione…">
+            @for (item of niveles; track item.id) {
+              <mat-option [value]="item.id">{{ item.descripcion }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.nivelOfimaticaId.touched &&
+            formulario.controls.nivelOfimaticaId.invalid
+          ) {
+            <mat-error>Seleccione el nivel.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="tipoDocumentoId" placeholder="Seleccione…">
+            @for (item of tiposDocumento; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoDocumentoId.touched &&
+            formulario.controls.tipoDocumentoId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de documento.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de obtención</mat-label>
+          <input matInput [matDatepicker]="pickerObtencion" formControlName="fechaObtencion" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerObtencion" />
+          <mat-datepicker #pickerObtencion />
+          @if (
+            formulario.controls.fechaObtencion.touched && formulario.controls.fechaObtencion.invalid
+          ) {
+            <mat-error>Seleccione la fecha de obtención.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
+      <button matButton="filled" type="submit">Guardar ítem</button>
+    </footer>
+  </form>
+</div>

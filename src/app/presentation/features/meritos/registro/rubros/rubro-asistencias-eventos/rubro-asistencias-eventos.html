@@ -1,0 +1,105 @@
+<section class="rubro-asistencias" aria-label="Asistencia a eventos académicos">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-asistencias__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-asistencias__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando asistencias…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <p class="rubro-asistencias__aviso">
+      Cada asistencia vigente vale 0.250. Una caduca vale 0.000. El tope de 2.000 se aplica al
+      subtotal, no a cada línea.
+    </p>
+
+    <div class="rubro-asistencias__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-asistencias__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-asistencias__records">
+      <table class="rubro-asistencias__table">
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Tema</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Jurídico</th>
+            <th>Especialidad</th>
+            <th>Modalidad</th>
+            <th>Documento</th>
+            <th>Puntaje</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="13" class="rubro-asistencias__empty">
+                Sin registros. Use "Añadir" para registrar una asistencia.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ etiquetaEvento(item) }}</td>
+                <td>{{ item.tema || '—' }}</td>
+                <td>{{ etiquetaInstitucion(item) }}</td>
+                <td>{{ etiquetaPais(item) }}</td>
+                <td>{{ formatearFecha(item.fechaInicio) }}</td>
+                <td>{{ formatearFecha(item.fechaFin) }}</td>
+                <td>{{ etiquetaJuridico(item.juridico) }}</td>
+                <td>{{ etiquetaEspecialidad(item) }}</td>
+                <td>{{ etiquetaModalidad(item) }}</td>
+                <td>{{ etiquetaTipoDocumento(item) }}</td>
+                <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
+                <td>{{ etiquetaEstado(item) }}</td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-asistencias__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar asistencia"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar asistencia"
+                        (click)="eliminarAsistencia(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

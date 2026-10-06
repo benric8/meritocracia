@@ -1,0 +1,99 @@
+<section class="rubro-ofimatica" aria-label="Estudios de ofimática">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-ofimatica__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-ofimatica__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando estudios de ofimática…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <p class="rubro-ofimatica__aviso">
+      Básico vale 0.500, intermedio 0.750 y avanzado 1.000. Un nivel repetido queda en 0.000. El
+      tope de 2.000 se aplica al subtotal, no a cada línea.
+    </p>
+
+    <div class="rubro-ofimatica__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-ofimatica__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-ofimatica__records">
+      <table class="rubro-ofimatica__table">
+        <thead>
+          <tr>
+            <th>Curso</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Horas</th>
+            <th>Nivel</th>
+            <th>Documento</th>
+            <th>Obtención</th>
+            <th>Puntaje</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="10" class="rubro-ofimatica__empty">
+                Sin registros. Use "Añadir" para registrar un estudio de ofimática.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.nombreCurso || '—' }}</td>
+                <td>{{ etiquetaInstitucion(item) }}</td>
+                <td>{{ etiquetaPais(item) }}</td>
+                <td>{{ item.duracionHoras }}</td>
+                <td>{{ etiquetaNivel(item) }}</td>
+                <td>{{ etiquetaTipoDocumento(item) }}</td>
+                <td>{{ formatearFecha(item.fechaObtencion) }}</td>
+                <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
+                <td>{{ etiquetaEstado(item) }}</td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-ofimatica__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar estudio de ofimática"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar estudio de ofimática"
+                        (click)="eliminarEstudio(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

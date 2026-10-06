@@ -1,0 +1,100 @@
+<section class="rubro-pasantias" aria-label="Pasantías">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-pasantias__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-pasantias__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando pasantías…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <p class="rubro-pasantias__aviso">
+      Nacional vigente: 0.750. Internacional vigente: 1.000. Caduca en 0.000 cuando la fecha de
+      término queda fuera de los cinco años anteriores a la fecha de valoración. Tope del subrubro:
+      1.500, reflejado en el puntaje del rubro E.
+    </p>
+
+    <div class="rubro-pasantias__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-pasantias__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-pasantias__records">
+      <table class="rubro-pasantias__table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Jurídico</th>
+            <th>Especialidad</th>
+            <th>Mención</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="10" class="rubro-pasantias__empty">
+                Sin registros. Use "Añadir" para registrar una pasantía.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.tipoPasantiaDescripcion || '—' }}</td>
+                <td>{{ etiquetaInstitucion(item) }}</td>
+                <td>{{ item.paisNombre || '—' }}</td>
+                <td>{{ formatearFecha(item.fechaInicio) }}</td>
+                <td>{{ formatearFecha(item.fechaFin) }}</td>
+                <td>{{ etiquetaJuridico(item.juridico) }}</td>
+                <td>{{ item.especialidadDescripcion || '—' }}</td>
+                <td>{{ item.mencion || '—' }}</td>
+                <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-pasantias__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar pasantía"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar pasantía"
+                        (click)="eliminarPasantia(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,57 @@
+// =============================================================
+// Estilos globales — Meritocracia PJ
+// 1) Tema de Angular Material (Material 3)
+// 2) Design tokens globales (--mc-*) usados por todos los componentes
+// =============================================================
+
+@use '@angular/material' as mat;
+// Importa tus design tokens: esto ejecuta el bloque :root con las
+// variables CSS --mc-* para que estén disponibles globalmente.
+@use './app/presentation/styles/base/variables';
+
+html {
+  height: 100%;
+  color-scheme: light;
+
+  // Tema base de Material 3 (colores, tipografía y densidad).
+  // Se usa la paleta roja/azul institucional. 
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$red-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  margin: 0;
+  height: 100%;
+
+  // Usamos los tokens personalizados de tu proyecto (--mc-*)
+  background-color: var(--mc-background);
+  color: var(--mc-text);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Panel interno del menú colapsable: sin token público en Material, scoped al layout.
+app-main-layout .menu-expansion .mat-expansion-panel-body {
+  padding: 0;
+}
+
+// SweetAlert2 por encima de MatDialog. Requiere usePopover: false en app.config
+// (sin eso MatDialog va a top layer y este z-index no alcanza).
+.swal2-container {
+  z-index: var(--mc-z-alerta);
+}
+
+// Paneles MatDialog: sin padding del surface; el contenido define su propio layout.
+.mc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--mc-radius-lg);
+}

@@ -1,0 +1,2307 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Mockup 04 — Ficha Valoración RF006 completa | Meritocracia PJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/meritocracia.css" />
+  <style>
+    .ficha-layout--full {
+      grid-template-columns: 1fr;
+    }
+
+    .ficha-rubros-panel .rubros-column-header {
+      grid-template-columns: 1fr 120px;
+    }
+
+    .ficha-rubros-panel .accordion-header {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ficha-rubros-panel .accordion-header-title {
+      min-width: 0;
+    }
+
+    .ficha-rubros-panel .accordion-header > .rubro-score,
+    .ficha-rubros-panel .accordion-header > .rubro-sub-actions {
+      justify-self: end;
+    }
+
+    .ficha-rubros-panel .accordion-header .rubro-sub-actions {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .ficha-rubros-panel .rubro-sub-header {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ficha-rubros-panel .rubro-sub-header > .rubro-sub-actions {
+      justify-self: end;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .sticky-footer--ficha {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ficha-footer-total span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .ficha-footer-total strong {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .ficha-footer-hint {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .antiguedad-block-optional {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #64748b;
+      background: #e2e8f0;
+      vertical-align: middle;
+    }
+
+    /* Titularidad = bloque principal (puntaje) */
+    .antiguedad-block--principal {
+      padding: 18px 18px 16px;
+      margin-bottom: 20px;
+      border: 1px solid var(--primary-p40, #e3c4cc);
+      border-bottom: 1px solid var(--primary-p40, #e3c4cc);
+      border-radius: 10px;
+      background: linear-gradient(180deg, var(--primary-p20, #f3e6e9) 0%, #fff 48%);
+      box-shadow: 0 1px 2px rgba(124, 29, 46, 0.06);
+    }
+
+    .antiguedad-block--principal .antiguedad-block-criterion {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .antiguedad-block-badge-required {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--primary);
+      vertical-align: middle;
+    }
+
+    /* Grupo de criterios de desempate (secundario / opcional) */
+    .antiguedad-desempate-group {
+      margin-top: 8px;
+      padding: 16px 16px 8px;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .antiguedad-desempate-group-head {
+      margin: 0 0 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .antiguedad-desempate-group-label {
+      display: block;
+      margin: 0 0 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .antiguedad-desempate-group-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .antiguedad-desempate-group-hint {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .antiguedad-desempate-group .antiguedad-block {
+      margin-bottom: 14px;
+      padding: 14px 14px 12px;
+      padding-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      border-left: 3px solid #94a3b8;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .antiguedad-desempate-group .antiguedad-block:last-child {
+      margin-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .antiguedad-desempate-group .antiguedad-block-criterion {
+      color: #475569;
+    }
+
+    .magistrado-datos {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .magistrado-datos-row--sig {
+      grid-template-columns: minmax(220px, 300px) minmax(200px, 1fr);
+    }
+
+    .magistrado-datos-row--identidad {
+      grid-template-columns: 1fr;
+    }
+
+    .magistrado-datos-row--demografia {
+      grid-template-columns: minmax(160px, 200px) 100px minmax(120px, 160px);
+    }
+
+    .magistrado-dni-search {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .magistrado-dni-search .input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ficha-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: #fafafa;
+    }
+
+    .ficha-fecha-valoracion {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .ficha-fecha-valoracion strong {
+      color: var(--text);
+    }
+
+    .ficha-step-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ficha-rubros-locked {
+      margin-top: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      background: var(--surface);
+      border: 1px dashed #94a3b8;
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ficha-rubros-locked strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .ficha-layout.is-locked,
+    .antiguedad-block.is-hidden,
+    .ficha-rubros-locked.is-hidden,
+    .sticky-footer.is-hidden {
+      display: none;
+    }
+
+    .antiguedad-block.is-complete .antiguedad-block-criterion::after {
+      content: ' · Guardado';
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--success);
+    }
+
+    /* E.1 — Estudios de doctorado y/o maestría */
+    .e1-hint {
+      margin: 0 0 14px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .e1-section {
+      margin-bottom: 16px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .e1-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .e1-section-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .e1-section-title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--primary-p20);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .e1-section-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .e1-semestres-table {
+      margin-top: 0;
+    }
+
+    .e1-semestres-table th {
+      white-space: nowrap;
+    }
+
+    .e1-semestres-table .input,
+    .e1-semestres-table .select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .e1-semestres-table td {
+      vertical-align: middle;
+    }
+
+    .e1-notas-cell {
+      min-width: 160px;
+    }
+
+    .e1-notas-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      min-height: 34px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .e1-notas-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-p20);
+    }
+
+    .e1-nota-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--primary-p20);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .e1-nota-chip button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      padding: 0 0 0 2px;
+      font-size: 12px;
+      line-height: 1;
+      opacity: 0.7;
+    }
+
+    .e1-nota-chip button:hover {
+      opacity: 1;
+    }
+
+    .e1-nota-input {
+      flex: 1;
+      min-width: 48px;
+      border: 0;
+      outline: none;
+      font: inherit;
+      font-size: 12px;
+      padding: 2px 0;
+      background: transparent;
+    }
+
+    .e1-promedio {
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .e1-promedio.is-empty {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .e1-empty-semestres {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .e1-empty-semestres.is-hidden {
+      display: none;
+    }
+
+    .mockup-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+    }
+  </style>
+</head>
+<body class="mockup-scroll-body">
+<div class="mockup-frame mockup-frame--scrollable">
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../assets/logo/logo-pj-blanco.svg" width="36" height="36" alt="PJ" />
+        <span>Valoración de Méritos</span>
+      </div>
+      <div class="user-area">
+        <div class="user-info">
+          <strong>Ana Torres Vidal</strong>
+          <span>Usuario Registrador · Equipo Cuadro de Méritos</span>
+        </div>
+        <button class="btn btn-ghost btn-sm">Cambiar contraseña</button>
+        <button class="btn btn-ghost btn-sm btn-with-icon">
+          <img src="../assets/icons/logout.svg" width="16" height="16" alt="" />
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar" data-profile="registrador">
+        <div class="sidebar-profile"><span class="profile-chip profile-chip--reg">Usuario Registrador</span></div>
+        <a class="nav-item" href="02-dashboard-registrador.html"><img class="icon-img" src="../assets/icons/home.svg" width="20" height="20" alt="" /><span class="nav-label">Inicio</span></a>
+        <div class="nav-group is-open is-active">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/folder.svg" width="20" height="20" alt="" /><span class="nav-label">Gestión de la Carpeta Personal de Méritos</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Carpeta Personal de Méritos">
+            <a class="nav-sub-item active" href="04-ficha-valoracion.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Nuevo registro</span></a>
+            <a class="nav-sub-item" href="05-consulta-meritos.html"><img class="nav-sub-icon" src="../assets/icons/search.svg" width="16" height="16" alt="" /><span class="nav-sub-label">Consulta</span></a>
+          </nav>
+        </div>
+        <div class="nav-group is-collapsed">
+          <div class="nav-group-head"><img class="icon-img" src="../assets/icons/chart-bar.svg" width="20" height="20" alt="" /><span class="nav-label">Reportes</span><img class="nav-chevron" src="../assets/icons/chevron-down.svg" width="16" height="16" alt="" /></div>
+          <nav class="nav-submenu" aria-label="Reportes">
+            <a class="nav-sub-item" href="06-reportes.html"><img class="nav-sub-icon" src="../assets/icons/chart-line.svg" width="16" height="16" alt="" /><span class="nav-sub-label">a — Gráficos de rubros de valoración</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo1.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">b — Antigüedad de jueces supremos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo2.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">c — Méritos de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo3.html"><img class="nav-sub-icon" src="../assets/icons/file-pdf.svg" width="16" height="16" alt="" /><span class="nav-sub-label">d — Antigüedad de jueces superiores</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo4.html"><img class="nav-sub-icon" src="../assets/icons/file-edit.svg" width="16" height="16" alt="" /><span class="nav-sub-label">e — Ficha de valoración de méritos</span></a>
+            <a class="nav-sub-item" href="06-reportes-anexo5.html"><img class="nav-sub-icon" src="../assets/icons/folder.svg" width="16" height="16" alt="" /><span class="nav-sub-label">f — Carpeta personal de méritos</span></a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="breadcrumb">Carpeta Personal de Méritos / <span>Nuevo registro</span></div>
+
+       
+
+        <div class="rf-banner">
+          <strong>RF006 — Nuevo registro</strong>
+          <p>Mockup de trazabilidad: todos los campos del requerimiento están representados en pantalla. El usuario validador puede revisar rubro por rubro sin interpretar el documento.</p>
+        </div>
+
+        <div class="page-header">
+          <h1>FICHA DE VALORACIÓN DE MÉRITOS</h1>
+          <p>Nivel, datos personales (SIGA) y rubros A–J con puntaje por rubro. El total se muestra al pie de la ficha.</p>
+        </div>
+
+        <div class="ficha-fecha-valoracion" role="status" id="ficha-fecha-valoracion" data-fecha="2024-12-31">
+          <span>Fecha de valoración vigente: <strong>31/12/2024</strong></span>
+          <span class="anexo-date-badge">Configurada por administración</span>
+        </div>
+
+        <div class="card" id="card-datos-personales">
+          <div class="card-title">Nivel y datos personales del juez</div>
+          <div class="magistrado-header">
+            <div class="photo-placeholder">
+              <img src="../assets/icons/user-photo.svg" width="48" height="48" alt="" />
+              <span>Foto SIGA</span>
+            </div>
+            <div class="magistrado-datos">
+              <div class="form-row form-row--dense magistrado-datos-row--sig">
+                <div class="form-group">
+                  <label for="magistrado-dni">DNI</label>
+                  <div class="magistrado-dni-search">
+                    <input class="input" id="magistrado-dni" value="12345678" maxlength="8" inputmode="numeric" />
+                    <button class="btn btn-primary btn-sm btn-with-icon" type="button" title="Buscar en SIGA">
+                      <img src="../assets/icons/search.svg" width="16" height="16" alt="" />
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-nivel">Nivel</label>
+                  <select class="select" id="magistrado-nivel">
+                    <option>Juez Superior Titular</option>
+                    <option>Juez Supremo Titular</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row form-row--dense magistrado-datos-row--identidad">
+                <div class="form-group">
+                  <label for="magistrado-nombres">Apellidos y nombres completos</label>
+                  <input class="input" id="magistrado-nombres" value="García López, Pedro Juan" />
+                </div>
+              </div>
+              <div class="form-row form-row--dense magistrado-datos-row--demografia">
+                <div class="form-group">
+                  <label for="magistrado-fecha-nac">Fecha de nacimiento</label>
+                  <input class="input" id="magistrado-fecha-nac" type="date" value="1975-03-15" />
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-edad">Edad</label>
+                  <input class="input" id="magistrado-edad" value="51" readonly style="background:#f1f5f9;" />
+                </div>
+                <div class="form-group">
+                  <label for="magistrado-sexo">Sexo</label>
+                  <select class="select" id="magistrado-sexo"><option>Masculino</option><option>Femenino</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ficha-step-actions">
+            <button type="button" class="btn btn-secondary btn-sm btn-with-icon" id="btn-limpiar-datos-personales">
+              <img src="../assets/icons/broom.svg" width="14" height="14" alt="" /> Limpiar
+            </button>
+            <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-guardar-datos-personales">
+              <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar y continuar
+            </button>
+          </div>
+        </div>
+
+        <div class="ficha-rubros-locked" id="ficha-rubros-locked">
+          <strong>Registro de rubros pendiente</strong>
+          Complete y guarde el nivel y los datos personales para comenzar con el rubro B — Antigüedad en el cargo.
+        </div>
+
+        <div class="ficha-layout ficha-layout--full is-locked" id="ficha-rubros-layout">
+          <div class="ficha-rubros-panel">
+            <div class="rubros-column-header">
+              <span>Rubros de valoración</span>
+              <span>Puntaje</span>
+            </div>
+
+            <!-- A -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">A</span> Producción jurisdiccional</span>
+                <span class="rubro-score">0.00</span>
+              </div>
+              <div class="accordion-body">
+                <div class="suspended-note">PRODUCCIÓN JURISDICCIONAL (Suspendido mediante la R.A.031-2013-CE-PJ)</div>
+              </div>
+            </div>
+
+            <!-- B -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">B</span> Antigüedad en el cargo</span>
+                <span class="rubro-score">18.50</span>
+              </div>
+              <div class="accordion-body">
+                <div class="antiguedad-block antiguedad-block--principal" id="antiguedad-datos-generales" data-step="datos">
+                  <span class="antiguedad-block-criterion">Antigüedad en el cargo <span class="antiguedad-block-badge-required">Obligatorio</span></span>
+                  <h3 class="antiguedad-block-title">Datos generales y titularidad actual</h3>
+                  <p class="antiguedad-block-hint">Información del cargo valorado, fechas de cese o reincorporación y cálculo de antigüedad hasta la fecha de valoración. La fecha y hora de juramentación se toman del Acta de Juramento (JNJ); la hora constituye el 4.º criterio de desempate.</p>
+                  <div class="form-row form-row--dense">
+                    <div class="form-group"><label>Distrito judicial</label><select class="select"><option>Huancavelica</option><option>Lima</option></select></div>
+                    <div class="form-group">
+                      <label for="cargo-titular-actual">Cargo titular actual</label>
+                      <select class="select" id="cargo-titular-actual">
+                        <option>Juez Supremo Titular</option>
+                        <option selected>Juez Superior Titular</option>
+                        <option>Juez Especializado Titular</option>
+                        <option>Juez de Paz Letrado Titular</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="fecha-juramentacion">Fecha juramentación</label>
+                      <input class="input" id="fecha-juramentacion" type="date" value="2013-04-09" />
+                    </div>
+                    <div class="form-group">
+                      <label for="hora-juramento">Hora de juramento <small style="font-weight:400;color:var(--text-muted);"></small></label>
+                      <input class="input" id="hora-juramento" type="time" value="11:15" />
+                    </div>
+                    <div class="form-group"><label>Fecha de cese</label><input class="input" type="date" /></div>
+                    <div class="form-group"><label>Fecha de reincorporación</label><input class="input" type="date" /></div>
+                    <div class="form-group"><label>Fecha de valoración</label><input class="input" id="fecha-valoracion-readonly" type="date" value="2024-12-31" readonly style="background:#f1f5f9;" /></div>
+                    <div class="form-group"><label>Tiempo total en cargo titular</label><input class="input" value="11 aa 8 mm 22 dd" readonly style="background:#f1f5f9;" /></div>
+                    <div class="form-group"><label>Puntaje según años totales</label><input class="input" value="18.50" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                    <div class="form-group"><label>Primera especialidad</label><select class="select"><option>Civil</option></select></div>
+                    <div class="form-group"><label>Segunda especialidad</label><select class="select"><option>— Ninguna —</option></select></div>
+                  </div>
+                  <div class="ficha-step-actions">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-antiguedad-guardar" data-section="titularidad">
+                      <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="antiguedad-desempate-group" aria-labelledby="desempate-group-title">
+                  <header class="antiguedad-desempate-group-head">
+                    <span class="antiguedad-desempate-group-label">Criterios de desempate</span>
+                    <h3 class="antiguedad-desempate-group-title" id="desempate-group-title">Precedencia en caso de empate</h3>
+                    <p class="antiguedad-desempate-group-hint">No suman puntaje al rubro B. Solo se usan para ordenar jueces con el mismo puntaje total (1.er nivel anterior → 2.º provisionalidades → 3.er colegiatura → 4.º hora de juramento). Puede completarlos en cualquier orden.</p>
+                  </header>
+
+                <div class="antiguedad-block" id="desempate-1" data-step="desempate-1">
+                  <span class="antiguedad-block-criterion">1.er criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
+                  <h3 class="antiguedad-block-title">Periodo en el nivel inmediato anterior titular</h3>
+                  <p class="antiguedad-block-hint">Registrar la fecha de inicio y fin del periodo laborado como Juez en el nivel inmediato anterior titular.</p>
+                  <div class="form-row form-row--dense">
+                    <div class="form-group">
+                      <label for="nivel-inmediato-anterior">Nivel inmediato anterior</label>
+                      <select class="select" id="nivel-inmediato-anterior">
+                        <option>Juez supremo Titular</option>
+                        <option>Superior Titular</option>
+                        <option selected>Especializado</option>
+                        <option>Paz Letrado</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" value="2003-11-18" /></div>
+                    <div class="form-group"><label>Fecha fin</label><input class="input" type="date" value="2013-04-08" /></div>
+                    <div class="form-group"><label>Tiempo total del periodo</label><input class="input" value="9 aa 4 mm 21 dd" readonly style="background:#f1f5f9;" /></div>
+                  </div>
+                  <div class="ficha-step-actions">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-antiguedad-guardar" data-section="desempate-1">
+                      <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="antiguedad-block" id="desempate-2" data-step="desempate-2">
+                  <span class="antiguedad-block-criterion">2.º criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
+                  <h3 class="antiguedad-block-title">Provisionalidades en el nivel titular actual</h3>
+                  <p class="antiguedad-block-hint">Registrar fecha de inicio y fin, tiempo total, cargo, órgano jurisdiccional y documento de cada periodo como Juez en el nivel titular actual (provisionalidades). Cada periodo se guarda por separado.</p>
+                  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon btn-add-provisionalidad" data-target="provisionalidad-form-panel">
+                      <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir provisionalidad
+                    </button>
+                  </div>
+                  <table class="rubro-records">
+                    <thead>
+                      <tr>
+                        <th>Fecha inicio</th>
+                        <th>Fecha fin</th>
+                        <th>Tiempo total</th>
+                        <th>Cargo</th>
+                        <th>Órgano jurisdiccional</th>
+                        <th>Documento</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>03/03/2009</td>
+                        <td>09/04/2013</td>
+                        <td>4 aa 1 mm 6 dd</td>
+                        <td>JUEZ SUPERIOR</td>
+                        <td>Corte Superior de Huancavelica</td>
+                        <td>Resolución N.° 041-2009-PJ</td>
+                        <td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="card provisionalidad-form-panel" id="provisionalidad-form-panel" aria-hidden="true">
+                    <div class="rubro-add-form-title"><span>Nueva provisionalidad</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Fecha inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Tiempo total (auto)</label><input class="input" readonly style="background:#f1f5f9;" /></div>
+                      <div class="form-group">
+                        <label for="provisionalidad-cargo">Cargo</label>
+                        <select class="select" id="provisionalidad-cargo">
+                          <option>JUEZ SUPREMO</option>
+                          <option selected>JUEZ SUPERIOR</option>
+                          <option>JUEZ ESPECIALIZADO</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Órgano jurisdiccional</label><input class="input" /></div>
+                      <div class="form-group"><label>Documento sustentatorio</label><input class="input" placeholder="Resolución, acto administrativo, etc." /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm btn-cancel-provisionalidad">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar</button>
+                    </div>
+                  </div>
+                  <div class="antiguedad-total-row">
+                    <div class="form-group"><label>Suma total de provisionalidades</label><input class="input" value="4 aa 1 mm 6 dd" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" /></div>
+                  </div>
+                </div>
+
+                <div class="antiguedad-block" id="colegiatura-block" data-step="desempate-3">
+                  <span class="antiguedad-block-criterion">3.er criterio de desempate <span class="antiguedad-block-optional">Opcional</span></span>
+                  <h3 class="antiguedad-block-title">Colegiatura</h3>
+                  <p class="antiguedad-block-hint">Registrar el colegio de abogados, la fecha de colegiatura y el cálculo de años a la fecha de valoración. En empate de años, prevalece la fecha de colegiatura más antigua. Cada colegiatura se guarda por separado.</p>
+                  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                    <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-add-colegiatura">
+                      <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir colegiatura
+                    </button>
+                  </div>
+                  <table class="rubro-records" id="colegiatura-records">
+                    <thead>
+                      <tr>
+                        <th>Colegio de Abogados de</th>
+                        <th>Fecha de colegiatura</th>
+                        <th>Años de colegiatura</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="colegiatura-tbody">
+                      <tr data-colegio="LIMA" data-fecha="1996-10-16">
+                        <td>LIMA</td>
+                        <td>16/10/1996</td>
+                        <td>28 años</td>
+                        <td><button type="button" class="icon-btn btn-edit-colegiatura" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">C</span> Grados académicos y títulos profesionales</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">12.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead>
+                    <tr><th>Nivel</th><th>Universidad</th><th>Especialidad</th><th>Fecha título</th><th>Puntaje</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Maestría</td>
+                      <td>UNMSM</td>
+                      <td>Derecho</td>
+                      <td>15/06/2010</td>
+                      <td><strong>8.00</strong></td>
+                      <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                    <tr>
+                      <td>Licenciatura</td>
+                      <td>PUCP</td>
+                      <td>Derecho</td>
+                      <td>20/12/1998</td>
+                      <td><strong>4.00</strong></td>
+                      <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Grados académicos y títulos</span><span>RF006 · Rubro C</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Nivel de grado / título</label><select class="select"><option>Doctorado</option><option>Maestría</option><option>Licenciatura</option></select></div>
+                  <div class="form-group">
+                    <label>Universidad</label>
+                    <div class="universidad-combobox" data-universidad-combobox>
+                      <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+                      <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                    </div>
+                  </div>
+                  <div class="form-group"><label>País</label><input class="input" value="Perú" /></div>
+                  <div class="form-group"><label>Fecha de obtención del título</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Especialidad</label><input class="input" placeholder="Derecho" /></div>
+                  <div class="form-group"><label>Mención</label><input class="input" /></div>
+                  <div class="form-group"><label>Observación por registro</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla de valoración</label><input class="input" readonly style="background:var(--primary-p20);font-weight:600;" placeholder="Auto" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- D -->
+            <div class="accordion-item" id="rubro-amag">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">D</span> Estudios de preparación AMAG</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score" id="amag-rubro-score">8.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="btn-add-amag">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="accordion-body">
+                <table class="rubro-records" id="amag-records">
+                  <thead>
+                    <tr>
+                      <th>Tipo del curso AMAG</th>
+                      <th>Nota del curso</th>
+                      <th>Descripción del curso</th>
+                      <th>Año del curso</th>
+                      <th>Puntaje</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="amag-tbody">
+                    <tr data-tipo="Habilitante" data-nota="16.5" data-descripcion="Curso de habilitación judicial" data-anio="2005" data-puntaje="8.00">
+                      <td>Habilitante</td>
+                      <td>16.5</td>
+                      <td>Curso de habilitación judicial</td>
+                      <td>2005</td>
+                      <td><strong>8.00</strong></td>
+                      <td><button type="button" class="icon-btn btn-edit-amag" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- E -->
+            <div class="accordion-item">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">E</span> Estudios de perfeccionamiento</span>
+                <span class="rubro-score">15.25</span>
+              </div>
+              <div class="accordion-nested" id="rubro-e-nested">
+
+                <!-- E.1 -->
+                <div class="rubro-sub rubro-addable" id="e1-estudios">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.1</span> Estudios de doctorado y/o maestría</span>
+                    <div class="rubro-sub-actions">
+                      <span class="rubro-score">9.00</span>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir estudio
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-records">
+                    <table class="rubro-records" id="e1-estudios-records">
+                      <thead>
+                        <tr>
+                          <th>Nombre de estudios</th>
+                          <th>Universidad</th>
+                          <th>País</th>
+                          <th>Especialidad</th>
+                          <th>Condición</th>
+                          <th>Semestres</th>
+                          <th>Puntaje</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Maestría en Derecho Constitucional</td>
+                          <td>PUCP</td>
+                          <td>Perú</td>
+                          <td>Jurídico</td>
+                          <td>Egresado</td>
+                          <td>4</td>
+                          <td><strong>9.00</strong></td>
+                          <td><button type="button" class="icon-btn btn-edit-e1" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="rubro-sub-form" id="e1-form-panel">
+                    <div class="rubro-add-form-title" style="margin-bottom:8px;">
+                      <span>Registrar — E.1 Doctorado y/o Maestría</span>
+                      <span>RF006 · Subrubro E.1</span>
+                    </div>
+                    <p class="e1-hint">Primero registre los datos del programa de estudios. Luego agregue cada semestre con sus notas; el promedio y el puntaje según tabla se calculan por semestre.</p>
+
+                    <section class="e1-section" aria-labelledby="e1-datos-title">
+                      <div class="e1-section-head">
+                        <h4 class="e1-section-title" id="e1-datos-title"><span>1</span> Datos del estudio</h4>
+                      </div>
+                      <div class="form-row form-row--dense">
+                        <div class="form-group">
+                          <label for="e1-nombre-estudios">Nombre de estudios</label>
+                          <input class="input" id="e1-nombre-estudios" type="text" placeholder="Ej. Doctorado en Derecho / Maestría en Derecho Penal" value="Maestría en Derecho Constitucional" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-universidad">Universidad</label>
+                          <div class="universidad-combobox" data-universidad-combobox>
+                            <input class="input universidad-combobox-input" id="e1-universidad" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" value="Pontificia Universidad Católica del Perú" />
+                            <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-pais">País</label>
+                          <input class="input" id="e1-pais" type="text" value="Perú" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-especialidad">Especialidad</label>
+                          <select class="select" id="e1-especialidad">
+                            <option selected>Jurídico</option>
+                            <option>No jurídico</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-mencion">Mención</label>
+                          <input class="input" id="e1-mencion" type="text" placeholder="Ej. Derecho Constitucional" value="Derecho Constitucional" />
+                        </div>
+                        <div class="form-group">
+                          <label for="e1-condicion-academica">Condición académica</label>
+                          <select class="select" id="e1-condicion-academica">
+                            <option>Estudiante</option>
+                            <option selected>Egresado</option>
+                          </select>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="e1-section" aria-labelledby="e1-semestres-title">
+                      <div class="e1-section-head">
+                        <h4 class="e1-section-title" id="e1-semestres-title"><span>2</span> Semestres académicos</h4>
+                        <span class="e1-section-meta">Ingrese notas y pulse Enter o coma para agregarlas</span>
+                      </div>
+                      <table class="rubro-records e1-semestres-table" id="e1-semestres-table">
+                        <thead>
+                          <tr>
+                            <th>N.º semestre</th>
+                            <th>Año inicio</th>
+                            <th>Año fin</th>
+                            <th>Notas por semestre</th>
+                            <th>Promedio</th>
+                            <th>Puntaje</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody id="e1-semestres-tbody">
+                          <tr data-semestre-row>
+                            <td><input class="input" type="number" min="1" max="20" value="1" aria-label="Número de semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2018" aria-label="Año inicio del semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2018" aria-label="Año fin del semestre" /></td>
+                            <td class="e1-notas-cell">
+                              <div class="e1-notas-wrap" data-notas>
+                                <span class="e1-nota-chip">16<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">17<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">15<button type="button" title="Quitar">×</button></span>
+                                <input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />
+                              </div>
+                            </td>
+                            <td><span class="e1-promedio" data-promedio>16.00</span></td>
+                            <td><span class="e1-promedio" data-puntaje>4.50</span></td>
+                            <td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre"><img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>
+                          </tr>
+                          <tr data-semestre-row>
+                            <td><input class="input" type="number" min="1" max="20" value="2" aria-label="Número de semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2019" aria-label="Año inicio del semestre" /></td>
+                            <td><input class="input" type="number" min="1900" max="2100" value="2019" aria-label="Año fin del semestre" /></td>
+                            <td class="e1-notas-cell">
+                              <div class="e1-notas-wrap" data-notas>
+                                <span class="e1-nota-chip">18<button type="button" title="Quitar">×</button></span>
+                                <span class="e1-nota-chip">16<button type="button" title="Quitar">×</button></span>
+                                <input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />
+                              </div>
+                            </td>
+                            <td><span class="e1-promedio" data-promedio>17.00</span></td>
+                            <td><span class="e1-promedio" data-puntaje>4.50</span></td>
+                            <td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre"><img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <p class="e1-empty-semestres is-hidden" id="e1-empty-semestres">Aún no hay semestres. Agregue al menos uno para registrar notas, promedio y puntaje por semestre.</p>
+                      <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                        <button type="button" class="btn btn-secondary btn-sm btn-with-icon" id="e1-add-semestre">
+                          <img src="../assets/icons/plus.svg" width="14" height="14" alt="" /> Añadir semestre
+                        </button>
+                      </div>
+                    </section>
+
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="e1-guardar">
+                        <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar estudio
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.2 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.2</span> Pasantía</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.2 Pasantía</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group">
+                        <label for="e2-tipo-pasantia">Tipo de pasantía</label>
+                        <select class="select" id="e2-tipo-pasantia">
+                          <option>Nacional</option>
+                          <option>Internacional</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label for="e2-pais">País</label><input class="input" id="e2-pais" /></div>
+                      <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Jurídico</label><select class="select"><option>Sí</option><option>No</option></select></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Mención</label><input class="input" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.3 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.3</span> Cursos de especialización, postgrado y diplomados</span>
+                    <div class="rubro-sub-actions">
+                      <span class="rubro-score">6.50</span>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-records">
+                    <table class="rubro-records">
+                      <thead>
+                        <tr><th>Curso</th><th>Institución</th><th>Horas</th><th>Puntaje</th><th></th></tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Diplomado en arbitraje</td>
+                          <td>CIAR</td>
+                          <td>120 h</td>
+                          <td><strong>6.50</strong></td>
+                          <td><button type="button" class="icon-btn" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.3 Cursos de especialización, postgrado y diplomados</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Tipo de curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Nombre del curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label for="e3-pais">País</label><input class="input" id="e3-pais" /></div>
+                      <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Tiempo en horas</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.4 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.4</span> Certámenes académicos en calidad de expositor, ponente, panelista</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.4 Certámenes académicos en calidad de expositor, ponente, panelista</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group">
+                        <label for="e4-tipo-certamen">Tipo de certamen</label>
+                        <select class="select" id="e4-tipo-certamen">
+                          <option>COLOQUIO</option>
+                          <option>CONFERENCIA</option>
+                          <option>CONGRESO</option>
+                          <option>CURSOS</option>
+                          <option>ENCUENTRO</option>
+                          <option>FORO</option>
+                          <option>JORNADA</option>
+                          <option>MESA REDONDA</option>
+                          <option>PANEL</option>
+                          <option>SEMANA</option>
+                          <option>SEMINARIO</option>
+                          <option>SIMPOSIO</option>
+                          <option>TALLER</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="e4-tipo-participacion">Tipo de participación</label>
+                        <select class="select" id="e4-tipo-participacion">
+                          <option>Expositor</option>
+                          <option>Ponente</option>
+                          <option>Panelista</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Tema</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label for="e4-pais">País</label><input class="input" id="e4-pais" /></div>
+                      <div class="form-group"><label>Fecha inicio certamen</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin certamen</label><input class="input" type="date" /></div>
+                      <div class="form-group">
+                        <label for="e4-modalidad">Modalidad</label>
+                        <select class="select" id="e4-modalidad">
+                          <option>PRESENCIAL</option>
+                          <option>VIRTUAL</option>
+                          <option>SEMI PRESENCIAL</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.5 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.5</span> Asistencia a eventos académicos en entidades de prestigio y del quehacer jurídico</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.5 Asistencia a eventos académicos en entidades de prestigio y del quehacer jurídico</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group">
+                        <label for="e5-tipo-evento">Tipo de evento</label>
+                        <select class="select" id="e5-tipo-evento">
+                          <option>COLOQUIO</option>
+                          <option>CONFERENCIA</option>
+                          <option>CONGRESO</option>
+                          <option>CURSOS</option>
+                          <option>ENCUENTRO</option>
+                          <option>FORO</option>
+                          <option>JORNADA</option>
+                          <option>MESA REDONDA</option>
+                          <option>PANEL</option>
+                          <option>SEMANA</option>
+                          <option>SEMINARIO</option>
+                          <option>SIMPOSIO</option>
+                          <option>TALLER</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                      <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                      <div class="form-group"><label>Tema</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label for="e5-pais">País</label><input class="input" id="e5-pais" /></div>
+                      <div class="form-group"><label>Fecha inicio evento</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Fecha fin evento</label><input class="input" type="date" /></div>
+                      <div class="form-group">
+                        <label for="e5-modalidad">Modalidad</label>
+                        <select class="select" id="e5-modalidad">
+                          <option>PRESENCIAL</option>
+                          <option>VIRTUAL</option>
+                          <option>SEMI PRESENCIAL</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="e5-tipo-documento">Tipo de documento</label>
+                        <select class="select" id="e5-tipo-documento">
+                          <option>CERTIFICADO</option>
+                          <option>CONSTANCIA</option>
+                          <option>OTROS</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- E.6 -->
+                <div class="rubro-sub rubro-addable">
+                  <div class="rubro-sub-header">
+                    <span><span class="sub-code">E.6</span> Estudios de ofimática</span>
+                    <div class="rubro-sub-actions">
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                        <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                      </button>
+                    </div>
+                  </div>
+                  <div class="rubro-sub-form">
+                    <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — E.6 Estudios de ofimática</span></div>
+                    <div class="form-row form-row--dense">
+                      <div class="form-group"><label>Nombre del curso</label><input class="input" /></div>
+                      <div class="form-group"><label>Institución</label><input class="input" /></div>
+                      <div class="form-group"><label>Duración en horas</label><input class="input" type="number" /></div>
+                      <div class="form-group"><label>Nivel</label><select class="select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div>
+                      <div class="form-group">
+                        <label for="e6-tipo-documento">Tipo de documento</label>
+                        <select class="select" id="e6-tipo-documento">
+                          <option>constancia</option>
+                          <option>certificado</option>
+                          <option>otros</option>
+                        </select>
+                      </div>
+                      <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
+                      <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                    </div>
+                    <div class="rubro-sub-form-actions">
+                      <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                      <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- F -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">F</span> Idioma nativo o extranjero</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">3.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Idioma</th><th>Institución</th><th>Duración</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Inglés</td><td>Instituto Británico</td><td>18 meses</td><td><strong>3.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Idioma nativo o extranjero</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de idioma</label><select class="select"><option>Nativo</option><option>Extranjero</option></select></div>
+                  <div class="form-group"><label>Idioma</label><input class="input" placeholder="Inglés" /></div>
+                  <div class="form-group"><label for="f-institucion">Institución</label><input class="input" id="f-institucion" /></div>
+                  <div class="form-group"><label>Duración (meses)</label><input class="input" type="number" /></div>
+                  <div class="form-group">
+                    <label for="f-nivel">Nivel</label>
+                    <select class="select" id="f-nivel">
+                      <option>Básico</option>
+                      <option>Intermedio</option>
+                      <option>Avanzado</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="f-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="f-tipo-documento">
+                      <option>constancia</option>
+                      <option>certificado</option>
+                      <option>otros</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Fecha de obtención</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- G -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">G</span> Publicaciones de índole jurídico</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">5.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Tipo</th><th>Título</th><th>Editorial</th><th>Fecha</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Artículo</td><td>La tutela judicial efectiva</td><td>Rev. Jurídica</td><td>2022</td><td><strong>5.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Publicaciones de índole jurídico</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de publicación</label><select class="select"><option>Libro</option><option>Artículo</option></select></div>
+                  <div class="form-group"><label>Título de la publicación</label><input class="input" /></div>
+                  <div class="form-group"><label>Editorial</label><input class="input" /></div>
+                  <div class="form-group"><label>Número de páginas</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Número de edición</label><input class="input" /></div>
+                  <div class="form-group"><label>Auspicio</label><input class="input" /></div>
+                  <div class="form-group"><label>País</label><input class="input" /></div>
+                  <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                  <div class="form-group"><label>Especialidad en derecho</label><input class="input" /></div>
+                  <div class="form-group"><label>Institución</label><input class="input" /></div>
+                  <div class="form-group"><label>Fecha de publicación</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- H -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">H</span> Distinciones y condecoraciones</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">2.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Distinción</th><th>Institución</th><th>Fecha</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Orden del Sol</td><td>Estado Peruano</td><td>2018</td><td><strong>2.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Distinciones y condecoraciones</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group">
+                    <label for="h-tipo-distincion">Tipo de distinción</label>
+                    <select class="select" id="h-tipo-distincion">
+                      <option>Importante por el quehacer jurisdiccional, otorgado por órgano colegiado mediante resolución y en reconocimiento a su quehacer judicial</option>
+                      <option>Elección de Presidente de Corte, Consejero, Designaciones ante la AMAG, Jefe de ODECMA</option>
+                      <option>Responsable de Unidad de ODECMA</option>
+                      <option>Acreditación de no contar con sanciones disciplinarias en los últimos 07 años (emitido por el CNM / OCMA / ODECMA)</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Descripción de la distinción</label><input class="input" /></div>
+                  <div class="form-group"><label>Fecha de distinción</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label for="h-documento">Documento</label><input class="input" id="h-documento" /></div>
+                  <div class="form-group"><label>Institución</label><input class="input" /></div>
+                  <div class="form-group"><label>País</label><input class="input" /></div>
+                  <div class="form-group"><label>Año</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- I -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">I</span> Docencia universitaria</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score">12.00</span>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus-white.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Universidad</th><th>Materia</th><th>Periodo</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Universidad de Lima</td><td>Derecho Procesal</td><td>2022–2024</td><td><strong>12.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Docencia universitaria</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group">
+                    <label for="i-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="i-tipo-documento">
+                      <option>CARTA</option>
+                      <option>CERTIFICADO</option>
+                      <option>CONSTANCIA</option>
+                      <option>CONTRATO</option>
+                      <option>DECLARACION JURADA</option>
+                      <option>OFICIO</option>
+                      <option>REPORTE</option>
+                      <option>OTROS</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Universidad</label>
+                    <div class="universidad-combobox" data-universidad-combobox>
+                      <input class="input universidad-combobox-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+                      <div class="universidad-combobox-dropdown is-hidden" role="listbox"></div>
+                    </div>
+                  </div>
+                  <div class="form-group"><label>Horas semanales</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Fecha de inicio</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Fecha fin</label><input class="input" type="date" /></div>
+                  <div class="form-group"><label>Orden (jurídico / no jurídico)</label><select class="select"><option>Jurídico</option><option>No jurídico</option></select></div>
+                  <div class="form-group"><label>Especialidad</label><input class="input" /></div>
+                  <div class="form-group"><label>Materia</label><input class="input" /></div>
+                  <div class="form-group"><label>Categoría</label><input class="input" /></div>
+                  <div class="form-group"><label>Condición</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla</label><input class="input" readonly style="background:var(--primary-p20);" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- J -->
+            <div class="accordion-item rubro-addable">
+              <div class="accordion-header">
+                <span class="accordion-header-title"><span class="letter">J</span> Deméritos</span>
+                <div class="rubro-sub-actions">
+                  <span class="rubro-score negative">-2.00</span>
+                  <button type="button" class="btn btn-secondary btn-sm btn-with-icon rubro-add-btn">
+                    <img src="../assets/icons/plus.svg" width="14" height="14" alt="" /> Añadir
+                  </button>
+                </div>
+              </div>
+              <div class="rubro-sub-records">
+                <table class="rubro-records">
+                  <thead><tr><th>Medida</th><th>Año</th><th>Observación</th><th>Puntaje</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>Amonestación</td><td>2024</td><td>Expediente disciplinario</td><td style="color:var(--error);"><strong>-2.00</strong></td><td><button type="button" class="icon-btn"><img src="../assets/icons/edit.svg" alt="" /></button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="rubro-sub-form">
+                <div class="rubro-add-form-title" style="margin-bottom:12px;"><span>Registrar — Deméritos</span></div>
+                <div class="form-row form-row--dense">
+                  <div class="form-group"><label>Tipo de medida disciplinaria</label><select class="select"><option>Amonestación</option><option>Multa</option><option>Suspensión</option></select></div>
+                  <div class="form-group"><label>Cantidad</label><input class="input" type="number" value="1" /></div>
+                  <div class="form-group">
+                    <label for="j-tipo-documento">Tipo de documento</label>
+                    <select class="select" id="j-tipo-documento">
+                      <option>CARTA</option>
+                      <option>CERTIFICADO</option>
+                      <option>CONSTANCIA</option>
+                      <option>CONTRATO</option>
+                      <option>DECLARACION JURADA</option>
+                      <option>OFICIO</option>
+                      <option>REPORTE</option>
+                      <option>OTROS</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Año de valoración</label><input class="input" type="number" /></div>
+                  <div class="form-group"><label>Observación por registro</label><input class="input" /></div>
+                  <div class="form-group"><label>Puntaje según tabla (negativo)</label><input class="input" readonly style="background:#fee2e2;color:var(--error);font-weight:600;" /></div>
+                </div>
+                <div class="rubro-sub-form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm rubro-cancel-btn">Cancelar</button>
+                  <button type="button" class="btn btn-primary btn-sm btn-with-icon"><img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar ítem</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky-footer sticky-footer--ficha is-hidden" id="ficha-sticky-footer">
+          <div class="ficha-footer-total">
+            <span>Puntaje total de la ficha</span>
+            <strong>73.75</strong>
+            <p class="ficha-footer-hint">Se recalcula en el servidor con cada guardado.</p>
+          </div>
+          <div style="display:flex;gap:12px;">
+          <button class="btn btn-secondary btn-with-icon" type="button">
+            <img src="../assets/icons/broom.svg" width="16" height="16" alt="" /> Limpiar
+          </button>
+          <button class="btn btn-primary btn-with-icon" type="button" id="btn-finalizar-registro">
+            <img src="../assets/icons/save.svg" width="16" height="16" alt="" /> Finalizar registro
+          </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay is-hidden" id="modal-colegiatura" role="dialog" aria-modal="true" aria-labelledby="modal-colegiatura-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header" id="modal-colegiatura-title">
+        Registrar colegiatura
+        <button type="button" class="modal-close" id="modal-colegiatura-close" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="colegiatura-colegio-input">Colegio de Abogados de:</label>
+          <div class="universidad-combobox" id="colegiatura-colegio-combobox" data-colegio-combobox>
+            <input class="input universidad-combobox-input" id="colegiatura-colegio-input" type="text" placeholder="Escriba para buscar..." autocomplete="off" aria-autocomplete="list" />
+            <div class="universidad-combobox-dropdown is-hidden" id="colegiatura-colegio-dropdown" role="listbox"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colegiatura-fecha">Fecha de colegiatura</label>
+          <input class="input" type="date" id="colegiatura-fecha" />
+        </div>
+        <div class="form-group">
+          <label for="colegiatura-anios">Años de colegiatura</label>
+          <input class="input" id="colegiatura-anios" value="—" readonly style="background:#f1f5f9;" />
+        </div>
+      </div>
+      <div class="ficha-modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="modal-colegiatura-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="modal-colegiatura-guardar">
+          <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar colegiatura
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay is-hidden" id="modal-amag" role="dialog" aria-modal="true" aria-labelledby="modal-amag-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header" id="modal-amag-title">
+        Registrar estudio de preparación AMAG
+        <button type="button" class="modal-close" id="modal-amag-close" title="Cerrar">
+          <img src="../assets/icons/close.svg" width="20" height="20" alt="" />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="amag-tipo">Tipo del curso AMAG</label>
+          <select class="select" id="amag-tipo">
+            <option>Habilitante</option>
+            <option>PROFA</option>
+            <option>Ascenso</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="amag-nota">Nota del curso AMAG</label>
+          <input class="input" id="amag-nota" type="number" step="0.1" min="0" max="20" placeholder="Ej. 16.5" />
+        </div>
+        <div class="form-group">
+          <label for="amag-descripcion">Descripción del curso</label>
+          <input class="input" id="amag-descripcion" placeholder="Ej. Curso de habilitación judicial" />
+        </div>
+        <div class="form-group">
+          <label for="amag-anio">Año del curso</label>
+          <input class="input" id="amag-anio" type="number" min="1950" max="2100" placeholder="Ej. 2005" />
+        </div>
+        <div class="form-group">
+          <label for="amag-puntaje">Puntaje según tabla</label>
+          <input class="input" id="amag-puntaje" value="—" readonly style="background:var(--primary-p20);font-weight:600;color:var(--primary);" />
+        </div>
+      </div>
+      <div class="ficha-modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="modal-amag-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm btn-with-icon" id="modal-amag-guardar">
+          <img src="../assets/icons/save.svg" width="14" height="14" alt="" /> Guardar estudio AMAG
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var COLEGIOS_ABOGADOS = [
+        'AMAZONAS', 'ANCASH', 'APURIMAC', 'AREQUIPA', 'AYACUCHO', 'CAJAMARCA', 'CALLAO', 'CAÑETE',
+        'CUSCO', 'HUANCAVELICA', 'HUANUCO', 'HUAURA', 'ICA', 'JUNIN', 'LA LIBERTAD', 'LAMBAYEQUE',
+        'LIMA', 'LIMA ESTE', 'LIMA NORTE', 'LIMA SUR', 'LORETO', 'MADRE DE DIOS', 'MOQUEGUA', 'PASCO',
+        'PIURA', 'PUNO', 'SAN MARTIN', 'SANTA', 'SELVA CENTRAL', 'SULLANA', 'TACNA', 'TUMBES',
+        'UCAYALI', 'VENTANILLA'
+      ];
+
+      var modal = document.getElementById('modal-colegiatura');
+      var tbody = document.getElementById('colegiatura-tbody');
+      var colegioInput = document.getElementById('colegiatura-colegio-input');
+      var colegioDropdown = document.getElementById('colegiatura-colegio-dropdown');
+      var colegioCombo = document.getElementById('colegiatura-colegio-combobox');
+      var fechaInput = document.getElementById('colegiatura-fecha');
+      var aniosInput = document.getElementById('colegiatura-anios');
+      var editingRow = null;
+
+      function normalizeText(value) {
+        return (value || '').trim().toUpperCase();
+      }
+
+      function getFechaValoracion() {
+        var banner = document.getElementById('ficha-fecha-valoracion');
+        if (banner && banner.getAttribute('data-fecha')) {
+          return banner.getAttribute('data-fecha');
+        }
+        var readonly = document.getElementById('fecha-valoracion-readonly');
+        if (readonly && readonly.value) {
+          return readonly.value;
+        }
+        return '2024-12-31';
+      }
+
+      function formatDateDisplay(isoDate) {
+        var parts = isoDate.split('-');
+        if (parts.length !== 3) return isoDate;
+        return parts[2] + '/' + parts[1] + '/' + parts[0];
+      }
+
+      function calcularAniosColegiatura(fechaColegiatura) {
+        if (!fechaColegiatura) return '—';
+        var inicio = new Date(fechaColegiatura + 'T00:00:00');
+        var fin = new Date(getFechaValoracion() + 'T00:00:00');
+        if (isNaN(inicio.getTime()) || isNaN(fin.getTime()) || inicio > fin) return '—';
+        var anios = fin.getFullYear() - inicio.getFullYear();
+        var mesDiff = fin.getMonth() - inicio.getMonth();
+        var diaDiff = fin.getDate() - inicio.getDate();
+        if (mesDiff < 0 || (mesDiff === 0 && diaDiff < 0)) {
+          anios -= 1;
+        }
+        return anios + (anios === 1 ? ' año' : ' años');
+      }
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function closeColegioDropdown() {
+        colegioDropdown.classList.add('is-hidden');
+        colegioCombo.classList.remove('is-open');
+      }
+
+      function openColegioDropdown() {
+        colegioDropdown.classList.remove('is-hidden');
+        colegioCombo.classList.add('is-open');
+      }
+
+      function renderColegioOptions(filter) {
+        var query = normalizeText(filter);
+        var matches = COLEGIOS_ABOGADOS.filter(function (item) {
+          return !query || item.indexOf(query) !== -1;
+        });
+
+        if (!matches.length) {
+          colegioDropdown.innerHTML = '<div class="universidad-combobox-empty">No hay coincidencias en el catálogo.</div>';
+        } else {
+          colegioDropdown.innerHTML = matches.map(function (item) {
+            return '<button type="button" class="universidad-combobox-option" data-value="' + item + '">' + item + '</button>';
+          }).join('');
+        }
+
+        colegioDropdown.querySelectorAll('.universidad-combobox-option').forEach(function (btn) {
+          btn.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            colegioInput.value = btn.getAttribute('data-value');
+            colegioInput.classList.add('is-selected');
+            closeColegioDropdown();
+          });
+        });
+
+        openColegioDropdown();
+      }
+
+      function resetModal() {
+        colegioInput.value = '';
+        colegioInput.classList.remove('is-selected');
+        fechaInput.value = '';
+        aniosInput.value = '—';
+        editingRow = null;
+        closeColegioDropdown();
+      }
+
+      function openModal(row) {
+        resetModal();
+        editingRow = row || null;
+        if (row) {
+          colegioInput.value = row.getAttribute('data-colegio') || '';
+          fechaInput.value = row.getAttribute('data-fecha') || '';
+          if (colegioInput.value) {
+            colegioInput.classList.add('is-selected');
+          }
+        }
+        aniosInput.value = calcularAniosColegiatura(fechaInput.value);
+        modal.classList.remove('is-hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        colegioInput.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('is-hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        resetModal();
+      }
+
+      function isValidColegio(value) {
+        return COLEGIOS_ABOGADOS.indexOf(normalizeText(value)) !== -1;
+      }
+
+      function guardarColegiatura() {
+        var colegio = normalizeText(colegioInput.value);
+        var fecha = fechaInput.value;
+        var anios = calcularAniosColegiatura(fecha);
+
+        if (!isValidColegio(colegio)) {
+          showToast('Seleccione un colegio de abogados válido del catálogo.');
+          colegioInput.focus();
+          return;
+        }
+        if (!fecha) {
+          showToast('Ingrese la fecha de colegiatura.');
+          fechaInput.focus();
+          return;
+        }
+        if (anios === '—') {
+          showToast('La fecha de colegiatura no puede ser posterior a la fecha de valoración.');
+          fechaInput.focus();
+          return;
+        }
+
+        if (editingRow) {
+          editingRow.setAttribute('data-colegio', colegio);
+          editingRow.setAttribute('data-fecha', fecha);
+          editingRow.children[0].textContent = colegio;
+          editingRow.children[1].textContent = formatDateDisplay(fecha);
+          editingRow.children[2].textContent = anios;
+        } else {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-colegio', colegio);
+          tr.setAttribute('data-fecha', fecha);
+          tr.innerHTML =
+            '<td>' + colegio + '</td>' +
+            '<td>' + formatDateDisplay(fecha) + '</td>' +
+            '<td>' + anios + '</td>' +
+            '<td><button type="button" class="icon-btn btn-edit-colegiatura" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>';
+          tbody.appendChild(tr);
+        }
+
+        closeModal();
+        showToast('Colegiatura registrada correctamente (simulación).');
+      }
+
+      document.getElementById('btn-add-colegiatura').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('modal-colegiatura-close').addEventListener('click', closeModal);
+      document.getElementById('modal-colegiatura-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-colegiatura-guardar').addEventListener('click', guardarColegiatura);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      colegioInput.addEventListener('focus', function () {
+        renderColegioOptions(colegioInput.value);
+      });
+
+      colegioInput.addEventListener('input', function () {
+        colegioInput.classList.remove('is-selected');
+        renderColegioOptions(colegioInput.value);
+      });
+
+      colegioInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeColegioDropdown();
+        }
+      });
+
+      fechaInput.addEventListener('change', function () {
+        aniosInput.value = calcularAniosColegiatura(fechaInput.value);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('#colegiatura-colegio-combobox')) {
+          closeColegioDropdown();
+        }
+      });
+
+      tbody.addEventListener('click', function (e) {
+        var editBtn = e.target.closest('.btn-edit-colegiatura');
+        if (!editBtn) return;
+        openModal(editBtn.closest('tr'));
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var modal = document.getElementById('modal-amag');
+      var tbody = document.getElementById('amag-tbody');
+      var tipoInput = document.getElementById('amag-tipo');
+      var notaInput = document.getElementById('amag-nota');
+      var descripcionInput = document.getElementById('amag-descripcion');
+      var anioInput = document.getElementById('amag-anio');
+      var puntajeInput = document.getElementById('amag-puntaje');
+      var rubroScore = document.getElementById('amag-rubro-score');
+      var editingRow = null;
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function calcularPuntajeAmag() {
+        var nota = parseFloat(notaInput.value);
+        if (isNaN(nota) || nota < 11) return '0.00';
+        if (nota >= 18) return '10.00';
+        if (nota >= 16) return '8.00';
+        if (nota >= 14) return '6.00';
+        if (nota >= 12) return '4.00';
+        return '2.00';
+      }
+
+      function actualizarPuntajePreview() {
+        puntajeInput.value = notaInput.value ? calcularPuntajeAmag() : '—';
+      }
+
+      function actualizarRubroScore() {
+        var total = 0;
+        tbody.querySelectorAll('tr').forEach(function (row) {
+          var puntaje = parseFloat(row.getAttribute('data-puntaje') || '0');
+          if (!isNaN(puntaje)) total += puntaje;
+        });
+        rubroScore.textContent = total.toFixed(2);
+      }
+
+      function resetModal() {
+        tipoInput.selectedIndex = 0;
+        notaInput.value = '';
+        descripcionInput.value = '';
+        anioInput.value = '';
+        puntajeInput.value = '—';
+        editingRow = null;
+      }
+
+      function openModal(row) {
+        resetModal();
+        editingRow = row || null;
+        if (row) {
+          tipoInput.value = row.getAttribute('data-tipo') || 'Habilitante';
+          notaInput.value = row.getAttribute('data-nota') || '';
+          descripcionInput.value = row.getAttribute('data-descripcion') || '';
+          anioInput.value = row.getAttribute('data-anio') || '';
+        }
+        actualizarPuntajePreview();
+        modal.classList.remove('is-hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        tipoInput.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('is-hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        resetModal();
+      }
+
+      function guardarAmag() {
+        var tipo = tipoInput.value;
+        var nota = notaInput.value.trim();
+        var descripcion = descripcionInput.value.trim();
+        var anio = anioInput.value.trim();
+        var puntaje = calcularPuntajeAmag();
+
+        if (!nota) {
+          showToast('Ingrese la nota del curso AMAG.');
+          notaInput.focus();
+          return;
+        }
+        if (!descripcion) {
+          showToast('Ingrese la descripción del curso.');
+          descripcionInput.focus();
+          return;
+        }
+        if (!anio) {
+          showToast('Ingrese el año del curso.');
+          anioInput.focus();
+          return;
+        }
+
+        if (editingRow) {
+          editingRow.setAttribute('data-tipo', tipo);
+          editingRow.setAttribute('data-nota', nota);
+          editingRow.setAttribute('data-descripcion', descripcion);
+          editingRow.setAttribute('data-anio', anio);
+          editingRow.setAttribute('data-puntaje', puntaje);
+          editingRow.children[0].textContent = tipo;
+          editingRow.children[1].textContent = nota;
+          editingRow.children[2].textContent = descripcion;
+          editingRow.children[3].textContent = anio;
+          editingRow.children[4].innerHTML = '<strong>' + puntaje + '</strong>';
+        } else {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-tipo', tipo);
+          tr.setAttribute('data-nota', nota);
+          tr.setAttribute('data-descripcion', descripcion);
+          tr.setAttribute('data-anio', anio);
+          tr.setAttribute('data-puntaje', puntaje);
+          tr.innerHTML =
+            '<td>' + tipo + '</td>' +
+            '<td>' + nota + '</td>' +
+            '<td>' + descripcion + '</td>' +
+            '<td>' + anio + '</td>' +
+            '<td><strong>' + puntaje + '</strong></td>' +
+            '<td><button type="button" class="icon-btn btn-edit-amag" title="Editar"><img src="../assets/icons/edit.svg" alt="" /></button></td>';
+          tbody.appendChild(tr);
+        }
+
+        actualizarRubroScore();
+        closeModal();
+        showToast('Estudio AMAG registrado correctamente (simulación).');
+      }
+
+      document.getElementById('btn-add-amag').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('modal-amag-close').addEventListener('click', closeModal);
+      document.getElementById('modal-amag-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-amag-guardar').addEventListener('click', guardarAmag);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      notaInput.addEventListener('input', actualizarPuntajePreview);
+
+      tbody.addEventListener('click', function (e) {
+        var editBtn = e.target.closest('.btn-edit-amag');
+        if (!editBtn) return;
+        openModal(editBtn.closest('tr'));
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var root = document.getElementById('e1-estudios');
+      if (!root) return;
+
+      var tbody = document.getElementById('e1-semestres-tbody');
+      var emptyMsg = document.getElementById('e1-empty-semestres');
+      var addBtn = document.getElementById('e1-add-semestre');
+      var guardarBtn = document.getElementById('e1-guardar');
+
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      function parseNotas(wrap) {
+        return Array.prototype.map.call(wrap.querySelectorAll('.e1-nota-chip'), function (chip) {
+          return parseFloat(chip.childNodes[0].nodeValue);
+        }).filter(function (n) { return !isNaN(n); });
+      }
+
+      function formatPromedio(notas) {
+        if (!notas.length) return null;
+        var sum = notas.reduce(function (a, b) { return a + b; }, 0);
+        return (sum / notas.length).toFixed(2);
+      }
+
+      function puntajeDesdePromedio(promedio) {
+        if (promedio == null) return '—';
+        var p = parseFloat(promedio);
+        if (isNaN(p) || p < 11) return '0.00';
+        if (p >= 18) return '6.00';
+        if (p >= 16) return '4.50';
+        if (p >= 14) return '3.00';
+        if (p >= 12) return '1.50';
+        return '0.50';
+      }
+
+      function actualizarFila(row) {
+        var wrap = row.querySelector('[data-notas]');
+        var avgEl = row.querySelector('[data-promedio]');
+        var puntajeEl = row.querySelector('[data-puntaje]');
+        if (!wrap || !avgEl || !puntajeEl) return;
+
+        var promedio = formatPromedio(parseNotas(wrap));
+        if (promedio == null) {
+          avgEl.textContent = '—';
+          avgEl.classList.add('is-empty');
+          puntajeEl.textContent = '—';
+          puntajeEl.classList.add('is-empty');
+        } else {
+          avgEl.textContent = promedio;
+          avgEl.classList.remove('is-empty');
+          puntajeEl.textContent = puntajeDesdePromedio(promedio);
+          puntajeEl.classList.remove('is-empty');
+        }
+      }
+
+      function actualizarSemestres() {
+        var rows = tbody.querySelectorAll('[data-semestre-row]');
+        emptyMsg.classList.toggle('is-hidden', rows.length > 0);
+        rows.forEach(actualizarFila);
+      }
+
+      function crearChip(nota) {
+        var chip = document.createElement('span');
+        chip.className = 'e1-nota-chip';
+        chip.appendChild(document.createTextNode(String(nota)));
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.title = 'Quitar';
+        btn.textContent = '×';
+        chip.appendChild(btn);
+        return chip;
+      }
+
+      function agregarNota(wrap, raw) {
+        var valor = String(raw || '').trim().replace(',', '.');
+        if (!valor) return false;
+        var nota = parseFloat(valor);
+        if (isNaN(nota) || nota < 0 || nota > 20) {
+          showToast('Ingrese una nota válida entre 0 y 20.');
+          return false;
+        }
+        var redondeada = Math.round(nota * 100) / 100;
+        var input = wrap.querySelector('.e1-nota-input');
+        wrap.insertBefore(crearChip(redondeada % 1 === 0 ? redondeada.toFixed(0) : redondeada.toFixed(2)), input);
+        actualizarSemestres();
+        return true;
+      }
+
+      function siguienteNumeroSemestre() {
+        var max = 0;
+        tbody.querySelectorAll('[data-semestre-row]').forEach(function (row) {
+          var input = row.querySelector('td:first-child input');
+          var n = parseInt(input && input.value, 10);
+          if (!isNaN(n) && n > max) max = n;
+        });
+        return max + 1;
+      }
+
+      function crearFilaSemestre(numero) {
+        var anio = new Date().getFullYear();
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-semestre-row', '');
+        tr.innerHTML =
+          '<td><input class="input" type="number" min="1" max="20" value="' + numero + '" aria-label="Número de semestre" /></td>' +
+          '<td><input class="input" type="number" min="1900" max="2100" value="' + anio + '" aria-label="Año inicio del semestre" /></td>' +
+          '<td><input class="input" type="number" min="1900" max="2100" value="' + anio + '" aria-label="Año fin del semestre" /></td>' +
+          '<td class="e1-notas-cell"><div class="e1-notas-wrap" data-notas>' +
+          '<input class="e1-nota-input" type="text" inputmode="decimal" placeholder="Nota" aria-label="Agregar nota" />' +
+          '</div></td>' +
+          '<td><span class="e1-promedio is-empty" data-promedio>—</span></td>' +
+          '<td><span class="e1-promedio is-empty" data-puntaje>—</span></td>' +
+          '<td><button type="button" class="icon-btn btn-remove-semestre" title="Quitar semestre">' +
+          '<img src="../assets/icons/close.svg" width="14" height="14" alt="" /></button></td>';
+        return tr;
+      }
+
+      addBtn.addEventListener('click', function () {
+        tbody.appendChild(crearFilaSemestre(siguienteNumeroSemestre()));
+        actualizarSemestres();
+      });
+
+      tbody.addEventListener('click', function (e) {
+        var removeChip = e.target.closest('.e1-nota-chip button');
+        if (removeChip) {
+          removeChip.closest('.e1-nota-chip').remove();
+          actualizarSemestres();
+          return;
+        }
+
+        var removeRow = e.target.closest('.btn-remove-semestre');
+        if (removeRow) {
+          removeRow.closest('tr').remove();
+          actualizarSemestres();
+        }
+      });
+
+      tbody.addEventListener('keydown', function (e) {
+        var input = e.target.closest('.e1-nota-input');
+        if (!input) return;
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          if (agregarNota(input.parentElement, input.value)) {
+            input.value = '';
+          }
+        }
+      });
+
+      tbody.addEventListener('blur', function (e) {
+        var input = e.target.closest('.e1-nota-input');
+        if (!input || !input.value.trim()) return;
+        if (agregarNota(input.parentElement, input.value)) {
+          input.value = '';
+        }
+      }, true);
+
+      if (guardarBtn) {
+        guardarBtn.addEventListener('click', function () {
+          var nombre = document.getElementById('e1-nombre-estudios').value.trim();
+          if (!nombre) {
+            showToast('Ingrese el nombre de estudios.');
+            return;
+          }
+          if (!tbody.querySelectorAll('[data-semestre-row]').length) {
+            showToast('Agregue al menos un semestre.');
+            return;
+          }
+          showToast('Estudio E.1 registrado correctamente (simulación).');
+          root.classList.remove('is-form-open');
+        });
+      }
+
+      var editBtn = root.querySelector('.btn-edit-e1');
+      if (editBtn) {
+        editBtn.addEventListener('click', function () {
+          root.classList.add('is-form-open');
+          document.getElementById('e1-form-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      }
+
+      actualizarSemestres();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var addables = document.querySelectorAll('.rubro-addable');
+
+      function closeAll(except) {
+        addables.forEach(function (el) {
+          if (el !== except) {
+            el.classList.remove('is-form-open');
+          }
+        });
+      }
+
+      addables.forEach(function (el) {
+        var addBtn = el.querySelector('.rubro-add-btn');
+        var cancelBtn = el.querySelector('.rubro-cancel-btn');
+        var form = el.querySelector('.rubro-sub-form');
+
+        if (!addBtn || !form) return;
+
+        addBtn.addEventListener('click', function () {
+          var willOpen = !el.classList.contains('is-form-open');
+          closeAll(willOpen ? el : null);
+          el.classList.toggle('is-form-open', willOpen);
+          if (willOpen) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', function () {
+            el.classList.remove('is-form-open');
+          });
+        }
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      function showToast(message) {
+        var toast = document.createElement('div');
+        toast.className = 'mockup-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2800);
+      }
+
+      var rubrosLocked = document.getElementById('ficha-rubros-locked');
+      var rubrosLayout = document.getElementById('ficha-rubros-layout');
+      var stickyFooter = document.getElementById('ficha-sticky-footer');
+      var btnGuardarDatos = document.getElementById('btn-guardar-datos-personales');
+      var btnLimpiarDatos = document.getElementById('btn-limpiar-datos-personales');
+
+      function desbloquearRubros() {
+        if (rubrosLocked) rubrosLocked.classList.add('is-hidden');
+        if (rubrosLayout) rubrosLayout.classList.remove('is-locked');
+        if (stickyFooter) stickyFooter.classList.remove('is-hidden');
+      }
+
+      if (btnGuardarDatos) {
+        btnGuardarDatos.addEventListener('click', function () {
+          var dni = document.getElementById('magistrado-dni');
+          var nombres = document.getElementById('magistrado-nombres');
+          var nivel = document.getElementById('magistrado-nivel');
+          if (!dni || !dni.value.trim()) {
+            showToast('Ingrese el DNI del juez.');
+            if (dni) dni.focus();
+            return;
+          }
+          if (!nombres || !nombres.value.trim()) {
+            showToast('Consulte el DNI en SIGA para obtener los nombres.');
+            if (nombres) nombres.focus();
+            return;
+          }
+          if (!nivel || !nivel.value) {
+            showToast('Seleccione el nivel del juez.');
+            if (nivel) nivel.focus();
+            return;
+          }
+          desbloquearRubros();
+          showToast('Datos personales guardados. Puede continuar con el rubro B.');
+          if (rubrosLayout) {
+            rubrosLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
+      if (btnLimpiarDatos) {
+        btnLimpiarDatos.addEventListener('click', function () {
+          showToast('Datos personales limpiados (simulación).');
+        });
+      }
+
+      document.querySelectorAll('.btn-antiguedad-guardar').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var block = btn.closest('.antiguedad-block');
+          var section = (btn.getAttribute('data-section') || '').trim();
+          if (block) {
+            block.classList.add('is-complete');
+          }
+          if (section === 'titularidad') {
+            showToast('Titularidad guardada (simulación). Los criterios de desempate son opcionales.');
+            return;
+          }
+          if (section === 'desempate-1') {
+            showToast('1.er criterio de desempate guardado (simulación).');
+            return;
+          }
+          showToast('Sección de antigüedad guardada (simulación).');
+        });
+      });
+
+      var btnFinalizar = document.getElementById('btn-finalizar-registro');
+      if (btnFinalizar) {
+        btnFinalizar.addEventListener('click', function () {
+          showToast('Validando mínimos (cabecera + rubro B) → ficha REGISTRADA. (simulación)');
+        });
+      }
+    })();
+  </script>
+  <script src="../js/mockup-review.js" defer></script>
+</body>
+</html>

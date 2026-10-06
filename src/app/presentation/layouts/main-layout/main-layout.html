@@ -1,0 +1,87 @@
+<mat-sidenav-container class="sidenav-container">
+      <mat-sidenav #drawer class="sidenav" fixedInViewport
+          [attr.role]="'navigation'"
+          [mode]="'side'"
+          [opened]="true">
+        
+        <div class="logo-section">
+          <mat-icon class="logo-icon">gavel</mat-icon>
+          <span class="logo-text">MERITOCRACIA</span>
+        </div>
+
+        @if (authStore.perfil()) {
+          <div class="sidebar-profile">
+            <span class="profile-chip">
+              <mat-icon>verified_user</mat-icon>
+              {{ authStore.perfil() }}
+            </span>
+          </div>
+        }
+
+        <div class="nav-section-label">Navegación</div>
+
+        <mat-nav-list>
+          @for (item of menuItems(); track item.id) {
+            @if (item.children.length > 0) {
+              <mat-expansion-panel [class.mat-elevation-z0]="true" class="menu-expansion">
+                <mat-expansion-panel-header class="expansion-header">
+                  <mat-panel-title>
+                    <mat-icon class="menu-icon-inline">{{ item.icon }}</mat-icon>
+                    {{ item.label }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <mat-nav-list class="sub-menu-list">
+                  @for (hijo of item.children; track hijo.id) {
+                    <a mat-list-item [routerLink]="hijo.url" routerLinkActive="active-link">
+                      <mat-icon matListItemIcon>{{ hijo.icon }}</mat-icon>
+                      <span matListItemTitle>{{ hijo.label }}</span>
+                    </a>
+                  }
+                </mat-nav-list>
+              </mat-expansion-panel>
+            } @else {
+              <a mat-list-item [routerLink]="item.url" routerLinkActive="active-link">
+                <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                <span matListItemTitle>{{ item.label }}</span>
+              </a>
+            }
+          }
+        </mat-nav-list>
+      </mat-sidenav>
+
+      <mat-sidenav-content class="content-container">
+        <mat-toolbar color="primary" class="header-toolbar">
+          <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()">
+            <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+          </button>
+          
+          <span class="title-app">Poder Judicial del Perú</span>
+          <span class="spacer"></span>
+          
+          <div class="user-info" [matMenuTriggerFor]="userMenu">
+            <div class="user-details">
+              <span class="username">{{ authStore.usuario() || 'Usuario Judicial' }}</span>
+              <span class="role">{{ authStore.perfil() || 'Cargando...' }}</span>
+            </div>
+            <mat-icon>account_circle</mat-icon>
+          </div>
+
+          <mat-menu #userMenu="matMenu" xPosition="before">
+            <button mat-menu-item (click)="onCambiarPassword()">
+              <mat-icon>lock</mat-icon>
+              <span>Cambiar contraseña</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="onCerrarSesion()">
+              <mat-icon>exit_to_app</mat-icon>
+              <span>Cerrar sesión</span>
+            </button>
+          </mat-menu>
+        </mat-toolbar>
+
+        <main class="main-workspace">
+          <router-outlet></router-outlet>
+        </main>
+      </mat-sidenav-content>
+    </mat-sidenav-container>

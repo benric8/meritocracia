@@ -1,0 +1,104 @@
+<section class="rubro-cursos" aria-label="Cursos de especialización, postgrado y diplomados">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-cursos__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-cursos__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando cursos…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <p class="rubro-cursos__aviso">
+      Menos de 50 horas: 0.000 y pendiente del subrubro de eventos. De 50 a 100 horas: 0.500. De
+      101 a 200: 0.750. De 201 o más: 1.000. Si el puntaje queda en 0.000 y no hay traslado a
+      eventos, el curso está caduco. Tope del subrubro: 3.000, reflejado en el puntaje del rubro E.
+    </p>
+
+    <div class="rubro-cursos__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-cursos__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-cursos__records">
+      <table class="rubro-cursos__table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Curso</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Jurídico</th>
+            <th>Especialidad</th>
+            <th>Horas</th>
+            <th>Puntaje</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="12" class="rubro-cursos__empty">
+                Sin registros. Use "Añadir" para registrar un curso.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.tipoCursoEspecializacionDescripcion || '—' }}</td>
+                <td>{{ item.nombreCurso || '—' }}</td>
+                <td>{{ etiquetaInstitucion(item) }}</td>
+                <td>{{ item.nombrePais || '—' }}</td>
+                <td>{{ formatearFecha(item.fechaInicio) }}</td>
+                <td>{{ formatearFecha(item.fechaFin) }}</td>
+                <td>{{ etiquetaJuridico(item.juridico) }}</td>
+                <td>{{ item.especialidadDescripcion || '—' }}</td>
+                <td>{{ item.tiempoHoras }}</td>
+                <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
+                <td>{{ etiquetaEstado(item) }}</td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-cursos__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar curso"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar curso"
+                        (click)="eliminarCurso(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

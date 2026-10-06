@@ -1,0 +1,101 @@
+<section class="rubro-estudios-posgrado" aria-label="Estudios de posgrado">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-estudios-posgrado__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-estudios-posgrado__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{
+          cargandoDetalle()
+            ? 'Cargando estudios de posgrado…'
+            : 'Cargando catálogos…'
+        }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-estudios-posgrado__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-estudios-posgrado__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir estudio
+        </button>
+      }
+    </div>
+
+    <div class="rubro-estudios-posgrado__records">
+      <table class="rubro-estudios-posgrado__table">
+        <thead>
+          <tr>
+            <th>Universidad</th>
+            <th>País</th>
+            <th>Especialidad</th>
+            <th>Mención</th>
+            <th>Condición</th>
+            <th>Semestre</th>
+            <th>Promedio</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="9" class="rubro-estudios-posgrado__empty">
+                Sin registros. Use "Añadir estudio" para registrar un semestre.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ etiquetaUniversidad(item) }}</td>
+                <td>{{ item.paisNombre || '—' }}</td>
+                <td>{{ etiquetaEspecialidad(item.especialidad) }}</td>
+                <td>{{ item.mencion }}</td>
+                <td>{{ etiquetaCondicion(item.condicionAcademica) }}</td>
+                <td>
+                  {{ item.numeroSemestre }}
+                  <span class="rubro-estudios-posgrado__detalle">
+                    {{ item.anioInicio }} – {{ item.anioFin }}
+                  </span>
+                </td>
+                <td>{{ formatearPromedio(item.promedio) }}</td>
+                <td><strong>{{ formatearPuntajeSemestre(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-estudios-posgrado__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar semestre"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar semestre"
+                        (click)="eliminarEstudio(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,125 @@
+.lista-usuarios {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lista-usuarios--cargando .lista-usuarios__tabla-card {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.lista-usuarios__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lista-usuarios__busqueda {
+  flex: 1;
+  min-width: min(100%, 320px);
+}
+
+.lista-usuarios__tabla-card {
+  overflow: hidden;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.lista-usuarios__tabla-wrap {
+  overflow-x: auto;
+}
+
+.lista-usuarios__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.lista-usuarios__tabla th,
+.lista-usuarios__tabla td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.lista-usuarios__tabla th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-text-muted);
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.lista-usuarios__tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.lista-usuarios__tabla tbody tr:hover {
+  background: #fafbfc;
+}
+
+.lista-usuarios__estado-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lista-usuarios__estado-badge--activo {
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.lista-usuarios__estado-badge--inactivo {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.lista-usuarios__acciones {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.lista-usuarios__accion {
+  color: var(--mc-primary);
+}
+
+.lista-usuarios__vacio,
+.lista-usuarios__estado {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+}
+
+.lista-usuarios__paginador {
+  border-top: 1px solid var(--mc-border);
+  background: transparent;
+}
+
+.lista-usuarios__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 55%);
+  border-radius: var(--mc-radius-lg);
+
+  span {
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--mc-text-muted);
+    background: var(--mc-surface);
+    border: 1px solid var(--mc-border);
+    border-radius: var(--mc-radius);
+  }
+}

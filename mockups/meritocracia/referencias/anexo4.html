@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Valoración de Méritos</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e3a8a;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --bg-page: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-dark: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .profile-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* 1. Header del Perfil del Magistrado */
+        .profile-header-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .judge-info h2 {
+            font-size: 26px;
+            margin: 0 0 4px 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .judge-info .role-title {
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .meta-grid {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-top: 10px;
+        }
+
+        .meta-item strong {
+            color: #ffffff;
+        }
+
+        /* Score Badge KPI */
+        .score-kpi-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 16px 28px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .score-kpi-box span {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+        }
+
+        .score-kpi-box h1 {
+            font-size: 42px;
+            margin: 4px 0 0 0;
+            color: var(--accent-green);
+            font-weight: 800;
+        }
+
+        /* 2. Grid de Módulos (Cards de Factores) */
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .factor-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .factor-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Cabecera del factor */
+        .factor-header {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .factor-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .points-badge {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .pts-positive { background-color: #ecfdf5; color: #065f46; }
+        .pts-zero { background-color: #f1f5f9; color: #64748b; }
+        .pts-negative { background-color: #fef2f2; color: #991b1b; }
+
+        /* Contenido del factor */
+        .factor-body {
+            padding: 20px;
+        }
+
+        /* Estructura de Datos Clave-Valor */
+        .data-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .data-label { color: #64748b; font-weight: 500; }
+        .data-value { color: #1e293b; font-weight: 600; text-align: right; }
+
+        /* Tablas internas compactas */
+        .compact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+
+        .compact-table th {
+            background-color: #f1f5f9;
+            color: #475569;
+            text-align: left;
+            padding: 8px;
+            font-weight: 600;
+        }
+
+        .compact-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .empty-notice {
+            font-style: italic;
+            color: #94a3b8;
+            text-align: center;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+
+    <div class="profile-header-card">
+        <div class="judge-info">
+            <span class="role-title">Juez Superior Titular</span>
+            <h2>ESPINOZA AVENDAÑO, RENE EDGAR</h2>
+            <div class="meta-grid">
+                <div class="meta-item">Distrito Judicial: <strong>HUANCAVELICA</strong></div>
+                <div class="meta-item">Edad: <strong>56 años</strong> (04/03/1968)</div>
+                <div class="meta-item">Antigüedad Total: <strong>11aa 8mm 22dd</strong></div>
+            </div>
+        </div>
+        <div class="score-kpi-box">
+            <span>Puntaje Total</span>
+            <h1>25.000</h1>
+        </div>
+    </div>
+
+    <div class="factors-grid">
+
+        <div class="factor-card full-width">
+            <div class="factor-header">
+                <h3>II. Antigüedad en el Grado de Juez Superior</h3>
+                <span class="points-badge pts-positive">+ 6.500 Pts</span>
+            </div>
+            <div class="factor-body">
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>Cargo / Condición</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin / Eval</th>
+                            <th>Tiempo Calculado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>JUEZ SUPERIOR (TITULAR)</strong></td>
+                            <td>10/04/2013</td>
+                            <td>31/12/2024</td>
+                            <td><strong>11 años, 8 meses, 22 días</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>IV. Estudios Academia de la Magistratura (AMAG)</h3>
+                <span class="points-badge pts-positive">+ 8.000 Pts</span>
+            </div>
+            <div class="factor-body">
+                <div class="data-list">
+                    <div class="data-label">Tipo de Curso:</div>
+                    <div class="data-value">Curso Habilitante (Ascenso)</div>
+
+                    <div class="data-label">Año de Egreso:</div>
+                    <div class="data-value">2013</div>
+
+                    <div class="data-label">Nota Obtenida:</div>
+                    <div class="data-value"><span style="color:var(--secondary-dark)">20 / 20</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>V. Estudios de Perfeccionamiento</h3>
+                <span class="points-badge pts-positive">+ 2.750 Pts</span>
+            </div>
+            <div class="factor-body">
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>Rubro</th>
+                            <th>Detalle / Cantidad</th>
+                            <th>Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Estudios Doctorado / Maestría</td>
+                            <td>4 Semestres aprobados</td>
+                            <td>1.500</td>
+                        </tr>
+                        <tr>
+                            <td>Cursos de Especialización (Presenciales)</td>
+                            <td>10 Cursos aprobados</td>
+                            <td>3.000</td>
+                        </tr>
+                        <tr>
+                            <td>Asistencia a Eventos Académicos</td>
+                            <td>1 Evento calificado</td>
+                            <td>0.250</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>III. Grados Académicos y Títulos</h3>
+                <span class="points-badge pts-zero">0.000 Pts</span>
+            </div>
+            <div class="factor-body">
+                <div class="empty-notice">No registra Grados de Doctor o Maestro en especialidades jurídicas o equivalentes.</div>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>VI. Publicaciones de Índole Jurídica</h3>
+                <span class="points-badge pts-zero">0.000 Pts</span>
+            </div>
+            <div class="factor-body">
+                <div class="empty-notice">No registra libros, artículos científicos o premios publicados en este periodo.</div>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>VII. Distinciones y Condecoraciones</h3>
+                <span class="points-badge pts-positive">+ 3.000 Pts</span>
+            </div>
+            <div class="factor-body">
+                <div class="data-list">
+                    <div class="data-label">Condición:</div>
+                    <div class="data-value">Suma Méritos</div>
+
+                    <div class="data-label">Cantidad Registrada:</div>
+                    <div class="data-value">18 Distinciones</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-header">
+                <h3>IX. Medidas Disciplinarias / Deméritos</h3>
+                <span class="points-badge pts-zero">0.000 Pts</span>
+            </div>
+            <div class="factor-body">
+                <div class="data-list">
+                    <div class="data-label">Medidas Vigentes:</div>
+                    <div class="data-value" style="color:var(--accent-green)">Ninguna (Sin amonestaciones ni suspensiones)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="factor-card full-width" style="border-top: 3px solid var(--secondary);">
+            <div class="factor-header" style="background-color: #f0f4f8;">
+                <h3 style="color: var(--secondary)">Criterios Complementarios para Casos de Desempate</h3>
+                <span style="font-size: 11px; font-weight: bold; color: #64748b;">ESCALAFÓN AUXILIAR</span>
+            </div>
+            <div class="factor-body">
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>Línea de Desempate / Cargo Anterior</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Total Acumulado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Juez Especializado Titular</td>
+                            <td>18/11/2003</td>
+                            <td>09/04/2013</td>
+                            <td>9 años, 4 meses, 22 días</td>
+                        </tr>
+                        <tr>
+                            <td>Juez Superior Provisional</td>
+                            <td>03/03/2009</td>
+                            <td>09/04/2013</td>
+                            <td>4 años, 1 mes, 7 días <small>(3 periodos)</small></td>
+                        </tr>
+                        <tr>
+                            <td>Antigüedad de Colegiatura (C.A.M.)</td>
+                            <td>16/10/1996</td>
+                            <td>—</td>
+                            <td><strong>28 años de incorporado</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

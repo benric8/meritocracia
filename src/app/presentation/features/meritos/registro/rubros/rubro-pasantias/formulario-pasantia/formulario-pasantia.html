@@ -1,0 +1,150 @@
+<div class="rubro-dialog">
+  <header class="rubro-dialog__header">
+    <div>
+      <h2 class="rubro-dialog__titulo">Pasantía</h2>
+      <p class="rubro-dialog__subtitulo">E.2 · el puntaje lo calcula el servidor</p>
+    </div>
+    <button matIconButton type="button" aria-label="Cerrar" (click)="onCerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="rubro-dialog__body">
+      <p class="rubro-dialog__aviso">
+        Nacional vigente: 0.750. Internacional vigente: 1.000. Caduca en 0.000 cuando la fecha de
+        término queda fuera de los cinco años anteriores a la fecha de valoración. Jurídico,
+        especialidad y mención no cambian el puntaje. El tope del subrubro es
+        {{ tope.toFixed(3) }} y se refleja en el puntaje del rubro E.
+      </p>
+
+      <div class="rubro-dialog__grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Tipo de pasantía</mat-label>
+          <mat-select formControlName="tipoPasantiaId" placeholder="Seleccione…">
+            @for (item of tipos; track item.id) {
+              <mat-option [value]="item.id">{{ item.descripcion }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.tipoPasantiaId.touched && formulario.controls.tipoPasantiaId.invalid
+          ) {
+            <mat-error>Seleccione el tipo de pasantía.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="paisId" placeholder="Seleccione…">
+            @for (item of paises; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.paisId.touched && formulario.controls.paisId.invalid) {
+            <mat-error>Seleccione el país.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Institución</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="institucionBusqueda"
+            placeholder="Escriba al menos 2 caracteres…"
+            [matAutocomplete]="autoInstitucion"
+          />
+          <mat-autocomplete
+            #autoInstitucion="matAutocomplete"
+            (optionSelected)="onSeleccionarInstitucion($event.option.value)"
+          >
+            @for (item of institucionesFiltradas(); track item.id) {
+              <mat-option [value]="item.nombre">{{ item.nombre }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (
+            formulario.controls.institucionBusqueda.touched &&
+            formulario.controls.institucionId.invalid
+          ) {
+            <mat-error>Seleccione una institución del catálogo.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de inicio</mat-label>
+          <input matInput [matDatepicker]="pickerInicio" formControlName="fechaInicio" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio" />
+          <mat-datepicker #pickerInicio />
+          @if (formulario.controls.fechaInicio.touched && formulario.controls.fechaInicio.invalid) {
+            <mat-error>Seleccione la fecha de inicio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Fecha de fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerFin"
+            [matDatepickerFilter]="filtroFechaFin"
+            formControlName="fechaFin"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFin" />
+          <mat-datepicker #pickerFin />
+          @if (formulario.controls.fechaFin.touched && formulario.controls.fechaFin.hasError('required')) {
+            <mat-error>Seleccione la fecha de fin.</mat-error>
+          }
+          @if (formulario.hasError('fechaFinAnterior') && formulario.controls.fechaFin.touched) {
+            <mat-error>La fecha de fin no puede ser anterior a la de inicio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Jurídico</mat-label>
+          <mat-select formControlName="juridico" placeholder="Seleccione…">
+            @for (item of opcionesJuridico; track item.valor) {
+              <mat-option [value]="item.valor">{{ item.etiqueta }}</mat-option>
+            }
+          </mat-select>
+          @if (formulario.controls.juridico.touched && formulario.controls.juridico.invalid) {
+            <mat-error>Indique si es jurídico.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
+          <mat-label>Especialidad</mat-label>
+          <mat-select formControlName="especialidadId" placeholder="Seleccione…">
+            @for (item of especialidades; track item.id) {
+              <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            formulario.controls.especialidadId.touched && formulario.controls.especialidadId.invalid
+          ) {
+            <mat-error>Seleccione la especialidad.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="rubro-dialog__campo rubro-dialog__campo--wide"
+        >
+          <mat-label>Mención</mat-label>
+          <input matInput type="text" formControlName="mencion" [maxlength]="limiteMencion" />
+          @if (formulario.controls.mencion.touched && formulario.controls.mencion.invalid) {
+            <mat-error>Máximo {{ limiteMencion }} caracteres.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <footer class="rubro-dialog__acciones">
+      <button matButton="outlined" type="button" (click)="onCerrar()">Cancelar</button>
+      <button matButton="filled" type="submit">Guardar ítem</button>
+    </footer>
+  </form>
+</div>

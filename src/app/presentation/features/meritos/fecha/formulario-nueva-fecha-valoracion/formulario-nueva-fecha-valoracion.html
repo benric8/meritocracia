@@ -1,0 +1,59 @@
+<div class="fecha-modal-panel">
+  <header class="fecha-modal-header">
+    <h2 id="nueva-fecha-valoracion-titulo" class="fecha-modal-title">Nueva fecha de valoración</h2>
+    <button
+      matIconButton
+      type="button"
+      aria-label="Cerrar formulario"
+      [disabled]="guardando()"
+      (click)="onCerrar()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <form class="fecha-modal-form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
+    <div class="fecha-modal-body">
+      <p class="fecha-modal-hint" role="note">
+        @if (hayConfiguracionVigente) {
+          Al guardar, la configuración actual pasará a estado <strong>Inactivo</strong> y la nueva
+          quedará como <strong>Vigente</strong>.
+        } @else {
+          Se registrará la primera fecha de valoración con estado <strong>Vigente</strong>. Indique
+          la resolución administrativa que la aprueba (ej. Res. Admin. N° …).
+        }
+      </p>
+
+      <mat-form-field appearance="outline" class="fecha-modal-field">
+        <mat-label>Fecha de valoración</mat-label>
+        <input matInput type="date" formControlName="fechaValoracion" />
+        @if (mensajeErrorCampo(formulario.controls.fechaValoracion, 'fechaValoracion'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fecha-modal-field">
+        <mat-label>Resolución que aprueba la fecha</mat-label>
+        <input
+          matInput
+          formControlName="resolucion"
+          [attr.maxlength]="resolucionMaxLength"
+          placeholder="Ej. Res. Admin. N° 045-2026-CEJ — Aprueba fecha I semestre 2026"
+        />
+        @if (mensajeErrorCampo(formulario.controls.resolucion, 'resolucion'); as error) {
+          <mat-error>{{ error }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <footer class="fecha-modal-actions">
+      <button matButton="outlined" type="button" [disabled]="guardando()" (click)="onCerrar()">
+        Cancelar
+      </button>
+      <button matButton="filled" type="submit" [disabled]="guardando()">
+        <mat-icon>save</mat-icon>
+        {{ guardando() ? 'Guardando...' : 'Guardar configuración' }}
+      </button>
+    </footer>
+  </form>
+</div>

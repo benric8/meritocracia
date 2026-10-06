@@ -1,0 +1,88 @@
+<section class="rubro-idioma" aria-label="Idioma nativo o extranjero">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-idioma__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-idioma__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando estudios registrados…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-idioma__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-idioma__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir idioma
+        </button>
+      }
+    </div>
+
+    <div class="rubro-idioma__records">
+      <table class="rubro-idioma__table">
+        <thead>
+          <tr>
+            <th>Idioma</th>
+            <th>Institución</th>
+            <th>Nivel</th>
+            <th>Documento</th>
+            <th>Fecha</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="7" class="rubro-idioma__empty">
+                Sin registros. Use "Añadir idioma" para agregar un estudio.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.idiomaNombre }}</td>
+                <td>{{ item.institucionNombre || '—' }}</td>
+                <td>{{ item.nivelIdiomaNombre }}</td>
+                <td>{{ item.tipoDocumentoNombre }}</td>
+                <td>{{ item.fechaObtencion }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-idioma__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar estudio de idioma"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar estudio de idioma"
+                        (click)="eliminarEstudioIdioma(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

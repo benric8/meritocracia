@@ -1,0 +1,149 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, throwError } from 'rxjs';
+import { tokenNiveles } from '../../../domain/commons/constants';
+import { PeticionPaginada, ResultadoPaginado } from '../../../domain/models/paginacion.model';
+import { NuevoUsuarioGestion, UsuarioGestion, CambioContrasena } from '../../../domain/models/usuario-gestion.model';
+import { SESION_PORT } from '../../../domain/ports/sesion.port';
+import { UsuariosPort } from '../../../domain/ports/usuarios.port';
+import { assertRespuestaExitosa } from '../../api/api-response.util';
+import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
+import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
+import { usuariosEndpoints } from '../../api/usuarios-api.constants';
+import { getAppConfig } from '../../config/app-runtime-config';
+import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
+import { CambiarClaveRequest } from '../../dto/remote/CambiarClaveRequest.dto';
+import {
+  ListarUsuariosResponse,
+  RegistrarUsuarioResponse,
+} from '../../dto/remote/RegistrarUsuarioResponse.dto';
+import { toResultadoPaginado } from '../../mappers/paginacion.mapper';
+import {
+  toRegistrarUsuarioRequestDto,
+  toUsuarioGestion,
+} from '../../mappers/usuario-gestion.mapper';
+
+@Injectable({ providedIn: 'root' })
+export class UsuariosHttpAdapter implements UsuariosPort {
+  private readonly http = inject(HttpClient);
+  private readonly sesion = inject(SESION_PORT);
+  private get baseUrl(): string {
+    return getAppConfig().urlApi;
+  }
+
+  listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<UsuarioGestion>> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .get<ListarUsuariosResponse>(`${this.baseUrl}${usuariosEndpoints.LISTAR}`, {
+        params: crearParametrosPaginacion(peticion),
+      })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          const resultado = toResultadoPaginado(respuesta, (dto) => dto);
+          return {
+            ...resultado,
+            elementos: (respuesta.data ?? [])
+              .map((dto) => {
+                try {
+                  return toUsuarioGestion(dto);
+                } catch {
+                  return null;
+                }
+              })
+              .filter((usuario): usuario is UsuarioGestion => usuario !== null),
+          };
+        })
+      );
+  }
+
+  registrar(peticion: NuevoUsuarioGestion): Observable<UsuarioGestion> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const body = toRegistrarUsuarioRequestDto(peticion);
+
+    return this.http
+      .post<RegistrarUsuarioResponse>(`${this.baseUrl}${usuariosEndpoints.REGISTRAR}`, body)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return toUsuarioGestion(respuesta.data);
+        }),
+        mapearAErrorNegocioApi('No se pudo registrar el usuario.')
+      );
+  }
+
+  resetearClave(id: string): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.RESETEAR_CLAVE(id)}`, null)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        }),
+        mapearAErrorNegocioApi('No se pudo restablecer la contraseña.')
+      );
+  }
+
+  desactivar(id: string, activo: 0 | 1): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.DESACTIVAR(id)}`, null, {
+        params: { activo },
+      })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        }),
+        mapearAErrorNegocioApi('No se pudo cambiar el estado del usuario.')
+      );
+  }
+
+  cambiarContrasena(peticion: CambioContrasena): Observable<void> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const body: CambiarClaveRequest = {
+      claveActual: peticion.claveActual,
+      nuevaClave: peticion.nuevaClave,
+      confirmarClave: peticion.confirmarClave,
+    };
+
+    return this.http
+      .put<BaseResponse>(`${this.baseUrl}${usuariosEndpoints.CAMBIAR_CONTRASENA}`, body)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+        }),
+        mapearAErrorNegocioApi('No se pudo cambiar la contraseña.')
+      );
+  }
+
+  private asegurarTokenOpciones(): void {
+    if (this.sesion.getTokenNivel() !== tokenNiveles.NIVEL_OPCIONES) {
+      throw new Error('Se requiere una sesión con perfil cargado para gestionar usuarios.');
+    }
+  }
+}

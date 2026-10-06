@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.cambiar-clave-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 640px);
+  background: var(--mc-surface);
+  overflow: hidden;
+}
+
+.cambiar-clave-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 16px 20px;
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.cambiar-clave-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--mc-text);
+}
+
+.cambiar-clave-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cambiar-clave-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.cambiar-clave-field {
+  width: 100%;
+}
+
+.cambiar-clave-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--mc-border);
+}

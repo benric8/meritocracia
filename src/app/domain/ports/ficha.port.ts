@@ -1,0 +1,170 @@
+import { InjectionToken } from '@angular/core';
+import { Observable } from 'rxjs';
+import {
+  ActualizarDatosPersonalesFicha,
+  CrearBorradorFicha,
+  FichaValoracion,
+  ResultadoResolverFicha,
+} from '../models/ficha-valoracion.model';
+import {
+  Colegiatura,
+  PeriodoNivelAnterior,
+  Provisionalidad,
+  RubroAntiguedad,
+  TitularidadActual,
+} from '../models/rubro-antiguedad.model';
+import { EstudioAmag, RubroAmag } from '../models/rubro-amag.model';
+import { EstudioIdioma, RubroIdioma } from '../models/rubro-idioma.model';
+import {
+  PublicacionJuridica,
+  RubroPublicacionJuridica,
+} from '../models/rubro-publicacion-juridica.model';
+import { Distincion, RubroDistincion } from '../models/rubro-distincion.model';
+import { DocenciaUniversitaria, RubroDocencia } from '../models/rubro-docencia.model';
+import { Demerito, RubroDemerito } from '../models/rubro-demerito.model';
+import {
+  EstudioPosgrado,
+  RubroEstudiosPosgrado,
+} from '../models/rubro-estudios-posgrado.model';
+import { Pasantia, RubroPasantias } from '../models/rubro-pasantias.model';
+import {
+  CursoEspecializacion,
+  RubroCursosEspecializacion,
+} from '../models/rubro-cursos-especializacion.model';
+import {
+  CertamenAcademico,
+  RubroCertamenesAcademicos,
+} from '../models/rubro-certamenes-academicos.model';
+import {
+  AsistenciaEventoAcademico,
+  RubroAsistenciasEventos,
+} from '../models/rubro-asistencias-eventos.model';
+import { EstudioOfimatica, RubroOfimatica } from '../models/rubro-ofimatica.model';
+import { GradoTitulo, RubroGradosTitulos } from '../models/rubro-grados-titulos.model';
+
+/**
+ * Puerto de salida: ciclo de vida de la ficha de valoración (RF006).
+ * Persistencia por unidades (cabecera + rubro B en esta fase).
+ */
+export interface FichaPort {
+  resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha>;
+
+  crearBorrador(peticion: CrearBorradorFicha): Observable<FichaValoracion>;
+
+  actualizarDatosPersonales(
+    fichaId: string,
+    peticion: ActualizarDatosPersonalesFicha
+  ): Observable<FichaValoracion>;
+
+  obtenerPorId(fichaId: string): Observable<FichaValoracion>;
+
+  obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad>;
+
+  guardarTitularidad(
+    fichaId: string,
+    data: TitularidadActual,
+    antiguedadId?: string | null
+  ): Observable<FichaValoracion>;
+
+  guardarPeriodoNivelAnterior(
+    fichaId: string,
+    data: PeriodoNivelAnterior
+  ): Observable<FichaValoracion>;
+
+  upsertProvisionalidad(fichaId: string, item: Provisionalidad): Observable<FichaValoracion>;
+
+  eliminarProvisionalidad(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  upsertColegiatura(fichaId: string, item: Colegiatura): Observable<FichaValoracion>;
+
+  eliminarColegiatura(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroGradosTitulos(fichaId: string): Observable<RubroGradosTitulos>;
+
+  upsertGradoTitulo(fichaId: string, item: GradoTitulo): Observable<FichaValoracion>;
+
+  eliminarGradoTitulo(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroAmag(fichaId: string): Observable<RubroAmag>;
+
+  upsertEstudioAmag(fichaId: string, item: EstudioAmag): Observable<FichaValoracion>;
+
+  eliminarEstudioAmag(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroIdioma(fichaId: string): Observable<RubroIdioma>;
+
+  upsertEstudioIdioma(fichaId: string, item: EstudioIdioma): Observable<FichaValoracion>;
+
+  eliminarEstudioIdioma(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroPublicacionJuridica(fichaId: string): Observable<RubroPublicacionJuridica>;
+
+  upsertPublicacionJuridica(
+    fichaId: string,
+    item: PublicacionJuridica
+  ): Observable<FichaValoracion>;
+
+  eliminarPublicacionJuridica(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroDistincion(fichaId: string): Observable<RubroDistincion>;
+
+  upsertDistincion(fichaId: string, item: Distincion): Observable<FichaValoracion>;
+
+  eliminarDistincion(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroDocencia(fichaId: string): Observable<RubroDocencia>;
+
+  upsertDocencia(fichaId: string, item: DocenciaUniversitaria): Observable<FichaValoracion>;
+
+  eliminarDocencia(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroDemerito(fichaId: string): Observable<RubroDemerito>;
+
+  upsertDemerito(fichaId: string, item: Demerito): Observable<FichaValoracion>;
+
+  eliminarDemerito(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroEstudiosPosgrado(fichaId: string): Observable<RubroEstudiosPosgrado>;
+
+  upsertEstudioPosgrado(fichaId: string, item: EstudioPosgrado): Observable<FichaValoracion>;
+
+  eliminarEstudioPosgrado(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroPasantias(fichaId: string): Observable<RubroPasantias>;
+
+  upsertPasantia(fichaId: string, item: Pasantia): Observable<FichaValoracion>;
+
+  eliminarPasantia(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroCursosEspecializacion(fichaId: string): Observable<RubroCursosEspecializacion>;
+
+  upsertCursoEspecializacion(
+    fichaId: string,
+    item: CursoEspecializacion
+  ): Observable<FichaValoracion>;
+
+  eliminarCursoEspecializacion(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroCertamenesAcademicos(fichaId: string): Observable<RubroCertamenesAcademicos>;
+
+  upsertCertamenAcademico(fichaId: string, item: CertamenAcademico): Observable<FichaValoracion>;
+
+  eliminarCertamenAcademico(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroAsistenciasEventos(fichaId: string): Observable<RubroAsistenciasEventos>;
+
+  upsertAsistenciaEvento(
+    fichaId: string,
+    item: AsistenciaEventoAcademico
+  ): Observable<FichaValoracion>;
+
+  eliminarAsistenciaEvento(fichaId: string, itemId: string): Observable<FichaValoracion>;
+
+  obtenerRubroOfimatica(fichaId: string): Observable<RubroOfimatica>;
+
+  upsertOfimatica(fichaId: string, item: EstudioOfimatica): Observable<FichaValoracion>;
+
+  eliminarOfimatica(fichaId: string, itemId: string): Observable<FichaValoracion>;
+}
+
+export const FICHA_PORT = new InjectionToken<FichaPort>('FICHA_PORT');

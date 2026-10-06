@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.registro-modal-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 760px);
+  background: var(--mc-surface);
+  overflow: hidden;
+}
+
+.registro-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 16px 20px;
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.registro-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--mc-text);
+}
+
+.registro-modal-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.registro-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 16px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.registro-modal-field {
+  width: 100%;
+}
+
+.registro-modal-field--full {
+  grid-column: 1 / -1;
+}
+
+.registro-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--mc-border);
+}
+
+@media (max-width: 640px) {
+  .registro-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

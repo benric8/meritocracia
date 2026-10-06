@@ -1,0 +1,106 @@
+<section class="rubro-certamenes" aria-label="Certámenes académicos">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-certamenes__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-certamenes__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando certámenes…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <p class="rubro-certamenes__aviso">
+      Perú: 0.250. Otro país: 0.500. Si la fecha de término queda fuera de los cinco años
+      anteriores a la valoración, el puntaje es 0.000 y el certamen está caduco. Tope del subrubro:
+      2.000, reflejado en el puntaje del rubro E.
+    </p>
+
+    <div class="rubro-certamenes__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-certamenes__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-certamenes__records">
+      <table class="rubro-certamenes__table">
+        <thead>
+          <tr>
+            <th>Certamen</th>
+            <th>Participación</th>
+            <th>Tema</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Jurídico</th>
+            <th>Especialidad</th>
+            <th>Modalidad</th>
+            <th>Puntaje</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="13" class="rubro-certamenes__empty">
+                Sin registros. Use "Añadir" para registrar un certamen.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.eventoDescripcion || '—' }}</td>
+                <td>{{ item.tipoParticipacionDescripcion || '—' }}</td>
+                <td>{{ item.tema || '—' }}</td>
+                <td>{{ etiquetaInstitucion(item) }}</td>
+                <td>{{ item.nombrePais || '—' }}</td>
+                <td>{{ formatearFecha(item.fechaInicio) }}</td>
+                <td>{{ formatearFecha(item.fechaFin) }}</td>
+                <td>{{ etiquetaJuridico(item.juridico) }}</td>
+                <td>{{ item.especialidadDescripcion || '—' }}</td>
+                <td>{{ item.modalidadDescripcion || '—' }}</td>
+                <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
+                <td>{{ etiquetaEstado(item) }}</td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-certamenes__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar certamen"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar certamen"
+                        (click)="eliminarCertamen(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,86 @@
+<section class="rubro-amag" aria-label="Estudios de preparación AMAG">
+  @if (errorCatalogos(); as error) {
+    <p class="rubro-amag__error" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoCatalogos() || cargandoDetalle()) {
+    <div class="rubro-amag__loading" role="status">
+      <mat-progress-spinner diameter="22" mode="indeterminate" />
+      <span>
+        {{ cargandoDetalle() ? 'Cargando estudios registrados…' : 'Cargando catálogos…' }}
+      </span>
+    </div>
+  } @else {
+    <div class="rubro-amag__toolbar">
+      @if (!soloLectura()) {
+        <button
+          matButton="filled"
+          type="button"
+          class="rubro-amag__btn-add"
+          (click)="onAbrirFormulario()"
+        >
+          <mat-icon>add</mat-icon>
+          Añadir
+        </button>
+      }
+    </div>
+
+    <div class="rubro-amag__records">
+      <table class="rubro-amag__table">
+        <thead>
+          <tr>
+            <th>Tipo del curso AMAG</th>
+            <th>Nota</th>
+            <th>Descripción</th>
+            <th>Año</th>
+            <th>Puntaje</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (!items().length) {
+            <tr>
+              <td colspan="6" class="rubro-amag__empty">
+                Sin registros. Use "Añadir" para agregar un estudio AMAG.
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.tipoCursoNombre }}</td>
+                <td>{{ item.nota }}</td>
+                <td>{{ item.descripcion }}</td>
+                <td>{{ item.anio }}</td>
+                <td><strong>{{ formatearPuntaje(item.puntaje) }}</strong></td>
+                <td>
+                  @if (!soloLectura()) {
+                    <div class="rubro-amag__actions">
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Editar"
+                        aria-label="Editar estudio AMAG"
+                        (click)="onEditar(item)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        title="Eliminar"
+                        aria-label="Eliminar estudio AMAG"
+                        (click)="eliminarEstudioAmag(item.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
