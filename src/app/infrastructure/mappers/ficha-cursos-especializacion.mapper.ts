@@ -8,7 +8,6 @@ import {
   puntajeSubrubroCursosEspecializacion,
   RubroCursosEspecializacion,
   TOPE_PUNTAJE_CURSOS_ESPECIALIZACION,
-  TrasladoEventoCurso,
 } from '../../domain/models/rubro-cursos-especializacion.model';
 import {
   CursoEspecializacionDetalleDto,
@@ -37,14 +36,6 @@ function aJuridico(valor: string): JuridicoCurso {
     return texto;
   }
   throw new Error('Indique si el curso es jurídico.');
-}
-
-function aTrasladoEvento(valor: string): TrasladoEventoCurso {
-  const texto = String(valor ?? '').trim();
-  if (texto === '1' || texto === '0') {
-    return texto;
-  }
-  throw new Error('Traslado a eventos no válido.');
 }
 
 function aNombreCurso(valor: string): string {
@@ -99,7 +90,6 @@ function aCursoDesdeDto(dto: CursoEspecializacionDetalleDto): CursoEspecializaci
     tiempoHoras: Number.isFinite(horas) ? horas : 0,
     archivoId,
     puntaje: Number.isFinite(puntaje) ? puntaje : 0,
-    trasladoEvento: aTrasladoEvento(dto.trasladoEvento),
   };
 }
 

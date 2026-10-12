@@ -33,7 +33,6 @@ export interface CursoEspecializacionDetalleDto {
   tiempoHoras: number;
   archivoId?: number | null;
   puntaje: number;
-  trasladoEvento: string;
 }
 
 export interface ObtenerCursosEspecializacionResponse extends BaseResponse {

@@ -12,9 +12,9 @@
     </div>
   } @else {
     <p class="rubro-cursos__aviso">
-      Menos de 50 horas: 0.000 y pendiente del subrubro de eventos. De 50 a 100 horas: 0.500. De
-      101 a 200: 0.750. De 201 o más: 1.000. Si el puntaje queda en 0.000 y no hay traslado a
-      eventos, el curso está caduco. Tope del subrubro: 3.000, reflejado en el puntaje del rubro E.
+      Menos de 50 horas, o fecha de fin fuera de los cinco años: 0.000 y el curso no suma. El
+      registro se conserva. De 50 a 100 horas: 0.500. De 101 a 200: 0.750. De 201 o más: 1.000.
+      Tope del subrubro: 3.000, reflejado en el puntaje del rubro E.
     </p>
 
     <div class="rubro-cursos__toolbar">
@@ -45,14 +45,13 @@
             <th>Especialidad</th>
             <th>Horas</th>
             <th>Puntaje</th>
-            <th>Estado</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @if (!items().length) {
             <tr>
-              <td colspan="12" class="rubro-cursos__empty">
+              <td colspan="11" class="rubro-cursos__empty">
                 Sin registros. Use "Añadir" para registrar un curso.
               </td>
             </tr>
@@ -69,7 +68,6 @@
                 <td>{{ item.especialidadDescripcion || '—' }}</td>
                 <td>{{ item.tiempoHoras }}</td>
                 <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
-                <td>{{ etiquetaEstado(item) }}</td>
                 <td>
                   @if (!soloLectura()) {
                     <div class="rubro-cursos__actions">

@@ -64,17 +64,6 @@ export function etiquetaJuridicoAsistenciaEvento(valor: string): string {
   return OPCIONES_JURIDICO_ASISTENCIA_EVENTO.find((item) => item.valor === valor)?.etiqueta ?? valor;
 }
 
-/** Puntaje 0.000: el servidor marcó la asistencia como caduca. */
-export function etiquetaEstadoAsistenciaEvento(
-  item: Pick<AsistenciaEventoAcademico, 'puntaje'>
-): string {
-  const puntaje = Number(item.puntaje);
-  if (Number.isFinite(puntaje) && puntaje === 0) {
-    return 'Caduco';
-  }
-  return '—';
-}
-
 /** Suma de filas con el tope del subtotal. Referencia local si la ficha no trae el código E5. */
 export function puntajeSubrubroAsistenciasEventos(
   items: Pick<AsistenciaEventoAcademico, 'puntaje'>[]

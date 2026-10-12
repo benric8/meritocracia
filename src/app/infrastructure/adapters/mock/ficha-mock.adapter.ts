@@ -68,7 +68,6 @@ import {
   ordenarCursosEspecializacion,
   puntajeSubrubroCursosEspecializacion,
   RubroCursosEspecializacion,
-  TrasladoEventoCurso,
 } from '../../../domain/models/rubro-cursos-especializacion.model';
 import {
   CertamenAcademico,
@@ -211,6 +210,7 @@ export class FichaMockAdapter implements FichaPort {
       rubroCertamenesAcademicos: crearRubroCertamenesAcademicosVacio(),
       rubroAsistenciasEventos: crearRubroAsistenciasEventosVacio(),
       rubroOfimatica: crearRubroOfimaticaVacio(),
+      puntajeRubroE: 0,
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -898,12 +898,10 @@ export class FichaMockAdapter implements FichaPort {
 
     return this.conFichaEditable(fichaId, (ficha) => {
       const rubro = ficha.rubroCursosEspecializacion ?? crearRubroCursosEspecializacionVacio();
-      const evaluado = this.evaluarCursoEspecializacion(item, ficha.fechaValoracionSnapshot);
       const guardada: CursoEspecializacion = {
         ...item,
         id: /^\d+$/.test(item.id) ? item.id : String(Date.now()),
-        puntaje: evaluado.puntaje,
-        trasladoEvento: evaluado.trasladoEvento,
+        puntaje: this.evaluarCursoEspecializacion(item, ficha.fechaValoracionSnapshot),
       };
       const idx = rubro.items.findIndex((existente) => existente.id === item.id);
       const items = ordenarCursosEspecializacion(
@@ -1155,35 +1153,32 @@ export class FichaMockAdapter implements FichaPort {
     }
   }
 
-  private evaluarCursoEspecializacion(
-    item: CursoEspecializacion,
-    fechaValoracion: string
-  ): { puntaje: number; trasladoEvento: TrasladoEventoCurso } {
+  private evaluarCursoEspecializacion(item: CursoEspecializacion, fechaValoracion: string): number {
     const horas = Number(item.tiempoHoras);
     if (Number.isInteger(horas) && horas > 0 && horas < 50) {
-      return { puntaje: 0, trasladoEvento: '1' };
+      return 0;
     }
 
     const fin = item.fechaFin.slice(0, 10);
     const valoracion = String(fechaValoracion ?? '').slice(0, 10);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(fin) || !/^\d{4}-\d{2}-\d{2}$/.test(valoracion)) {
-      return { puntaje: 0, trasladoEvento: '0' };
+      return 0;
     }
 
     const [anio, mes, dia] = valoracion.split('-').map(Number);
     const limite = new Date(anio - 5, mes - 1, dia);
     const isoLimite = `${limite.getFullYear()}-${String(limite.getMonth() + 1).padStart(2, '0')}-${String(limite.getDate()).padStart(2, '0')}`;
     if (fin < isoLimite || fin > valoracion) {
-      return { puntaje: 0, trasladoEvento: '0' };
+      return 0;
     }
 
     if (horas <= 100) {
-      return { puntaje: 0.5, trasladoEvento: '0' };
+      return 0.5;
     }
     if (horas <= 200) {
-      return { puntaje: 0.75, trasladoEvento: '0' };
+      return 0.75;
     }
-    return { puntaje: 1, trasladoEvento: '0' };
+    return 1;
   }
 
   /** Perú 0.250, otro país 0.500, caduco 0.000 si fechaFin queda fuera de los 5 años. */
@@ -1315,6 +1310,17 @@ export class FichaMockAdapter implements FichaPort {
     return Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, Math.round(suma * 1000) / 1000);
   }
 
+  private puntajeRubroEDe(ficha: FichaValoracion): number {
+    const total =
+      (ficha.rubroEstudiosPosgrado?.puntajeTotal ?? 0) +
+      (ficha.rubroPasantias?.puntajeTotal ?? 0) +
+      (ficha.rubroCursosEspecializacion?.puntajeTotal ?? 0) +
+      (ficha.rubroCertamenesAcademicos?.puntajeTotal ?? 0) +
+      (ficha.rubroAsistenciasEventos?.puntajeTotal ?? 0) +
+      (ficha.rubroOfimatica?.puntajeTotal ?? 0);
+    return Math.round(total * 1000) / 1000;
+  }
+
   private quitarTildes(valor: string): string {
     return String(valor ?? '')
       .normalize('NFD')
@@ -1366,7 +1372,11 @@ export class FichaMockAdapter implements FichaPort {
       return throwError(() => new ErrorNegocioApi({ mensaje: 'La ficha está cerrada.' }));
     }
 
-    const actualizada = mapear(almacen[indice]);
+    const mapeada = mapear(almacen[indice]);
+    const actualizada = {
+      ...mapeada,
+      puntajeRubroE: this.puntajeRubroEDe(mapeada),
+    };
     almacen[indice] = actualizada;
     this.guardarAlmacen(almacen);
     return of(actualizada).pipe(delay(LATENCIA_MS));
@@ -1457,6 +1467,9 @@ export class FichaMockAdapter implements FichaPort {
         rubroAsistenciasEventos:
           f.rubroAsistenciasEventos ?? crearRubroAsistenciasEventosVacio(),
         rubroOfimatica: f.rubroOfimatica ?? crearRubroOfimaticaVacio(),
+        puntajeRubroE: Number.isFinite(f.puntajeRubroE)
+          ? f.puntajeRubroE
+          : this.puntajeRubroEDe(f),
       }));
     } catch {
       const iniciales = this.datosIniciales();
@@ -1501,6 +1514,7 @@ export class FichaMockAdapter implements FichaPort {
         rubroCertamenesAcademicos: crearRubroCertamenesAcademicosVacio(),
         rubroAsistenciasEventos: crearRubroAsistenciasEventosVacio(),
         rubroOfimatica: crearRubroOfimaticaVacio(),
+        puntajeRubroE: 0,
         puntajeTotal: 68.25,
         creadoEn: '2025-11-10T10:00:00.000Z',
         actualizadoEn: '2025-12-20T18:00:00.000Z',

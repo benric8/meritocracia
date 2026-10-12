@@ -49,6 +49,7 @@ import {
 import { Demerito, RubroDemerito } from '../../../domain/models/rubro-demerito.model';
 import {
   EstudioPosgrado,
+  puntajeSubrubroEstudiosPosgrado,
   RubroEstudiosPosgrado,
   TOPE_PUNTAJE_ESTUDIOS_POSGRADO,
 } from '../../../domain/models/rubro-estudios-posgrado.model';
@@ -1764,6 +1765,11 @@ export class FichaHttpAdapter implements FichaPort {
           assertRespuestaExitosa(respuesta);
           const lineas = toRubroEstudiosPosgradoDesdeDetalle(respuesta.data);
           const previo = this.fichasEnMemoria.get(id)?.rubroEstudiosPosgrado;
+          const oficial = previo?.puntajeTotal;
+          const puntajeTotal =
+            oficial != null && Number.isFinite(oficial) && oficial > 0
+              ? Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, oficial)
+              : puntajeSubrubroEstudiosPosgrado(lineas.items);
           const rubro: RubroEstudiosPosgrado = {
             items: lineas.items.map((item) => {
               const anterior = previo?.items.find((actual) => actual.id === item.id);
@@ -1773,7 +1779,7 @@ export class FichaHttpAdapter implements FichaPort {
                 paisNombre: item.paisNombre || anterior?.paisNombre || '',
               };
             }),
-            puntajeTotal: previo?.puntajeTotal ?? 0,
+            puntajeTotal,
           };
           this.actualizarRubroEstudiosPosgradoEnMemoria(id, rubro);
           return rubro;
@@ -2620,6 +2626,7 @@ export class FichaHttpAdapter implements FichaPort {
       rubroCertamenesAcademicos: crearRubroCertamenesAcademicosVacio(),
       rubroAsistenciasEventos: crearRubroAsistenciasEventosVacio(),
       rubroOfimatica: crearRubroOfimaticaVacio(),
+      puntajeRubroE: 0,
       puntajeTotal: 0,
       creadoEn: ahora,
       actualizadoEn: ahora,
@@ -3078,18 +3085,13 @@ export class FichaHttpAdapter implements FichaPort {
     ficha: FichaValoracion,
     rubros: ObtenerFichaResponse['data']['rubros']
   ): FichaValoracion {
-    const puntaje =
-      puntajeSubtotalPorCodigo(rubros, 'E1') ?? puntajeSubtotalPorCodigo(rubros, 'E');
-    if (puntaje == null) {
-      return ficha;
-    }
-
     const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+    const oficial = puntajeSubtotalPorCodigo(rubros, 'E1');
     return this.guardarEnMemoria({
       ...ficha,
       rubroEstudiosPosgrado: {
         ...rubro,
-        puntajeTotal: puntaje,
+        puntajeTotal: oficial ?? puntajeSubrubroEstudiosPosgrado(rubro.items),
       },
     });
   }
@@ -3103,12 +3105,11 @@ export class FichaHttpAdapter implements FichaPort {
     }
 
     const rubro = actual.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
-    const suma = rubro.items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
     return this.guardarEnMemoria({
       ...actual,
       rubroEstudiosPosgrado: {
         ...rubro,
-        puntajeTotal: Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, suma),
+        puntajeTotal: puntajeSubrubroEstudiosPosgrado(rubro.items),
       },
     });
   }

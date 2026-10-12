@@ -1,7 +1,8 @@
 /**
  * Rubro E, subrubro E1 — Estudios de doctorado y maestría.
  * Cada registro es un semestre. Promedio y puntaje los calcula el servidor.
- * El total del rubro E es la suma de semestres, con tope 1.500.
+ * El tope 1.500 del subrubro queda en el puntaje del código E1 de la ficha.
+ * El encabezado del rubro E usa el puntaje del código E y no esta suma.
  */
 
 export const TOPE_PUNTAJE_ESTUDIOS_POSGRADO = 1.5;
@@ -94,6 +95,15 @@ export function promedioNotasAprobadas(notas: number[]): number | null {
   }
   const promedio = aprobadas.reduce((total, nota) => total + nota, 0) / aprobadas.length;
   return Math.round(promedio * 100) / 100;
+}
+
+/** Suma de semestres con el tope del subrubro. Referencia local si la ficha no trae el código E1. */
+export function puntajeSubrubroEstudiosPosgrado(
+  items: Pick<EstudioPosgrado, 'puntaje'>[]
+): number {
+  const suma = items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+  const topado = Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, suma);
+  return Math.round(topado * 1000) / 1000;
 }
 
 /** Referencia visual. El servidor asigna el puntaje definitivo. */

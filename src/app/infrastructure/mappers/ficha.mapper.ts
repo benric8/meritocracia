@@ -171,6 +171,7 @@ export function toFichaValoracionDesdeCreacion(
     rubroCertamenesAcademicos: crearRubroCertamenesAcademicosVacio(),
     rubroAsistenciasEventos: crearRubroAsistenciasEventosVacio(),
     rubroOfimatica: crearRubroOfimaticaVacio(),
+    puntajeRubroE: 0,
     puntajeTotal: 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
@@ -208,14 +209,18 @@ export function resolverUrlFotoFicha(valor: string | null | undefined): string {
   return normalizarFotoSiga(foto);
 }
 
-/** Subtotal de un rubro en GET /fichas/{id}. `null` si el código no viene en `rubros`. */
+function codigoRubroNormalizado(codigo: string): string {
+  return codigo.trim().toUpperCase().replace(/\./g, '');
+}
+
+/** Subtotal de un rubro en GET /fichas/{id}. `null` si el código no viene en `rubros`. Acepta `E1` y `E.1`. */
 export function puntajeSubtotalPorCodigo(
   rubros: ObtenerFichaDataDto['rubros'] | null | undefined,
   codigo: string
 ): number | null {
-  const buscado = codigo.trim().toUpperCase();
+  const buscado = codigoRubroNormalizado(codigo);
   const encontrado = (rubros ?? []).find(
-    (item) => String(item.codigo ?? '').trim().toUpperCase() === buscado
+    (item) => codigoRubroNormalizado(String(item.codigo ?? '')) === buscado
   );
   if (!encontrado) {
     return null;
@@ -271,10 +276,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     },
     rubroEstudiosPosgrado: {
       items: [],
-      puntajeTotal:
-        puntajeSubtotalPorCodigo(data.rubros, 'E1') ??
-        puntajeSubtotalPorCodigo(data.rubros, 'E') ??
-        0,
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'E1') ?? 0,
     },
     rubroPasantias: {
       items: [],
@@ -296,6 +298,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
       items: [],
       puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'E6') ?? 0,
     },
+    puntajeRubroE: puntajeSubtotalPorCodigo(data.rubros, 'E') ?? 0,
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,

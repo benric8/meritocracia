@@ -115,6 +115,7 @@ export class Registro implements OnInit {
   protected readonly nivelIdFicha = signal<string | null>(null);
   protected readonly fichaEstado = signal<EstadoFicha | null>(null);
   protected readonly puntajeTotal = signal(0);
+  protected readonly puntajeRubroE = signal(0);
   protected readonly rubrosDesbloqueados = signal(false);
   protected readonly fichaSoloLectura = signal(false);
   protected readonly rubroAntiguedad = signal<RubroAntiguedad | null>(null);
@@ -606,6 +607,7 @@ export class Registro implements OnInit {
     this.nivelIdFicha.set(ficha.nivelId);
     this.fichaEstado.set(ficha.estado);
     this.puntajeTotal.set(ficha.puntajeTotal);
+    this.puntajeRubroE.set(ficha.puntajeRubroE ?? 0);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.rubroAmag.set(ficha.rubroAmag);
@@ -658,6 +660,7 @@ export class Registro implements OnInit {
 
   protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {
     this.puntajeTotal.set(ficha.puntajeTotal);
+    this.puntajeRubroE.set(ficha.puntajeRubroE ?? 0);
     this.rubroAntiguedad.set(ficha.rubroAntiguedad);
     this.rubroGradosTitulos.set(ficha.rubroGradosTitulos);
     this.rubroAmag.set(ficha.rubroAmag);
@@ -752,6 +755,7 @@ export class Registro implements OnInit {
     this.nivelIdFicha.set(null);
     this.fichaEstado.set(null);
     this.puntajeTotal.set(0);
+    this.puntajeRubroE.set(0);
     this.rubrosDesbloqueados.set(false);
     this.fichaSoloLectura.set(false);
     this.rubroAntiguedad.set(null);

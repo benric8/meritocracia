@@ -34,7 +34,6 @@ import {
   OPCIONES_JURIDICO_CURSO,
   TipoCursoEspecializacionCatalogo,
   TOPE_PUNTAJE_CURSOS_ESPECIALIZACION,
-  TrasladoEventoCurso,
 } from '../../../../../../../domain/models/rubro-cursos-especializacion.model';
 import {
   aDateDesdeIso,
@@ -51,10 +50,9 @@ export interface FormularioCursoEspecializacionData {
   curso?: CursoEspecializacion | null;
 }
 
-export type CursoEspecializacionGuardado = Omit<CursoEspecializacion, 'id' | 'puntaje' | 'trasladoEvento'> & {
+export type CursoEspecializacionGuardado = Omit<CursoEspecializacion, 'id' | 'puntaje'> & {
   id?: string;
   puntaje: number;
-  trasladoEvento: TrasladoEventoCurso;
 };
 
 @Component({
@@ -203,7 +201,6 @@ export class FormularioCursoEspecializacion implements OnInit {
       tiempoHoras: horas,
       archivoId: this.data.curso?.archivoId ?? null,
       puntaje: this.data.curso?.puntaje ?? 0,
-      trasladoEvento: this.data.curso?.trasladoEvento ?? '0',
     });
   }
 

@@ -12,16 +12,15 @@
   <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
     <div class="rubro-dialog__body">
       <p class="rubro-dialog__aviso">
-        Menos de 50 horas: 0.000 y pendiente del subrubro de eventos. De 50 a 100 horas: 0.500. De
-        101 a 200: 0.750. De 201 o más: 1.000. Caduca en 0.000 cuando la fecha de término queda
-        fuera de los cinco años. El tope del subrubro es {{ tope.toFixed(3) }} y se refleja en el
+        Menos de 50 horas, o fecha de fin fuera de los cinco años: el servidor asigna 0.000 y el
+        curso no suma. El registro se conserva en E.3. De 50 a 100 horas: 0.500. De 101 a 200:
+        0.750. De 201 o más: 1.000. El tope del subrubro es {{ tope.toFixed(3) }} y se refleja en el
         puntaje del rubro E.
       </p>
 
       @if (horasMenoresACincuenta()) {
         <p class="rubro-dialog__aviso" role="status">
-          Con menos de 50 horas el servidor asigna 0.000 y deja el curso pendiente del subrubro de
-          eventos. Puede guardar el registro.
+          Con menos de 50 horas el servidor asigna 0.000 y el curso no suma. El registro se conserva.
         </p>
       }
 

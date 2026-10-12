@@ -80,6 +80,8 @@ export interface FichaValoracion {
   rubroCertamenesAcademicos: RubroCertamenesAcademicos | null;
   rubroAsistenciasEventos: RubroAsistenciasEventos | null;
   rubroOfimatica: RubroOfimatica | null;
+  /** Puntaje oficial del rubro E (`puntajeSubtotal` del código E). No es la suma de subrubros. */
+  puntajeRubroE: number;
   puntajeTotal: number;
   creadoEn: string;
   actualizadoEn: string;

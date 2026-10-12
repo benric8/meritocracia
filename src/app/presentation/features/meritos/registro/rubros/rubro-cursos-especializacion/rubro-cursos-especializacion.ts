@@ -19,7 +19,6 @@ import { CatalogoItem } from '../../../../../../domain/models/catalogo-item.mode
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import {
   CursoEspecializacion,
-  etiquetaEstadoCurso,
   etiquetaJuridicoCurso,
   RubroCursosEspecializacion,
   TipoCursoEspecializacionCatalogo,
@@ -62,7 +61,6 @@ export class RubroCursosEspecializacionComponent implements OnInit {
   protected readonly paises = signal<CatalogoItem[]>([]);
   protected readonly especialidades = signal<CatalogoItem[]>([]);
   protected readonly etiquetaJuridico = etiquetaJuridicoCurso;
-  protected readonly etiquetaEstado = etiquetaEstadoCurso;
   protected readonly formatearFecha = formatearFechaCorta;
 
   private ultimoRubroHidratadoClave: string | null = null;
@@ -198,7 +196,6 @@ export class RubroCursosEspecializacionComponent implements OnInit {
       tiempoHoras: item.tiempoHoras,
       archivoId: item.archivoId,
       puntaje: item.puntaje,
-      trasladoEvento: item.trasladoEvento,
     };
 
     const esActualizacion = esIdPersistidoApi(registro.id);
@@ -273,7 +270,7 @@ export class RubroCursosEspecializacionComponent implements OnInit {
       rubro.items.length,
       ...rubro.items.map(
         (item) =>
-          `${item.id}|${item.fechaFin}|${item.puntaje}|${item.trasladoEvento}|${item.institucionNombre}|${item.tipoCursoEspecializacionDescripcion}|${item.especialidadDescripcion}|${item.nombreCurso}|${item.tiempoHoras}|${item.juridico}`
+          `${item.id}|${item.fechaFin}|${item.puntaje}|${item.institucionNombre}|${item.tipoCursoEspecializacionDescripcion}|${item.especialidadDescripcion}|${item.nombreCurso}|${item.tiempoHoras}|${item.juridico}`
       ),
     ].join('::');
   }

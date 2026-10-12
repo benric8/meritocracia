@@ -45,14 +45,13 @@
             <th>Modalidad</th>
             <th>Documento</th>
             <th>Puntaje</th>
-            <th>Estado</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @if (!items().length) {
             <tr>
-              <td colspan="13" class="rubro-asistencias__empty">
+              <td colspan="12" class="rubro-asistencias__empty">
                 Sin registros. Use "Añadir" para registrar una asistencia.
               </td>
             </tr>
@@ -70,7 +69,6 @@
                 <td>{{ etiquetaModalidad(item) }}</td>
                 <td>{{ etiquetaTipoDocumento(item) }}</td>
                 <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
-                <td>{{ etiquetaEstado(item) }}</td>
                 <td>
                   @if (!soloLectura()) {
                     <div class="rubro-asistencias__actions">

@@ -118,6 +118,8 @@ export class RubrosPanel {
   readonly rubroCertamenesAcademicos = input<RubroCertamenesAcademicos | null>(null);
   readonly rubroAsistenciasEventos = input<RubroAsistenciasEventos | null>(null);
   readonly rubroOfimatica = input<RubroOfimatica | null>(null);
+  /** Puntaje oficial del código E. No se recalcula al abrir los subrubros. */
+  readonly puntajeRubroE = input(0);
   readonly rubrosMaestro = input<RubroMaestro[]>([]);
 
   readonly fichaActualizada = output<FichaValoracion>();
@@ -146,6 +148,7 @@ export class RubrosPanel {
   protected readonly puntajeDocencia = signal(0);
   protected readonly puntajeDemerito = signal(0);
   protected readonly puntajeEstudiosPosgrado = signal(0);
+  protected readonly puntajeRubroEOficial = signal(0);
   protected readonly puntajePasantias = signal(0);
   protected readonly puntajeCursosEspecializacion = signal(0);
   protected readonly puntajeCertamenesAcademicos = signal(0);
@@ -215,6 +218,7 @@ export class RubrosPanel {
       const inicialCertamenes = this.rubroCertamenesAcademicos();
       const inicialAsistencias = this.rubroAsistenciasEventos();
       const inicialOfimatica = this.rubroOfimatica();
+      this.puntajeRubroEOficial.set(this.puntajeRubroE());
 
       if (!fichaId || fichaId !== this.rubroBCargadoParaFichaId) {
         this.rubroBCargadoParaFichaId = null;
@@ -460,6 +464,7 @@ export class RubrosPanel {
       this.rubroAsistenciasEventosLocal.set(ficha.rubroAsistenciasEventos);
     }
     this.puntajeOfimatica.set(ficha.rubroOfimatica?.puntajeTotal ?? 0);
+    this.puntajeRubroEOficial.set(ficha.puntajeRubroE ?? 0);
     if (ficha.rubroOfimatica) {
       this.rubroOfimaticaLocal.set(ficha.rubroOfimatica);
     }
@@ -533,14 +538,7 @@ export class RubrosPanel {
       case 'J':
         return this.puntajeDemerito();
       case 'E':
-        return (
-          this.puntajeEstudiosPosgrado() +
-          this.puntajePasantias() +
-          this.puntajeCursosEspecializacion() +
-          this.puntajeCertamenesAcademicos() +
-          this.puntajeAsistenciasEventos() +
-          this.puntajeOfimatica()
-        );
+        return this.puntajeRubroEOficial();
       default:
         return 0;
     }

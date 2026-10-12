@@ -20,7 +20,6 @@ import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracio
 import { CatalogoCertamen } from '../../../../../../domain/models/rubro-certamenes-academicos.model';
 import {
   AsistenciaEventoAcademico,
-  etiquetaEstadoAsistenciaEvento,
   etiquetaJuridicoAsistenciaEvento,
   RubroAsistenciasEventos,
 } from '../../../../../../domain/models/rubro-asistencias-eventos.model';
@@ -64,7 +63,6 @@ export class RubroAsistenciasEventosComponent implements OnInit {
   protected readonly paises = signal<CatalogoItem[]>([]);
   protected readonly especialidades = signal<CatalogoItem[]>([]);
   protected readonly etiquetaJuridico = etiquetaJuridicoAsistenciaEvento;
-  protected readonly etiquetaEstado = etiquetaEstadoAsistenciaEvento;
   protected readonly formatearFecha = formatearFechaCorta;
 
   private ultimoRubroHidratadoClave: string | null = null;
