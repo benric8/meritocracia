@@ -45,8 +45,6 @@ export interface MaestrosPort {
   listarModalidades(): Observable<CatalogoCertamen[]>;
   /** Participación del subrubro E.4. El orden lo define el API. */
   listarTiposParticipacionCertamen(): Observable<CatalogoCertamen[]>;
-  /** Catálogo de instituciones: `{ id, nombre, paisId }`. */
-  listarInstituciones(): Observable<CatalogoItem[]>;
   /**
    * Autocompletado de instituciones del subrubro E.2.
    * Mínimo 2 caracteres. `paisId` es opcional. `limite` máximo 50.

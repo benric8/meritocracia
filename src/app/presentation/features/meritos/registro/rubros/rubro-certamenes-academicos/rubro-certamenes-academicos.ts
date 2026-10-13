@@ -60,7 +60,6 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
   protected readonly eventos = signal<CatalogoCertamen[]>([]);
   protected readonly modalidades = signal<CatalogoCertamen[]>([]);
   protected readonly tiposParticipacion = signal<CatalogoCertamen[]>([]);
-  protected readonly instituciones = signal<CatalogoItem[]>([]);
   protected readonly paises = signal<CatalogoItem[]>([]);
   protected readonly especialidades = signal<CatalogoItem[]>([]);
   protected readonly etiquetaJuridico = etiquetaJuridicoCertamen;
@@ -136,7 +135,7 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
   }
 
   protected etiquetaInstitucion(item: CertamenAcademico): string {
-    return this.nombreInstitucion(item) || '—';
+    return item.institucionNombre?.trim() || '—';
   }
 
   protected onAbrirFormulario(): void {
@@ -144,10 +143,7 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
   }
 
   protected onEditar(item: CertamenAcademico): void {
-    this.abrirModal({
-      ...item,
-      institucionNombre: this.nombreInstitucion(item),
-    });
+    this.abrirModal(item);
   }
 
   protected async eliminarCertamen(id: string): Promise<void> {
@@ -307,18 +303,9 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
         this.eventos.set(resultado.catalogos.eventos);
         this.modalidades.set(resultado.catalogos.modalidades);
         this.tiposParticipacion.set(resultado.catalogos.tiposParticipacion);
-        this.instituciones.set(resultado.catalogos.instituciones);
         this.paises.set(resultado.catalogos.paises);
         this.especialidades.set(resultado.catalogos.especialidades);
       });
-  }
-
-  private nombreInstitucion(item: CertamenAcademico): string {
-    const guardado = item.institucionNombre?.trim() ?? '';
-    if (guardado) {
-      return guardado;
-    }
-    return this.instituciones().find((catalogo) => catalogo.id === item.institucionId)?.nombre ?? '';
   }
 
   private hidratarRubro(rubro: RubroCertamenesAcademicos): void {

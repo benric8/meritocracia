@@ -10,7 +10,6 @@ export interface CatalogosCertamenesAcademicos {
   eventos: CatalogoCertamen[];
   modalidades: CatalogoCertamen[];
   tiposParticipacion: CatalogoCertamen[];
-  instituciones: CatalogoItem[];
   paises: CatalogoItem[];
   especialidades: CatalogoItem[];
 }
@@ -28,7 +27,6 @@ export class ListarCatalogosCertamenesAcademicosUseCase {
       eventos: this.maestros.listarEventos(),
       modalidades: this.maestros.listarModalidades(),
       tiposParticipacion: this.maestros.listarTiposParticipacionCertamen(),
-      instituciones: this.maestros.listarInstituciones().pipe(catchError(() => of([]))),
       paises: this.maestros.listarPaises(),
       especialidades: this.maestros.listarEspecialidades(),
     }).pipe(

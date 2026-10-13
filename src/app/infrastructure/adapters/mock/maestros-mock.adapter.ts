@@ -165,10 +165,6 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
-  listarInstituciones(): Observable<CatalogoItem[]> {
-    return of(this.institucionesMock()).pipe(delay(LATENCIA_MS));
-  }
-
   buscarInstituciones(
     termino: string,
     _paisId?: string,

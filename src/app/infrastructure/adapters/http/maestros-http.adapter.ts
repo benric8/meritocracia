@@ -416,24 +416,6 @@ export class MaestrosHttpAdapter implements MaestrosPort {
     );
   }
 
-  listarInstituciones(): Observable<CatalogoItem[]> {
-    try {
-      this.asegurarTokenOpciones();
-    } catch (error) {
-      return throwError(() => error);
-    }
-
-    return this.http
-      .get<ListarUniversidadesResponse>(`${this.baseUrl}${maestrosEndpoints.INSTITUCIONES}`)
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          return this.mapearLista(respuesta.data, toCatalogoDesdeUniversidad);
-        }),
-        mapearAErrorNegocioApi('No se pudo cargar el catálogo de instituciones.')
-      );
-  }
-
   private listarCatalogoCertamen(
     ruta: string,
     mensajeError: string,
