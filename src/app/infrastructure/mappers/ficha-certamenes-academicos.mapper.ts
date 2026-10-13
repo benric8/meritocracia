@@ -56,6 +56,29 @@ function aArchivoId(valor: string | null): number | null {
   return aNumeroId(String(valor), 'Archivo');
 }
 
+function textoNombre(valor: unknown): string {
+  if (typeof valor === 'string' || typeof valor === 'number') {
+    return String(valor).trim();
+  }
+  if (valor && typeof valor === 'object') {
+    const objeto = valor as { nombre?: unknown; descripcion?: unknown };
+    return textoNombre(objeto.nombre ?? objeto.descripcion);
+  }
+  return '';
+}
+
+function aNombreInstitucion(dto: CertamenAcademicoDetalleDto): string {
+  const id = String(dto.institucionId ?? '').trim();
+  const candidatos = [dto.institucion, dto.institucionNombre];
+  for (const candidato of candidatos) {
+    const texto = textoNombre(candidato);
+    if (texto && texto !== id) {
+      return texto;
+    }
+  }
+  return '';
+}
+
 function aCertamenDesdeDto(dto: CertamenAcademicoDetalleDto): CertamenAcademico {
   if (dto.idCertamenAcademico == null) {
     throw new Error('Certamen recibido sin identificador.');
@@ -67,21 +90,21 @@ function aCertamenDesdeDto(dto: CertamenAcademicoDetalleDto): CertamenAcademico 
   return {
     id: String(dto.idCertamenAcademico),
     eventoId: String(dto.eventoId),
-    eventoDescripcion: dto.eventoDescripcion?.trim() ?? '',
+    eventoDescripcion: '',
     tipoParticipacionId: String(dto.tipoParticipacionId),
-    tipoParticipacionDescripcion: dto.tipoParticipacionDescripcion?.trim() ?? '',
+    tipoParticipacionDescripcion: '',
     institucionId: String(dto.institucionId),
-    institucionNombre: dto.institucionNombre?.trim() ?? '',
+    institucionNombre: aNombreInstitucion(dto),
     paisId: String(dto.paisId),
-    nombrePais: dto.nombrePais?.trim() ?? '',
+    nombrePais: '',
     fechaInicio: aFecha(dto.fechaInicio, 'Fecha de inicio'),
     fechaFin: aFecha(dto.fechaFin, 'Fecha de fin'),
     juridico: aJuridico(dto.juridico),
     especialidadId: String(dto.especialidadId),
-    especialidadDescripcion: dto.especialidadDescripcion?.trim() ?? '',
+    especialidadDescripcion: '',
     tema: aTema(dto.tema),
     modalidadId: String(dto.modalidadId),
-    modalidadDescripcion: dto.modalidadDescripcion?.trim() ?? '',
+    modalidadDescripcion: '',
     archivoId,
     puntaje: Number.isFinite(puntaje) ? puntaje : 0,
   };

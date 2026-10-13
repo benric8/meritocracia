@@ -165,6 +165,10 @@ export class MaestrosMockAdapter implements MaestrosPort {
     ]).pipe(delay(LATENCIA_MS));
   }
 
+  listarInstituciones(): Observable<CatalogoItem[]> {
+    return of(this.institucionesMock()).pipe(delay(LATENCIA_MS));
+  }
+
   buscarInstituciones(
     termino: string,
     _paisId?: string,
@@ -176,15 +180,19 @@ export class MaestrosMockAdapter implements MaestrosPort {
     }
 
     const tope = Math.min(50, Math.max(1, Math.trunc(limite)));
-    const instituciones: CatalogoItem[] = [
+    return of(
+      this.institucionesMock()
+        .filter((item) => item.nombre.toLowerCase().includes(texto))
+        .slice(0, tope)
+    ).pipe(delay(LATENCIA_MS));
+  }
+
+  private institucionesMock(): CatalogoItem[] {
+    return [
       { id: '40', nombre: 'Pontificia Universidad Católica del Perú' },
       { id: '41', nombre: 'Universidad Nacional Mayor de San Marcos' },
       { id: '42', nombre: 'Universidad de Salamanca' },
     ];
-
-    return of(
-      instituciones.filter((item) => item.nombre.toLowerCase().includes(texto)).slice(0, tope)
-    ).pipe(delay(LATENCIA_MS));
   }
 
   listarTiposCursoAmag(): Observable<CatalogoItem[]> {

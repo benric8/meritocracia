@@ -11,6 +11,7 @@ export const maestrosEndpoints = {
   DISTRITO_JUDICIAL: 'maestros/distrito-judicial',
   NIVEL_GRADO: 'maestros/nivel-grado',
   UNIVERSIDADES: 'maestros/universidades',
+  INSTITUCIONES: 'maestros/instituciones',
   INSTITUCIONES_BUSCAR: 'maestros/instituciones/buscar',
   PAISES: 'maestros/paises',
   TIPOS_PASANTIA: 'maestros/tipos-pasantia',

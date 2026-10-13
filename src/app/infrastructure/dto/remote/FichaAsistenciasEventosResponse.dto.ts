@@ -22,6 +22,8 @@ export interface AsistenciaEventoDetalleDto {
   eventoId: number;
   eventoDescripcion?: string | null;
   institucionId: number;
+  /** Nombre de la institución. Lo devuelve el GET y la respuesta del alta o la edición. */
+  institucion?: string | null;
   institucionNombre?: string | null;
   paisId: number;
   nombrePais?: string | null;

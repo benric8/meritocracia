@@ -87,6 +87,10 @@ export class MaestrosHttpGradosTitulosMockAdapter implements MaestrosPort {
     return this.http.listarTiposParticipacionCertamen();
   }
 
+  listarInstituciones(): Observable<CatalogoItem[]> {
+    return this.http.listarInstituciones();
+  }
+
   buscarInstituciones(
     termino: string,
     paisId?: string,

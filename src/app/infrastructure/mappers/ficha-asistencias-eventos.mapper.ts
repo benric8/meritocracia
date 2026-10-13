@@ -63,13 +63,14 @@ function aAsistenciaDesdeDto(dto: AsistenciaEventoDetalleDto): AsistenciaEventoA
 
   const puntaje = Number(dto.puntaje);
   const archivoId = dto.archivoId == null ? null : String(dto.archivoId);
+  const institucionNombre = String(dto.institucion ?? dto.institucionNombre ?? '').trim();
 
   return {
     id: String(dto.idAsistenciaEvento),
     eventoId: String(dto.eventoId),
     eventoDescripcion: dto.eventoDescripcion?.trim() ?? '',
     institucionId: String(dto.institucionId),
-    institucionNombre: dto.institucionNombre?.trim() ?? '',
+    institucionNombre,
     paisId: String(dto.paisId),
     nombrePais: dto.nombrePais?.trim() ?? '',
     fechaInicio: aFecha(dto.fechaInicio, 'Fecha de inicio'),

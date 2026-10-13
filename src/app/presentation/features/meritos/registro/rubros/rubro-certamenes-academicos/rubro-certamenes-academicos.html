@@ -12,9 +12,9 @@
     </div>
   } @else {
     <p class="rubro-certamenes__aviso">
-      Perú: 0.250. Otro país: 0.500. Si la fecha de término queda fuera de los cinco años
-      anteriores a la valoración, el puntaje es 0.000 y el certamen está caduco. Tope del subrubro:
-      2.000, reflejado en el puntaje del rubro E.
+      Perú: 0.250. Otro país: 0.500. El puntaje queda en 0.000 solo si la fecha de fin es anterior
+      al límite de cinco años, posterior a la fecha de valoración, o si no se resuelve el país.
+      Tope del subrubro: 2.000, reflejado en el puntaje del rubro E.
     </p>
 
     <div class="rubro-certamenes__toolbar">
@@ -46,32 +46,30 @@
             <th>Especialidad</th>
             <th>Modalidad</th>
             <th>Puntaje</th>
-            <th>Estado</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @if (!items().length) {
             <tr>
-              <td colspan="13" class="rubro-certamenes__empty">
+              <td colspan="12" class="rubro-certamenes__empty">
                 Sin registros. Use "Añadir" para registrar un certamen.
               </td>
             </tr>
           } @else {
             @for (item of items(); track item.id) {
               <tr>
-                <td>{{ item.eventoDescripcion || '—' }}</td>
-                <td>{{ item.tipoParticipacionDescripcion || '—' }}</td>
+                <td>{{ etiquetaEvento(item) }}</td>
+                <td>{{ etiquetaParticipacion(item) }}</td>
                 <td>{{ item.tema || '—' }}</td>
                 <td>{{ etiquetaInstitucion(item) }}</td>
-                <td>{{ item.nombrePais || '—' }}</td>
+                <td>{{ etiquetaPais(item) }}</td>
                 <td>{{ formatearFecha(item.fechaInicio) }}</td>
                 <td>{{ formatearFecha(item.fechaFin) }}</td>
                 <td>{{ etiquetaJuridico(item.juridico) }}</td>
-                <td>{{ item.especialidadDescripcion || '—' }}</td>
-                <td>{{ item.modalidadDescripcion || '—' }}</td>
+                <td>{{ etiquetaEspecialidad(item) }}</td>
+                <td>{{ etiquetaModalidad(item) }}</td>
                 <td><strong>{{ formatearPuntajeFila(item.puntaje) }}</strong></td>
-                <td>{{ etiquetaEstado(item) }}</td>
                 <td>
                   @if (!soloLectura()) {
                     <div class="rubro-certamenes__actions">

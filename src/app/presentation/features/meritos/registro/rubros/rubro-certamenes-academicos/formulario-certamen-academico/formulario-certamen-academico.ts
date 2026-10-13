@@ -18,7 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { debounceTime, distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BuscarInstitucionesUseCase } from '../../../../../../../application/use-cases/meritos/buscar-instituciones.use-case';
 import { CatalogoItem } from '../../../../../../../domain/models/catalogo-item.model';
 import {
@@ -136,6 +136,12 @@ export class FormularioCertamenAcademico implements OnInit {
   );
 
   ngOnInit(): void {
+    const certamen = this.data.certamen;
+    if (certamen?.institucionId && certamen.institucionNombre.trim()) {
+      this.institucionesFiltradas.set([
+        { id: certamen.institucionId, nombre: certamen.institucionNombre.trim() },
+      ]);
+    }
     this.escucharBusquedaInstitucion();
     this.escucharCambioPais();
   }
@@ -203,8 +209,14 @@ export class FormularioCertamenAcademico implements OnInit {
   }
 
   private escucharCambioPais(): void {
-    this.formulario.controls.paisId.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    const pais = this.formulario.controls.paisId;
+    pais.valueChanges
+      .pipe(
+        startWith(pais.value),
+        pairwise(),
+        filter(([anterior, actual]) => anterior !== actual),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(() => {
         this.formulario.patchValue({
           institucionBusqueda: '',

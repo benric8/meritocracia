@@ -20,7 +20,6 @@ import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracio
 import {
   CatalogoCertamen,
   CertamenAcademico,
-  etiquetaEstadoCertamen,
   etiquetaJuridicoCertamen,
   RubroCertamenesAcademicos,
 } from '../../../../../../domain/models/rubro-certamenes-academicos.model';
@@ -61,10 +60,10 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
   protected readonly eventos = signal<CatalogoCertamen[]>([]);
   protected readonly modalidades = signal<CatalogoCertamen[]>([]);
   protected readonly tiposParticipacion = signal<CatalogoCertamen[]>([]);
+  protected readonly instituciones = signal<CatalogoItem[]>([]);
   protected readonly paises = signal<CatalogoItem[]>([]);
   protected readonly especialidades = signal<CatalogoItem[]>([]);
   protected readonly etiquetaJuridico = etiquetaJuridicoCertamen;
-  protected readonly etiquetaEstado = etiquetaEstadoCertamen;
   protected readonly formatearFecha = formatearFechaCorta;
 
   private ultimoRubroHidratadoClave: string | null = null;
@@ -95,8 +94,49 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
     return Number.isFinite(valor) ? valor.toFixed(3) : '0.000';
   }
 
+  protected etiquetaEvento(item: CertamenAcademico): string {
+    return (
+      this.eventos().find((catalogo) => catalogo.id === item.eventoId)?.descripcion ||
+      item.eventoDescripcion ||
+      '—'
+    );
+  }
+
+  protected etiquetaParticipacion(item: CertamenAcademico): string {
+    return (
+      this.tiposParticipacion().find((catalogo) => catalogo.id === item.tipoParticipacionId)
+        ?.descripcion ||
+      item.tipoParticipacionDescripcion ||
+      '—'
+    );
+  }
+
+  protected etiquetaModalidad(item: CertamenAcademico): string {
+    return (
+      this.modalidades().find((catalogo) => catalogo.id === item.modalidadId)?.descripcion ||
+      item.modalidadDescripcion ||
+      '—'
+    );
+  }
+
+  protected etiquetaPais(item: CertamenAcademico): string {
+    return (
+      this.paises().find((catalogo) => catalogo.id === item.paisId)?.nombre ||
+      item.nombrePais ||
+      '—'
+    );
+  }
+
+  protected etiquetaEspecialidad(item: CertamenAcademico): string {
+    return (
+      this.especialidades().find((catalogo) => catalogo.id === item.especialidadId)?.nombre ||
+      item.especialidadDescripcion ||
+      '—'
+    );
+  }
+
   protected etiquetaInstitucion(item: CertamenAcademico): string {
-    return item.institucionNombre?.trim() || `Id ${item.institucionId}`;
+    return this.nombreInstitucion(item) || '—';
   }
 
   protected onAbrirFormulario(): void {
@@ -104,7 +144,10 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
   }
 
   protected onEditar(item: CertamenAcademico): void {
-    this.abrirModal(item);
+    this.abrirModal({
+      ...item,
+      institucionNombre: this.nombreInstitucion(item),
+    });
   }
 
   protected async eliminarCertamen(id: string): Promise<void> {
@@ -264,9 +307,18 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
         this.eventos.set(resultado.catalogos.eventos);
         this.modalidades.set(resultado.catalogos.modalidades);
         this.tiposParticipacion.set(resultado.catalogos.tiposParticipacion);
+        this.instituciones.set(resultado.catalogos.instituciones);
         this.paises.set(resultado.catalogos.paises);
         this.especialidades.set(resultado.catalogos.especialidades);
       });
+  }
+
+  private nombreInstitucion(item: CertamenAcademico): string {
+    const guardado = item.institucionNombre?.trim() ?? '';
+    if (guardado) {
+      return guardado;
+    }
+    return this.instituciones().find((catalogo) => catalogo.id === item.institucionId)?.nombre ?? '';
   }
 
   private hidratarRubro(rubro: RubroCertamenesAcademicos): void {

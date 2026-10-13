@@ -1181,10 +1181,17 @@ export class FichaMockAdapter implements FichaPort {
     return 1;
   }
 
-  /** Perú 0.250, otro país 0.500, caduco 0.000 si fechaFin queda fuera de los 5 años. */
+  /**
+   * Perú 0.250, otro país 0.500.
+   * 0.000 si fechaFin queda fuera del rango inclusive [valoración − 5 años, valoración]
+   * o si no hay país.
+   */
   private puntajeCertamenAcademico(item: CertamenAcademico, fechaValoracion: string): number {
     const fin = item.fechaFin.slice(0, 10);
     const valoracion = String(fechaValoracion ?? '').slice(0, 10);
+    if (!item.paisId?.trim()) {
+      return 0;
+    }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(fin) || !/^\d{4}-\d{2}-\d{2}$/.test(valoracion)) {
       return 0;
     }

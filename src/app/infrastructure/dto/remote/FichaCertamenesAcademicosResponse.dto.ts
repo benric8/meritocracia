@@ -16,25 +16,26 @@ export interface GuardarCertamenAcademicoRequestDto {
   archivoId: number | null;
 }
 
+/** Línea de GET/POST/PUT. El nombre llega en `institucion`. El puntaje es el valor guardado. */
 export interface CertamenAcademicoDetalleDto {
   idCertamenAcademico: number;
   idFichaValoracion?: number;
   eventoId: number;
-  eventoDescripcion?: string | null;
   tipoParticipacionId: number;
-  tipoParticipacionDescripcion?: string | null;
   institucionId: number;
+  /** Nombre, o el objeto `{ nombre }` del catálogo de instituciones. */
+  institucion?:
+    | string
+    | { id?: number | string; nombre?: string | null; descripcion?: string | null }
+    | null;
   institucionNombre?: string | null;
   paisId: number;
-  nombrePais?: string | null;
   fechaInicio: string;
   fechaFin: string;
   juridico: string;
   especialidadId: number;
-  especialidadDescripcion?: string | null;
   tema: string;
   modalidadId: number;
-  modalidadDescripcion?: string | null;
   archivoId?: number | null;
   puntaje: number;
 }

@@ -68,15 +68,6 @@ export function etiquetaJuridicoCertamen(valor: string): string {
   return OPCIONES_JURIDICO_CERTAMEN.find((item) => item.valor === valor)?.etiqueta ?? valor;
 }
 
-/** Puntaje 0.000: la fecha de fin quedó fuera de los cinco años anteriores a la valoración. */
-export function etiquetaEstadoCertamen(item: Pick<CertamenAcademico, 'puntaje'>): string {
-  const puntaje = Number(item.puntaje);
-  if (Number.isFinite(puntaje) && puntaje === 0) {
-    return 'Caduco';
-  }
-  return '—';
-}
-
 /** Suma de filas con el tope del subrubro. Referencia local si la ficha no trae el código E4. */
 export function puntajeSubrubroCertamenesAcademicos(
   items: Pick<CertamenAcademico, 'puntaje'>[]

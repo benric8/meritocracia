@@ -12,9 +12,10 @@
   <form class="rubro-dialog__form" [formGroup]="formulario" (ngSubmit)="onGuardar()" novalidate>
     <div class="rubro-dialog__body">
       <p class="rubro-dialog__aviso">
-        Perú: 0.250. Otro país: 0.500. Caduca en 0.000 cuando la fecha de término queda fuera de
-        los cinco años anteriores a la valoración. El tope del subrubro es {{ tope.toFixed(3) }} y
-        se refleja en el puntaje del rubro E.
+        Perú: 0.250. Otro país: 0.500. El puntaje queda en 0.000 solo si la fecha de fin es
+        anterior al límite de cinco años, posterior a la fecha de valoración, o si no se resuelve
+        el país. El tope del subrubro es {{ tope.toFixed(3) }} y se refleja en el puntaje del rubro
+        E.
       </p>
 
       <div class="rubro-dialog__grid">
