@@ -391,7 +391,8 @@ export class FichaHttpAdapter implements FichaPort {
           }
           const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
           const fusionada = this.fusionarConMemoria(ficha);
-          return this.aplicarSubtotalOfimatica(
+          return this.aplicarSubtotalDistincion(
+            this.aplicarSubtotalOfimatica(
             this.aplicarSubtotalAsistenciasEventos(
             this.aplicarSubtotalCertamenesAcademicos(
             this.aplicarSubtotalCursosEspecializacion(
@@ -411,6 +412,8 @@ export class FichaHttpAdapter implements FichaPort {
             ),
             respuesta.data.rubros
             ),
+            respuesta.data.rubros
+          ),
             respuesta.data.rubros
           );
         }),
@@ -1350,7 +1353,13 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const rubro = toRubroDistincionDesdeDetalle(respuesta.data);
+          const lineas = toRubroDistincionDesdeDetalle(respuesta.data);
+          const puntajeOficial =
+            this.fichasEnMemoria.get(id)?.rubroDistincion?.puntajeTotal ?? 0;
+          const rubro: RubroDistincion = {
+            items: lineas.items,
+            puntajeTotal: puntajeOficial || lineas.puntajeTotal,
+          };
           this.actualizarRubroDistincionEnMemoria(id, rubro);
           return rubro;
         }),
@@ -3020,6 +3029,29 @@ export class FichaHttpAdapter implements FichaPort {
       ...stub,
       rubroDemerito: rubro,
       actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * El GET de ficha ya trae el subtotal del rubro H. Se aplica después de
+   * fusionar con memoria para que el encabezado lo muestre sin abrir el panel.
+   */
+  private aplicarSubtotalDistincion(
+    ficha: FichaValoracion,
+    rubros: ObtenerFichaResponse['data']['rubros']
+  ): FichaValoracion {
+    const puntaje = puntajeSubtotalPorCodigo(rubros, 'H');
+    if (puntaje == null) {
+      return ficha;
+    }
+
+    const rubro = ficha.rubroDistincion ?? crearRubroDistincionVacio();
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroDistincion: {
+        ...rubro,
+        puntajeTotal: puntaje,
+      },
     });
   }
 

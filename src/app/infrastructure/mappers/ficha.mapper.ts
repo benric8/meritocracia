@@ -265,7 +265,10 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     rubroAmag: crearRubroAmagVacio(),
     rubroIdioma: crearRubroIdiomaVacio(),
     rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
-    rubroDistincion: crearRubroDistincionVacio(),
+    rubroDistincion: {
+      items: [],
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'H') ?? 0,
+    },
     rubroDocencia: {
       items: [],
       puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'I') ?? 0,
