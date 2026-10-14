@@ -26,7 +26,12 @@ import { ObtenerRubroCursosEspecializacionFichaUseCase } from '../../../../../..
 import { ObtenerRubroCertamenesAcademicosFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-certamenes-academicos-ficha.use-case';
 import { ObtenerRubroAsistenciasEventosFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-asistencias-eventos-ficha.use-case';
 import { ObtenerRubroOfimaticaFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-rubro-ofimatica-ficha.use-case';
-import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
+import { ObtenerPuntajesFichaUseCase } from '../../../../../../application/use-cases/meritos/obtener-puntajes-ficha.use-case';
+import {
+  FichaValoracion,
+  PuntajesFicha,
+  puntajeRubroDe,
+} from '../../../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../../../domain/models/rubro-antiguedad.model';
 import { RubroAmag } from '../../../../../../domain/models/rubro-amag.model';
 import { RubroIdioma } from '../../../../../../domain/models/rubro-idioma.model';
@@ -80,6 +85,8 @@ import { RubroSubrubrosPanel } from '../rubro-subrubros-panel/rubro-subrubros-pa
 export class RubrosPanel {
   private readonly destroyRef = inject(DestroyRef);
   private readonly alertas = inject(ALERTAS_PORT);
+  private readonly obtenerPuntajes = inject(ObtenerPuntajesFichaUseCase);
+  private solicitudPuntajes = 0;
   private readonly obtenerRubroAntiguedad = inject(ObtenerRubroAntiguedadFichaUseCase);
   private readonly obtenerRubroGradosTitulos = inject(ObtenerRubroGradosTitulosFichaUseCase);
   private readonly obtenerRubroAmag = inject(ObtenerRubroAmagFichaUseCase);
@@ -123,6 +130,7 @@ export class RubrosPanel {
   readonly rubrosMaestro = input<RubroMaestro[]>([]);
 
   readonly fichaActualizada = output<FichaValoracion>();
+  readonly puntajesOficiales = output<PuntajesFicha>();
   readonly rubroAntiguedadCargado = output<RubroAntiguedad>();
   readonly rubroGradosTitulosCargado = output<RubroGradosTitulos>();
   readonly rubroAmagCargado = output<RubroAmag>();
@@ -469,6 +477,156 @@ export class RubrosPanel {
       this.rubroOfimaticaLocal.set(ficha.rubroOfimatica);
     }
     this.fichaActualizada.emit(ficha);
+    this.refrescarPuntajesOficiales(ficha.id);
+  }
+
+  private refrescarPuntajesOficiales(fichaId: string): void {
+    const id = fichaId?.trim() ?? '';
+    if (!id) {
+      return;
+    }
+
+    const solicitud = ++this.solicitudPuntajes;
+    this.obtenerPuntajes
+      .ejecutar(id)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((resultado) => {
+        if (solicitud !== this.solicitudPuntajes || this.fichaId() !== id || !resultado.exito) {
+          return;
+        }
+
+        this.aplicarPuntajesOficiales(resultado.puntajes);
+        this.puntajesOficiales.emit(resultado.puntajes);
+      });
+  }
+
+  private aplicarPuntajesOficiales(puntajes: PuntajesFicha): void {
+    const puntajeB = puntajeRubroDe(puntajes, 'B');
+    if (puntajeB != null) {
+      this.puntajeAntiguedad.set(puntajeB);
+      const antiguedad = this.rubroAntiguedadLocal();
+      if (antiguedad) {
+        this.rubroAntiguedadLocal.set({
+          ...antiguedad,
+          titularidad: { ...antiguedad.titularidad, puntaje: puntajeB },
+        });
+      }
+    }
+
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'C',
+      (valor) => this.puntajeGradosTitulos.set(valor),
+      this.rubroGradosTitulosLocal(),
+      (rubro) => this.rubroGradosTitulosLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'D',
+      (valor) => this.puntajeAmag.set(valor),
+      this.rubroAmagLocal(),
+      (rubro) => this.rubroAmagLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'F',
+      (valor) => this.puntajeIdioma.set(valor),
+      this.rubroIdiomaLocal(),
+      (rubro) => this.rubroIdiomaLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'G',
+      (valor) => this.puntajePublicacionJuridica.set(valor),
+      this.rubroPublicacionJuridicaLocal(),
+      (rubro) => this.rubroPublicacionJuridicaLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'H',
+      (valor) => this.puntajeDistincion.set(valor),
+      this.rubroDistincionLocal(),
+      (rubro) => this.rubroDistincionLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'I',
+      (valor) => this.puntajeDocencia.set(valor),
+      this.rubroDocenciaLocal(),
+      (rubro) => this.rubroDocenciaLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'J',
+      (valor) => this.puntajeDemerito.set(valor),
+      this.rubroDemeritoLocal(),
+      (rubro) => this.rubroDemeritoLocal.set(rubro)
+    );
+
+    const puntajeE = puntajeRubroDe(puntajes, 'E');
+    if (puntajeE != null) {
+      this.puntajeRubroEOficial.set(puntajeE);
+    }
+
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E1',
+      (valor) => this.puntajeEstudiosPosgrado.set(valor),
+      this.rubroEstudiosPosgradoLocal(),
+      (rubro) => this.rubroEstudiosPosgradoLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E2',
+      (valor) => this.puntajePasantias.set(valor),
+      this.rubroPasantiasLocal(),
+      (rubro) => this.rubroPasantiasLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E3',
+      (valor) => this.puntajeCursosEspecializacion.set(valor),
+      this.rubroCursosEspecializacionLocal(),
+      (rubro) => this.rubroCursosEspecializacionLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E4',
+      (valor) => this.puntajeCertamenesAcademicos.set(valor),
+      this.rubroCertamenesAcademicosLocal(),
+      (rubro) => this.rubroCertamenesAcademicosLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E5',
+      (valor) => this.puntajeAsistenciasEventos.set(valor),
+      this.rubroAsistenciasEventosLocal(),
+      (rubro) => this.rubroAsistenciasEventosLocal.set(rubro)
+    );
+    this.aplicarPuntajeRubro(
+      puntajes,
+      'E6',
+      (valor) => this.puntajeOfimatica.set(valor),
+      this.rubroOfimaticaLocal(),
+      (rubro) => this.rubroOfimaticaLocal.set(rubro)
+    );
+  }
+
+  private aplicarPuntajeRubro<T extends { puntajeTotal: number }>(
+    puntajes: PuntajesFicha,
+    codigo: string,
+    asignarSenal: (valor: number) => void,
+    actual: T | null,
+    asignarRubro: (rubro: T) => void
+  ): void {
+    const puntaje = puntajeRubroDe(puntajes, codigo);
+    if (puntaje == null) {
+      return;
+    }
+    asignarSenal(puntaje);
+    if (actual) {
+      asignarRubro({ ...actual, puntajeTotal: puntaje });
+    }
   }
 
   protected expandidoPorDefecto(codigo: string): boolean {

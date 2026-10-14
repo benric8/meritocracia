@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -29,6 +30,8 @@ import { ResolverFichaDelCicloUseCase } from '../../../../application/use-cases/
 import {
   EstadoFicha,
   FichaValoracion,
+  PuntajesFicha,
+  puntajeRubroDe,
 } from '../../../../domain/models/ficha-valoracion.model';
 import { RubroAntiguedad } from '../../../../domain/models/rubro-antiguedad.model';
 import { RubroGradosTitulos } from '../../../../domain/models/rubro-grados-titulos.model';
@@ -678,9 +681,51 @@ export class Registro implements OnInit {
     this.fichaEstado.set(ficha.estado);
   }
 
+  protected onPuntajesOficiales(puntajes: PuntajesFicha): void {
+    this.puntajeTotal.set(puntajes.puntajeTotal);
+
+    const puntajeE = puntajeRubroDe(puntajes, 'E');
+    if (puntajeE != null) {
+      this.puntajeRubroE.set(puntajeE);
+    }
+
+    const puntajeB = puntajeRubroDe(puntajes, 'B');
+    const antiguedad = this.rubroAntiguedad();
+    if (puntajeB != null && antiguedad) {
+      this.rubroAntiguedad.set({
+        ...antiguedad,
+        titularidad: { ...antiguedad.titularidad, puntaje: puntajeB },
+      });
+    }
+
+    this.asignarPuntajeOficial(this.rubroGradosTitulos, puntajeRubroDe(puntajes, 'C'));
+    this.asignarPuntajeOficial(this.rubroAmag, puntajeRubroDe(puntajes, 'D'));
+    this.asignarPuntajeOficial(this.rubroIdioma, puntajeRubroDe(puntajes, 'F'));
+    this.asignarPuntajeOficial(this.rubroPublicacionJuridica, puntajeRubroDe(puntajes, 'G'));
+    this.asignarPuntajeOficial(this.rubroDistincion, puntajeRubroDe(puntajes, 'H'));
+    this.asignarPuntajeOficial(this.rubroDocencia, puntajeRubroDe(puntajes, 'I'));
+    this.asignarPuntajeOficial(this.rubroDemerito, puntajeRubroDe(puntajes, 'J'));
+    this.asignarPuntajeOficial(this.rubroEstudiosPosgrado, puntajeRubroDe(puntajes, 'E1'));
+    this.asignarPuntajeOficial(this.rubroPasantias, puntajeRubroDe(puntajes, 'E2'));
+    this.asignarPuntajeOficial(this.rubroCursosEspecializacion, puntajeRubroDe(puntajes, 'E3'));
+    this.asignarPuntajeOficial(this.rubroCertamenesAcademicos, puntajeRubroDe(puntajes, 'E4'));
+    this.asignarPuntajeOficial(this.rubroAsistenciasEventos, puntajeRubroDe(puntajes, 'E5'));
+    this.asignarPuntajeOficial(this.rubroOfimatica, puntajeRubroDe(puntajes, 'E6'));
+  }
+
+  private asignarPuntajeOficial<T extends { puntajeTotal: number }>(
+    destino: WritableSignal<T | null>,
+    puntaje: number | null
+  ): void {
+    const actual = destino();
+    if (actual == null || puntaje == null) {
+      return;
+    }
+    destino.set({ ...actual, puntajeTotal: puntaje });
+  }
+
   protected onRubroAntiguedadCargado(rubro: RubroAntiguedad): void {
     this.rubroAntiguedad.set(rubro);
-    this.puntajeTotal.set(rubro.titularidad.puntaje);
   }
 
   protected onRubroGradosTitulosCargado(rubro: RubroGradosTitulos): void {

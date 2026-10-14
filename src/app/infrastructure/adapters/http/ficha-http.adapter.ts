@@ -21,6 +21,7 @@ import {
   crearRubroAsistenciasEventosVacio,
   crearRubroOfimaticaVacio,
   FichaValoracion,
+  PuntajesFicha,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
 import {
@@ -164,6 +165,7 @@ import {
   FlujoFichaResponse,
   ObtenerFichaResponse,
 } from '../../dto/remote/FichaResponse.dto';
+import { ObtenerPuntajesFichaResponse } from '../../dto/remote/FichaPuntajesResponse.dto';
 import {
   aplicarColegiaturaEnFicha,
   aplicarPeriodoEnFicha,
@@ -258,10 +260,12 @@ import {
   toRubroOfimaticaDesdeDetalle,
 } from '../../mappers/ficha-ofimatica.mapper';
 import {
+  aplicarPuntajesEnFicha,
   puntajeSubtotalPorCodigo,
   toCrearFichaRequestDto,
   toFichaValoracionDesdeCreacion,
   toFichaValoracionDesdeDetalle,
+  toPuntajesFicha,
   toResultadoResolverFicha,
 } from '../../mappers/ficha.mapper';
 import { RubrosMaestroStore } from '../../stores/rubros-maestro.store';
@@ -391,7 +395,8 @@ export class FichaHttpAdapter implements FichaPort {
           }
           const ficha = toFichaValoracionDesdeDetalle(respuesta.data);
           const fusionada = this.fusionarConMemoria(ficha);
-          return this.aplicarSubtotalDistincion(
+          return this.aplicarSubtotalesCabecera(
+            this.aplicarSubtotalDistincion(
             this.aplicarSubtotalOfimatica(
             this.aplicarSubtotalAsistenciasEventos(
             this.aplicarSubtotalCertamenesAcademicos(
@@ -415,9 +420,49 @@ export class FichaHttpAdapter implements FichaPort {
             respuesta.data.rubros
           ),
             respuesta.data.rubros
+          ),
+            respuesta.data.rubros
           );
         }),
         mapearAErrorNegocioApi('No se pudo obtener la ficha.')
+      );
+  }
+
+  obtenerPuntajes(fichaId: string): Observable<PuntajesFicha> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId.trim();
+    if (!id) {
+      return throwError(
+        () =>
+          new ErrorNegocioApi({
+            mensaje: 'Identificador de ficha no válido.',
+          })
+      );
+    }
+
+    return this.http
+      .get<ObtenerPuntajesFichaResponse>(`${this.baseUrl}${fichaEndpoints.puntajes(id)}`)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          if (!respuesta.data) {
+            throw new ErrorNegocioApi({
+              mensaje: 'El servidor no devolvió los puntajes de la ficha.',
+            });
+          }
+          const puntajes = toPuntajesFicha(respuesta.data);
+          const actual = this.fichasEnMemoria.get(puntajes.idFicha);
+          if (actual) {
+            this.guardarEnMemoria(aplicarPuntajesEnFicha(actual, puntajes));
+          }
+          return puntajes;
+        }),
+        mapearAErrorNegocioApi('No se pudieron obtener los puntajes de la ficha.')
       );
   }
 
@@ -459,7 +504,16 @@ export class FichaHttpAdapter implements FichaPort {
               mensaje: 'El servidor no devolvió el rubro de antigüedad.',
             });
           }
-          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
+          const detalle = toRubroAntiguedadDesdeDetalle(respuesta.data);
+          const puntajeOficial =
+            this.fichasEnMemoria.get(id)?.rubroAntiguedad?.titularidad.puntaje ?? 0;
+          const rubro: RubroAntiguedad = {
+            ...detalle,
+            titularidad: {
+              ...detalle.titularidad,
+              puntaje: puntajeOficial || detalle.titularidad.puntaje,
+            },
+          };
           this.actualizarRubroEnMemoria(id, rubro);
           return rubro;
         }),
@@ -658,7 +712,6 @@ export class FichaHttpAdapter implements FichaPort {
           return this.guardarEnMemoria({
             ...ficha,
             rubroAntiguedad: rubro,
-            puntajeTotal: rubro.titularidad.puntaje,
             actualizadoEn: new Date().toISOString(),
           });
         }
@@ -793,7 +846,13 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const rubro = toRubroGradosTitulosDesdeDetalle(respuesta.data);
+          const lineas = toRubroGradosTitulosDesdeDetalle(respuesta.data);
+          const puntajeOficial =
+            this.fichasEnMemoria.get(id)?.rubroGradosTitulos?.puntajeTotal ?? 0;
+          const rubro: RubroGradosTitulos = {
+            items: lineas.items,
+            puntajeTotal: puntajeOficial || lineas.puntajeTotal,
+          };
           this.actualizarRubroGradosEnMemoria(id, rubro);
           return rubro;
         }),
@@ -938,7 +997,12 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const rubro = toRubroAmagDesdeDetalle(respuesta.data);
+          const lineas = toRubroAmagDesdeDetalle(respuesta.data);
+          const puntajeOficial = this.fichasEnMemoria.get(id)?.rubroAmag?.puntajeTotal ?? 0;
+          const rubro: RubroAmag = {
+            items: lineas.items,
+            puntajeTotal: puntajeOficial || lineas.puntajeTotal,
+          };
           this.actualizarRubroAmagEnMemoria(id, rubro);
           return rubro;
         }),
@@ -1075,7 +1139,12 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const rubro = toRubroIdiomaDesdeDetalle(respuesta.data);
+          const lineas = toRubroIdiomaDesdeDetalle(respuesta.data);
+          const puntajeOficial = this.fichasEnMemoria.get(id)?.rubroIdioma?.puntajeTotal ?? 0;
+          const rubro: RubroIdioma = {
+            items: lineas.items,
+            puntajeTotal: puntajeOficial || lineas.puntajeTotal,
+          };
           this.actualizarRubroIdiomaEnMemoria(id, rubro);
           return rubro;
         }),
@@ -1212,7 +1281,13 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const rubro = toRubroPublicacionJuridicaDesdeDetalle(respuesta.data);
+          const lineas = toRubroPublicacionJuridicaDesdeDetalle(respuesta.data);
+          const puntajeOficial =
+            this.fichasEnMemoria.get(id)?.rubroPublicacionJuridica?.puntajeTotal ?? 0;
+          const rubro: RubroPublicacionJuridica = {
+            items: lineas.items,
+            puntajeTotal: puntajeOficial || lineas.puntajeTotal,
+          };
           this.actualizarRubroPublicacionJuridicaEnMemoria(id, rubro);
           return rubro;
         }),
@@ -2739,7 +2814,6 @@ export class FichaHttpAdapter implements FichaPort {
       this.guardarEnMemoria({
         ...existente,
         rubroAntiguedad: rubro,
-        puntajeTotal: rubro.titularidad.puntaje,
         actualizadoEn: new Date().toISOString(),
       });
       return;
@@ -2750,7 +2824,6 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroAntiguedad: rubro,
-      puntajeTotal: rubro.titularidad.puntaje,
       actualizadoEn: new Date().toISOString(),
     });
   }
@@ -3029,6 +3102,58 @@ export class FichaHttpAdapter implements FichaPort {
       ...stub,
       rubroDemerito: rubro,
       actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * El GET de ficha ya trae los subtotales de B, C, D, F y G. Se aplican
+   * después de fusionar con memoria para que el encabezado los muestre sin abrir el panel.
+   */
+  private aplicarSubtotalesCabecera(
+    ficha: FichaValoracion,
+    rubros: ObtenerFichaResponse['data']['rubros']
+  ): FichaValoracion {
+    const subtotal = (codigo: string): number | null => puntajeSubtotalPorCodigo(rubros, codigo);
+    let actual = ficha;
+
+    const puntajeB = subtotal('B');
+    if (puntajeB != null) {
+      const rubro = actual.rubroAntiguedad ?? crearRubroAntiguedadVacio();
+      actual = {
+        ...actual,
+        rubroAntiguedad: {
+          ...rubro,
+          titularidad: { ...rubro.titularidad, puntaje: puntajeB },
+        },
+      };
+    }
+
+    const conSubtotal = <T extends { puntajeTotal: number }>(
+      rubro: T | null,
+      vacio: T,
+      codigo: string
+    ): T | null => {
+      const puntaje = subtotal(codigo);
+      if (puntaje == null) {
+        return rubro;
+      }
+      return { ...(rubro ?? vacio), puntajeTotal: puntaje };
+    };
+
+    return this.guardarEnMemoria({
+      ...actual,
+      rubroGradosTitulos: conSubtotal(
+        actual.rubroGradosTitulos,
+        crearRubroGradosTitulosVacio(),
+        'C'
+      ),
+      rubroAmag: conSubtotal(actual.rubroAmag, crearRubroAmagVacio(), 'D'),
+      rubroIdioma: conSubtotal(actual.rubroIdioma, crearRubroIdiomaVacio(), 'F'),
+      rubroPublicacionJuridica: conSubtotal(
+        actual.rubroPublicacionJuridica,
+        crearRubroPublicacionJuridicaVacio(),
+        'G'
+      ),
     });
   }
 

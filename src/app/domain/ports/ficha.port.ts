@@ -4,6 +4,7 @@ import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   FichaValoracion,
+  PuntajesFicha,
   ResultadoResolverFicha,
 } from '../models/ficha-valoracion.model';
 import {
@@ -57,6 +58,9 @@ export interface FichaPort {
   ): Observable<FichaValoracion>;
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion>;
+
+  /** Puntaje total y puntaje de cada rubro activo. No recarga el detalle de la ficha. */
+  obtenerPuntajes(fichaId: string): Observable<PuntajesFicha>;
 
   obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad>;
 

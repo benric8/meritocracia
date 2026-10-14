@@ -19,6 +19,7 @@ import {
   crearRubroAsistenciasEventosVacio,
   crearRubroOfimaticaVacio,
   FichaValoracion,
+  PuntajesFicha,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
 import {
@@ -241,6 +242,38 @@ export class FichaMockAdapter implements FichaPort {
       );
     }
     return of(ficha).pipe(delay(LATENCIA_MS));
+  }
+
+  obtenerPuntajes(fichaId: string): Observable<PuntajesFicha> {
+    const ficha = this.buscar(fichaId);
+    if (!ficha) {
+      return throwError(
+        () => new ErrorNegocioApi({ mensaje: 'No se encontró la ficha solicitada.' })
+      );
+    }
+
+    const puntajes: PuntajesFicha = {
+      idFicha: ficha.id,
+      puntajeTotal: ficha.puntajeTotal,
+      rubros: [
+        this.lineaPuntaje(1, 'B', 'Antigüedad', ficha.rubroAntiguedad?.titularidad.puntaje ?? 0),
+        this.lineaPuntaje(2, 'C', 'Grados y títulos', ficha.rubroGradosTitulos?.puntajeTotal ?? 0),
+        this.lineaPuntaje(3, 'D', 'AMAG', ficha.rubroAmag?.puntajeTotal ?? 0),
+        this.lineaPuntaje(4, 'E', 'Capacitación', ficha.puntajeRubroE ?? 0),
+        this.lineaPuntaje(5, 'E1', 'Estudios de posgrado', ficha.rubroEstudiosPosgrado?.puntajeTotal ?? 0),
+        this.lineaPuntaje(6, 'E2', 'Pasantías', ficha.rubroPasantias?.puntajeTotal ?? 0),
+        this.lineaPuntaje(7, 'E3', 'Cursos de especialización', ficha.rubroCursosEspecializacion?.puntajeTotal ?? 0),
+        this.lineaPuntaje(8, 'E4', 'Certámenes académicos', ficha.rubroCertamenesAcademicos?.puntajeTotal ?? 0),
+        this.lineaPuntaje(9, 'E5', 'Asistencias a eventos', ficha.rubroAsistenciasEventos?.puntajeTotal ?? 0),
+        this.lineaPuntaje(10, 'E6', 'Ofimática', ficha.rubroOfimatica?.puntajeTotal ?? 0),
+        this.lineaPuntaje(11, 'F', 'Idioma', ficha.rubroIdioma?.puntajeTotal ?? 0),
+        this.lineaPuntaje(12, 'G', 'Publicación jurídica', ficha.rubroPublicacionJuridica?.puntajeTotal ?? 0),
+        this.lineaPuntaje(13, 'H', 'Distinciones', ficha.rubroDistincion?.puntajeTotal ?? 0),
+        this.lineaPuntaje(14, 'I', 'Docencia', ficha.rubroDocencia?.puntajeTotal ?? 0),
+        this.lineaPuntaje(15, 'J', 'Demérito', ficha.rubroDemerito?.puntajeTotal ?? 0),
+      ],
+    };
+    return of(puntajes).pipe(delay(LATENCIA_MS));
   }
 
   obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad> {
@@ -1397,7 +1430,6 @@ export class FichaMockAdapter implements FichaPort {
     const actualizada: FichaValoracion = {
       ...ficha,
       rubroAntiguedad: rubro,
-      puntajeTotal: rubro.titularidad.puntaje,
       actualizadoEn: new Date().toISOString(),
     };
 
@@ -1417,6 +1449,15 @@ export class FichaMockAdapter implements FichaPort {
     return ficha.rubroAntiguedad
       ? structuredClone(ficha.rubroAntiguedad)
       : crearRubroAntiguedadVacio();
+  }
+
+  private lineaPuntaje(
+    idRubro: number,
+    codigo: string,
+    nombre: string,
+    puntaje: number
+  ): PuntajesFicha['rubros'][number] {
+    return { idRubro, codigo, nombre, puntaje };
   }
 
   private buscar(fichaId: string): FichaValoracion | undefined {

@@ -4,6 +4,9 @@ export const fichaEndpoints = {
   CREAR: 'fichas',
   /** GET ficha completa: `fichas/{idFicha}?registrador_id=`. */
   porId: (idFicha: string | number) => `fichas/${encodeURIComponent(String(idFicha).trim())}`,
+  /** GET puntajes oficiales: `fichas/{idFicha}/puntajes`. No usa registrador_id. */
+  puntajes: (idFicha: string | number) =>
+    `fichas/${encodeURIComponent(String(idFicha).trim())}/puntajes`,
   ANTIGUEDAD: 'fichas-antiguedad',
   /** PUT titularidad: `fichas-antiguedad/{idFichaAntiguedad}`. */
   antiguedadPorId: (idFichaAntiguedad: string | number) =>

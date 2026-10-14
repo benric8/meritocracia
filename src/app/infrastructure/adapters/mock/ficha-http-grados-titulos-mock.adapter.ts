@@ -4,6 +4,7 @@ import {
   ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   FichaValoracion,
+  PuntajesFicha,
   ResultadoResolverFicha,
 } from '../../../domain/models/ficha-valoracion.model';
 import {
@@ -51,6 +52,10 @@ export class FichaHttpGradosTitulosMockAdapter implements FichaPort {
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
     return this.http.obtenerPorId(fichaId);
+  }
+
+  obtenerPuntajes(fichaId: string): Observable<PuntajesFicha> {
+    return this.http.obtenerPuntajes(fichaId);
   }
 
   obtenerRubroAntiguedad(fichaId: string): Observable<RubroAntiguedad> {

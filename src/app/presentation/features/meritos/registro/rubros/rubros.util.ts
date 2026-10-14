@@ -78,7 +78,8 @@ export function corregirFechaFinSiAnteriorAInicio(
 }
 
 export function formatearPuntaje(puntaje: number): string {
-  return puntaje.toFixed(2);
+  const valor = Number(puntaje);
+  return Number.isFinite(valor) ? valor.toFixed(3) : '0.000';
 }
 
 /** Evita desfase de día por UTC en fechas `YYYY-MM-DD`. */

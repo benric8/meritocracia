@@ -15,6 +15,8 @@ import {
   crearRubroAsistenciasEventosVacio,
   crearRubroOfimaticaVacio,
   FichaValoracion,
+  PuntajesFicha,
+  puntajeRubroDe,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
 import { getAppConfig } from '../config/app-runtime-config';
@@ -24,6 +26,7 @@ import {
   FlujoFichaDto,
   ObtenerFichaDataDto,
 } from '../dto/remote/FichaResponse.dto';
+import { PuntajesFichaDataDto } from '../dto/remote/FichaPuntajesResponse.dto';
 import { normalizarFotoSiga } from './juez.mapper';
 
 /**
@@ -239,6 +242,8 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
   const sexo = sexoRaw === 'F' ? 'F' : 'M';
   const puntaje = Number(data.puntajeTotal);
   const edad = data.edad != null ? Number(data.edad) : null;
+  const antiguedad = crearRubroAntiguedadVacio();
+  const puntajeAntiguedad = puntajeSubtotalPorCodigo(data.rubros, 'B') ?? 0;
 
   return {
     id: String(data.idFicha),
@@ -260,11 +265,26 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
       edad: edad != null && Number.isFinite(edad) ? edad : null,
     },
     fichaPreviaId: null,
-    rubroAntiguedad: crearRubroAntiguedadVacio(),
-    rubroGradosTitulos: crearRubroGradosTitulosVacio(),
-    rubroAmag: crearRubroAmagVacio(),
-    rubroIdioma: crearRubroIdiomaVacio(),
-    rubroPublicacionJuridica: crearRubroPublicacionJuridicaVacio(),
+    rubroAntiguedad: {
+      ...antiguedad,
+      titularidad: { ...antiguedad.titularidad, puntaje: puntajeAntiguedad },
+    },
+    rubroGradosTitulos: {
+      ...crearRubroGradosTitulosVacio(),
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'C') ?? 0,
+    },
+    rubroAmag: {
+      ...crearRubroAmagVacio(),
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'D') ?? 0,
+    },
+    rubroIdioma: {
+      ...crearRubroIdiomaVacio(),
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'F') ?? 0,
+    },
+    rubroPublicacionJuridica: {
+      ...crearRubroPublicacionJuridicaVacio(),
+      puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'G') ?? 0,
+    },
     rubroDistincion: {
       items: [],
       puntajeTotal: puntajeSubtotalPorCodigo(data.rubros, 'H') ?? 0,
@@ -305,5 +325,74 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     puntajeTotal: Number.isFinite(puntaje) ? puntaje : 0,
     creadoEn: ahora,
     actualizadoEn: ahora,
+  };
+}
+
+export function toPuntajesFicha(data: PuntajesFichaDataDto): PuntajesFicha {
+  const puntajeTotal = Number(data.puntajeTotal);
+  return {
+    idFicha: String(data.idFicha),
+    puntajeTotal: Number.isFinite(puntajeTotal) ? puntajeTotal : 0,
+    rubros: (data.rubros ?? []).map((rubro) => {
+      const puntaje = Number(rubro.puntaje);
+      return {
+        idRubro: Number(rubro.idRubro) || 0,
+        codigo: String(rubro.codigo ?? '').trim(),
+        nombre: String(rubro.nombre ?? '').trim(),
+        puntaje: Number.isFinite(puntaje) ? puntaje : 0,
+      };
+    }),
+  };
+}
+
+function conPuntajeOficial<T extends { puntajeTotal: number }>(
+  rubro: T | null,
+  puntajes: PuntajesFicha,
+  codigo: string
+): T | null {
+  const puntaje = puntajeRubroDe(puntajes, codigo);
+  if (rubro == null || puntaje == null) {
+    return rubro;
+  }
+  return { ...rubro, puntajeTotal: puntaje };
+}
+
+/** Copia el total y los puntajes por rubro sin tocar el detalle de ítems. */
+export function aplicarPuntajesEnFicha(
+  ficha: FichaValoracion,
+  puntajes: PuntajesFicha
+): FichaValoracion {
+  const puntajeB = puntajeRubroDe(puntajes, 'B');
+  const antiguedad = ficha.rubroAntiguedad;
+  const puntajeE = puntajeRubroDe(puntajes, 'E');
+
+  return {
+    ...ficha,
+    puntajeTotal: puntajes.puntajeTotal,
+    puntajeRubroE: puntajeE ?? ficha.puntajeRubroE,
+    rubroAntiguedad:
+      antiguedad && puntajeB != null
+        ? {
+            ...antiguedad,
+            titularidad: { ...antiguedad.titularidad, puntaje: puntajeB },
+          }
+        : antiguedad,
+    rubroGradosTitulos: conPuntajeOficial(ficha.rubroGradosTitulos, puntajes, 'C'),
+    rubroAmag: conPuntajeOficial(ficha.rubroAmag, puntajes, 'D'),
+    rubroIdioma: conPuntajeOficial(ficha.rubroIdioma, puntajes, 'F'),
+    rubroPublicacionJuridica: conPuntajeOficial(ficha.rubroPublicacionJuridica, puntajes, 'G'),
+    rubroDistincion: conPuntajeOficial(ficha.rubroDistincion, puntajes, 'H'),
+    rubroDocencia: conPuntajeOficial(ficha.rubroDocencia, puntajes, 'I'),
+    rubroDemerito: conPuntajeOficial(ficha.rubroDemerito, puntajes, 'J'),
+    rubroEstudiosPosgrado: conPuntajeOficial(ficha.rubroEstudiosPosgrado, puntajes, 'E1'),
+    rubroPasantias: conPuntajeOficial(ficha.rubroPasantias, puntajes, 'E2'),
+    rubroCursosEspecializacion: conPuntajeOficial(
+      ficha.rubroCursosEspecializacion,
+      puntajes,
+      'E3'
+    ),
+    rubroCertamenesAcademicos: conPuntajeOficial(ficha.rubroCertamenesAcademicos, puntajes, 'E4'),
+    rubroAsistenciasEventos: conPuntajeOficial(ficha.rubroAsistenciasEventos, puntajes, 'E5'),
+    rubroOfimatica: conPuntajeOficial(ficha.rubroOfimatica, puntajes, 'E6'),
   };
 }

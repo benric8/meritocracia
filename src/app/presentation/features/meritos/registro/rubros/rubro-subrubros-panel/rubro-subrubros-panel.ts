@@ -126,17 +126,7 @@ export class RubroSubrubrosPanel {
   }
 
   protected formatearPuntajeSubrubro(codigo: string): string {
-    const puntaje = this.puntajeSubrubro(codigo);
-    if (
-      this.esPasantias(codigo) ||
-      this.esCursosEspecializacion(codigo) ||
-      this.esCertamenesAcademicos(codigo) ||
-      this.esAsistenciasEventos(codigo) ||
-      this.esOfimatica(codigo)
-    ) {
-      return Number.isFinite(puntaje) ? puntaje.toFixed(3) : '0.000';
-    }
-    return this.formatearPuntaje(puntaje);
+    return this.formatearPuntaje(this.puntajeSubrubro(codigo));
   }
 
   private codigoNormalizado(codigo: string): string {

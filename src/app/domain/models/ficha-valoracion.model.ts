@@ -115,6 +115,32 @@ export type ResultadoResolverFicha =
   | { tipo: 'BLOQUEADA'; fichaId: string; magistradoId?: string }
   | { tipo: 'ASIGNADO_A_OTRO'; fichaId: string; magistradoId?: string };
 
+/** Respuesta de GET /fichas/{id}/puntajes. */
+export interface PuntajeRubroFicha {
+  idRubro: number;
+  codigo: string;
+  nombre: string;
+  puntaje: number;
+}
+
+export interface PuntajesFicha {
+  idFicha: string;
+  puntajeTotal: number;
+  rubros: PuntajeRubroFicha[];
+}
+
+export function puntajeRubroDe(puntajes: PuntajesFicha, codigo: string): number | null {
+  const buscado = codigo.trim().toUpperCase().replace(/\./g, '');
+  const encontrado = puntajes.rubros.find(
+    (rubro) => rubro.codigo.trim().toUpperCase().replace(/\./g, '') === buscado
+  );
+  if (!encontrado) {
+    return null;
+  }
+  const puntaje = Number(encontrado.puntaje);
+  return Number.isFinite(puntaje) ? puntaje : null;
+}
+
 export function crearRubroAntiguedadVacio(): RubroAntiguedad {
   return {
     id: null,

@@ -245,7 +245,6 @@ export function aplicarTitularidadEnFicha(
   return {
     ...ficha,
     rubroAntiguedad: actualizado,
-    puntajeTotal: puntaje,
     actualizadoEn: new Date().toISOString(),
   };
 }
