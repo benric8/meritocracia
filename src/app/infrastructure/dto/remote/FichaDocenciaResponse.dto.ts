@@ -16,10 +16,9 @@ export interface GuardarDocenciaRequestDto {
   archivoId?: number | null;
 }
 
+/** Ítem de `GET fichas-docencia` (`DocenciaResponse`). */
 export interface DocenciaDetalleDto {
-  idDocencia?: number;
-  id?: number;
-  idFichaValoracion?: number;
+  idDocencia: number;
   descripcionDocumento: string;
   universidad: string;
   horasSemanales: number;
@@ -34,14 +33,21 @@ export interface DocenciaDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerDocenciasDataDto {
+  docencias: DocenciaDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerDocenciasResponse extends BaseResponse {
-  data: DocenciaDetalleDto[];
+  data: ObtenerDocenciasDataDto | DocenciaDetalleDto[];
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarDocenciaResponse extends BaseResponse {
-  data: DocenciaDetalleDto;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarDocenciaResponse extends BaseResponse {
-  data?: DocenciaDetalleDto[] | null;
+  data?: unknown;
 }

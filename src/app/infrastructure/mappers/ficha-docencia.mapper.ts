@@ -1,6 +1,4 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
-  crearRubroDocenciaVacio,
   DocenciaUniversitaria,
   LIMITES_DOCENCIA,
   OrdenJuridicoDocencia,
@@ -9,6 +7,7 @@ import {
 import {
   DocenciaDetalleDto,
   GuardarDocenciaRequestDto,
+  ObtenerDocenciasDataDto,
 } from '../dto/remote/FichaDocenciaResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -48,8 +47,7 @@ function aTextoLimitado(valor: string, maximo: number, etiqueta: string): string
 }
 
 function aDocenciaDesdeDto(dto: DocenciaDetalleDto): DocenciaUniversitaria {
-  const id = dto.idDocencia ?? dto.id;
-  if (id == null) {
+  if (dto.idDocencia == null) {
     throw new Error('Docencia recibida sin identificador.');
   }
 
@@ -57,7 +55,7 @@ function aDocenciaDesdeDto(dto: DocenciaDetalleDto): DocenciaUniversitaria {
   const puntaje = Number(dto.puntaje);
 
   return {
-    id: String(id),
+    id: String(dto.idDocencia),
     descripcionDocumento: normalizarTipoDocumento(dto.descripcionDocumento),
     universidad: dto.universidad?.trim() ?? '',
     horasSemanales: Number.isFinite(horas) ? horas : 0,
@@ -73,12 +71,37 @@ function aDocenciaDesdeDto(dto: DocenciaDetalleDto): DocenciaUniversitaria {
   };
 }
 
+function sumarPuntajeItems(items: DocenciaUniversitaria[]): number {
+  return items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+}
+
+function normalizarListaDetalle(
+  data: ObtenerDocenciasDataDto | DocenciaDetalleDto[] | null | undefined
+): DocenciaDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.docencias ?? [];
+}
+
 export function toRubroDocenciaDesdeDetalle(
-  data: DocenciaDetalleDto[] | null | undefined
+  data: ObtenerDocenciasDataDto | DocenciaDetalleDto[] | null | undefined
 ): RubroDocencia {
+  const detalle = normalizarListaDetalle(data);
+  const items = detalle.map((dto) => aDocenciaDesdeDto(dto));
+  const puntajeApi =
+    !Array.isArray(data) && data?.puntajeTotal != null
+      ? Number(data.puntajeTotal)
+      : sumarPuntajeItems(items);
+
   return {
-    items: (data ?? []).map((dto) => aDocenciaDesdeDto(dto)),
-    puntajeTotal: 0,
+    items,
+    puntajeTotal: Number.isFinite(puntajeApi) ? puntajeApi : sumarPuntajeItems(items),
   };
 }
 
@@ -161,55 +184,4 @@ export function toGuardarDocenciaRequestDto(
   }
 
   return body;
-}
-
-export function aplicarDocenciaEnFicha(
-  ficha: FichaValoracion,
-  item: DocenciaUniversitaria,
-  respuesta: DocenciaDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
-  const guardado = aDocenciaDesdeDto(respuesta);
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== guardado.id
-  );
-
-  return {
-    ...ficha,
-    rubroDocencia: {
-      items: [...sinAnterior, guardado],
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function reemplazarDocenciasEnFicha(
-  ficha: FichaValoracion,
-  detalle: DocenciaDetalleDto[]
-): FichaValoracion {
-  const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
-  return {
-    ...ficha,
-    rubroDocencia: {
-      items: detalle.map((dto) => aDocenciaDesdeDto(dto)),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarDocenciaEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroDocencia ?? crearRubroDocenciaVacio();
-  return {
-    ...ficha,
-    rubroDocencia: {
-      items: rubro.items.filter((item) => item.id !== itemId),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }

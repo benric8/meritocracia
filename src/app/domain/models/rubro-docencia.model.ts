@@ -1,7 +1,6 @@
 /**
  * Rubro I — Docencia universitaria (RF006).
- * El puntaje de cada línea lo calcula el servidor. El subtotal del rubro
- * llega topado en GET /fichas/{id} y no en el listado de líneas.
+ * El puntaje de cada línea y el subtotal topado del rubro llegan en GET fichas-docencia.
  */
 
 export type OrdenJuridicoDocencia = 'JURIDICO' | 'NO JURIDICO';
