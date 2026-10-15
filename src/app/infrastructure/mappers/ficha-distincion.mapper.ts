@@ -1,17 +1,13 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
-import {
-  crearRubroDistincionVacio,
-  Distincion,
-  RubroDistincion,
-} from '../../domain/models/rubro-distincion.model';
+import { Distincion, RubroDistincion } from '../../domain/models/rubro-distincion.model';
 import {
   DistincionDetalleDto,
   GuardarDistincionRequestDto,
+  ObtenerDistincionesDataDto,
 } from '../dto/remote/FichaDistincionResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
   const n = Number(String(valor ?? '').trim());
-  if (!Number.isFinite(n) || n < 0) {
+  if (!Number.isFinite(n) || n <= 0) {
     throw new Error(`${etiqueta} no válido.`);
   }
   return n;
@@ -25,27 +21,23 @@ function aNumeroIdOpcional(valor: string | null | undefined, etiqueta: string): 
   return aNumeroId(texto, etiqueta);
 }
 
-function aDistincionDesdeDto(
-  dto: DistincionDetalleDto,
-  nombres: Partial<Distincion> = {}
-): Distincion {
-  const id = dto.idDistincion ?? dto.id;
-  if (id == null) {
+function aDistincionDesdeDto(dto: DistincionDetalleDto): Distincion {
+  if (dto.idDistincion == null) {
     throw new Error('Distinción recibida sin identificador.');
   }
 
   return {
-    id: String(id),
+    id: String(dto.idDistincion),
     tipoDistincionId: String(dto.tipoDistincionId),
-    tipoDistincionNombre: nombres.tipoDistincionNombre ?? '',
-    tipoDistincionCodigo: nombres.tipoDistincionCodigo ?? '',
+    tipoDistincionNombre: dto.tipoDistincionNombre?.trim() ?? '',
+    tipoDistincionCodigo: '',
     tipoDocumentoDistincionId: String(dto.tipoDocumentoDistincionId),
-    tipoDocumentoDistincionNombre: nombres.tipoDocumentoDistincionNombre ?? '',
+    tipoDocumentoDistincionNombre: dto.tipoDocumentoDistincionNombre?.trim() ?? '',
     descripcion: dto.descripcion?.trim() ?? '',
     fechaDistincion: dto.fechaDistincion?.trim().slice(0, 10) ?? '',
     institucionOtorgante: dto.institucionOtorgante?.trim() ?? '',
     paisId: dto.paisId != null ? String(dto.paisId) : '',
-    paisNombre: nombres.paisNombre ?? '',
+    paisNombre: dto.paisNombre?.trim() ?? '',
     archivoId: dto.archivoId != null ? String(dto.archivoId) : null,
     puntaje: Number(dto.puntaje) || 0,
   };
@@ -55,15 +47,33 @@ function sumarPuntajeItems(items: Distincion[]): number {
   return items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
 }
 
+function normalizarListaDetalle(
+  data: ObtenerDistincionesDataDto | DistincionDetalleDto[] | null | undefined
+): DistincionDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.distinciones ?? [];
+}
+
 export function toRubroDistincionDesdeDetalle(
-  data: DistincionDetalleDto[] | null | undefined
+  data: ObtenerDistincionesDataDto | DistincionDetalleDto[] | null | undefined
 ): RubroDistincion {
-  const detalle = data ?? [];
+  const detalle = normalizarListaDetalle(data);
   const items = detalle.map((dto) => aDistincionDesdeDto(dto));
+  const puntajeApi =
+    !Array.isArray(data) && data?.puntajeTotal != null
+      ? Number(data.puntajeTotal)
+      : sumarPuntajeItems(items);
 
   return {
     items,
-    puntajeTotal: sumarPuntajeItems(items),
+    puntajeTotal: Number.isFinite(puntajeApi) ? puntajeApi : sumarPuntajeItems(items),
   };
 }
 
@@ -85,10 +95,7 @@ export function toGuardarDistincionRequestDto(
   const body: GuardarDistincionRequestDto = {
     rubroId,
     tipoDistincionId: aNumeroId(item.tipoDistincionId, 'Tipo de distinción'),
-    tipoDocumentoDistincionId: aNumeroId(
-      item.tipoDocumentoDistincionId,
-      'Tipo de documento'
-    ),
+    tipoDocumentoDistincionId: aNumeroId(item.tipoDocumentoDistincionId, 'Tipo de documento'),
     descripcion: item.descripcion?.trim() ? item.descripcion.trim() : null,
     fechaDistincion: fecha,
     institucionOtorgante: item.institucionOtorgante?.trim()
@@ -103,49 +110,4 @@ export function toGuardarDistincionRequestDto(
   }
 
   return body;
-}
-
-export function aplicarDistincionEnFicha(
-  ficha: FichaValoracion,
-  item: Distincion,
-  respuesta: DistincionDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroDistincion ?? crearRubroDistincionVacio();
-  const guardado = aDistincionDesdeDto(respuesta, {
-    tipoDistincionNombre: item.tipoDistincionNombre,
-    tipoDistincionCodigo: item.tipoDistincionCodigo,
-    tipoDocumentoDistincionNombre: item.tipoDocumentoDistincionNombre,
-    paisNombre: item.paisNombre,
-  });
-
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== guardado.id
-  );
-  const items = [...sinAnterior, guardado];
-
-  return {
-    ...ficha,
-    rubroDistincion: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarDistincionEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroDistincion ?? crearRubroDistincionVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-
-  return {
-    ...ficha,
-    rubroDistincion: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }

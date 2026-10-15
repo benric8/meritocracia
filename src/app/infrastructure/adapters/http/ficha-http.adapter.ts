@@ -197,8 +197,6 @@ import {
   toRubroPublicacionJuridicaDesdeDetalle,
 } from '../../mappers/ficha-publicacion-juridica.mapper';
 import {
-  aplicarDistincionEnFicha,
-  eliminarDistincionEnFicha,
   toGuardarDistincionRequestDto,
   toRubroDistincionDesdeDetalle,
 } from '../../mappers/ficha-distincion.mapper';
@@ -1379,7 +1377,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1401,17 +1398,11 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarDistincionResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la distinción actualizada.'
-              : 'El servidor no devolvió la distinción guardada.',
-          });
-        }
-        return this.guardarEnMemoria(aplicarDistincionEnFicha(ficha, item, respuesta.data));
+        return this.obtenerRubroDistincion(fichaId);
       }),
+      map((rubro) => this.fichaConRubroDistincion(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar la distinción.'
@@ -1437,7 +1428,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroDistincion();
@@ -1449,18 +1439,11 @@ export class FichaHttpAdapter implements FichaPort {
     const url = `${this.baseUrl}${fichaEndpoints.distincionPorId(idItem)}`;
 
     return this.http.delete<EliminarDistincionResponse>(url, { params }).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data?.length) {
-          const rubro = toRubroDistincionDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroDistincion: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarDistincionEnFicha(ficha, idItem));
+        return this.obtenerRubroDistincion(fichaId);
       }),
+      map((rubro) => this.fichaConRubroDistincion(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar la distinción.')
     );
   }
@@ -2880,6 +2863,15 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroPublicacionJuridica: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroDistincion(fichaId: string, rubro: RubroDistincion): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroDistincion: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }
