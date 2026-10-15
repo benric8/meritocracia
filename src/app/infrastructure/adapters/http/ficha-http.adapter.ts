@@ -181,8 +181,6 @@ import {
   toRubroAntiguedadDesdeDetalle,
 } from '../../mappers/ficha-antiguedad.mapper';
 import {
-  aplicarGradoTituloEnFicha,
-  eliminarGradoTituloEnFicha,
   toGuardarGradoTituloRequestDto,
   toRubroGradosTitulosDesdeDetalle,
 } from '../../mappers/ficha-grados-titulos.mapper';
@@ -867,7 +865,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -902,17 +899,11 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarGradoTituloResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el grado actualizado.'
-              : 'El servidor no devolvió el grado guardado.',
-          });
-        }
-        return this.guardarEnMemoria(aplicarGradoTituloEnFicha(ficha, item, respuesta.data));
+        return this.obtenerRubroGradosTitulos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroGrados(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion ? 'No se pudo actualizar el grado.' : 'No se pudo guardar el grado.'
       )
@@ -936,7 +927,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroGradosTitulos();
@@ -948,18 +938,11 @@ export class FichaHttpAdapter implements FichaPort {
     const url = `${this.baseUrl}${fichaEndpoints.gradoTituloPorId(idItem)}`;
 
     return this.http.delete<EliminarGradoTituloResponse>(url, { params }).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data) {
-          const rubro = toRubroGradosTitulosDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroGradosTitulos: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarGradoTituloEnFicha(ficha, idItem));
+        return this.obtenerRubroGradosTitulos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroGrados(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el grado.')
     );
   }
@@ -2824,6 +2807,15 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroAntiguedad: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroGrados(fichaId: string, rubro: RubroGradosTitulos): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroGradosTitulos: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }

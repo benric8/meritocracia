@@ -108,6 +108,18 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.GRADOS_TITULOS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaGradoTituloPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaGradoTituloPorId(url),
+  },
+  {
+    method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.OFIMATICA),
   },
   {
@@ -210,6 +222,11 @@ function esRutaProvisionalidadPorId(url: string): boolean {
 function esRutaColegiaturaPorId(url: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/fichas-antiguedad\/colegiatura\/\d+$/.test(path);
+}
+
+function esRutaGradoTituloPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-grados-titulos\/\d+$/.test(path);
 }
 
 function esRutaOfimaticaPorId(url: string): boolean {

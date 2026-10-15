@@ -445,6 +445,9 @@ export class RubrosPanel {
   protected onFichaActualizada(ficha: FichaValoracion): void {
     this.puntajeAntiguedad.set(ficha.rubroAntiguedad?.titularidad.puntaje ?? 0);
     this.puntajeGradosTitulos.set(ficha.rubroGradosTitulos?.puntajeTotal ?? 0);
+    if (ficha.rubroGradosTitulos) {
+      this.rubroGradosTitulosLocal.set(ficha.rubroGradosTitulos);
+    }
     this.puntajeAmag.set(ficha.rubroAmag?.puntajeTotal ?? 0);
     this.puntajeIdioma.set(ficha.rubroIdioma?.puntajeTotal ?? 0);
     this.puntajePublicacionJuridica.set(ficha.rubroPublicacionJuridica?.puntajeTotal ?? 0);

@@ -1,8 +1,4 @@
 import {
-  crearRubroGradosTitulosVacio,
-  FichaValoracion,
-} from '../../domain/models/ficha-valoracion.model';
-import {
   GradoTitulo,
   GradoTituloFormulario,
   RubroGradosTitulos,
@@ -31,8 +27,8 @@ function aGradoTituloDesdeDto(dto: GradoTituloDetalleDto): GradoTitulo {
     id: String(id),
     gradoAcademicoId: String(dto.gradoAcademicoId),
     gradoAcademicoNombre: dto.gradoAcademicoNombre?.trim() ?? '',
-    universidadId: String(dto.universidadId),
-    universidadNombre: dto.universidadNombre?.trim() ?? '',
+    universidadId: String(dto.institucionId),
+    universidadNombre: dto.institucionNombre?.trim() ?? '',
     paisId: String(dto.paisId),
     paisNombre: dto.paisNombre?.trim() ?? '',
     fechaObtencion: dto.fechaObtencion?.trim().slice(0, 10) ?? '',
@@ -94,7 +90,7 @@ export function toGuardarGradoTituloRequestDto(
   const body: GuardarGradoTituloRequestDto = {
     rubroId,
     gradoAcademicoId: aNumeroId(data.gradoAcademicoId, 'Grado académico'),
-    universidadId: aNumeroId(data.universidadId, 'Universidad'),
+    institucionId: aNumeroId(data.universidadId, 'Universidad'),
     paisId: aNumeroId(data.paisId, 'País'),
     fechaObtencion: data.fechaObtencion.trim().slice(0, 10),
     especialidad: data.especialidad.trim(),
@@ -107,47 +103,4 @@ export function toGuardarGradoTituloRequestDto(
   }
 
   return body;
-}
-
-export function aplicarGradoTituloEnFicha(
-  ficha: FichaValoracion,
-  item: GradoTitulo,
-  respuesta: GradoTituloDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroGradosTitulos ?? crearRubroGradosTitulosVacio();
-  const guardado = aGradoTituloDesdeDto({
-    ...respuesta,
-    gradoAcademicoNombre: respuesta.gradoAcademicoNombre ?? item.gradoAcademicoNombre,
-    universidadNombre: respuesta.universidadNombre ?? item.universidadNombre,
-    paisNombre: respuesta.paisNombre ?? item.paisNombre,
-  });
-
-  const sinAnterior = rubro.items.filter((actual) => actual.id !== item.id && actual.id !== guardado.id);
-  const items = [...sinAnterior, guardado];
-
-  return {
-    ...ficha,
-    rubroGradosTitulos: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarGradoTituloEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroGradosTitulos ?? crearRubroGradosTitulosVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-
-  return {
-    ...ficha,
-    rubroGradosTitulos: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }
