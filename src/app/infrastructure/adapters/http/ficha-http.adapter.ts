@@ -185,8 +185,6 @@ import {
   toRubroGradosTitulosDesdeDetalle,
 } from '../../mappers/ficha-grados-titulos.mapper';
 import {
-  aplicarEstudioAmagEnFicha,
-  eliminarEstudioAmagEnFicha,
   toGuardarEstudioAmagRequestDto,
   toRubroAmagDesdeDetalle,
 } from '../../mappers/ficha-amag.mapper';
@@ -1000,7 +998,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1022,17 +1019,11 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarEstudioAmagResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el estudio AMAG actualizado.'
-              : 'El servidor no devolvió el estudio AMAG guardado.',
-          });
-        }
-        return this.guardarEnMemoria(aplicarEstudioAmagEnFicha(ficha, item, respuesta.data));
+        return this.obtenerRubroAmag(fichaId);
       }),
+      map((rubro) => this.fichaConRubroAmag(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar el estudio AMAG.'
@@ -1058,7 +1049,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroAmag();
@@ -1070,18 +1060,11 @@ export class FichaHttpAdapter implements FichaPort {
     const url = `${this.baseUrl}${fichaEndpoints.estudioAmagPorId(idItem)}`;
 
     return this.http.delete<EliminarEstudioAmagResponse>(url, { params }).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data) {
-          const rubro = toRubroAmagDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroAmag: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarEstudioAmagEnFicha(ficha, idItem));
+        return this.obtenerRubroAmag(fichaId);
       }),
+      map((rubro) => this.fichaConRubroAmag(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el estudio AMAG.')
     );
   }
@@ -2837,6 +2820,15 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroGradosTitulos: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroAmag(fichaId: string, rubro: RubroAmag): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroAmag: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }

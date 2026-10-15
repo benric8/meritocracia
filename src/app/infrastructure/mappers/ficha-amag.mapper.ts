@@ -1,5 +1,4 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
-import { crearRubroAmagVacio, EstudioAmag, RubroAmag } from '../../domain/models/rubro-amag.model';
+import { EstudioAmag, RubroAmag } from '../../domain/models/rubro-amag.model';
 import {
   EstudioAmagDetalleDto,
   GuardarEstudioAmagRequestDto,
@@ -14,16 +13,15 @@ function aNumeroId(valor: string, etiqueta: string): number {
   return n;
 }
 
-function aEstudioAmagDesdeDto(dto: EstudioAmagDetalleDto, tipoNombre = ''): EstudioAmag {
-  const id = dto.idMagistratura ?? dto.idEstudioAmag ?? dto.id;
-  if (id == null) {
+function aEstudioAmagDesdeDto(dto: EstudioAmagDetalleDto): EstudioAmag {
+  if (dto.idEstudioAmag == null) {
     throw new Error('Estudio AMAG recibido sin identificador.');
   }
 
   return {
-    id: String(id),
-    tipoCursoId: String(dto.tipoCurso),
-    tipoCursoNombre: tipoNombre,
+    id: String(dto.idEstudioAmag),
+    tipoCursoId: String(dto.cursoAmagId),
+    tipoCursoNombre: dto.cursoAmagNombre?.trim() ?? '',
     nota: Number(dto.nota) || 0,
     descripcion: dto.descripcion?.trim() ?? '',
     anio: Number(dto.anio) || 0,
@@ -86,8 +84,11 @@ export function toGuardarEstudioAmagRequestDto(
   if (!body.descripcion) {
     throw new Error('Descripción del curso requerida.');
   }
-  if (!Number.isFinite(body.nota) || body.nota < 0 || body.nota > 20) {
-    throw new Error('La nota debe estar entre 0 y 20.');
+  if (!Number.isFinite(body.nota) || body.nota < 13 || body.nota > 20) {
+    throw new Error('La nota debe estar entre 13 y 20.');
+  }
+  if (body.descripcion.length > 300) {
+    throw new Error('La descripción admite hasta 300 caracteres.');
   }
   if (!Number.isFinite(body.anio) || body.anio < 1950 || body.anio > 2100) {
     throw new Error('Año del curso no válido.');
@@ -98,44 +99,4 @@ export function toGuardarEstudioAmagRequestDto(
   }
 
   return body;
-}
-
-export function aplicarEstudioAmagEnFicha(
-  ficha: FichaValoracion,
-  item: EstudioAmag,
-  respuesta: EstudioAmagDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroAmag ?? crearRubroAmagVacio();
-  const guardado = aEstudioAmagDesdeDto(respuesta, item.tipoCursoNombre);
-
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== guardado.id
-  );
-  const items = [...sinAnterior, guardado];
-
-  return {
-    ...ficha,
-    rubroAmag: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarEstudioAmagEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroAmag ?? crearRubroAmagVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-
-  return {
-    ...ficha,
-    rubroAmag: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }

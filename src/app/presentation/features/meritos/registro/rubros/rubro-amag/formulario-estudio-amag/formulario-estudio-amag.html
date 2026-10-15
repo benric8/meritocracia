@@ -30,13 +30,13 @@
             matInput
             type="number"
             formControlName="nota"
-            min="0"
+            min="13"
             max="20"
             step="0.1"
             placeholder="Ej. 16.5"
           />
           @if (formulario.controls.nota.touched && formulario.controls.nota.invalid) {
-            <mat-error>La nota debe estar entre 0 y 20.</mat-error>
+            <mat-error>La nota debe estar entre 13 y 20.</mat-error>
           }
         </mat-form-field>
 
@@ -49,13 +49,20 @@
           <input
             matInput
             formControlName="descripcion"
+            maxlength="300"
             placeholder="Ej. Curso de habilitación judicial"
           />
           @if (
             formulario.controls.descripcion.touched &&
-            formulario.controls.descripcion.invalid
+            formulario.controls.descripcion.hasError('required')
           ) {
             <mat-error>Ingrese la descripción del curso.</mat-error>
+          }
+          @if (
+            formulario.controls.descripcion.touched &&
+            formulario.controls.descripcion.hasError('maxlength')
+          ) {
+            <mat-error>La descripción admite hasta 300 caracteres.</mat-error>
           }
         </mat-form-field>
 

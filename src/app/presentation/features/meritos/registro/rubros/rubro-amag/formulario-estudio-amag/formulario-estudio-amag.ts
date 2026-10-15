@@ -58,13 +58,13 @@ export class FormularioEstudioAmag implements OnInit {
     ),
     nota: this.fb.control<number | null>(this.data.estudioAmag?.nota ?? null, [
       Validators.required,
-      Validators.min(0),
+      Validators.min(13),
       Validators.max(20),
     ]),
-    descripcion: this.fb.nonNullable.control(
-      this.data.estudioAmag?.descripcion ?? '',
-      Validators.required
-    ),
+    descripcion: this.fb.nonNullable.control(this.data.estudioAmag?.descripcion ?? '', [
+      Validators.required,
+      Validators.maxLength(300),
+    ]),
     anio: this.fb.control<number | null>(this.data.estudioAmag?.anio ?? null, [
       Validators.required,
       Validators.min(1950),
