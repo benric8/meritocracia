@@ -204,9 +204,6 @@ import {
   toRubroDocenciaDesdeDetalle,
 } from '../../mappers/ficha-docencia.mapper';
 import {
-  aplicarDemeritoEnFicha,
-  eliminarDemeritoEnFicha,
-  reemplazarDemeritosEnFicha,
   toGuardarDemeritoRequestDto,
   toRubroDemeritoDesdeDetalle,
 } from '../../mappers/ficha-demerito.mapper';
@@ -1599,12 +1596,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const lineas = toRubroDemeritoDesdeDetalle(respuesta.data);
-          const puntajePrevio = this.fichasEnMemoria.get(id)?.rubroDemerito?.puntajeTotal ?? 0;
-          const rubro: RubroDemerito = {
-            items: lineas.items,
-            puntajeTotal: puntajePrevio,
-          };
+          const rubro = toRubroDemeritoDesdeDetalle(respuesta.data);
           this.actualizarRubroDemeritoEnMemoria(id, rubro);
           return rubro;
         }),
@@ -1619,7 +1611,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1646,16 +1637,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el demérito actualizado.'
-              : 'El servidor no devolvió el demérito guardado.',
-          });
-        }
-        this.guardarEnMemoria(aplicarDemeritoEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasDemerito(fichaId);
+        return this.obtenerRubroDemerito(fichaId);
       }),
+      map((rubro) => this.fichaConRubroDemerito(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion ? 'No se pudo actualizar el demérito.' : 'No se pudo guardar el demérito.'
       )
@@ -1679,7 +1663,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroDemerito();
@@ -1693,12 +1676,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarDemeritoResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        const actualizada = respuesta.data?.length
-          ? reemplazarDemeritosEnFicha(ficha, respuesta.data)
-          : eliminarDemeritoEnFicha(ficha, idItem);
-        this.guardarEnMemoria(actualizada);
-        return this.refrescarFichaTrasDemerito(fichaId);
+        return this.obtenerRubroDemerito(fichaId);
       }),
+      map((rubro) => this.fichaConRubroDemerito(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el demérito.')
     );
   }
@@ -2976,16 +2956,6 @@ export class FichaHttpAdapter implements FichaPort {
     return rubro.idRubro;
   }
 
-  /**
-   * El listado de deméritos no trae el subtotal. Tras guardar o eliminar
-   * se vuelve a leer la ficha para refrescar esa suma y el total.
-   */
-  private refrescarFichaTrasDemerito(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conSumaLocalDemerito(fichaId)))
-    );
-  }
-
   private aplicarSubtotalDemerito(
     ficha: FichaValoracion,
     rubros: ObtenerFichaResponse['data']['rubros']
@@ -3005,22 +2975,12 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conSumaLocalDemerito(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
-
-    const rubro = actual.rubroDemerito ?? crearRubroDemeritoVacio();
-    const suma = rubro.items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+  private fichaConRubroDemerito(fichaId: string, rubro: RubroDemerito): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
     return this.guardarEnMemoria({
-      ...actual,
-      rubroDemerito: {
-        ...rubro,
-        puntajeTotal: suma,
-      },
+      ...ficha,
+      rubroDemerito: rubro,
+      actualizadoEn: new Date().toISOString(),
     });
   }
 

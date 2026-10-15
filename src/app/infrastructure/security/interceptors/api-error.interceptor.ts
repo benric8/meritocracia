@@ -180,6 +180,18 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.DEMERITOS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaDemeritoPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaDemeritoPorId(url),
+  },
+  {
+    method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.OFIMATICA),
   },
   {
@@ -282,6 +294,11 @@ function esRutaProvisionalidadPorId(url: string): boolean {
 function esRutaColegiaturaPorId(url: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/fichas-antiguedad\/colegiatura\/\d+$/.test(path);
+}
+
+function esRutaDemeritoPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-demeritos\/\d+$/.test(path);
 }
 
 function esRutaDocenciaPorId(url: string): boolean {

@@ -469,6 +469,9 @@ export class RubrosPanel {
       this.rubroDocenciaLocal.set(ficha.rubroDocencia);
     }
     this.puntajeDemerito.set(ficha.rubroDemerito?.puntajeTotal ?? 0);
+    if (ficha.rubroDemerito) {
+      this.rubroDemeritoLocal.set(ficha.rubroDemerito);
+    }
     this.puntajeEstudiosPosgrado.set(ficha.rubroEstudiosPosgrado?.puntajeTotal ?? 0);
     if (ficha.rubroEstudiosPosgrado) {
       this.rubroEstudiosPosgradoLocal.set(ficha.rubroEstudiosPosgrado);

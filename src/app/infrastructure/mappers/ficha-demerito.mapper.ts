@@ -1,6 +1,4 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
-  crearRubroDemeritoVacio,
   Demerito,
   LIMITE_OBSERVACION_DEMERITO,
   RubroDemerito,
@@ -9,6 +7,7 @@ import {
 import {
   DemeritoDetalleDto,
   GuardarDemeritoRequestDto,
+  ObtenerDemeritosDataDto,
 } from '../dto/remote/FichaDemeritoResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -50,15 +49,14 @@ function aEntero(valor: number, etiqueta: string): number {
 }
 
 function aDemeritoDesdeDto(dto: DemeritoDetalleDto): Demerito {
-  const id = dto.idDemerito ?? dto.id;
-  if (id == null) {
+  if (dto.idDemerito == null) {
     throw new Error('Demérito recibido sin identificador.');
   }
 
   const puntaje = Number(dto.puntaje);
 
   return {
-    id: String(id),
+    id: String(dto.idDemerito),
     tipoMedida: aTipoMedida(dto.tipoMedida),
     cantidad: aEntero(dto.cantidad, 'Cantidad'),
     descripcionDocumento: normalizarTipoDocumento(dto.descripcionDocumento),
@@ -69,12 +67,37 @@ function aDemeritoDesdeDto(dto: DemeritoDetalleDto): Demerito {
   };
 }
 
+function sumarPuntajeItems(items: Demerito[]): number {
+  return items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
+}
+
+function normalizarListaDetalle(
+  data: ObtenerDemeritosDataDto | DemeritoDetalleDto[] | null | undefined
+): DemeritoDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.demeritos ?? [];
+}
+
 export function toRubroDemeritoDesdeDetalle(
-  data: DemeritoDetalleDto[] | null | undefined
+  data: ObtenerDemeritosDataDto | DemeritoDetalleDto[] | null | undefined
 ): RubroDemerito {
+  const detalle = normalizarListaDetalle(data);
+  const items = detalle.map((dto) => aDemeritoDesdeDto(dto));
+  const puntajeApi =
+    !Array.isArray(data) && data?.puntajeTotal != null
+      ? Number(data.puntajeTotal)
+      : sumarPuntajeItems(items);
+
   return {
-    items: (data ?? []).map((dto) => aDemeritoDesdeDto(dto)),
-    puntajeTotal: 0,
+    items,
+    puntajeTotal: Number.isFinite(puntajeApi) ? puntajeApi : sumarPuntajeItems(items),
   };
 }
 
@@ -121,55 +144,4 @@ export function toGuardarDemeritoRequestDto(
   }
 
   return body;
-}
-
-export function aplicarDemeritoEnFicha(
-  ficha: FichaValoracion,
-  item: Demerito,
-  respuesta: DemeritoDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
-  const guardado = aDemeritoDesdeDto(respuesta);
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== guardado.id
-  );
-
-  return {
-    ...ficha,
-    rubroDemerito: {
-      items: [...sinAnterior, guardado],
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function reemplazarDemeritosEnFicha(
-  ficha: FichaValoracion,
-  detalle: DemeritoDetalleDto[]
-): FichaValoracion {
-  const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
-  return {
-    ...ficha,
-    rubroDemerito: {
-      items: detalle.map((dto) => aDemeritoDesdeDto(dto)),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarDemeritoEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroDemerito ?? crearRubroDemeritoVacio();
-  return {
-    ...ficha,
-    rubroDemerito: {
-      items: rubro.items.filter((item) => item.id !== itemId),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }

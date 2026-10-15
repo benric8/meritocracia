@@ -1,7 +1,6 @@
 /**
  * Rubro J — Deméritos (RF006).
- * El puntaje de cada línea lo calcula el servidor. El subtotal del rubro
- * es la suma de las líneas y llega en GET /fichas/{id}, no en el listado.
+ * El puntaje de cada línea y la suma del rubro llegan en GET fichas-demeritos.
  */
 
 export type TipoMedidaDemerito = 'AMONESTACION' | 'MULTA' | 'SUSPENSION';
