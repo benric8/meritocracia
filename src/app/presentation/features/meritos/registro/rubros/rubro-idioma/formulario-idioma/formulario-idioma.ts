@@ -102,9 +102,12 @@ export class FormularioIdioma implements OnInit {
       Validators.required
     ),
     institucionBusqueda: this.fb.nonNullable.control(
-      this.data.estudioIdioma?.institucionNombre ?? ''
+      this.data.estudioIdioma?.institucionNombre ?? '',
+      Validators.required
     ),
-    institucionId: this.fb.nonNullable.control(this.data.estudioIdioma?.institucionId ?? ''),
+    institucionId: this.fb.nonNullable.control(this.data.estudioIdioma?.institucionId ?? '', [
+      Validators.required,
+    ]),
     nivelIdiomaId: this.fb.nonNullable.control(
       this.data.estudioIdioma?.nivelIdiomaId ?? '',
       Validators.required
@@ -151,7 +154,7 @@ export class FormularioIdioma implements OnInit {
     );
     const fecha = raw.fechaObtencion ? aFechaIsoLocal(raw.fechaObtencion) : '';
 
-    if (!idioma || !nivel || !tipoDocumento || !fecha) {
+    if (!idioma || !nivel || !tipoDocumento || !fecha || !raw.institucionId.trim()) {
       return;
     }
 

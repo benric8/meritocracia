@@ -132,6 +132,18 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.ESTUDIOS_IDIOMA),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaEstudioIdiomaPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaEstudioIdiomaPorId(url),
+  },
+  {
+    method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.OFIMATICA),
   },
   {
@@ -234,6 +246,11 @@ function esRutaProvisionalidadPorId(url: string): boolean {
 function esRutaColegiaturaPorId(url: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/fichas-antiguedad\/colegiatura\/\d+$/.test(path);
+}
+
+function esRutaEstudioIdiomaPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-estudios-idioma\/\d+$/.test(path);
 }
 
 function esRutaEstudioAmagPorId(url: string): boolean {

@@ -453,6 +453,9 @@ export class RubrosPanel {
       this.rubroAmagLocal.set(ficha.rubroAmag);
     }
     this.puntajeIdioma.set(ficha.rubroIdioma?.puntajeTotal ?? 0);
+    if (ficha.rubroIdioma) {
+      this.rubroIdiomaLocal.set(ficha.rubroIdioma);
+    }
     this.puntajePublicacionJuridica.set(ficha.rubroPublicacionJuridica?.puntajeTotal ?? 0);
     this.puntajeDistincion.set(ficha.rubroDistincion?.puntajeTotal ?? 0);
     this.puntajeDocencia.set(ficha.rubroDocencia?.puntajeTotal ?? 0);

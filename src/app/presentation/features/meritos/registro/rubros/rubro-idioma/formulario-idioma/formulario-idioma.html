@@ -51,6 +51,12 @@
               <mat-option [value]="item">{{ item.nombre }}</mat-option>
             }
           </mat-autocomplete>
+          @if (
+            formulario.controls.institucionBusqueda.touched &&
+            formulario.controls.institucionId.invalid
+          ) {
+            <mat-error>Seleccione una institución del catálogo.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rubro-dialog__campo">
