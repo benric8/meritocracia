@@ -12,7 +12,7 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { juezEndpoints } from '../../api/juez-api.constants';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import {
   DatosSigaJuezResponse,
   EdadJuezResponse,
@@ -29,7 +29,7 @@ export class JuezHttpAdapter implements JuezPort {
   private readonly sesion = inject(SESION_PORT);
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   obtenerDatosSiga(dni: string): Observable<DatosSigaJuez> {

@@ -19,7 +19,7 @@ import {
 } from '../../dto/remote/DocumentoInstitucionalResponse.dto';
 import { toDocumentoInstitucional } from '../../mappers/documentos-institucional.mapper';
 import { toResultadoPaginado } from '../../mappers/paginacion.mapper';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { crearFormDataDocumento } from './documentos-form-data.util';
 
 @Injectable({ providedIn: 'root' })
@@ -28,7 +28,7 @@ export class DocumentosInstitucionalesHttpAdapter implements DocumentosInstituci
   private readonly sesion = inject(SESION_PORT);
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<DocumentoInstitucional>> {

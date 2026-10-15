@@ -1,4 +1,4 @@
-/** Endpoints de juez / SIGA (relativos a `getAppConfig().urlApi`). */
+/** Endpoints de juez / SIGA (relativos a `environment.urlApi`). */
 export const juezEndpoints = {
   /** Consulta de nombre completo y foto por DNI. */
   DATOS_SIGA: 'jueces/siga',

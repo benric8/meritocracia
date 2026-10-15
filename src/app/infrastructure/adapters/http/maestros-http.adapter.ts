@@ -15,7 +15,7 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
 import { maestrosEndpoints } from '../../api/maestros-api.constants';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import {
   ListarColegiosProfesionalesResponse,
   ListarDistritosJudicialesResponse,
@@ -78,7 +78,7 @@ export class MaestrosHttpAdapter implements MaestrosPort {
   private readonly sesion = inject(SESION_PORT);
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   listarNivelesTitular(): Observable<NivelTitular[]> {

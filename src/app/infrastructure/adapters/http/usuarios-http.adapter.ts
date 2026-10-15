@@ -10,7 +10,7 @@ import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { crearParametrosPaginacion } from '../../api/paginacion-http.util';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
 import { usuariosEndpoints } from '../../api/usuarios-api.constants';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import { CambiarClaveRequest } from '../../dto/remote/CambiarClaveRequest.dto';
 import {
@@ -28,7 +28,7 @@ export class UsuariosHttpAdapter implements UsuariosPort {
   private readonly http = inject(HttpClient);
   private readonly sesion = inject(SESION_PORT);
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   listar(peticion: PeticionPaginada): Observable<ResultadoPaginado<UsuarioGestion>> {

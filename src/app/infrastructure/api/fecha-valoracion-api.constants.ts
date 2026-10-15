@@ -1,4 +1,4 @@
-/** Endpoints de fecha de valoración (relativos a `getAppConfig().urlApi`). */
+/** Endpoints de fecha de valoración (relativos a `environment.urlApi`). */
 export const fechaValoracionEndpoints = {
   VIGENTE: 'fechas-valoracion/vigente',
   HISTORIAL: 'fechas-valoracion',

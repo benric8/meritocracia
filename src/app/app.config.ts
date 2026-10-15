@@ -28,7 +28,6 @@ import { AUTENTICACION_PORT } from './domain/ports/autenticacion.port';
 import { SESION_PORT } from './domain/ports/sesion.port';
 import { AutenticacionHttpAdapter } from './infrastructure/adapters/http/autenticacion-http.adapter';
 import { SessionStorageAdapter } from './infrastructure/adapters/storage/session-storage.adapter';
-import { cargarAppConfig } from './infrastructure/config/cargar-app-config';
 import { PublicIpService } from './infrastructure/network/public-ip.service';
 import { auditoriaInterceptor } from './infrastructure/security/interceptors/auditoria.interceptor';
 import { sessionInterceptor } from './infrastructure/security/interceptors/session.interceptor';
@@ -48,8 +47,6 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    // Primero la config runtime; el resto puede depender de urlApi / claves.
-    provideAppInitializer(cargarAppConfig),
     provideAppInitializer(precargarIpPublica),
     provideAppInitializer(prepararVigenciaSesion),
     provideHttpClient(withInterceptors([auditoriaInterceptor, sessionInterceptor, apiErrorInterceptor])),

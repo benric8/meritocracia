@@ -1,8 +1,6 @@
-/**
- * Configuración de runtime (por ambiente).
- * Ops cambia `assets/config.json` en el servidor sin regenerar el build.
- */
-export interface AppRuntimeConfig {
+/** Valores inyectados en compile-time según la configuración de build. */
+export interface AppEnvironment {
+  production: boolean;
   urlApi: string;
   tokenCaptcha: string;
   codigoCliente: string;
@@ -17,6 +15,5 @@ export interface AppRuntimeConfig {
   documentosInstitucionales: {
     maxTamanoBytes: number;
     mimePermitido: string;
-    latenciaMockMs?: number;
   };
 }

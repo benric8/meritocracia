@@ -19,7 +19,7 @@ import {
   puntajeRubroDe,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
-import { getAppConfig } from '../config/app-runtime-config';
+import { environment } from '../../../environments/environment';
 import {
   CrearFichaDataDto,
   CrearFichaRequestDto,
@@ -202,7 +202,7 @@ export function resolverUrlFotoFicha(valor: string | null | undefined): string {
   // JPEG base64 suele empezar con `/9j/`; no confundir con rutas de archivo.
   if (foto.startsWith('/') && !foto.startsWith('/9j/')) {
     try {
-      const origen = new URL(getAppConfig().urlApi).origin;
+      const origen = new URL(environment.urlApi).origin;
       return `${origen}${foto}`;
     } catch {
       return foto;

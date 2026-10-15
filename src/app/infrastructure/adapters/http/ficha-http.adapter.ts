@@ -84,7 +84,7 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { fichaEndpoints } from '../../api/ficha-api.constants';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import {
   GuardarColegiaturaResponse,
@@ -283,7 +283,7 @@ export class FichaHttpAdapter implements FichaPort {
   private readonly fichasEnMemoria = new Map<string, FichaValoracion>();
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   resolverDelCiclo(dni: string, fechaValoracionId: string): Observable<ResultadoResolverFicha> {

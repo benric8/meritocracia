@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from, map, catchError, of, switchMap, throwError } from 'rxjs';
 import CryptoJS from 'crypto-js';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Servicio robusto de encriptación/desencriptación con fallback automático
@@ -20,8 +20,7 @@ export class CryptoService {
   private readonly encoder = new TextEncoder();
   private readonly decoder = new TextDecoder();
 
-  // Configuración de encriptación - IMPORTANTE: Cambiar en producción
-  // Idealmente estas claves deberían venir de variables de entorno
+  // Claves de cifrado definidas por ambiente en `src/environments`.
   private readonly password: string = this.getEncryptionPassword();
   private readonly saltString: string = this.getEncryptionSalt();
   private readonly salt: Uint8Array = this.encoder.encode(this.saltString);
@@ -42,7 +41,7 @@ export class CryptoService {
    * Obtiene la contraseña de encriptación
    */
   private getEncryptionPassword(): string {
-    const password = getAppConfig().encrypPassword;
+    const password = environment.encrypPassword;
 
     if (password.length < 16) {
       console.warn('La contraseña de encriptación es muy corta. Mínimo 16 caracteres.');
@@ -54,7 +53,7 @@ export class CryptoService {
    * Obtiene el salt de encriptación
    */
   private getEncryptionSalt(): string {
-    return getAppConfig().encryptSalt;
+    return environment.encryptSalt;
   }
 
   /**

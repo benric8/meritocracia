@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpResponse } from 
 import { inject } from '@angular/core';
 import { catchError, tap, throwError } from 'rxjs';
 import { ALERTAS_PORT } from '../../../domain/ports/alertas.port';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { authEndpoints, urlsGlobal } from '../../api/auth-api.constants';
 import { esRespuestaApi } from '../../api/api-error.model';
 import { esCodigoExito } from '../../api/api-response.util';
@@ -163,7 +163,7 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
 };
 
 function debeMostrarModal(req: HttpRequest<unknown>): boolean {
-  if (!req.url.startsWith(getAppConfig().urlApi)) {
+  if (!req.url.startsWith(environment.urlApi)) {
     return false;
   }
 

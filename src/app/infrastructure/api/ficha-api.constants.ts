@@ -1,4 +1,4 @@
-/** Endpoints de ficha de valoración (relativos a `getAppConfig().urlApi`). */
+/** Endpoints de ficha de valoración (relativos a `environment.urlApi`). */
 export const fichaEndpoints = {
   FLUJO: 'fichas/flujo',
   CREAR: 'fichas',

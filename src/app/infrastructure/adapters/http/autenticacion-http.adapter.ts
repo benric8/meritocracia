@@ -5,7 +5,7 @@ import { constantes, tokenNiveles } from '../../../domain/commons/constants';
 import { AutenticacionPort } from '../../../domain/ports/autenticacion.port';
 import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { authEndpoints } from '../../api/auth-api.constants';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { LoginResponse } from '../../dto/remote/LoginResponse.dto';
 import { OpcionesResponse } from '../../dto/remote/OpcionesResponse.dto';
 import { tokenResponse } from '../../dto/remote/tokenResponse.dto';
@@ -21,11 +21,11 @@ export class AutenticacionHttpAdapter implements AutenticacionPort {
   private readonly sesion = inject(SESION_PORT);
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   generarTokenBasico(): Observable<tokenResponse> {
-    const cfg = getAppConfig();
+    const cfg = environment;
     const headers = new HttpHeaders({
       username: cfg.usuarioConsumo,
       password: cfg.claveUsuarioConsumo,

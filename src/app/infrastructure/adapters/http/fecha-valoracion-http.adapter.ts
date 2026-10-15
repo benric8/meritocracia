@@ -11,7 +11,7 @@ import { SESION_PORT } from '../../../domain/ports/sesion.port';
 import { assertRespuestaExitosa } from '../../api/api-response.util';
 import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
 import { mapearAErrorNegocioApi } from '../../api/mapear-error-negocio.operator';
-import { getAppConfig } from '../../config/app-runtime-config';
+import { environment } from '../../../../environments/environment';
 import { BaseResponse } from '../../dto/remote/BaseResponse,dto';
 import {
   FechaValoracionVigenteResponse,
@@ -29,7 +29,7 @@ export class FechaValoracionHttpAdapter implements FechaValoracionPort {
   private readonly sesion = inject(SESION_PORT);
 
   private get baseUrl(): string {
-    return getAppConfig().urlApi;
+    return environment.urlApi;
   }
 
   obtenerVigente(): Observable<FechaValoracion | null> {
