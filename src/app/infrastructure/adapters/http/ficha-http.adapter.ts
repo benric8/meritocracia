@@ -193,8 +193,6 @@ import {
   toRubroIdiomaDesdeDetalle,
 } from '../../mappers/ficha-idioma.mapper';
 import {
-  aplicarPublicacionJuridicaEnFicha,
-  eliminarPublicacionJuridicaEnFicha,
   toGuardarPublicacionJuridicaRequestDto,
   toRubroPublicacionJuridicaDesdeDetalle,
 } from '../../mappers/ficha-publicacion-juridica.mapper';
@@ -1254,7 +1252,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1276,19 +1273,11 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarPublicacionJuridicaResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la publicación actualizada.'
-              : 'El servidor no devolvió la publicación guardada.',
-          });
-        }
-        return this.guardarEnMemoria(
-          aplicarPublicacionJuridicaEnFicha(ficha, item, respuesta.data)
-        );
+        return this.obtenerRubroPublicacionJuridica(fichaId);
       }),
+      map((rubro) => this.fichaConRubroPublicacionJuridica(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar la publicación jurídica.'
@@ -1314,7 +1303,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroPublicacionJuridica();
@@ -1326,18 +1314,11 @@ export class FichaHttpAdapter implements FichaPort {
     const url = `${this.baseUrl}${fichaEndpoints.publicacionJuridicaPorId(idItem)}`;
 
     return this.http.delete<EliminarPublicacionJuridicaResponse>(url, { params }).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data?.length) {
-          const rubro = toRubroPublicacionJuridicaDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroPublicacionJuridica: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarPublicacionJuridicaEnFicha(ficha, idItem));
+        return this.obtenerRubroPublicacionJuridica(fichaId);
       }),
+      map((rubro) => this.fichaConRubroPublicacionJuridica(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar la publicación jurídica.')
     );
   }
@@ -2863,6 +2844,18 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroIdioma: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroPublicacionJuridica(
+    fichaId: string,
+    rubro: RubroPublicacionJuridica
+  ): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroPublicacionJuridica: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }

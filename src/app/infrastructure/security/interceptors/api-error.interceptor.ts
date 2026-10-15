@@ -144,6 +144,18 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.PUBLICACIONES_JURIDICAS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaPublicacionJuridicaPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaPublicacionJuridicaPorId(url),
+  },
+  {
+    method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.OFIMATICA),
   },
   {
@@ -246,6 +258,11 @@ function esRutaProvisionalidadPorId(url: string): boolean {
 function esRutaColegiaturaPorId(url: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/fichas-antiguedad\/colegiatura\/\d+$/.test(path);
+}
+
+function esRutaPublicacionJuridicaPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-publicaciones-juridicas\/\d+$/.test(path);
 }
 
 function esRutaEstudioIdiomaPorId(url: string): boolean {

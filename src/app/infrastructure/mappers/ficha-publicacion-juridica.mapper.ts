@@ -1,18 +1,17 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
-  crearRubroPublicacionJuridicaVacio,
   OrdenJuridico,
   PublicacionJuridica,
   RubroPublicacionJuridica,
 } from '../../domain/models/rubro-publicacion-juridica.model';
 import {
   GuardarPublicacionJuridicaRequestDto,
+  ObtenerPublicacionesJuridicasDataDto,
   PublicacionJuridicaDetalleDto,
 } from '../dto/remote/FichaPublicacionJuridicaResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
   const n = Number(String(valor ?? '').trim());
-  if (!Number.isFinite(n) || n < 0) {
+  if (!Number.isFinite(n) || n <= 0) {
     throw new Error(`${etiqueta} no válido.`);
   }
   return n;
@@ -34,30 +33,26 @@ function aOrdenJuridico(valor: string): OrdenJuridico {
   throw new Error('Orden jurídico no válido.');
 }
 
-function aPublicacionDesdeDto(
-  dto: PublicacionJuridicaDetalleDto,
-  nombres: Partial<PublicacionJuridica> = {}
-): PublicacionJuridica {
-  const id = dto.idPublicacion ?? dto.id;
-  if (id == null) {
+function aPublicacionDesdeDto(dto: PublicacionJuridicaDetalleDto): PublicacionJuridica {
+  if (dto.idPublicacion == null) {
     throw new Error('Publicación jurídica recibida sin identificador.');
   }
 
   return {
-    id: String(id),
+    id: String(dto.idPublicacion),
     tipoPublicacionId: String(dto.tipoPublicacionId),
-    tipoPublicacionNombre: nombres.tipoPublicacionNombre ?? '',
+    tipoPublicacionNombre: dto.tipoPublicacionNombre?.trim() ?? '',
     titulo: dto.titulo?.trim() ?? '',
     editorial: dto.editorial?.trim() ?? '',
     paginas: Number(dto.paginas) || 0,
     numEdicion: dto.numEdicion?.trim() ?? '',
     auspicio: dto.auspicio?.trim() ?? '',
     paisId: String(dto.paisId),
-    paisNombre: nombres.paisNombre ?? '',
+    paisNombre: dto.paisNombre?.trim() ?? '',
     ordenJuridico: aOrdenJuridico(dto.ordenJuridico),
     especialidad: dto.especialidad?.trim() ?? '',
     institucionId: dto.institucionId != null ? String(dto.institucionId) : '',
-    institucionNombre: nombres.institucionNombre ?? '',
+    institucionNombre: dto.institucionNombre?.trim() ?? '',
     fechaPublicacion: dto.fechaPublicacion?.trim().slice(0, 10) ?? '',
     premiada: aPremiadaDesdeApi(dto.premiada),
     archivoId: dto.archivoId != null ? String(dto.archivoId) : null,
@@ -69,15 +64,33 @@ function sumarPuntajeItems(items: PublicacionJuridica[]): number {
   return items.reduce((total, item) => total + (Number(item.puntaje) || 0), 0);
 }
 
+function normalizarListaDetalle(
+  data: ObtenerPublicacionesJuridicasDataDto | PublicacionJuridicaDetalleDto[] | null | undefined
+): PublicacionJuridicaDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.publicacionesJuridicas ?? [];
+}
+
 export function toRubroPublicacionJuridicaDesdeDetalle(
-  data: PublicacionJuridicaDetalleDto[] | null | undefined
+  data: ObtenerPublicacionesJuridicasDataDto | PublicacionJuridicaDetalleDto[] | null | undefined
 ): RubroPublicacionJuridica {
-  const detalle = data ?? [];
+  const detalle = normalizarListaDetalle(data);
   const items = detalle.map((dto) => aPublicacionDesdeDto(dto));
+  const puntajeApi =
+    !Array.isArray(data) && data?.puntajeTotal != null
+      ? Number(data.puntajeTotal)
+      : sumarPuntajeItems(items);
 
   return {
     items,
-    puntajeTotal: sumarPuntajeItems(items),
+    puntajeTotal: Number.isFinite(puntajeApi) ? puntajeApi : sumarPuntajeItems(items),
   };
 }
 
@@ -137,48 +150,4 @@ export function toGuardarPublicacionJuridicaRequestDto(
   }
 
   return body;
-}
-
-export function aplicarPublicacionJuridicaEnFicha(
-  ficha: FichaValoracion,
-  item: PublicacionJuridica,
-  respuesta: PublicacionJuridicaDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroPublicacionJuridica ?? crearRubroPublicacionJuridicaVacio();
-  const guardado = aPublicacionDesdeDto(respuesta, {
-    tipoPublicacionNombre: item.tipoPublicacionNombre,
-    paisNombre: item.paisNombre,
-    institucionNombre: item.institucionNombre,
-  });
-
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== guardado.id
-  );
-  const items = [...sinAnterior, guardado];
-
-  return {
-    ...ficha,
-    rubroPublicacionJuridica: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarPublicacionJuridicaEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroPublicacionJuridica ?? crearRubroPublicacionJuridicaVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-
-  return {
-    ...ficha,
-    rubroPublicacionJuridica: {
-      items,
-      puntajeTotal: sumarPuntajeItems(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }
