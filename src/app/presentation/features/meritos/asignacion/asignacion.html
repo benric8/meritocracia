@@ -1,1 +1,159 @@
-<p>asignacion works!</p>
+<section class="asignacion">
+  <header>
+    <h1 class="asignacion__titulo">Asignación de registrador suplente</h1>
+    <p class="asignacion__subtitulo">
+      Asigne, cambie o retire el registrador suplente de cada ficha de valoración.
+    </p>
+  </header>
+
+  <form class="asignacion__filtros" [formGroup]="filtros" (submit)="onBuscar($event)" novalidate>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="asignacion__filtro">
+      <mat-label>Registrador titular</mat-label>
+      <mat-select formControlName="registradorTitularId" placeholder="Todos">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (registrador of registradores(); track registrador.id) {
+          <mat-option [value]="registrador.id">{{ etiquetaRegistrador(registrador) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="asignacion__filtro">
+      <mat-label>DNI del magistrado</mat-label>
+      <input
+        matInput
+        formControlName="dni"
+        inputmode="numeric"
+        maxlength="8"
+        autocomplete="off"
+        (input)="onDniInput($event)"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="asignacion__filtro">
+      <mat-label>Estado de suplencia</mat-label>
+      <mat-select formControlName="estadoSuplencia">
+        <mat-option value="TODOS">Todos</mat-option>
+        <mat-option value="CON">Con suplente</mat-option>
+        <mat-option value="SIN">Sin suplente</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="asignacion__filtros-acciones">
+      <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onLimpiar()">
+        <mat-icon>cleaning_services</mat-icon>
+        Limpiar
+      </button>
+      <button matButton="filled" type="submit" [disabled]="cargando()">
+        <mat-icon>search</mat-icon>
+        Buscar
+      </button>
+    </div>
+  </form>
+
+  <div class="asignacion__tabla-card" [class.asignacion__tabla-card--cargando]="cargando()">
+    <div class="asignacion__tabla-wrap">
+      <table class="asignacion__tabla">
+        <thead>
+          <tr>
+            <th scope="col">Código registrador</th>
+            <th scope="col">Magistrado</th>
+            <th scope="col">DNI</th>
+            <th scope="col">Fecha de valoración</th>
+            <th scope="col">Suplente</th>
+            <th scope="col">Observación</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of filas(); track fila.ficha.fichaId) {
+            <tr [formGroup]="fila.form">
+              <td [matTooltip]="fila.ficha.nombreRegistradorTitular" matTooltipPosition="above">
+                {{ fila.ficha.codigoRegistradorTitular }}
+              </td>
+              <td>{{ fila.ficha.nombreMagistrado }}</td>
+              <td>{{ fila.ficha.dniMagistrado }}</td>
+              <td>
+                {{ fila.ficha.fechaValoracion ? formatearFecha(fila.ficha.fechaValoracion) : '—' }}
+              </td>
+              <td>
+                <mat-form-field
+                  appearance="outline"
+                  subscriptSizing="dynamic"
+                  class="asignacion__select asignacion__select--suplente"
+                >
+                  <mat-select
+                    formControlName="suplenteId"
+                    placeholder="-- Sin suplente --"
+                    [attr.aria-label]="'Suplente de la ficha de ' + fila.ficha.nombreMagistrado"
+                  >
+                    <mat-option [value]="null">-- Sin suplente --</mat-option>
+                    @for (registrador of fila.opcionesSuplente; track registrador.id) {
+                      <mat-option [value]="registrador.id">
+                        {{ etiquetaRegistrador(registrador) }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field
+                  appearance="outline"
+                  subscriptSizing="dynamic"
+                  class="asignacion__select asignacion__select--motivo"
+                >
+                  <mat-select
+                    formControlName="motivo"
+                    placeholder="Seleccione motivo"
+                    [attr.aria-label]="'Motivo de suplencia de ' + fila.ficha.nombreMagistrado"
+                  >
+                    @for (motivo of motivos(); track motivo.codigo) {
+                      <mat-option [value]="motivo.codigo">{{ motivo.descripcion }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (motivoRequeridoSinElegir(fila)) {
+                    <mat-error>Seleccione un motivo.</mat-error>
+                  }
+                </mat-form-field>
+              </td>
+              <td>
+                <button
+                  matButton="filled"
+                  type="button"
+                  class="asignacion__guardar"
+                  [disabled]="!fila.puedeGuardar() || fila.guardando()"
+                  (click)="onGuardar(fila)"
+                >
+                  @if (fila.guardando()) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate" />
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  Guardar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="asignacion__vacio">
+                {{ cargando() ? 'Cargando registros...' : 'No se encontraron registros' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalRegistros() > 0) {
+      <mat-paginator
+        class="asignacion__paginador"
+        [length]="totalRegistros()"
+        [pageIndex]="paginaActual() - 1"
+        [pageSize]="tamanioPagina()"
+        [pageSizeOptions]="opcionesTamanioPagina"
+        [disabled]="cargando()"
+        (page)="onPaginaCambiada($event)"
+        aria-label="Paginación de suplencias"
+      />
+    }
+  </div>
+</section>

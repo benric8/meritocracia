@@ -68,6 +68,15 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     coincide: (url) => /fichas\/[^/]+\/estado\/?(\?.*)?$/.test(url),
   },
   {
+    method: 'PUT',
+    // Asignación de suplente: la fila revierte y muestra la descripción.
+    coincide: (url) => esRutaSuplenciaPorFicha(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaSuplenciaPorFicha(url),
+  },
+  {
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.CREAR),
   },
@@ -339,6 +348,11 @@ function esRutaReemplazoDocumento(url: string): boolean {
 
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/documentos\/[^/]+$/.test(path);
+}
+
+function esRutaSuplenciaPorFicha(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/suplencias\/\d+$/.test(path);
 }
 
 function esRutaAntiguedadPorId(url: string): boolean {

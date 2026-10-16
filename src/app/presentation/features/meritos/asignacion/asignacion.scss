@@ -1,0 +1,125 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  color: var(--mc-text);
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mc-primary),
+      filled-label-text-color: #ffffff,
+      outlined-label-text-color: var(--mc-primary),
+      outlined-outline-color: var(--mc-primary),
+    )
+  );
+}
+
+.asignacion {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.asignacion__titulo {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.asignacion__subtitulo {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--mc-text-muted);
+}
+
+.asignacion__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.asignacion__filtro {
+  flex: 1;
+  min-width: min(100%, 220px);
+}
+
+.asignacion__filtros-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.asignacion__tabla-card {
+  overflow: hidden;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.asignacion__tabla-card--cargando {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.asignacion__tabla-wrap {
+  overflow-x: auto;
+}
+
+.asignacion__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.asignacion__tabla th,
+.asignacion__tabla td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.asignacion__tabla th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-text-muted);
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.asignacion__tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.asignacion__tabla tbody tr:hover {
+  background: #fafbfc;
+}
+
+.asignacion__select {
+  @include mat.form-field-density(-4);
+}
+
+.asignacion__select--suplente {
+  width: 260px;
+}
+
+.asignacion__select--motivo {
+  width: 190px;
+}
+
+.asignacion__guardar {
+  white-space: nowrap;
+}
+
+.asignacion__vacio {
+  padding: 24px;
+  text-align: center;
+  color: var(--mc-text-muted);
+}
+
+.asignacion__paginador {
+  border-top: 1px solid var(--mc-border);
+  background: transparent;
+}
