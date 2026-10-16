@@ -1,7 +1,5 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
   AsistenciaEventoAcademico,
-  crearRubroAsistenciasEventosVacio,
   JuridicoAsistenciaEvento,
   LIMITE_TEMA_ASISTENCIA_EVENTO,
   ordenarAsistenciasEventos,
@@ -12,6 +10,7 @@ import {
 import {
   AsistenciaEventoDetalleDto,
   GuardarAsistenciaEventoRequestDto,
+  ObtenerAsistenciasEventosDataDto,
 } from '../dto/remote/FichaAsistenciasEventosResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -88,20 +87,38 @@ function aAsistenciaDesdeDto(dto: AsistenciaEventoDetalleDto): AsistenciaEventoA
   };
 }
 
-export function toRubroAsistenciasEventosDesdeDetalle(
-  data: AsistenciaEventoDetalleDto[] | null | undefined,
-  puntajeOficial?: number | null
-): RubroAsistenciasEventos {
-  const items = ordenarAsistenciasEventos((data ?? []).map((dto) => aAsistenciaDesdeDto(dto)));
-  const local = puntajeSubrubroAsistenciasEventos(items);
-  const oficial =
-    puntajeOficial != null && Number.isFinite(puntajeOficial) && puntajeOficial > 0
-      ? Math.min(TOPE_PUNTAJE_ASISTENCIAS_EVENTOS, puntajeOficial)
-      : local;
+function normalizarListaDetalle(
+  data: ObtenerAsistenciasEventosDataDto | AsistenciaEventoDetalleDto[] | null | undefined
+): AsistenciaEventoDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.asistenciasEventos ?? [];
+}
 
+function puntajeDeLista(
+  data: ObtenerAsistenciasEventosDataDto | AsistenciaEventoDetalleDto[] | null | undefined,
+  items: AsistenciaEventoAcademico[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_ASISTENCIAS_EVENTOS, api);
+  }
+  return puntajeSubrubroAsistenciasEventos(items);
+}
+
+export function toRubroAsistenciasEventosDesdeDetalle(
+  data: ObtenerAsistenciasEventosDataDto | AsistenciaEventoDetalleDto[] | null | undefined
+): RubroAsistenciasEventos {
+  const items = ordenarAsistenciasEventos(
+    normalizarListaDetalle(data).map((dto) => aAsistenciaDesdeDto(dto))
+  );
   return {
     items,
-    puntajeTotal: oficial,
+    puntajeTotal: puntajeDeLista(data, items),
   };
 }
 
@@ -143,48 +160,3 @@ export function toGuardarAsistenciaEventoRequestDto(
   return body;
 }
 
-export function aplicarAsistenciaEventoEnFicha(
-  ficha: FichaValoracion,
-  item: AsistenciaEventoAcademico,
-  respuesta: AsistenciaEventoDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroAsistenciasEventos ?? crearRubroAsistenciasEventosVacio();
-  const guardada = aAsistenciaDesdeDto(respuesta);
-  const conTextos: AsistenciaEventoAcademico = {
-    ...guardada,
-    eventoDescripcion: guardada.eventoDescripcion || item.eventoDescripcion,
-    institucionNombre: guardada.institucionNombre || item.institucionNombre,
-    nombrePais: guardada.nombrePais || item.nombrePais,
-    especialidadDescripcion: guardada.especialidadDescripcion || item.especialidadDescripcion,
-    modalidadDescripcion: guardada.modalidadDescripcion || item.modalidadDescripcion,
-    tipoDocumentoDescripcion: guardada.tipoDocumentoDescripcion || item.tipoDocumentoDescripcion,
-  };
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== conTextos.id
-  );
-
-  return {
-    ...ficha,
-    rubroAsistenciasEventos: {
-      items: ordenarAsistenciasEventos([...sinAnterior, conTextos]),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarAsistenciaEventoEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroAsistenciasEventos ?? crearRubroAsistenciasEventosVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-  return {
-    ...ficha,
-    rubroAsistenciasEventos: {
-      items,
-      puntajeTotal: puntajeSubrubroAsistenciasEventos(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}

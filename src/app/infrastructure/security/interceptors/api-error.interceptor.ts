@@ -192,6 +192,66 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
   },
   {
     method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.ESTUDIOS_POSGRADO),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaEstudioPosgradoPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaEstudioPosgradoPorId(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.PASANTIAS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaPasantiaPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaPasantiaPorId(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.CURSOS_ESPECIALIZACION),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaCursoEspecializacionPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaCursoEspecializacionPorId(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.CERTAMENES_ACADEMICOS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaCertamenAcademicoPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaCertamenAcademicoPorId(url),
+  },
+  {
+    method: 'POST',
+    coincide: (url) => esRutaExacta(url, fichaEndpoints.ASISTENCIAS_EVENTOS),
+  },
+  {
+    method: 'PUT',
+    coincide: (url) => esRutaAsistenciaEventoPorId(url),
+  },
+  {
+    method: 'DELETE',
+    coincide: (url) => esRutaAsistenciaEventoPorId(url),
+  },
+  {
+    method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.OFIMATICA),
   },
   {
@@ -329,6 +389,31 @@ function esRutaEstudioAmagPorId(url: string): boolean {
 function esRutaGradoTituloPorId(url: string): boolean {
   const path = url.split('?')[0].replace(/\/+$/, '');
   return /\/fichas-grados-titulos\/\d+$/.test(path);
+}
+
+function esRutaEstudioPosgradoPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-estudios-posgrado\/\d+$/.test(path);
+}
+
+function esRutaPasantiaPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-pasantias\/\d+$/.test(path);
+}
+
+function esRutaCursoEspecializacionPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-cursos-especializacion\/\d+$/.test(path);
+}
+
+function esRutaCertamenAcademicoPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-certamenes-academicos\/\d+$/.test(path);
+}
+
+function esRutaAsistenciaEventoPorId(url: string): boolean {
+  const path = url.split('?')[0].replace(/\/+$/, '');
+  return /\/fichas-asistencias-eventos\/\d+$/.test(path);
 }
 
 function esRutaOfimaticaPorId(url: string): boolean {

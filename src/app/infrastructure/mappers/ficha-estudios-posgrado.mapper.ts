@@ -1,19 +1,20 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
   ANIO_ESTUDIO_MAX,
   ANIO_ESTUDIO_MIN,
-  crearRubroEstudiosPosgradoVacio,
   EstudioPosgrado,
   LIMITE_MENCION_POSGRADO,
   NOTA_MAXIMA,
   NOTA_MINIMA,
+  puntajeSubrubroEstudiosPosgrado,
   RubroEstudiosPosgrado,
   SEMESTRE_MAXIMO,
   SEMESTRE_MINIMO,
+  TOPE_PUNTAJE_ESTUDIOS_POSGRADO,
 } from '../../domain/models/rubro-estudios-posgrado.model';
 import {
   EstudioPosgradoDetalleDto,
   GuardarEstudioPosgradoRequestDto,
+  ObtenerEstudiosPosgradoDataDto,
 } from '../dto/remote/FichaEstudiosPosgradoResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -78,8 +79,7 @@ function aNota(valor: number): number {
 }
 
 function aEstudioPosgradoDesdeDto(dto: EstudioPosgradoDetalleDto): EstudioPosgrado {
-  const id = dto.idEstudioPosgrado ?? dto.id;
-  if (id == null) {
+  if (dto.idEstudioPosgrado == null) {
     throw new Error('Estudio de posgrado recibido sin identificador.');
   }
 
@@ -87,7 +87,7 @@ function aEstudioPosgradoDesdeDto(dto: EstudioPosgradoDetalleDto): EstudioPosgra
   const promedio = dto.promedio == null ? null : Number(dto.promedio);
 
   return {
-    id: String(id),
+    id: String(dto.idEstudioPosgrado),
     institucionId: String(dto.institucionId),
     institucionNombre: dto.institucion?.trim() ?? '',
     paisId: String(dto.paisId),
@@ -104,12 +104,38 @@ function aEstudioPosgradoDesdeDto(dto: EstudioPosgradoDetalleDto): EstudioPosgra
   };
 }
 
+function normalizarListaDetalle(
+  data: ObtenerEstudiosPosgradoDataDto | EstudioPosgradoDetalleDto[] | null | undefined
+): EstudioPosgradoDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.estudiosPosgrado ?? [];
+}
+
+function puntajeDeLista(
+  data: ObtenerEstudiosPosgradoDataDto | EstudioPosgradoDetalleDto[] | null | undefined,
+  items: EstudioPosgrado[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, api);
+  }
+  return puntajeSubrubroEstudiosPosgrado(items);
+}
+
 export function toRubroEstudiosPosgradoDesdeDetalle(
-  data: EstudioPosgradoDetalleDto[] | null | undefined
+  data: ObtenerEstudiosPosgradoDataDto | EstudioPosgradoDetalleDto[] | null | undefined
 ): RubroEstudiosPosgrado {
+  const items = ordenarEstudiosPosgrado(
+    normalizarListaDetalle(data).map((dto) => aEstudioPosgradoDesdeDto(dto))
+  );
   return {
-    items: ordenarEstudiosPosgrado((data ?? []).map((dto) => aEstudioPosgradoDesdeDto(dto))),
-    puntajeTotal: 0,
+    items,
+    puntajeTotal: puntajeDeLista(data, items),
   };
 }
 
@@ -183,60 +209,4 @@ export function toGuardarEstudioPosgradoRequestDto(
   }
 
   return body;
-}
-
-export function aplicarEstudioPosgradoEnFicha(
-  ficha: FichaValoracion,
-  item: EstudioPosgrado,
-  respuesta: EstudioPosgradoDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
-  const guardado = aEstudioPosgradoDesdeDto(respuesta);
-  const conNombres: EstudioPosgrado = {
-    ...guardado,
-    institucionNombre: guardado.institucionNombre || item.institucionNombre,
-    paisNombre: guardado.paisNombre || item.paisNombre,
-  };
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== conNombres.id
-  );
-
-  return {
-    ...ficha,
-    rubroEstudiosPosgrado: {
-      items: ordenarEstudiosPosgrado([...sinAnterior, conNombres]),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function reemplazarEstudiosPosgradoEnFicha(
-  ficha: FichaValoracion,
-  detalle: EstudioPosgradoDetalleDto[]
-): FichaValoracion {
-  const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
-  return {
-    ...ficha,
-    rubroEstudiosPosgrado: {
-      items: detalle.map((dto) => aEstudioPosgradoDesdeDto(dto)),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarEstudioPosgradoEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
-  return {
-    ...ficha,
-    rubroEstudiosPosgrado: {
-      items: rubro.items.filter((item) => item.id !== itemId),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
 }

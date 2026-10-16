@@ -1,6 +1,4 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
-  crearRubroCursosEspecializacionVacio,
   CursoEspecializacion,
   JuridicoCurso,
   LIMITE_NOMBRE_CURSO,
@@ -12,6 +10,7 @@ import {
 import {
   CursoEspecializacionDetalleDto,
   GuardarCursoEspecializacionRequestDto,
+  ObtenerCursosEspecializacionDataDto,
 } from '../dto/remote/FichaCursosEspecializacionResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -93,20 +92,38 @@ function aCursoDesdeDto(dto: CursoEspecializacionDetalleDto): CursoEspecializaci
   };
 }
 
-export function toRubroCursosEspecializacionDesdeDetalle(
-  data: CursoEspecializacionDetalleDto[] | null | undefined,
-  puntajeOficial?: number | null
-): RubroCursosEspecializacion {
-  const items = ordenarCursosEspecializacion((data ?? []).map((dto) => aCursoDesdeDto(dto)));
-  const local = puntajeSubrubroCursosEspecializacion(items);
-  const oficial =
-    puntajeOficial != null && Number.isFinite(puntajeOficial) && puntajeOficial > 0
-      ? Math.min(TOPE_PUNTAJE_CURSOS_ESPECIALIZACION, puntajeOficial)
-      : local;
+function normalizarListaDetalle(
+  data: ObtenerCursosEspecializacionDataDto | CursoEspecializacionDetalleDto[] | null | undefined
+): CursoEspecializacionDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.cursosEspecializacion ?? [];
+}
 
+function puntajeDeLista(
+  data: ObtenerCursosEspecializacionDataDto | CursoEspecializacionDetalleDto[] | null | undefined,
+  items: CursoEspecializacion[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_CURSOS_ESPECIALIZACION, api);
+  }
+  return puntajeSubrubroCursosEspecializacion(items);
+}
+
+export function toRubroCursosEspecializacionDesdeDetalle(
+  data: ObtenerCursosEspecializacionDataDto | CursoEspecializacionDetalleDto[] | null | undefined
+): RubroCursosEspecializacion {
+  const items = ordenarCursosEspecializacion(
+    normalizarListaDetalle(data).map((dto) => aCursoDesdeDto(dto))
+  );
   return {
     items,
-    puntajeTotal: oficial,
+    puntajeTotal: puntajeDeLista(data, items),
   };
 }
 
@@ -147,47 +164,3 @@ export function toGuardarCursoEspecializacionRequestDto(
   return body;
 }
 
-export function aplicarCursoEspecializacionEnFicha(
-  ficha: FichaValoracion,
-  item: CursoEspecializacion,
-  respuesta: CursoEspecializacionDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroCursosEspecializacion ?? crearRubroCursosEspecializacionVacio();
-  const guardada = aCursoDesdeDto(respuesta);
-  const conTextos: CursoEspecializacion = {
-    ...guardada,
-    tipoCursoEspecializacionDescripcion:
-      guardada.tipoCursoEspecializacionDescripcion || item.tipoCursoEspecializacionDescripcion,
-    institucionNombre: guardada.institucionNombre || item.institucionNombre,
-    nombrePais: guardada.nombrePais || item.nombrePais,
-    especialidadDescripcion: guardada.especialidadDescripcion || item.especialidadDescripcion,
-  };
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== conTextos.id
-  );
-
-  return {
-    ...ficha,
-    rubroCursosEspecializacion: {
-      items: ordenarCursosEspecializacion([...sinAnterior, conTextos]),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarCursoEspecializacionEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroCursosEspecializacion ?? crearRubroCursosEspecializacionVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-  return {
-    ...ficha,
-    rubroCursosEspecializacion: {
-      items,
-      puntajeTotal: puntajeSubrubroCursosEspecializacion(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}

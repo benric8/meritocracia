@@ -32,14 +32,21 @@ export interface OfimaticaDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerOfimaticaDataDto {
+  estudiosOfimatica: OfimaticaDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerOfimaticaResponse extends BaseResponse {
-  data: OfimaticaDetalleDto[] | null;
+  data: ObtenerOfimaticaDataDto | OfimaticaDetalleDto[] | null;
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarOfimaticaResponse extends BaseResponse {
-  data: OfimaticaDetalleDto | null;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarOfimaticaResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }

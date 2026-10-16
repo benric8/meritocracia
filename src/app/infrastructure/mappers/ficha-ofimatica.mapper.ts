@@ -8,6 +8,7 @@ import {
 } from '../../domain/models/rubro-ofimatica.model';
 import {
   GuardarOfimaticaRequestDto,
+  ObtenerOfimaticaDataDto,
   OfimaticaDetalleDto,
 } from '../dto/remote/FichaOfimaticaResponse.dto';
 
@@ -80,74 +81,37 @@ function aOfimaticaDesdeDto(dto: OfimaticaDetalleDto): EstudioOfimatica {
   };
 }
 
-export function toRubroOfimaticaDesdeDetalle(
-  data: OfimaticaDetalleDto[] | null | undefined,
-  puntajeOficial?: number | null
-): RubroOfimatica {
-  const items = ordenarOfimatica((data ?? []).map((dto) => aOfimaticaDesdeDto(dto)));
-  const local = puntajeSubrubroOfimatica(items);
-  const oficial =
-    puntajeOficial != null && Number.isFinite(puntajeOficial) && puntajeOficial > 0
-      ? Math.min(TOPE_PUNTAJE_OFIMATICA, puntajeOficial)
-      : local;
+function normalizarListaDetalle(
+  data: ObtenerOfimaticaDataDto | OfimaticaDetalleDto[] | null | undefined
+): OfimaticaDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.estudiosOfimatica ?? [];
+}
 
+function puntajeDeLista(
+  data: ObtenerOfimaticaDataDto | OfimaticaDetalleDto[] | null | undefined,
+  items: EstudioOfimatica[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_OFIMATICA, api);
+  }
+  return puntajeSubrubroOfimatica(items);
+}
+
+export function toRubroOfimaticaDesdeDetalle(
+  data: ObtenerOfimaticaDataDto | OfimaticaDetalleDto[] | null | undefined
+): RubroOfimatica {
+  const items = ordenarOfimatica(normalizarListaDetalle(data).map((dto) => aOfimaticaDesdeDto(dto)));
   return {
     items,
-    puntajeTotal: oficial,
+    puntajeTotal: puntajeDeLista(data, items),
   };
-}
-
-/**
- * El listado no trae los textos de catálogo. Se conservan los de la línea previa
- * o los del formulario que acaba de guardarse.
- */
-export function conservarTextosOfimatica(
-  rubro: RubroOfimatica,
-  previos: EstudioOfimatica[],
-  enviado?: EstudioOfimatica
-): RubroOfimatica {
-  const porId = new Map(previos.map((item) => [item.id, item]));
-  return {
-    ...rubro,
-    items: rubro.items.map((item) => {
-      const base = textoReferencia(item, porId, enviado);
-      if (!base) {
-        return item;
-      }
-      return {
-        ...item,
-        institucionNombre: item.institucionNombre || base.institucionNombre,
-        nombrePais: item.nombrePais || base.nombrePais,
-        nivelOfimaticaCodigo: item.nivelOfimaticaCodigo || base.nivelOfimaticaCodigo,
-        nivelOfimaticaDescripcion:
-          item.nivelOfimaticaDescripcion || base.nivelOfimaticaDescripcion,
-        tipoDocumentoDescripcion: item.tipoDocumentoDescripcion || base.tipoDocumentoDescripcion,
-      };
-    }),
-  };
-}
-
-function textoReferencia(
-  item: EstudioOfimatica,
-  porId: Map<string, EstudioOfimatica>,
-  enviado?: EstudioOfimatica
-): EstudioOfimatica | undefined {
-  if (enviado?.id === item.id) {
-    return enviado;
-  }
-  const previo = porId.get(item.id);
-  if (previo) {
-    return previo;
-  }
-  if (!enviado) {
-    return undefined;
-  }
-  const coincide =
-    enviado.nombreCurso === item.nombreCurso &&
-    enviado.institucionId === item.institucionId &&
-    enviado.fechaObtencion === item.fechaObtencion &&
-    enviado.nivelOfimaticaId === item.nivelOfimaticaId;
-  return coincide ? enviado : undefined;
 }
 
 export function toGuardarOfimaticaRequestDto(

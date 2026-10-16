@@ -51,7 +51,6 @@ import {
   EstudioPosgrado,
   puntajeSubrubroEstudiosPosgrado,
   RubroEstudiosPosgrado,
-  TOPE_PUNTAJE_ESTUDIOS_POSGRADO,
 } from '../../../domain/models/rubro-estudios-posgrado.model';
 import {
   Pasantia,
@@ -208,37 +207,26 @@ import {
   toRubroDemeritoDesdeDetalle,
 } from '../../mappers/ficha-demerito.mapper';
 import {
-  aplicarEstudioPosgradoEnFicha,
-  eliminarEstudioPosgradoEnFicha,
   toGuardarEstudioPosgradoRequestDto,
   toRubroEstudiosPosgradoDesdeDetalle,
 } from '../../mappers/ficha-estudios-posgrado.mapper';
 import {
-  aplicarPasantiaEnFicha,
-  eliminarPasantiaEnFicha,
   toGuardarPasantiaRequestDto,
   toRubroPasantiasDesdeDetalle,
 } from '../../mappers/ficha-pasantias.mapper';
 import {
-  aplicarCursoEspecializacionEnFicha,
-  eliminarCursoEspecializacionEnFicha,
   toGuardarCursoEspecializacionRequestDto,
   toRubroCursosEspecializacionDesdeDetalle,
 } from '../../mappers/ficha-cursos-especializacion.mapper';
 import {
-  aplicarCertamenAcademicoEnFicha,
-  eliminarCertamenAcademicoEnFicha,
   toGuardarCertamenAcademicoRequestDto,
   toRubroCertamenesAcademicosDesdeDetalle,
 } from '../../mappers/ficha-certamenes-academicos.mapper';
 import {
-  aplicarAsistenciaEventoEnFicha,
-  eliminarAsistenciaEventoEnFicha,
   toGuardarAsistenciaEventoRequestDto,
   toRubroAsistenciasEventosDesdeDetalle,
 } from '../../mappers/ficha-asistencias-eventos.mapper';
 import {
-  conservarTextosOfimatica,
   toGuardarOfimaticaRequestDto,
   toRubroOfimaticaDesdeDetalle,
 } from '../../mappers/ficha-ofimatica.mapper';
@@ -1719,24 +1707,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const lineas = toRubroEstudiosPosgradoDesdeDetalle(respuesta.data);
-          const previo = this.fichasEnMemoria.get(id)?.rubroEstudiosPosgrado;
-          const oficial = previo?.puntajeTotal;
-          const puntajeTotal =
-            oficial != null && Number.isFinite(oficial) && oficial > 0
-              ? Math.min(TOPE_PUNTAJE_ESTUDIOS_POSGRADO, oficial)
-              : puntajeSubrubroEstudiosPosgrado(lineas.items);
-          const rubro: RubroEstudiosPosgrado = {
-            items: lineas.items.map((item) => {
-              const anterior = previo?.items.find((actual) => actual.id === item.id);
-              return {
-                ...item,
-                institucionNombre: item.institucionNombre || anterior?.institucionNombre || '',
-                paisNombre: item.paisNombre || anterior?.paisNombre || '',
-              };
-            }),
-            puntajeTotal,
-          };
+          const rubro = toRubroEstudiosPosgradoDesdeDetalle(respuesta.data);
           this.actualizarRubroEstudiosPosgradoEnMemoria(id, rubro);
           return rubro;
         }),
@@ -1751,7 +1722,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1778,16 +1748,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el semestre actualizado.'
-              : 'El servidor no devolvió el semestre guardado.',
-          });
-        }
-        this.guardarEnMemoria(aplicarEstudioPosgradoEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasEstudiosPosgrado(fichaId);
+        return this.obtenerRubroEstudiosPosgrado(fichaId);
       }),
+      map((rubro) => this.fichaConRubroEstudiosPosgrado(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar el semestre de posgrado.'
@@ -1813,7 +1776,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -1827,9 +1789,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarEstudioPosgradoResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        this.guardarEnMemoria(eliminarEstudioPosgradoEnFicha(ficha, idItem));
-        return this.refrescarFichaTrasEstudiosPosgrado(fichaId);
+        return this.obtenerRubroEstudiosPosgrado(fichaId);
       }),
+      map((rubro) => this.fichaConRubroEstudiosPosgrado(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el semestre de posgrado.')
     );
   }
@@ -1867,8 +1829,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const previo = this.fichasEnMemoria.get(id)?.rubroPasantias;
-          const rubro = toRubroPasantiasDesdeDetalle(respuesta.data, previo?.puntajeTotal);
+          const rubro = toRubroPasantiasDesdeDetalle(respuesta.data);
           this.actualizarRubroPasantiasEnMemoria(id, rubro);
           return rubro;
         }),
@@ -1883,7 +1844,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -1910,16 +1870,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la pasantía actualizada.'
-              : 'El servidor no devolvió la pasantía guardada.',
-          });
-        }
-        this.guardarEnMemoria(aplicarPasantiaEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasPasantias(fichaId);
+        return this.obtenerRubroPasantias(fichaId);
       }),
+      map((rubro) => this.fichaConRubroPasantias(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion ? 'No se pudo actualizar la pasantía.' : 'No se pudo guardar la pasantía.'
       )
@@ -1943,7 +1896,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -1957,9 +1909,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarPasantiaResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        this.guardarEnMemoria(eliminarPasantiaEnFicha(ficha, idItem));
-        return this.refrescarFichaTrasPasantias(fichaId);
+        return this.obtenerRubroPasantias(fichaId);
       }),
+      map((rubro) => this.fichaConRubroPasantias(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar la pasantía.')
     );
   }
@@ -2000,11 +1952,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const previo = this.fichasEnMemoria.get(id)?.rubroCursosEspecializacion;
-          const rubro = toRubroCursosEspecializacionDesdeDetalle(
-            respuesta.data,
-            previo?.puntajeTotal
-          );
+          const rubro = toRubroCursosEspecializacionDesdeDetalle(respuesta.data);
           this.actualizarRubroCursosEspecializacionEnMemoria(id, rubro);
           return rubro;
         }),
@@ -2022,7 +1970,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -2049,16 +1996,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el curso actualizado.'
-              : 'El servidor no devolvió el curso guardado.',
-          });
-        }
-        this.guardarEnMemoria(aplicarCursoEspecializacionEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasCursosEspecializacion(fichaId);
+        return this.obtenerRubroCursosEspecializacion(fichaId);
       }),
+      map((rubro) => this.fichaConRubroCursosEspecializacion(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar el curso de especialización.'
@@ -2084,7 +2024,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -2098,9 +2037,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarCursoEspecializacionResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        this.guardarEnMemoria(eliminarCursoEspecializacionEnFicha(ficha, idItem));
-        return this.refrescarFichaTrasCursosEspecializacion(fichaId);
+        return this.obtenerRubroCursosEspecializacion(fichaId);
       }),
+      map((rubro) => this.fichaConRubroCursosEspecializacion(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el curso de especialización.')
     );
   }
@@ -2141,11 +2080,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const previo = this.fichasEnMemoria.get(id)?.rubroCertamenesAcademicos;
-          const rubro = toRubroCertamenesAcademicosDesdeDetalle(
-            respuesta.data,
-            previo?.puntajeTotal
-          );
+          const rubro = toRubroCertamenesAcademicosDesdeDetalle(respuesta.data);
           this.actualizarRubroCertamenesAcademicosEnMemoria(id, rubro);
           return rubro;
         }),
@@ -2160,7 +2095,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -2187,16 +2121,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió el certamen actualizado.'
-              : 'El servidor no devolvió el certamen guardado.',
-          });
-        }
-        this.guardarEnMemoria(aplicarCertamenAcademicoEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasCertamenesAcademicos(fichaId);
+        return this.obtenerRubroCertamenesAcademicos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroCertamenesAcademicos(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar el certamen académico.'
@@ -2222,7 +2149,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -2236,9 +2162,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarCertamenAcademicoResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        this.guardarEnMemoria(eliminarCertamenAcademicoEnFicha(ficha, idItem));
-        return this.refrescarFichaTrasCertamenesAcademicos(fichaId);
+        return this.obtenerRubroCertamenesAcademicos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroCertamenesAcademicos(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el certamen académico.')
     );
   }
@@ -2279,11 +2205,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const previo = this.fichasEnMemoria.get(id)?.rubroAsistenciasEventos;
-          const rubro = toRubroAsistenciasEventosDesdeDetalle(
-            respuesta.data,
-            previo?.puntajeTotal
-          );
+          const rubro = toRubroAsistenciasEventosDesdeDetalle(respuesta.data);
           this.actualizarRubroAsistenciasEventosEnMemoria(id, rubro);
           return rubro;
         }),
@@ -2301,7 +2223,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -2328,16 +2249,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la asistencia actualizada.'
-              : 'El servidor no devolvió la asistencia guardada.',
-          });
-        }
-        this.guardarEnMemoria(aplicarAsistenciaEventoEnFicha(ficha, item, respuesta.data));
-        return this.refrescarFichaTrasAsistenciasEventos(fichaId);
+        return this.obtenerRubroAsistenciasEventos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroAsistenciasEventos(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar la asistencia al evento.'
@@ -2363,7 +2277,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -2377,9 +2290,9 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http.delete<EliminarAsistenciaEventoResponse>(url, { params }).pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        this.guardarEnMemoria(eliminarAsistenciaEventoEnFicha(ficha, idItem));
-        return this.refrescarFichaTrasAsistenciasEventos(fichaId);
+        return this.obtenerRubroAsistenciasEventos(fichaId);
       }),
+      map((rubro) => this.fichaConRubroAsistenciasEventos(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar la asistencia al evento.')
     );
   }
@@ -2395,7 +2308,6 @@ export class FichaHttpAdapter implements FichaPort {
       return throwError(() => error);
     }
 
-    this.asegurarFichaEnMemoria(fichaId);
     const itemId = item.id?.trim() ?? '';
     const esActualizacion = esIdPersistidoApi(itemId);
 
@@ -2423,9 +2335,9 @@ export class FichaHttpAdapter implements FichaPort {
     return request$.pipe(
       switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        return this.recargarListaOfimatica(fichaId, item);
+        return this.recargarListaOfimatica(fichaId);
       }),
-      switchMap(() => this.refrescarFichaTrasOfimatica(fichaId)),
+      map((rubro) => this.fichaConRubroOfimatica(fichaId, rubro)),
       mapearAErrorNegocioApi(
         esActualizacion
           ? 'No se pudo actualizar el estudio de ofimática.'
@@ -2451,7 +2363,6 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    this.asegurarFichaEnMemoria(fichaId);
     let rubroId: number;
     try {
       rubroId = this.obtenerIdRubroEstudiosPosgrado();
@@ -2469,15 +2380,12 @@ export class FichaHttpAdapter implements FichaPort {
         assertRespuestaExitosa(respuesta);
         return this.recargarListaOfimatica(fichaId);
       }),
-      switchMap(() => this.refrescarFichaTrasOfimatica(fichaId)),
+      map((rubro) => this.fichaConRubroOfimatica(fichaId, rubro)),
       mapearAErrorNegocioApi('No se pudo eliminar el estudio de ofimática.')
     );
   }
 
-  private recargarListaOfimatica(
-    fichaId: string,
-    enviado?: EstudioOfimatica
-  ): Observable<RubroOfimatica> {
+  private recargarListaOfimatica(fichaId: string): Observable<RubroOfimatica> {
     try {
       this.asegurarTokenOpciones();
     } catch (error) {
@@ -2511,12 +2419,7 @@ export class FichaHttpAdapter implements FichaPort {
       .pipe(
         map((respuesta) => {
           assertRespuestaExitosa(respuesta);
-          const previo = this.fichasEnMemoria.get(id)?.rubroOfimatica;
-          const rubro = conservarTextosOfimatica(
-            toRubroOfimaticaDesdeDetalle(respuesta.data, previo?.puntajeTotal),
-            previo?.items ?? [],
-            enviado
-          );
+          const rubro = toRubroOfimaticaDesdeDetalle(respuesta.data);
           this.actualizarRubroOfimaticaEnMemoria(id, rubro);
           return rubro;
         }),
@@ -3099,15 +3002,7 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  /**
-   * El listado de semestres no trae el subtotal topado. Tras guardar o eliminar
-   * se vuelve a leer la ficha para refrescar ese subtotal y el total.
-   */
-  private refrescarFichaTrasEstudiosPosgrado(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalEstudiosPosgrado(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalEstudiosPosgrado(
     ficha: FichaValoracion,
@@ -3124,21 +3019,14 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalEstudiosPosgrado(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroEstudiosPosgrado ?? crearRubroEstudiosPosgradoVacio();
+
+  private fichaConRubroEstudiosPosgrado(fichaId: string, rubro: RubroEstudiosPosgrado): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
     return this.guardarEnMemoria({
-      ...actual,
-      rubroEstudiosPosgrado: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroEstudiosPosgrado(rubro.items),
-      },
+      ...ficha,
+      rubroEstudiosPosgrado: rubro,
+      actualizadoEn: new Date().toISOString(),
     });
   }
 
@@ -3166,15 +3054,7 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  /**
-   * El listado no trae el subtotal topado del subrubro. Tras guardar o eliminar
-   * se vuelve a leer la ficha: si viene el código E2 se usa ese puntaje.
-   */
-  private refrescarFichaTrasPasantias(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalPasantias(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalPasantias(
     ficha: FichaValoracion,
@@ -3191,33 +3071,9 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalPasantias(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroPasantias ?? crearRubroPasantiasVacio();
-    return this.guardarEnMemoria({
-      ...actual,
-      rubroPasantias: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroPasantias(rubro.items),
-      },
-    });
-  }
 
-  /**
-   * El listado no trae el subtotal topado del subrubro. Tras guardar o eliminar
-   * se vuelve a leer la ficha: si viene el código E3 se usa ese puntaje.
-   */
-  private refrescarFichaTrasCursosEspecializacion(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalCursosEspecializacion(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalCursosEspecializacion(
     ficha: FichaValoracion,
@@ -3234,33 +3090,9 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalCursosEspecializacion(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroCursosEspecializacion ?? crearRubroCursosEspecializacionVacio();
-    return this.guardarEnMemoria({
-      ...actual,
-      rubroCursosEspecializacion: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroCursosEspecializacion(rubro.items),
-      },
-    });
-  }
 
-  /**
-   * El listado no trae el subtotal topado del subrubro. Tras guardar o eliminar
-   * se vuelve a leer la ficha: si viene el código E4 se usa ese puntaje.
-   */
-  private refrescarFichaTrasCertamenesAcademicos(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalCertamenesAcademicos(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalCertamenesAcademicos(
     ficha: FichaValoracion,
@@ -3277,33 +3109,9 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalCertamenesAcademicos(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroCertamenesAcademicos ?? crearRubroCertamenesAcademicosVacio();
-    return this.guardarEnMemoria({
-      ...actual,
-      rubroCertamenesAcademicos: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroCertamenesAcademicos(rubro.items),
-      },
-    });
-  }
 
-  /**
-   * El listado no trae el subtotal topado del subrubro. Tras guardar o eliminar
-   * se vuelve a leer la ficha: si viene el código E5 se usa ese puntaje.
-   */
-  private refrescarFichaTrasAsistenciasEventos(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalAsistenciasEventos(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalAsistenciasEventos(
     ficha: FichaValoracion,
@@ -3320,21 +3128,14 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalAsistenciasEventos(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroAsistenciasEventos ?? crearRubroAsistenciasEventosVacio();
+
+  private fichaConRubroAsistenciasEventos(fichaId: string, rubro: RubroAsistenciasEventos): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
     return this.guardarEnMemoria({
-      ...actual,
-      rubroAsistenciasEventos: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroAsistenciasEventos(rubro.items),
-      },
+      ...ficha,
+      rubroAsistenciasEventos: rubro,
+      actualizadoEn: new Date().toISOString(),
     });
   }
 
@@ -3362,15 +3163,7 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  /**
-   * El listado no trae el subtotal topado del subrubro. Tras guardar o eliminar
-   * se vuelve a leer la ficha: si viene el código E6 se usa ese puntaje.
-   */
-  private refrescarFichaTrasOfimatica(fichaId: string): Observable<FichaValoracion> {
-    return this.obtenerPorId(fichaId).pipe(
-      catchError(() => of(this.conTopeLocalOfimatica(fichaId)))
-    );
-  }
+
 
   private aplicarSubtotalOfimatica(
     ficha: FichaValoracion,
@@ -3387,21 +3180,14 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
-  private conTopeLocalOfimatica(fichaId: string): FichaValoracion {
-    const actual = this.fichasEnMemoria.get(fichaId.trim());
-    if (!actual) {
-      throw new ErrorNegocioApi({
-        mensaje: 'No se pudo refrescar el puntaje de la ficha.',
-      });
-    }
 
-    const rubro = actual.rubroOfimatica ?? crearRubroOfimaticaVacio();
+
+  private fichaConRubroOfimatica(fichaId: string, rubro: RubroOfimatica): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
     return this.guardarEnMemoria({
-      ...actual,
-      rubroOfimatica: {
-        ...rubro,
-        puntajeTotal: puntajeSubrubroOfimatica(rubro.items),
-      },
+      ...ficha,
+      rubroOfimatica: rubro,
+      actualizadoEn: new Date().toISOString(),
     });
   }
 
@@ -3422,6 +3208,15 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroOfimatica: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroCertamenesAcademicos(fichaId: string, rubro: RubroCertamenesAcademicos): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroCertamenesAcademicos: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }
@@ -3450,6 +3245,15 @@ export class FichaHttpAdapter implements FichaPort {
     });
   }
 
+  private fichaConRubroCursosEspecializacion(fichaId: string, rubro: RubroCursosEspecializacion): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroCursosEspecializacion: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
   private actualizarRubroCursosEspecializacionEnMemoria(
     fichaId: string,
     rubro: RubroCursosEspecializacion
@@ -3470,6 +3274,15 @@ export class FichaHttpAdapter implements FichaPort {
     this.guardarEnMemoria({
       ...stub,
       rubroCursosEspecializacion: rubro,
+      actualizadoEn: new Date().toISOString(),
+    });
+  }
+
+  private fichaConRubroPasantias(fichaId: string, rubro: RubroPasantias): FichaValoracion {
+    const ficha = this.asegurarFichaEnMemoria(fichaId);
+    return this.guardarEnMemoria({
+      ...ficha,
+      rubroPasantias: rubro,
       actualizadoEn: new Date().toISOString(),
     });
   }

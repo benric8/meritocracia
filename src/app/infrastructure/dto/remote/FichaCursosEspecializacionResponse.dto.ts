@@ -35,14 +35,21 @@ export interface CursoEspecializacionDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerCursosEspecializacionDataDto {
+  cursosEspecializacion: CursoEspecializacionDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerCursosEspecializacionResponse extends BaseResponse {
-  data: CursoEspecializacionDetalleDto[];
+  data: ObtenerCursosEspecializacionDataDto | CursoEspecializacionDetalleDto[];
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarCursoEspecializacionResponse extends BaseResponse {
-  data: CursoEspecializacionDetalleDto;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarCursoEspecializacionResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }

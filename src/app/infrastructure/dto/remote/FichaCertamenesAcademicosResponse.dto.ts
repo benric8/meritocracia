@@ -16,38 +16,44 @@ export interface GuardarCertamenAcademicoRequestDto {
   archivoId: number | null;
 }
 
-/** Línea de GET/POST/PUT. El nombre llega en `institucion`. El puntaje es el valor guardado. */
+/** Ítem de `GET fichas-certamenes-academicos` (`CertamenAcademicoResponse`). */
 export interface CertamenAcademicoDetalleDto {
   idCertamenAcademico: number;
-  idFichaValoracion?: number;
   eventoId: number;
+  eventoDescripcion?: string | null;
   tipoParticipacionId: number;
+  tipoParticipacionDescripcion?: string | null;
   institucionId: number;
-  /** Nombre, o el objeto `{ nombre }` del catálogo de instituciones. */
-  institucion?:
-    | string
-    | { id?: number | string; nombre?: string | null; descripcion?: string | null }
-    | null;
   institucionNombre?: string | null;
   paisId: number;
+  nombrePais?: string | null;
   fechaInicio: string;
   fechaFin: string;
   juridico: string;
   especialidadId: number;
+  especialidadDescripcion?: string | null;
   tema: string;
   modalidadId: number;
+  modalidadDescripcion?: string | null;
   archivoId?: number | null;
   puntaje: number;
 }
 
+export interface ObtenerCertamenesAcademicosDataDto {
+  certamenesAcademicos: CertamenAcademicoDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerCertamenesAcademicosResponse extends BaseResponse {
-  data: CertamenAcademicoDetalleDto[];
+  data: ObtenerCertamenesAcademicosDataDto | CertamenAcademicoDetalleDto[];
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarCertamenAcademicoResponse extends BaseResponse {
-  data: CertamenAcademicoDetalleDto;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarCertamenAcademicoResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }

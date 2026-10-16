@@ -1,6 +1,4 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
-  crearRubroPasantiasVacio,
   JuridicoPasantia,
   LIMITE_MENCION_PASANTIA,
   ordenarPasantias,
@@ -11,6 +9,7 @@ import {
 } from '../../domain/models/rubro-pasantias.model';
 import {
   GuardarPasantiaRequestDto,
+  ObtenerPasantiasDataDto,
   PasantiaDetalleDto,
 } from '../dto/remote/FichaPasantiasResponse.dto';
 
@@ -80,20 +79,36 @@ function aPasantiaDesdeDto(dto: PasantiaDetalleDto): Pasantia {
   };
 }
 
-export function toRubroPasantiasDesdeDetalle(
-  data: PasantiaDetalleDto[] | null | undefined,
-  puntajeOficial?: number | null
-): RubroPasantias {
-  const items = ordenarPasantias((data ?? []).map((dto) => aPasantiaDesdeDto(dto)));
-  const local = puntajeSubrubroPasantias(items);
-  const oficial =
-    puntajeOficial != null && Number.isFinite(puntajeOficial) && puntajeOficial > 0
-      ? Math.min(TOPE_PUNTAJE_PASANTIAS, puntajeOficial)
-      : local;
+function normalizarListaDetalle(
+  data: ObtenerPasantiasDataDto | PasantiaDetalleDto[] | null | undefined
+): PasantiaDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.pasantias ?? [];
+}
 
+function puntajeDeLista(
+  data: ObtenerPasantiasDataDto | PasantiaDetalleDto[] | null | undefined,
+  items: Pasantia[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_PASANTIAS, api);
+  }
+  return puntajeSubrubroPasantias(items);
+}
+
+export function toRubroPasantiasDesdeDetalle(
+  data: ObtenerPasantiasDataDto | PasantiaDetalleDto[] | null | undefined
+): RubroPasantias {
+  const items = ordenarPasantias(normalizarListaDetalle(data).map((dto) => aPasantiaDesdeDto(dto)));
   return {
     items,
-    puntajeTotal: oficial,
+    puntajeTotal: puntajeDeLista(data, items),
   };
 }
 
@@ -133,45 +148,3 @@ export function toGuardarPasantiaRequestDto(
   return body;
 }
 
-export function aplicarPasantiaEnFicha(
-  ficha: FichaValoracion,
-  item: Pasantia,
-  respuesta: PasantiaDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroPasantias ?? crearRubroPasantiasVacio();
-  const guardada = aPasantiaDesdeDto(respuesta);
-  const conTextos: Pasantia = {
-    ...guardada,
-    tipoPasantiaDescripcion:
-      guardada.tipoPasantiaDescripcion || item.tipoPasantiaDescripcion,
-    institucionNombre: guardada.institucionNombre || item.institucionNombre,
-    paisNombre: guardada.paisNombre || item.paisNombre,
-    especialidadDescripcion:
-      guardada.especialidadDescripcion || item.especialidadDescripcion,
-  };
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== conTextos.id
-  );
-
-  return {
-    ...ficha,
-    rubroPasantias: {
-      items: ordenarPasantias([...sinAnterior, conTextos]),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarPasantiaEnFicha(ficha: FichaValoracion, itemId: string): FichaValoracion {
-  const rubro = ficha.rubroPasantias ?? crearRubroPasantiasVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-  return {
-    ...ficha,
-    rubroPasantias: {
-      items,
-      puntajeTotal: puntajeSubrubroPasantias(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}

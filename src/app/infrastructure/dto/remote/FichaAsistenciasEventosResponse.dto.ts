@@ -41,14 +41,21 @@ export interface AsistenciaEventoDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerAsistenciasEventosDataDto {
+  asistenciasEventos: AsistenciaEventoDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerAsistenciasEventosResponse extends BaseResponse {
-  data: AsistenciaEventoDetalleDto[] | null;
+  data: ObtenerAsistenciasEventosDataDto | AsistenciaEventoDetalleDto[] | null;
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarAsistenciaEventoResponse extends BaseResponse {
-  data: AsistenciaEventoDetalleDto | null;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarAsistenciaEventoResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }

@@ -1,7 +1,5 @@
-import { FichaValoracion } from '../../domain/models/ficha-valoracion.model';
 import {
   CertamenAcademico,
-  crearRubroCertamenesAcademicosVacio,
   JuridicoCertamen,
   LIMITE_TEMA_CERTAMEN,
   ordenarCertamenesAcademicos,
@@ -12,6 +10,7 @@ import {
 import {
   CertamenAcademicoDetalleDto,
   GuardarCertamenAcademicoRequestDto,
+  ObtenerCertamenesAcademicosDataDto,
 } from '../dto/remote/FichaCertamenesAcademicosResponse.dto';
 
 function aNumeroId(valor: string, etiqueta: string): number {
@@ -56,29 +55,6 @@ function aArchivoId(valor: string | null): number | null {
   return aNumeroId(String(valor), 'Archivo');
 }
 
-function textoNombre(valor: unknown): string {
-  if (typeof valor === 'string' || typeof valor === 'number') {
-    return String(valor).trim();
-  }
-  if (valor && typeof valor === 'object') {
-    const objeto = valor as { nombre?: unknown; descripcion?: unknown };
-    return textoNombre(objeto.nombre ?? objeto.descripcion);
-  }
-  return '';
-}
-
-function aNombreInstitucion(dto: CertamenAcademicoDetalleDto): string {
-  const id = String(dto.institucionId ?? '').trim();
-  const candidatos = [dto.institucion, dto.institucionNombre];
-  for (const candidato of candidatos) {
-    const texto = textoNombre(candidato);
-    if (texto && texto !== id) {
-      return texto;
-    }
-  }
-  return '';
-}
-
 function aCertamenDesdeDto(dto: CertamenAcademicoDetalleDto): CertamenAcademico {
   if (dto.idCertamenAcademico == null) {
     throw new Error('Certamen recibido sin identificador.');
@@ -90,40 +66,58 @@ function aCertamenDesdeDto(dto: CertamenAcademicoDetalleDto): CertamenAcademico 
   return {
     id: String(dto.idCertamenAcademico),
     eventoId: String(dto.eventoId),
-    eventoDescripcion: '',
+    eventoDescripcion: dto.eventoDescripcion?.trim() ?? '',
     tipoParticipacionId: String(dto.tipoParticipacionId),
-    tipoParticipacionDescripcion: '',
+    tipoParticipacionDescripcion: dto.tipoParticipacionDescripcion?.trim() ?? '',
     institucionId: String(dto.institucionId),
-    institucionNombre: aNombreInstitucion(dto),
+    institucionNombre: dto.institucionNombre?.trim() ?? '',
     paisId: String(dto.paisId),
-    nombrePais: '',
+    nombrePais: dto.nombrePais?.trim() ?? '',
     fechaInicio: aFecha(dto.fechaInicio, 'Fecha de inicio'),
     fechaFin: aFecha(dto.fechaFin, 'Fecha de fin'),
     juridico: aJuridico(dto.juridico),
     especialidadId: String(dto.especialidadId),
-    especialidadDescripcion: '',
+    especialidadDescripcion: dto.especialidadDescripcion?.trim() ?? '',
     tema: aTema(dto.tema),
     modalidadId: String(dto.modalidadId),
-    modalidadDescripcion: '',
+    modalidadDescripcion: dto.modalidadDescripcion?.trim() ?? '',
     archivoId,
     puntaje: Number.isFinite(puntaje) ? puntaje : 0,
   };
 }
 
-export function toRubroCertamenesAcademicosDesdeDetalle(
-  data: CertamenAcademicoDetalleDto[] | null | undefined,
-  puntajeOficial?: number | null
-): RubroCertamenesAcademicos {
-  const items = ordenarCertamenesAcademicos((data ?? []).map((dto) => aCertamenDesdeDto(dto)));
-  const local = puntajeSubrubroCertamenesAcademicos(items);
-  const oficial =
-    puntajeOficial != null && Number.isFinite(puntajeOficial) && puntajeOficial > 0
-      ? Math.min(TOPE_PUNTAJE_CERTAMENES_ACADEMICOS, puntajeOficial)
-      : local;
+function normalizarListaDetalle(
+  data: ObtenerCertamenesAcademicosDataDto | CertamenAcademicoDetalleDto[] | null | undefined
+): CertamenAcademicoDetalleDto[] {
+  if (!data) {
+    return [];
+  }
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.certamenesAcademicos ?? [];
+}
 
+function puntajeDeLista(
+  data: ObtenerCertamenesAcademicosDataDto | CertamenAcademicoDetalleDto[] | null | undefined,
+  items: CertamenAcademico[]
+): number {
+  const api = !Array.isArray(data) && data?.puntajeTotal != null ? Number(data.puntajeTotal) : NaN;
+  if (Number.isFinite(api)) {
+    return Math.min(TOPE_PUNTAJE_CERTAMENES_ACADEMICOS, api);
+  }
+  return puntajeSubrubroCertamenesAcademicos(items);
+}
+
+export function toRubroCertamenesAcademicosDesdeDetalle(
+  data: ObtenerCertamenesAcademicosDataDto | CertamenAcademicoDetalleDto[] | null | undefined
+): RubroCertamenesAcademicos {
+  const items = ordenarCertamenesAcademicos(
+    normalizarListaDetalle(data).map((dto) => aCertamenDesdeDto(dto))
+  );
   return {
     items,
-    puntajeTotal: oficial,
+    puntajeTotal: puntajeDeLista(data, items),
   };
 }
 
@@ -165,49 +159,3 @@ export function toGuardarCertamenAcademicoRequestDto(
   return body;
 }
 
-export function aplicarCertamenAcademicoEnFicha(
-  ficha: FichaValoracion,
-  item: CertamenAcademico,
-  respuesta: CertamenAcademicoDetalleDto
-): FichaValoracion {
-  const rubro = ficha.rubroCertamenesAcademicos ?? crearRubroCertamenesAcademicosVacio();
-  const guardada = aCertamenDesdeDto(respuesta);
-  const conTextos: CertamenAcademico = {
-    ...guardada,
-    eventoDescripcion: guardada.eventoDescripcion || item.eventoDescripcion,
-    tipoParticipacionDescripcion:
-      guardada.tipoParticipacionDescripcion || item.tipoParticipacionDescripcion,
-    institucionNombre: guardada.institucionNombre || item.institucionNombre,
-    nombrePais: guardada.nombrePais || item.nombrePais,
-    especialidadDescripcion: guardada.especialidadDescripcion || item.especialidadDescripcion,
-    modalidadDescripcion: guardada.modalidadDescripcion || item.modalidadDescripcion,
-  };
-  const sinAnterior = rubro.items.filter(
-    (actual) => actual.id !== item.id && actual.id !== conTextos.id
-  );
-
-  return {
-    ...ficha,
-    rubroCertamenesAcademicos: {
-      items: ordenarCertamenesAcademicos([...sinAnterior, conTextos]),
-      puntajeTotal: rubro.puntajeTotal,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarCertamenAcademicoEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroCertamenesAcademicos ?? crearRubroCertamenesAcademicosVacio();
-  const items = rubro.items.filter((item) => item.id !== itemId);
-  return {
-    ...ficha,
-    rubroCertamenesAcademicos: {
-      items,
-      puntajeTotal: puntajeSubrubroCertamenesAcademicos(items),
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}

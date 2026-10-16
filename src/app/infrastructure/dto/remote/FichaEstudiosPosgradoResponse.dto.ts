@@ -14,10 +14,9 @@ export interface GuardarEstudioPosgradoRequestDto {
   notas: number[];
 }
 
+/** Ítem de `GET fichas-estudios-posgrado` (`EstudioPosgradoResponse`). */
 export interface EstudioPosgradoDetalleDto {
-  idEstudioPosgrado?: number;
-  id?: number;
-  idFichaValoracion?: number;
+  idEstudioPosgrado: number;
   institucionId: number;
   /** Nombre de la universidad. Solo viene en la respuesta. */
   institucion?: string | null;
@@ -34,14 +33,21 @@ export interface EstudioPosgradoDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerEstudiosPosgradoDataDto {
+  estudiosPosgrado: EstudioPosgradoDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerEstudiosPosgradoResponse extends BaseResponse {
-  data: EstudioPosgradoDetalleDto[];
+  data: ObtenerEstudiosPosgradoDataDto | EstudioPosgradoDetalleDto[];
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarEstudioPosgradoResponse extends BaseResponse {
-  data: EstudioPosgradoDetalleDto;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarEstudioPosgradoResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }

@@ -33,14 +33,21 @@ export interface PasantiaDetalleDto {
   puntaje: number;
 }
 
+export interface ObtenerPasantiasDataDto {
+  pasantias: PasantiaDetalleDto[];
+  puntajeTotal?: number;
+}
+
 export interface ObtenerPasantiasResponse extends BaseResponse {
-  data: PasantiaDetalleDto[];
+  data: ObtenerPasantiasDataDto | PasantiaDetalleDto[];
 }
 
+/** POST 201 y PUT 200: acuse de éxito, sin el registro ni la lista. */
 export interface GuardarPasantiaResponse extends BaseResponse {
-  data: PasantiaDetalleDto;
+  data?: unknown;
 }
 
+/** DELETE 200: acuse de éxito. La lista vigente se vuelve a consultar con el GET. */
 export interface EliminarPasantiaResponse extends BaseResponse {
-  data?: null;
+  data?: unknown;
 }
