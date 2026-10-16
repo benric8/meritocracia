@@ -9,20 +9,17 @@ import {
   RubroAntiguedad,
   TitularidadActual,
 } from '../../domain/models/rubro-antiguedad.model';
+import { TiempoServicio } from '../../domain/models/tiempo-servicio.model';
 import {
-  TiempoServicio,
-  TIEMPO_SERVICIO_CERO,
-} from '../../domain/models/tiempo-servicio.model';
-import {
-  GuardarColegiaturaDataDto,
   GuardarColegiaturaRequestDto,
   GuardarPeriodoInmediatoDataDto,
   GuardarPeriodoInmediatoRequestDto,
-  GuardarProvisionalidadDataDto,
   GuardarProvisionalidadRequestDto,
   GuardarTitularidadDataDto,
   GuardarTitularidadRequestDto,
   ObtenerAntiguedadDataDto,
+  ObtenerColegiaturasDataDto,
+  ObtenerProvisionalidadesDataDto,
 } from '../dto/remote/FichaAntiguedadResponse.dto';
 
 export function aTiempoServicioDesdePartes(
@@ -127,9 +124,9 @@ export function toGuardarProvisionalidadRequestDto(
     idFichaAntiguedad: aNumeroId(idFichaAntiguedad, 'Antigüedad'),
     nivelMagistradoProvisionalId: aNumeroId(item.cargoId, 'Cargo provisional'),
     fechaInicio: item.fechaInicio.trim().slice(0, 10),
-    fechaFin: item.fechaFin.trim().slice(0, 10),
-    documentoSustentatorio: item.documento.trim(),
-    organoJurisdiccional: item.organoJurisdiccional.trim(),
+    fechaFin: item.fechaFin?.trim() ? item.fechaFin.trim().slice(0, 10) : null,
+    documentoSustentatorio: item.documento?.trim() || null,
+    organoJurisdiccional: item.organoJurisdiccional?.trim() || null,
   };
 }
 
@@ -151,25 +148,6 @@ export function toRubroAntiguedadDesdeDetalle(data: ObtenerAntiguedadDataDto): R
   if (!antiguedad) {
     return base;
   }
-
-  const provisionalidades: Provisionalidad[] = (data.provisionalidades ?? []).map((item) => ({
-    id: String(item.idProvisionalidad),
-    fechaInicio: item.fechaInicio,
-    fechaFin: item.fechaFin,
-    tiempoTotal: aTiempoServicioDesdePartes(item.anios, item.meses, item.dias),
-    cargoId: String(item.nivelMagistradoProvisionalId),
-    cargoNombre: '',
-    organoJurisdiccional: item.organoJurisdiccional ?? '',
-    documento: item.documentoSustentatorio ?? '',
-  }));
-
-  const colegiaturas: Colegiatura[] = (data.colegiaturas ?? []).map((item) => ({
-    id: String(item.idColegiatura),
-    colegioId: String(item.colegioProfesional?.colegioProfesionalId ?? ''),
-    colegioNombre: item.colegioProfesional?.descripcion?.trim() ?? '',
-    fechaColegiatura: item.fechaInicio,
-    anios: Number(item.anios) || 0,
-  }));
 
   const periodo = data.periodoInmediato;
 
@@ -204,10 +182,48 @@ export function toRubroAntiguedadDesdeDetalle(data: ObtenerAntiguedadDataDto): R
           tiempoTotal: aTiempoServicioDesdePartes(periodo.anios, periodo.meses, periodo.dias),
         }
       : base.periodoNivelAnterior,
-    provisionalidades,
-    sumaProvisionalidades: sumarTiemposLocal(provisionalidades.map((p) => p.tiempoTotal)),
-    colegiaturas,
+    provisionalidades: base.provisionalidades,
+    sumaProvisionalidades: base.sumaProvisionalidades,
+    colegiaturas: base.colegiaturas,
   };
+}
+
+/** `GET fichas-antiguedad/provisionalidad`: filas vigentes y suma calculada por el servidor. */
+export function toProvisionalidadesDesdeDetalle(
+  data: ObtenerProvisionalidadesDataDto | null | undefined
+): Pick<RubroAntiguedad, 'provisionalidades' | 'sumaProvisionalidades'> {
+  const provisionalidades: Provisionalidad[] = (data?.provisionalidades ?? []).map((item) => ({
+    id: String(item.idProvisionalidad),
+    fechaInicio: item.fechaInicio,
+    fechaFin: item.fechaFin ?? '',
+    tiempoTotal: aTiempoServicioDesdePartes(item.anios, item.meses, item.dias),
+    cargoId: String(item.nivelMagistradoProvisionalId),
+    cargoNombre: item.nivelMagistradoProvisionalDescripcion?.trim() ?? '',
+    organoJurisdiccional: item.organoJurisdiccional ?? '',
+    documento: item.documentoSustentatorio ?? '',
+  }));
+
+  return {
+    provisionalidades,
+    sumaProvisionalidades: aTiempoServicioDesdePartes(
+      data?.suma?.anios,
+      data?.suma?.meses,
+      data?.suma?.dias
+    ),
+  };
+}
+
+/** `GET fichas-antiguedad/colegiatura`: filas vigentes con años calculados por el servidor. */
+export function toColegiaturasDesdeDetalle(
+  data: ObtenerColegiaturasDataDto | null | undefined
+): Colegiatura[] {
+  return (data?.colegiaturas ?? []).map((item) => ({
+    id: String(item.idColegiatura),
+    colegioId: String(item.colegioProfesional?.colegioProfesionalId ?? ''),
+    colegioNombre: item.colegioProfesional?.descripcion?.trim() ?? '',
+    fechaColegiatura: item.fechaInicio,
+    anios: Number(item.anios) || 0,
+  }));
 }
 
 export function aplicarTitularidadEnFicha(
@@ -275,121 +291,4 @@ export function aplicarPeriodoEnFicha(
     },
     actualizadoEn: new Date().toISOString(),
   };
-}
-
-export function aplicarProvisionalidadEnFicha(
-  ficha: FichaValoracion,
-  item: Provisionalidad,
-  respuesta: GuardarProvisionalidadDataDto
-): FichaValoracion {
-  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
-  const tiempo = aTiempoServicioDesdePartes(respuesta.anios, respuesta.meses, respuesta.dias);
-  const guardada: Provisionalidad = {
-    ...item,
-    id: String(respuesta.idProvisionalidad),
-    cargoId: String(respuesta.nivelMagistradoProvisionalId ?? item.cargoId),
-    fechaInicio: respuesta.fechaInicio ?? item.fechaInicio,
-    fechaFin: respuesta.fechaFin ?? item.fechaFin,
-    documento: respuesta.documentoSustentatorio ?? item.documento,
-    organoJurisdiccional: respuesta.organoJurisdiccional ?? item.organoJurisdiccional,
-    tiempoTotal: tiempo,
-  };
-
-  const sinAnterior = rubro.provisionalidades.filter((p) => p.id !== item.id && p.id !== guardada.id);
-  const provisionalidades = [...sinAnterior, guardada];
-  const suma = sumarTiemposLocal(provisionalidades.map((p) => p.tiempoTotal));
-
-  return {
-    ...ficha,
-    rubroAntiguedad: {
-      ...rubro,
-      id: rubro.id ?? String(respuesta.idFichaAntiguedad),
-      provisionalidades,
-      sumaProvisionalidades: suma,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function aplicarColegiaturaEnFicha(
-  ficha: FichaValoracion,
-  item: Colegiatura,
-  respuesta: GuardarColegiaturaDataDto
-): FichaValoracion {
-  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
-  const colegioRespuesta = respuesta.colegioProfesional;
-  const guardada: Colegiatura = {
-    ...item,
-    id: String(respuesta.idColegiatura),
-    colegioId: String(colegioRespuesta?.colegioProfesionalId ?? item.colegioId),
-    colegioNombre:
-      colegioRespuesta?.descripcion?.trim() || item.colegioNombre,
-    fechaColegiatura: respuesta.fechaInicio ?? item.fechaColegiatura,
-    anios: Number(respuesta.anios) || item.anios,
-  };
-
-  const sinAnterior = rubro.colegiaturas.filter((c) => c.id !== item.id && c.id !== guardada.id);
-
-  return {
-    ...ficha,
-    rubroAntiguedad: {
-      ...rubro,
-      id: rubro.id ?? String(respuesta.idFichaAntiguedad),
-      colegiaturas: [...sinAnterior, guardada],
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarProvisionalidadEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
-  const provisionalidades = rubro.provisionalidades.filter((p) => p.id !== itemId);
-  const suma = sumarTiemposLocal(provisionalidades.map((p) => p.tiempoTotal));
-
-  return {
-    ...ficha,
-    rubroAntiguedad: {
-      ...rubro,
-      provisionalidades,
-      sumaProvisionalidades: suma,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-export function eliminarColegiaturaEnFicha(
-  ficha: FichaValoracion,
-  itemId: string
-): FichaValoracion {
-  const rubro = ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio();
-  const colegiaturas = rubro.colegiaturas.filter((c) => c.id !== itemId);
-
-  return {
-    ...ficha,
-    rubroAntiguedad: {
-      ...rubro,
-      colegiaturas,
-    },
-    actualizadoEn: new Date().toISOString(),
-  };
-}
-
-function sumarTiemposLocal(tiempos: TiempoServicio[]): TiempoServicio {
-  if (tiempos.length === 0) {
-    return TIEMPO_SERVICIO_CERO;
-  }
-
-  let totalDias = 0;
-  for (const t of tiempos) {
-    totalDias += t.anios * 360 + t.meses * 30 + t.dias;
-  }
-
-  const anios = Math.floor(totalDias / 360);
-  const resto = totalDias % 360;
-  const meses = Math.floor(resto / 30);
-  const dias = resto % 30;
-  return aTiempoServicioDesdePartes(anios, meses, dias);
 }

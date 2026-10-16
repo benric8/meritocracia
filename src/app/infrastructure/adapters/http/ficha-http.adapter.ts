@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
 import { ErrorNegocioApi } from '../../../domain/errors/error-negocio-api';
 import {
@@ -91,6 +91,8 @@ import {
   GuardarTitularidadResponse,
   EliminarAntiguedadItemResponse,
   ObtenerAntiguedadResponse,
+  ObtenerColegiaturasResponse,
+  ObtenerProvisionalidadesResponse,
 } from '../../dto/remote/FichaAntiguedadResponse.dto';
 import {
   EliminarGradoTituloResponse,
@@ -165,17 +167,15 @@ import {
 } from '../../dto/remote/FichaResponse.dto';
 import { ObtenerPuntajesFichaResponse } from '../../dto/remote/FichaPuntajesResponse.dto';
 import {
-  aplicarColegiaturaEnFicha,
   aplicarPeriodoEnFicha,
-  aplicarProvisionalidadEnFicha,
   aplicarTitularidadEnFicha,
-  eliminarColegiaturaEnFicha,
-  eliminarProvisionalidadEnFicha,
   esIdPersistidoApi,
+  toColegiaturasDesdeDetalle,
   toGuardarColegiaturaRequestDto,
   toGuardarPeriodoInmediatoRequestDto,
   toGuardarProvisionalidadRequestDto,
   toGuardarTitularidadRequestDto,
+  toProvisionalidadesDesdeDetalle,
   toRubroAntiguedadDesdeDetalle,
 } from '../../mappers/ficha-antiguedad.mapper';
 import {
@@ -468,7 +468,7 @@ export class FichaHttpAdapter implements FichaPort {
     return this.http
       .get<ObtenerAntiguedadResponse>(`${this.baseUrl}${fichaEndpoints.ANTIGUEDAD}`, { params })
       .pipe(
-        map((respuesta) => {
+        switchMap((respuesta) => {
           assertRespuestaExitosa(respuesta);
           if (!respuesta.data) {
             throw new ErrorNegocioApi({
@@ -485,6 +485,22 @@ export class FichaHttpAdapter implements FichaPort {
               puntaje: puntajeOficial || detalle.titularidad.puntaje,
             },
           };
+          // Sin titularidad no hay provisionalidades ni colegiaturas que consultar.
+          if (!rubro.id) {
+            return of(rubro);
+          }
+          return forkJoin({
+            provisionales: this.listarProvisionalidades(id, registradorId),
+            colegiaturas: this.listarColegiaturas(id, registradorId),
+          }).pipe(
+            map(({ provisionales, colegiaturas }) => ({
+              ...rubro,
+              ...provisionales,
+              colegiaturas,
+            }))
+          );
+        }),
+        map((rubro) => {
           this.actualizarRubroEnMemoria(id, rubro);
           return rubro;
         }),
@@ -633,18 +649,9 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarProvisionalidadResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la provisionalidad actualizada.'
-              : 'El servidor no devolvió la provisionalidad guardada.',
-          });
-        }
-        return this.guardarEnMemoria(
-          aplicarProvisionalidadEnFicha(ficha, item, respuesta.data)
-        );
+        return this.refrescarProvisionalidades(fichaId);
       }),
       mapearAErrorNegocioApi(
         esActualizacion ? 'No se pudo actualizar la provisionalidad.' : 'No se pudo guardar la provisionalidad.'
@@ -672,21 +679,12 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const url = `${this.baseUrl}${fichaEndpoints.provisionalidadPorId(idItem)}`;
 
     return this.http.delete<EliminarAntiguedadItemResponse>(url).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data?.antiguedad) {
-          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroAntiguedad: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarProvisionalidadEnFicha(ficha, idItem));
+        return this.refrescarProvisionalidades(fichaId);
       }),
       mapearAErrorNegocioApi('No se pudo eliminar la provisionalidad.')
     );
@@ -728,16 +726,9 @@ export class FichaHttpAdapter implements FichaPort {
       : this.http.post<GuardarColegiaturaResponse>(url, body);
 
     return request$.pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (!respuesta.data) {
-          throw new ErrorNegocioApi({
-            mensaje: esActualizacion
-              ? 'El servidor no devolvió la colegiatura actualizada.'
-              : 'El servidor no devolvió la colegiatura guardada.',
-          });
-        }
-        return this.guardarEnMemoria(aplicarColegiaturaEnFicha(ficha, item, respuesta.data));
+        return this.refrescarColegiaturas(fichaId);
       }),
       mapearAErrorNegocioApi(
         esActualizacion ? 'No se pudo actualizar la colegiatura.' : 'No se pudo guardar la colegiatura.'
@@ -762,21 +753,12 @@ export class FichaHttpAdapter implements FichaPort {
       );
     }
 
-    const ficha = this.asegurarFichaEnMemoria(fichaId);
     const url = `${this.baseUrl}${fichaEndpoints.colegiaturaPorId(idItem)}`;
 
     return this.http.delete<EliminarAntiguedadItemResponse>(url).pipe(
-      map((respuesta) => {
+      switchMap((respuesta) => {
         assertRespuestaExitosa(respuesta);
-        if (respuesta.data?.antiguedad) {
-          const rubro = toRubroAntiguedadDesdeDetalle(respuesta.data);
-          return this.guardarEnMemoria({
-            ...ficha,
-            rubroAntiguedad: rubro,
-            actualizadoEn: new Date().toISOString(),
-          });
-        }
-        return this.guardarEnMemoria(eliminarColegiaturaEnFicha(ficha, idItem));
+        return this.refrescarColegiaturas(fichaId);
       }),
       mapearAErrorNegocioApi('No se pudo eliminar la colegiatura.')
     );
@@ -2601,6 +2583,78 @@ export class FichaHttpAdapter implements FichaPort {
       rubroAntiguedad: rubro,
       actualizadoEn: new Date().toISOString(),
     });
+  }
+
+  private listarProvisionalidades(
+    fichaId: string,
+    registradorId: number
+  ): Observable<Pick<RubroAntiguedad, 'provisionalidades' | 'sumaProvisionalidades'>> {
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', fichaId.trim())
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerProvisionalidadesResponse>(
+        `${this.baseUrl}${fichaEndpoints.PROVISIONALIDAD}`,
+        { params }
+      )
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return toProvisionalidadesDesdeDetalle(respuesta.data);
+        })
+      );
+  }
+
+  private listarColegiaturas(fichaId: string, registradorId: number): Observable<Colegiatura[]> {
+    const params = new HttpParams()
+      .set('ficha_valoracion_id', fichaId.trim())
+      .set('registrador_id', String(registradorId));
+
+    return this.http
+      .get<ObtenerColegiaturasResponse>(`${this.baseUrl}${fichaEndpoints.COLEGIATURA}`, {
+        params,
+      })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return toColegiaturasDesdeDetalle(respuesta.data);
+        })
+      );
+  }
+
+  /** POST/PUT/DELETE no devuelven el registro: se vuelve a leer la lista vigente y su suma. */
+  private refrescarProvisionalidades(fichaId: string): Observable<FichaValoracion> {
+    return this.listarProvisionalidades(fichaId, this.obtenerRegistradorId()).pipe(
+      map((provisionales) => {
+        const ficha = this.asegurarFichaEnMemoria(fichaId);
+        return this.guardarEnMemoria({
+          ...ficha,
+          rubroAntiguedad: {
+            ...(ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio()),
+            ...provisionales,
+          },
+          actualizadoEn: new Date().toISOString(),
+        });
+      })
+    );
+  }
+
+  /** POST/PUT/DELETE no devuelven el registro: se vuelve a leer la lista vigente. */
+  private refrescarColegiaturas(fichaId: string): Observable<FichaValoracion> {
+    return this.listarColegiaturas(fichaId, this.obtenerRegistradorId()).pipe(
+      map((colegiaturas) => {
+        const ficha = this.asegurarFichaEnMemoria(fichaId);
+        return this.guardarEnMemoria({
+          ...ficha,
+          rubroAntiguedad: {
+            ...(ficha.rubroAntiguedad ?? crearRubroAntiguedadVacio()),
+            colegiaturas,
+          },
+          actualizadoEn: new Date().toISOString(),
+        });
+      })
+    );
   }
 
   private fichaConRubroGrados(fichaId: string, rubro: RubroGradosTitulos): FichaValoracion {

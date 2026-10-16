@@ -906,7 +906,6 @@ export class RubroAntiguedadComponent implements OnInit {
     this.provisionalidades.set(rubro.provisionalidades);
     this.sumaProvisionalidades.set(rubro.sumaProvisionalidades);
     this.colegiaturas.set(rubro.colegiaturas);
-    this.recalcularAniosColegiaturas();
   }
 
   private construirTitularidadActual(): TitularidadActual {

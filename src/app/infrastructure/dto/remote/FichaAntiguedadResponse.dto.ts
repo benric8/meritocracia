@@ -60,27 +60,14 @@ export interface GuardarProvisionalidadRequestDto {
   idFichaAntiguedad: number;
   nivelMagistradoProvisionalId: number;
   fechaInicio: string;
-  fechaFin: string;
-  documentoSustentatorio: string;
-  organoJurisdiccional: string;
+  fechaFin: string | null;
+  documentoSustentatorio: string | null;
+  organoJurisdiccional: string | null;
 }
 
-export interface GuardarProvisionalidadDataDto {
-  idProvisionalidad: number;
-  idFichaAntiguedad: number;
-  nivelMagistradoProvisionalId: number;
-  idDistritoJudicial?: number;
-  fechaInicio: string;
-  fechaFin: string;
-  anios: number;
-  meses: number;
-  dias: number;
-  documentoSustentatorio: string;
-  organoJurisdiccional: string;
-}
-
+/** POST 201 y PUT 200: acuse de éxito, sin el registro. La lista se vuelve a consultar con el GET. */
 export interface GuardarProvisionalidadResponse extends BaseResponse {
-  data: GuardarProvisionalidadDataDto;
+  data?: unknown;
 }
 
 export interface GuardarColegiaturaRequestDto {
@@ -89,18 +76,9 @@ export interface GuardarColegiaturaRequestDto {
   fechaInicio: string;
 }
 
-export interface GuardarColegiaturaDataDto {
-  idColegiatura: number;
-  idFichaAntiguedad: number;
-  colegioProfesional: ColegioProfesionalDetalleDto;
-  fechaInicio: string;
-  anios: number;
-  meses: number;
-  dias: number;
-}
-
+/** POST 201 y PUT 200: acuse de éxito, sin el registro. La lista se vuelve a consultar con el GET. */
 export interface GuardarColegiaturaResponse extends BaseResponse {
-  data: GuardarColegiaturaDataDto;
+  data?: unknown;
 }
 
 /** Respuesta de GET /fichas-antiguedad?ficha_valoracion_id=&registrador_id=. */
@@ -133,18 +111,35 @@ export interface PeriodoInmediatoDetalleDto {
   dias: number;
 }
 
+/** Ítem de `GET fichas-antiguedad/provisionalidad` (`ProvisionalidadVigenteResponse`). */
 export interface ProvisionalidadDetalleDto {
   idProvisionalidad: number;
   idFichaAntiguedad: number;
   nivelMagistradoProvisionalId: number;
-  idDistritoJudicial?: number;
+  nivelMagistradoProvisionalDescripcion: string | null;
   fechaInicio: string;
-  fechaFin: string;
+  fechaFin: string | null;
   anios: number;
   meses: number;
   dias: number;
-  documentoSustentatorio: string;
-  organoJurisdiccional: string;
+  organoJurisdiccional: string | null;
+  documentoSustentatorio: string | null;
+}
+
+/** Suma normalizada calculada por el servidor (`SumaTiempoResponse`). */
+export interface SumaTiempoDto {
+  anios: number;
+  meses: number;
+  dias: number;
+}
+
+export interface ObtenerProvisionalidadesDataDto {
+  provisionalidades: ProvisionalidadDetalleDto[];
+  suma: SumaTiempoDto | null;
+}
+
+export interface ObtenerProvisionalidadesResponse extends BaseResponse {
+  data: ObtenerProvisionalidadesDataDto;
 }
 
 export interface ColegioProfesionalDetalleDto {
@@ -152,28 +147,34 @@ export interface ColegioProfesionalDetalleDto {
   descripcion: string | null;
 }
 
+/** Ítem de `GET fichas-antiguedad/colegiatura` (`ColegiaturaVigenteResponse`). */
 export interface ColegiaturaDetalleDto {
   idColegiatura: number;
   idFichaAntiguedad: number;
-  colegioProfesional: ColegioProfesionalDetalleDto;
+  colegioProfesional: ColegioProfesionalDetalleDto | null;
   fechaInicio: string;
+  /** Años completos hasta la fecha de valoración; 0 si no hay fecha vigente. */
   anios: number;
-  meses: number;
-  dias: number;
+}
+
+export interface ObtenerColegiaturasDataDto {
+  colegiaturas: ColegiaturaDetalleDto[];
+}
+
+export interface ObtenerColegiaturasResponse extends BaseResponse {
+  data: ObtenerColegiaturasDataDto;
 }
 
 export interface ObtenerAntiguedadDataDto {
   antiguedad: AntiguedadDetalleDto | null;
   periodoInmediato: PeriodoInmediatoDetalleDto | null;
-  provisionalidades: ProvisionalidadDetalleDto[];
-  colegiaturas: ColegiaturaDetalleDto[];
 }
 
 export interface ObtenerAntiguedadResponse extends BaseResponse {
   data: ObtenerAntiguedadDataDto;
 }
 
-/** DELETE provisionalidad/colegiatura: puede devolver el rubro actualizado o solo éxito. */
+/** DELETE provisionalidad/colegiatura: acuse de éxito. La lista se vuelve a consultar con el GET. */
 export interface EliminarAntiguedadItemResponse extends BaseResponse {
-  data?: ObtenerAntiguedadDataDto | null;
+  data?: unknown;
 }
