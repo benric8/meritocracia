@@ -41,7 +41,7 @@ export const ACCESOS_RAPIDOS_REGISTRADOR: AccesoRapidoInicio[] = [
     icono: 'note_add',
     titulo: 'Nuevo registro',
     descripcion: 'Ficha de valoración de méritos.',
-    ruta: '/meritos/registro',
+    ruta: '/meritos/nuevo-registro',
   },
   {
     icono: 'search',

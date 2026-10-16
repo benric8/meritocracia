@@ -4,7 +4,9 @@ import {
   computed,
   DestroyRef,
   inject,
+  input,
   OnInit,
+  output,
   signal,
   WritableSignal,
 } from '@angular/core';
@@ -104,6 +106,17 @@ export class Registro implements OnInit {
   private readonly actualizarDatosPersonales = inject(ActualizarDatosPersonalesFichaUseCase);
   private readonly obtenerFicha = inject(ObtenerFichaUseCase);
   private readonly rubrosMaestroStore = inject(RubrosMaestroStore);
+
+  /**
+   * Ficha a editar desde Consulta. Si viene informada, se carga por id (con el registrador
+   * en sesión) en lugar de resolver por DNI, y se usa la fecha de valoración de la propia ficha.
+   */
+  readonly fichaIdEdicion = input<string | null>(null);
+  /** Solo en modo edición: regresar a la bandeja de Consulta. */
+  readonly volver = output<void>();
+
+  protected readonly modoEdicion = computed(() => !!this.fichaIdEdicion());
+  protected readonly cargandoFichaEdicion = signal(false);
 
   protected readonly niveles = signal<NivelTitular[]>([]);
   protected readonly cargandoNiveles = signal(false);
@@ -230,8 +243,14 @@ export class Registro implements OnInit {
   ngOnInit(): void {
     this.cargarNiveles();
     this.cargarRubrosMaestro();
-    this.cargarFechaValoracionVigente();
     this.escucharFechaNacimiento();
+
+    const fichaIdEdicion = this.fichaIdEdicion();
+    if (fichaIdEdicion) {
+      this.cargarFichaParaEdicion(fichaIdEdicion);
+    } else {
+      this.cargarFechaValoracionVigente();
+    }
   }
 
   protected onDniInput(event: Event): void {
@@ -658,7 +677,40 @@ export class Registro implements OnInit {
     } else {
       this.formulario.enable({ emitEvent: false });
       this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
+      if (this.modoEdicion()) {
+        this.formulario.controls.dni.disable({ emitEvent: false });
+      }
     }
+  }
+
+  private cargarFichaParaEdicion(fichaId: string): void {
+    this.cargandoFichaEdicion.set(true);
+
+    this.obtenerFicha
+      .ejecutar(fichaId)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.cargandoFichaEdicion.set(false))
+      )
+      .subscribe(async (resultado) => {
+        if (!resultado.exito) {
+          await this.alertas.error('No se pudo cargar la ficha', {
+            mensaje:
+              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
+            codigo: resultado.detalle?.codigo,
+            codigoOperacion: resultado.detalle?.codigoOperacion,
+          });
+          this.volver.emit();
+          return;
+        }
+
+        // Igual que en Buscar: una ficha completada se muestra en solo lectura.
+        const soloLectura = resultado.ficha.estado !== 'BORRADOR';
+        this.modoAccionCabecera.set(soloLectura ? 'BLOQUEADA' : 'ACTUALIZAR');
+        this.fichaPreviaId.set(null);
+        this.aplicarFichaEnUi(resultado.ficha, soloLectura);
+      });
   }
 
   protected onFichaActualizadaDesdeRubros(ficha: FichaValoracion): void {

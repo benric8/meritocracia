@@ -26,7 +26,7 @@ describe('inicio-perfil.config', () => {
 
     expect(rutasAdmin).toContain('/usuarios');
     expect(rutasReg).not.toContain('/usuarios');
-    expect(rutasReg).toContain('/meritos/registro');
+    expect(rutasReg).toContain('/meritos/nuevo-registro');
     expect(rutasReg).toContain('/meritos/consulta');
     expect(rutasAdmin).toContain('/meritos/asignacion-registrador');
   });

@@ -1,1 +1,154 @@
-<p>consulta works!</p>
+@if (fichaEnEdicion(); as fichaId) {
+  <app-registro [fichaIdEdicion]="fichaId" (volver)="onVolverDeEdicion()" />
+} @else {
+  <section class="consulta">
+    <header class="consulta__toolbar">
+      <div>
+        <h1 class="consulta__titulo">Consulta de fichas de valoración</h1>
+        <p class="consulta__subtitulo">Fichas registradas a su cargo</p>
+      </div>
+    </header>
+
+    @if (mensajeExito(); as mensaje) {
+      <p class="consulta__exito" role="status">{{ mensaje }}</p>
+    }
+
+    <form class="consulta__filtros" (submit)="onBuscar($event)" novalidate>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="consulta__filtro">
+        <mat-label>DNI</mat-label>
+        <input
+          matInput
+          name="dni"
+          inputmode="numeric"
+          maxlength="8"
+          autocomplete="off"
+          [value]="filtrosFormulario().dni"
+          (input)="onDniInput($event)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="consulta__filtro">
+        <mat-label>Apellidos</mat-label>
+        <input
+          matInput
+          name="apellidos"
+          maxlength="100"
+          autocomplete="off"
+          [ngModel]="filtrosFormulario().apellidos"
+          (ngModelChange)="onFiltroCambiado('apellidos', $event)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="consulta__filtro">
+        <mat-label>Nombres</mat-label>
+        <input
+          matInput
+          name="nombres"
+          maxlength="100"
+          autocomplete="off"
+          [ngModel]="filtrosFormulario().nombres"
+          (ngModelChange)="onFiltroCambiado('nombres', $event)"
+        />
+      </mat-form-field>
+
+      <div class="consulta__filtros-acciones">
+        <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onLimpiar()">
+          <mat-icon>cleaning_services</mat-icon>
+          Limpiar
+        </button>
+        <button matButton="filled" type="submit" [disabled]="cargando()">
+          <mat-icon>search</mat-icon>
+          Buscar
+        </button>
+      </div>
+    </form>
+
+    <div class="consulta__tabla-card" [class.consulta__tabla-card--cargando]="cargando()">
+      <div class="consulta__tabla-wrap">
+        <table class="consulta__tabla">
+          <thead>
+            <tr>
+              <th scope="col">N°</th>
+              <th scope="col">DNI</th>
+              <th scope="col">Apellidos y nombres</th>
+              <th scope="col">Fecha de valoración</th>
+              <th scope="col">Completado</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ficha of fichas(); track ficha.id; let i = $index) {
+              <tr>
+                <td>{{ numeroFila(i) }}</td>
+                <td>{{ ficha.dni }}</td>
+                <td>{{ ficha.nombreCompleto }}</td>
+                <td>{{ ficha.fechaValoracion ? formatearFecha(ficha.fechaValoracion) : '—' }}</td>
+                <td>
+                  <span
+                    class="consulta__badge"
+                    [class.consulta__badge--completo]="ficha.completada"
+                    [class.consulta__badge--pendiente]="!ficha.completada"
+                  >
+                    {{ ficha.completada ? 'Completado' : 'En registro' }}
+                  </span>
+                </td>
+                <td>
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="consulta__estado"
+                    [class.consulta__estado--inactivo]="!ficha.activa"
+                  >
+                    <mat-select
+                      [value]="ficha.activa"
+                      [disabled]="cargando() || cambiandoEstadoId() === ficha.id"
+                      [attr.aria-label]="'Estado de la ficha de ' + ficha.nombreCompleto"
+                      (selectionChange)="onEstadoSeleccionado(ficha, $event)"
+                    >
+                      <mat-option [value]="true">Activo</mat-option>
+                      <mat-option [value]="false">Inactivo</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <button
+                    matIconButton
+                    type="button"
+                    class="consulta__accion"
+                    [matTooltip]="ficha.activa ? 'Actualizar / Editar ficha' : 'Una ficha inactiva no se puede editar'"
+                    matTooltipPosition="above"
+                    [attr.aria-label]="'Editar ficha de ' + ficha.nombreCompleto"
+                    [disabled]="!ficha.activa || cargando()"
+                    (click)="onEditar(ficha)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="consulta__vacio">
+                  {{ cargando() ? 'Cargando fichas...' : 'No se encontraron fichas registradas.' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalRegistros() > 0) {
+        <mat-paginator
+          class="consulta__paginador"
+          [length]="totalRegistros()"
+          [pageIndex]="paginaActual() - 1"
+          [pageSize]="tamanioPagina()"
+          [pageSizeOptions]="opcionesTamanioPagina"
+          [disabled]="cargando()"
+          (page)="onPaginaCambiada($event)"
+          aria-label="Paginación de fichas"
+        />
+      }
+    </div>
+  </section>
+}

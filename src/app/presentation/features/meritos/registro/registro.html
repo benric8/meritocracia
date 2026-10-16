@@ -3,21 +3,37 @@
     <div class="ficha-valoracion__encabezado">
       <h1 class="ficha-valoracion__titulo">Ficha de valoración de méritos</h1>
     </div>
+
+    @if (modoEdicion()) {
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="guardandoFicha()"
+        (click)="volver.emit()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Volver a la consulta
+      </button>
+    }
   </header>
+
+  @if (cargandoFichaEdicion()) {
+    <p class="ficha-valoracion__meta" role="status">Cargando ficha...</p>
+  }
 
   @if (errorCarga(); as mensajeError) {
     <p class="ficha-valoracion__error" role="alert">{{ mensajeError }}</p>
   }
 
-  @if (!fechaValoracionVigente()) {
+  @if (fechaValoracionVigente(); as fechaValoracion) {
+    <p class="ficha-valoracion__meta" role="status">
+      {{ modoEdicion() ? 'Fecha de valoración de la ficha:' : 'Fecha de valoración vigente:' }}
+      <strong>{{ formatearFecha(fechaValoracion) }}</strong>
+    </p>
+  } @else if (!modoEdicion()) {
     <p class="ficha-valoracion__aviso" role="status">
       No hay fecha de valoración vigente. La edad se calculará cuando exista una configuración
       activa.
-    </p>
-  } @else {
-    <p class="ficha-valoracion__meta" role="status">
-      Fecha de valoración vigente:
-      <strong>{{ formatearFecha(fechaValoracionVigente()!) }}</strong>
     </p>
   }
 
@@ -64,27 +80,29 @@
               (input)="onDniInput($event)"
               (keydown.enter)="onBuscarDni($event)"
             />
-            <button
-              matIconButton
-              matSuffix
-              type="button"
-              class="ficha-valoracion__btn-buscar"
-              [disabled]="
-                buscandoDni() ||
-                guardandoFicha() ||
-                formulario.controls.dni.invalid ||
-                dniYaResuelto()
-              "
-              (click)="onBuscarDni()"
-              title="Buscar ficha o SIGA"
-              aria-label="Buscar ficha o SIGA"
-            >
-              @if (buscandoDni()) {
-                <mat-progress-spinner diameter="18" mode="indeterminate" />
-              } @else {
-                <mat-icon>search</mat-icon>
-              }
-            </button>
+            @if (!modoEdicion()) {
+              <button
+                matIconButton
+                matSuffix
+                type="button"
+                class="ficha-valoracion__btn-buscar"
+                [disabled]="
+                  buscandoDni() ||
+                  guardandoFicha() ||
+                  formulario.controls.dni.invalid ||
+                  dniYaResuelto()
+                "
+                (click)="onBuscarDni()"
+                title="Buscar ficha o SIGA"
+                aria-label="Buscar ficha o SIGA"
+              >
+                @if (buscandoDni()) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  <mat-icon>search</mat-icon>
+                }
+              </button>
+            }
             @if (mensajeErrorCampo(formulario.controls.dni, 'dni'); as error) {
               <mat-error>{{ error }}</mat-error>
             }
@@ -208,15 +226,17 @@
           <p class="ficha-valoracion__estado-busqueda" role="status">{{ mensajeEstado }}</p>
         }
         <div class="ficha-valoracion__acciones-botones">
-          <button
-            matButton="outlined"
-            type="button"
-            (click)="onLimpiarDatosPersonales()"
-            [disabled]="guardandoFicha() || buscandoDni()"
-          >
-            <mat-icon>cleaning_services</mat-icon>
-            Limpiar
-          </button>
+          @if (!modoEdicion()) {
+            <button
+              matButton="outlined"
+              type="button"
+              (click)="onLimpiarDatosPersonales()"
+              [disabled]="guardandoFicha() || buscandoDni()"
+            >
+              <mat-icon>cleaning_services</mat-icon>
+              Limpiar
+            </button>
+          }
           <button
             matButton="filled"
             type="button"
@@ -304,9 +324,8 @@
         <div class="ficha-valoracion__footer-total">
           <span>Puntaje total de la ficha</span>
           <strong>{{ formatearPuntaje(puntajeTotal()) }}</strong>
-          <small>Se recalcula en el servidor con cada guardado.</small>
         </div>
-        <div class="ficha-valoracion__footer-acciones">
+        <!-- <div class="ficha-valoracion__footer-acciones">
           <button matButton="outlined" type="button" disabled title="Disponible en una fase posterior">
             <mat-icon>cleaning_services</mat-icon>
             Limpiar
@@ -315,7 +334,7 @@
             <mat-icon>task_alt</mat-icon>
             Finalizar registro
           </button>
-        </div>
+        </div> -->
       </footer>
     </div>
   }

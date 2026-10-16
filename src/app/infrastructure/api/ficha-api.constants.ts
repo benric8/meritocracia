@@ -2,6 +2,11 @@
 export const fichaEndpoints = {
   FLUJO: 'fichas/flujo',
   CREAR: 'fichas',
+  /** GET bandeja de consulta: `fichas?registrador_id=&dni=&apellidos=&nombres=&pagina=&tamanio=`. */
+  LISTAR: 'fichas',
+  /** PATCH activar/inactivar: `fichas/{idFicha}/estado`. */
+  estado: (idFicha: string | number) =>
+    `fichas/${encodeURIComponent(String(idFicha).trim())}/estado`,
   /** GET ficha completa: `fichas/{idFicha}?registrador_id=`. */
   porId: (idFicha: string | number) => `fichas/${encodeURIComponent(String(idFicha).trim())}`,
   /** GET puntajes oficiales: `fichas/{idFicha}/puntajes`. No usa registrador_id. */

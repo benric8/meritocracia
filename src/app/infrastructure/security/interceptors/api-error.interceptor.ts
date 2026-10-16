@@ -63,6 +63,11 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     coincide: (url) => /fechas-valoracion\/[^/]+\/inactivar\/?$/.test(url),
   },
   {
+    method: 'PATCH',
+    // Consulta (RF006): activar/inactivar ficha.
+    coincide: (url) => /fichas\/[^/]+\/estado\/?(\?.*)?$/.test(url),
+  },
+  {
     method: 'POST',
     coincide: (url) => esRutaExacta(url, fichaEndpoints.CREAR),
   },
