@@ -92,6 +92,15 @@ export const routes: Routes = [
                 (m) => m.GraficosRubros
               ),
           },
+          // Submenú B: Cuadro de Antigüedad de Jueces Supremos Titulares (Anexo 01).
+          {
+            path: 'cuadro-antiguedad-supremos',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import(
+                './presentation/features/reportes/cuadro-antiguedad-supremos/cuadro-antiguedad-supremos'
+              ).then((m) => m.CuadroAntiguedadSupremos),
+          },
         ],
       }
     ]

@@ -12,6 +12,7 @@ import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constan
 import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
 import { fichaEndpoints } from '../../api/ficha-api.constants';
 import { dashboardEndpoints } from '../../api/dashboard-api.constants';
+import { cuadroAntiguedadEndpoints } from '../../api/reportes-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
 const RUTAS_AUTH_SIN_MODAL = [
@@ -82,6 +83,12 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     // Dashboard de rubros: se piden varios gráficos en paralelo; la pantalla
     // muestra un único aviso y el error en cada tarjeta.
     coincide: (url) => url.includes(dashboardEndpoints.RUBROS),
+  },
+  {
+    method: 'GET',
+    // Cuadro de antigüedad: la pantalla muestra el error de la consulta y de las
+    // descargas (estas llegan como blob y se revisan en el adapter).
+    coincide: (url) => url.includes(cuadroAntiguedadEndpoints.BASE),
   },
   {
     method: 'POST',

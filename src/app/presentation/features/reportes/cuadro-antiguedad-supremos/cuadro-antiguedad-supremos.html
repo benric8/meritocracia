@@ -1,0 +1,182 @@
+<section class="cuadro">
+  <header class="cuadro__cabecera">
+    <span class="cuadro__etiqueta-seccion">Reportes · Anexo 01</span>
+    <h1 class="cuadro__titulo">Cuadro de antigüedad de Jueces Supremos Titulares</h1>
+    <p class="cuadro__subtitulo">
+      Orden de precedencia calculado por el sistema para la fecha de valoración elegida
+    </p>
+  </header>
+
+  <div class="cuadro__barra">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="cuadro__fecha">
+      <mat-label>Fecha de valoración</mat-label>
+      <mat-select
+        [value]="idFechaSeleccionada()"
+        [disabled]="!fechas().length"
+        (valueChange)="onFechaCambiada($event)"
+      >
+        @for (fecha of fechas(); track fecha.id) {
+          <mat-option [value]="fecha.id">
+            {{ etiquetaFecha(fecha) }}
+            @if (fecha.id === idVigente()) {
+              <span class="cuadro__vigente">Vigente</span>
+            }
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="cuadro__descargas">
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="descargasDeshabilitadas()"
+        [attr.aria-busy]="descargando() === 'excel'"
+        (click)="onDescargar('excel')"
+      >
+        @if (descargando() === 'excel') {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>table_view</mat-icon>
+        }
+        Descargar Excel
+      </button>
+      <button
+        matButton="filled"
+        type="button"
+        [disabled]="descargasDeshabilitadas()"
+        [attr.aria-busy]="descargando() === 'pdf'"
+        (click)="onDescargar('pdf')"
+      >
+        @if (descargando() === 'pdf') {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>picture_as_pdf</mat-icon>
+        }
+        Descargar PDF
+      </button>
+    </div>
+  </div>
+
+  <section class="cuadro__panel" [attr.aria-busy]="cargando()" aria-labelledby="titulo-anexo">
+    @if (error(); as detalle) {
+      <div class="cuadro__estado cuadro__estado--error" role="alert">
+        <mat-icon>{{ errorDeFecha() ? 'event_busy' : 'cloud_off' }}</mat-icon>
+        <p>{{ detalle.mensaje }}</p>
+        @if (errorDeFecha()) {
+          <p class="cuadro__estado-ayuda">Elija otra fecha de valoración.</p>
+        } @else {
+          <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onReintentar()">
+            <mat-icon>refresh</mat-icon>
+            Reintentar
+          </button>
+        }
+      </div>
+    } @else if (cuadro(); as datos) {
+      <div class="cuadro__resumen">
+        <h2 id="titulo-anexo" class="cuadro__resumen-fecha">
+          Fecha de valoración: <strong>{{ fechaValoracion() }}</strong>
+        </h2>
+        @if (filas().length) {
+          <span class="cuadro__resumen-total">
+            <mat-icon>groups</mat-icon>
+            {{ filas().length }} {{ filas().length === 1 ? 'juez' : 'jueces' }}
+          </span>
+        }
+        @if (cargando()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" aria-label="Actualizando" />
+        }
+      </div>
+
+      @if (filas().length) {
+        <div
+          class="cuadro__tabla-contenedor"
+          [class.cuadro__tabla-contenedor--actualizando]="cargando()"
+          tabindex="0"
+          role="region"
+          aria-label="Cuadro de antigüedad, desplazable horizontalmente"
+        >
+          <table class="cuadro__tabla">
+            <thead>
+              <tr>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--orden">ORD</th>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--nombre">
+                  APELLIDOS Y NOMBRES
+                </th>
+                <th scope="col" rowspan="2">FECHA NACIMIENTO</th>
+                <th scope="colgroup" colspan="2" class="cuadro__grupo">
+                  ANTIGÜEDAD EN EL CARGO DE JUEZ SUPREMO
+                </th>
+                <th scope="colgroup" colspan="3" class="cuadro__grupo">JUEZ SUPERIOR (TITULAR)</th>
+                <th scope="colgroup" colspan="4" class="cuadro__grupo">
+                  JUEZ SUPREMO PROVISIONAL (*)
+                </th>
+                <th scope="colgroup" colspan="2" class="cuadro__grupo">COLEGIATURA</th>
+              </tr>
+              <tr>
+                <th scope="col">TITULAR - FECHA ACT. JURAMENTO</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">INICIO</th>
+                <th scope="col">FIN</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">INICIO</th>
+                <th scope="col">FIN</th>
+                <th scope="col">Períodos</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">FECHA COLEGIATURA</th>
+                <th scope="col">AÑOS COLEG.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filas(); track fila.clave) {
+                <tr>
+                  <td class="cuadro__fija cuadro__fija--orden cuadro__orden">{{ fila.orden }}</td>
+                  <th scope="row" class="cuadro__fija cuadro__fija--nombre">
+                    {{ fila.apellidosNombres }}
+                  </th>
+                  <td>{{ fila.fechaNacimiento }}</td>
+                  <td>{{ fila.fechaJuramentoTitular }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoTitular }}</td>
+                  <td>{{ fila.inicioJuezSuperior }}</td>
+                  <td>{{ fila.finJuezSuperior }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoJuezSuperior }}</td>
+                  <td>{{ fila.inicioProvisional }}</td>
+                  <td>
+                    @if (fila.provisionalEnCurso) {
+                      <span
+                        class="cuadro__en-curso"
+                        matTooltip="El último periodo provisional sigue abierto"
+                        aria-label="En curso: el último periodo provisional sigue abierto"
+                        >{{ fila.finProvisional }}</span
+                      >
+                    } @else {
+                      {{ fila.finProvisional }}
+                    }
+                  </td>
+                  <td>{{ fila.periodosProvisional }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoProvisional }}</td>
+                  <td>{{ fila.fechaColegiatura }}</td>
+                  <td>{{ fila.aniosColegiatura }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="cuadro__estado">
+          <mat-icon>person_search</mat-icon>
+          <p>No hay Jueces Supremos Titulares para esta fecha de valoración.</p>
+        </div>
+      }
+
+      @if (datos.nota) {
+        <p class="cuadro__nota">{{ datos.nota }}</p>
+      }
+    } @else if (cargando()) {
+      <div class="cuadro__estado">
+        <mat-progress-spinner diameter="32" mode="indeterminate" />
+        <p>Cargando cuadro de antigüedad…</p>
+      </div>
+    }
+  </section>
+</section>
