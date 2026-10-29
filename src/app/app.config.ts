@@ -15,6 +15,7 @@ import { FECHA_VALORACION_PORT } from './domain/ports/fecha-valoracion.port';
 import { FICHA_PORT } from './domain/ports/ficha.port';
 import { FICHAS_CONSULTA_PORT } from './domain/ports/fichas-consulta.port';
 import { SUPLENCIAS_PORT } from './domain/ports/suplencias.port';
+import { DASHBOARD_RUBROS_PORT } from './domain/ports/dashboard-rubros.port';
 import { JUEZ_PORT } from './domain/ports/juez.port';
 import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
@@ -22,6 +23,7 @@ import { DocumentosInstitucionalesHttpAdapter } from './infrastructure/adapters/
 import { FechaValoracionHttpAdapter } from './infrastructure/adapters/http/fecha-valoracion-http.adapter';
 import { FichasConsultaHttpAdapter } from './infrastructure/adapters/http/fichas-consulta-http.adapter';
 import { SuplenciasHttpAdapter } from './infrastructure/adapters/http/suplencias-http.adapter';
+import { DashboardRubrosHttpAdapter } from './infrastructure/adapters/http/dashboard-rubros-http.adapter';
 import { FichaHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/ficha-http-grados-titulos-mock.adapter';
 import { MaestrosHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/maestros-http-grados-titulos-mock.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
@@ -65,6 +67,7 @@ export const appConfig: ApplicationConfig = {
     { provide: FICHA_PORT, useClass: FichaHttpGradosTitulosMockAdapter },
     { provide: FICHAS_CONSULTA_PORT, useClass: FichasConsultaHttpAdapter },
     { provide: SUPLENCIAS_PORT, useClass: SuplenciasHttpAdapter },
+    { provide: DASHBOARD_RUBROS_PORT, useClass: DashboardRubrosHttpAdapter },
     // Mocks / híbridos hasta disponer del API completo; sustituir por *HttpAdapter.
     // Rubro D (AMAG): `FichaHttpGradosTitulosMockAdapter` mantiene mock solo para AMAG.
     // SIGA real (GET jueces/siga); edad aún mock.

@@ -77,7 +77,22 @@ export const routes: Routes = [
       // 4. Módulo: Reportes(RF007)
       {
         path: 'reportes',
-        loadComponent: () => import('./presentation/features/reportes/reportes/reportes').then(m => m.Reportes)
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./presentation/features/reportes/reportes/reportes').then((m) => m.Reportes),
+          },
+          // Submenú A: Gráficos de Rubros de Valoración (dashboard estadístico).
+          {
+            path: 'graficos-rubros',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import('./presentation/features/reportes/graficos-rubros/graficos-rubros').then(
+                (m) => m.GraficosRubros
+              ),
+          },
+        ],
       }
     ]
   },

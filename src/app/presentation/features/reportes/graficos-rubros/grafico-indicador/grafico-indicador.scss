@@ -1,0 +1,364 @@
+@use '@angular/material' as mat;
+
+// Flex en el host: la tarjeta llena la celda del grid sin `height: 100%`
+// (que sumaba padding y borde y montaba unas tarjetas sobre otras).
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  @include mat.button-overrides(
+    (
+      outlined-label-text-color: var(--mc-primary),
+      outlined-outline-color: var(--mc-primary),
+    )
+  );
+}
+
+.grafico {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+  transition: opacity 0.15s ease;
+}
+
+// Recarga con datos previos: se mantienen visibles atenuados (sin parpadeo).
+.grafico--actualizando {
+  opacity: 0.55;
+}
+
+.grafico__cabecera {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.grafico__cabecera-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.grafico__titulo {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.grafico__subtitulo {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--mc-text-muted);
+}
+
+.grafico__total {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-text);
+  background: #f1f5f9;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--mc-text-muted);
+  }
+}
+
+.grafico__vista {
+  flex-shrink: 0;
+  margin: -8px -8px 0 0;
+  color: var(--mc-text-muted);
+}
+
+// --- Estados ---
+.grafico__estado {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 160px;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  text-align: center;
+
+  > mat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    color: #cbd5e1;
+  }
+}
+
+.grafico__estado--error {
+  color: #b42318;
+
+  > mat-icon {
+    color: #f97066;
+  }
+}
+
+.grafico__esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.grafico__esqueleto-fila {
+  display: grid;
+  grid-template-columns: minmax(90px, 34%) 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.grafico__esqueleto-etiqueta,
+.grafico__esqueleto-barra {
+  display: block;
+  height: 12px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: grafico-brillo 1.2s ease-in-out infinite;
+}
+
+.grafico__esqueleto-etiqueta {
+  width: 80%;
+}
+
+@keyframes grafico-brillo {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.grafico__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// --- Series y barras ---
+.grafico__series {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px 32px;
+}
+
+.grafico__serie {
+  min-width: 0;
+}
+
+.grafico__serie-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.grafico__serie-total {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mc-text-muted);
+}
+
+.grafico__barras {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  // Distrito judicial puede traer 30+ cortes: se desplaza dentro de la tarjeta.
+  max-height: 480px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+// Columnas de arriba hacia abajo: se conserva el orden de lectura del API.
+.grafico__barras--columnas {
+  display: block;
+  max-height: none;
+  overflow: visible;
+  columns: 2 360px;
+  column-gap: 32px;
+
+  .grafico__fila {
+    // Nombres de corte largos: más espacio para la etiqueta.
+    grid-template-columns: minmax(120px, 44%) 1fr 3.5em 4.2em;
+    break-inside: avoid;
+    margin-bottom: 2px;
+  }
+}
+
+.grafico__fila {
+  display: grid;
+  grid-template-columns: minmax(96px, 34%) 1fr 3.5em 4.2em;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: default;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    background: #f8fafc;
+
+    .grafico__barra {
+      background: var(--mc-primary-dark);
+    }
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--mc-primary-light);
+  }
+}
+
+.grafico__etiqueta {
+  overflow: hidden;
+  color: var(--mc-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grafico__pista {
+  display: block;
+  height: 16px;
+  background: #f8fafc;
+  border-radius: 0 4px 4px 0;
+}
+
+.grafico__barra {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+  background: var(--mc-primary);
+  border-radius: 0 4px 4px 0;
+  transition:
+    width 0.4s ease,
+    background-color 0.15s ease;
+}
+
+.grafico__fila--sin-dato .grafico__barra {
+  background: #94a3b8;
+}
+
+.grafico__fila--sin-dato:hover .grafico__barra,
+.grafico__fila--sin-dato:focus-visible .grafico__barra {
+  background: #64748b;
+}
+
+.grafico__fila--cero {
+  .grafico__barra {
+    min-width: 0;
+  }
+
+  .grafico__etiqueta,
+  .grafico__valor {
+    color: var(--mc-text-muted);
+  }
+}
+
+.grafico__valor {
+  font-weight: 600;
+  color: var(--mc-text);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafico__porcentaje {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+// --- Tabla ---
+.grafico__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    padding: 7px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--mc-border);
+  }
+
+  thead th {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mc-text-muted);
+    background: #f8fafc;
+  }
+
+  tfoot th,
+  tfoot td {
+    font-weight: 700;
+    border-top: 2px solid var(--mc-border);
+    border-bottom: 0;
+  }
+}
+
+.grafico__num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .grafico {
+    padding: 14px;
+  }
+
+  .grafico__fila {
+    grid-template-columns: minmax(80px, 36%) 1fr 3em;
+  }
+
+  .grafico__porcentaje {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grafico__barra {
+    transition: none;
+  }
+
+  .grafico__esqueleto-etiqueta,
+  .grafico__esqueleto-barra {
+    animation: none;
+  }
+}

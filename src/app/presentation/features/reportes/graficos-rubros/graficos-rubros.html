@@ -1,0 +1,257 @@
+<section class="graficos">
+  <header class="graficos__cabecera">
+    <div>
+      <span class="graficos__etiqueta-seccion">Reportes</span>
+      <h1 class="graficos__titulo">Gráficos de rubros de valoración</h1>
+      <p class="graficos__subtitulo">
+        Distribución académica, personal, laboral y disciplinaria de los magistrados
+      </p>
+    </div>
+    <div class="graficos__cabecera-acciones">
+      @if (actualizadoEn(); as fecha) {
+        <span class="graficos__actualizado">
+          <mat-icon>schedule</mat-icon>
+          Actualizado {{ fecha | date: 'HH:mm' }}
+        </span>
+      }
+      <button
+        matIconButton
+        type="button"
+        matTooltip="Actualizar gráficos"
+        aria-label="Actualizar gráficos"
+        [disabled]="cargando() || rangoFechasInvalido()"
+        (click)="onConsultar()"
+      >
+        <mat-icon [class.graficos__girando]="cargando()">refresh</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Filtros globales: aplican a todas las pestañas -->
+  <section class="graficos__filtros-card" aria-labelledby="titulo-filtros">
+    <button
+      type="button"
+      class="graficos__filtros-cabecera"
+      [attr.aria-expanded]="filtrosVisibles()"
+      aria-controls="panel-filtros"
+      (click)="alternarFiltros()"
+    >
+      <mat-icon>tune</mat-icon>
+      <span id="titulo-filtros" class="graficos__filtros-titulo">Filtros de análisis</span>
+      @if (resumenFiltros().length) {
+        <span class="graficos__contador">{{ resumenFiltros().length }}</span>
+      }
+      @if (hayCambiosPendientes()) {
+        <span class="graficos__pendiente">Cambios sin aplicar</span>
+      }
+      <mat-icon class="graficos__chevron" [class.graficos__chevron--abierto]="filtrosVisibles()">
+        expand_more
+      </mat-icon>
+    </button>
+
+    @if (filtrosVisibles()) {
+      <form id="panel-filtros" class="graficos__filtros" (submit)="onConsultar($event)" novalidate>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Distrito judicial</mat-label>
+          <mat-select
+            name="distritoJudicialId"
+            [value]="filtrosFormulario().distritoJudicialId"
+            (valueChange)="onFiltroCambiado('distritoJudicialId', $event)"
+          >
+            <mat-option value="">Todos</mat-option>
+            @for (distrito of distritos(); track distrito.id) {
+              <mat-option [value]="distrito.id">{{ distrito.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Nivel de la magistratura</mat-label>
+          <mat-select
+            name="nivelMagistradoId"
+            [value]="filtrosFormulario().nivelMagistradoId"
+            (valueChange)="onFiltroCambiado('nivelMagistradoId', $event)"
+          >
+            <mat-option value="">Todos</mat-option>
+            @for (nivel of niveles; track nivel.valor) {
+              <mat-option [value]="nivel.valor">{{ nivel.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Especialidad</mat-label>
+          <mat-select
+            name="especialidadId"
+            [value]="filtrosFormulario().especialidadId"
+            (valueChange)="onFiltroCambiado('especialidadId', $event)"
+          >
+            <mat-option value="">Todas</mat-option>
+            @for (especialidad of especialidades(); track especialidad.id) {
+              <mat-option [value]="especialidad.id">{{ especialidad.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Estado de la carrera</mat-label>
+          <mat-select
+            name="estadoCarrera"
+            [value]="filtrosFormulario().estadoCarrera"
+            (valueChange)="onFiltroCambiado('estadoCarrera', $event)"
+          >
+            <mat-option value="">Todos</mat-option>
+            @for (estado of estadosCarrera; track estado.valor) {
+              <mat-option [value]="estado.valor">{{ estado.etiqueta }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Valoración desde</mat-label>
+          <input
+            matInput
+            type="date"
+            name="fechaDesde"
+            [ngModel]="filtrosFormulario().fechaDesde"
+            (ngModelChange)="onFiltroCambiado('fechaDesde', $event)"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Valoración hasta</mat-label>
+          <input
+            matInput
+            type="date"
+            name="fechaHasta"
+            [min]="filtrosFormulario().fechaDesde"
+            [ngModel]="filtrosFormulario().fechaHasta"
+            (ngModelChange)="onFiltroCambiado('fechaHasta', $event)"
+          />
+          @if (rangoFechasInvalido()) {
+            <mat-hint class="graficos__error-fecha">Debe ser posterior a la fecha desde</mat-hint>
+          }
+        </mat-form-field>
+
+        <div class="graficos__filtros-acciones">
+          <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onLimpiar()">
+            <mat-icon>cleaning_services</mat-icon>
+            Limpiar
+          </button>
+          <button
+            matButton="filled"
+            type="submit"
+            [disabled]="cargando() || rangoFechasInvalido()"
+          >
+            <mat-icon>query_stats</mat-icon>
+            Aplicar filtros
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (resumenFiltros().length) {
+      <div class="graficos__chips" aria-label="Filtros aplicados">
+        <span class="graficos__chips-etiqueta">Aplicados:</span>
+        @for (filtro of resumenFiltros(); track filtro.campo) {
+          <span class="graficos__chip">
+            <span class="graficos__chip-clave">{{ filtro.etiqueta }}:</span>
+            {{ filtro.valor }}
+            <button
+              type="button"
+              class="graficos__chip-quitar"
+              [attr.aria-label]="'Quitar filtro ' + filtro.etiqueta"
+              [disabled]="cargando()"
+              (click)="onQuitarFiltro(filtro.campo)"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Pestañas (mockup 06a) -->
+  <div class="graficos__pestanas" role="tablist" aria-label="Consultas de gráficos de rubros">
+    @for (p of pestanas; track p.id; let primera = $first) {
+      @if (!primera && p.grupo !== pestanas[$index - 1].grupo) {
+        <span class="graficos__pestanas-divisor" aria-hidden="true"></span>
+      }
+      <button
+        type="button"
+        role="tab"
+        class="graficos__pestana"
+        [id]="'pestana-' + p.id"
+        [class.graficos__pestana--activa]="pestanaActiva() === p.id"
+        [attr.aria-selected]="pestanaActiva() === p.id"
+        [attr.aria-controls]="'panel-' + p.id"
+        [attr.tabindex]="pestanaActiva() === p.id ? 0 : -1"
+        (click)="onCambiarPestana(p.id)"
+        (keydown)="onTeclaPestana($event)"
+      >
+        <mat-icon>{{ p.icono }}</mat-icon>
+        <span>{{ p.etiqueta }}</span>
+        @if (p.id === 'proximos' && documentosPorCaducar() > 0) {
+          <span
+            class="graficos__insignia graficos__insignia--alerta"
+            [attr.aria-label]="documentosPorCaducar() + ' documentos por caducar'"
+          >
+            {{ documentosPorCaducar() }}
+          </span>
+        }
+        @if (pestanasConError().has(p.id)) {
+          <mat-icon class="graficos__pestana-error" aria-label="Con errores">error</mat-icon>
+        }
+      </button>
+    }
+  </div>
+
+  <section
+    class="graficos__panel"
+    role="tabpanel"
+    [id]="'panel-' + pestana().id"
+    [attr.aria-labelledby]="'pestana-' + pestana().id"
+  >
+    <p class="graficos__panel-descripcion">{{ pestana().descripcion }}</p>
+
+    @if (kpis().length) {
+      <div class="graficos__kpis">
+        @for (kpi of kpis(); track kpi.etiqueta) {
+          <div class="graficos__kpi" [class.graficos__kpi--destacado]="kpi.destacado">
+            <span class="graficos__kpi-etiqueta">
+              @if (kpi.icono) {
+                <mat-icon>{{ kpi.icono }}</mat-icon>
+              }
+              {{ kpi.etiqueta }}
+            </span>
+            <span class="graficos__kpi-valor">{{ kpi.valor.toLocaleString('es-PE') }}</span>
+            @if (kpi.porcentaje !== null) {
+              <span class="graficos__kpi-porcentaje">{{ kpi.porcentaje.toFixed(1) }} % del total</span>
+            }
+          </div>
+        }
+      </div>
+    } @else if (cargando()) {
+      <div class="graficos__kpis" aria-hidden="true">
+        <div class="graficos__kpi graficos__kpi--esqueleto"></div>
+        <div class="graficos__kpi graficos__kpi--esqueleto"></div>
+      </div>
+    }
+
+    <div class="graficos__grid">
+      @for (grafico of graficosPestana(); track grafico.indicador) {
+        <app-grafico-indicador
+          [class.graficos__item--ancho]="grafico.anchoCompleto"
+          [clave]="grafico.indicador"
+          [enColumnas]="grafico.enColumnas"
+          [titulo]="grafico.titulo"
+          [indicador]="indicadorDe(grafico.indicador)"
+          [error]="errorDe(grafico.indicador)"
+          [cargando]="cargando()"
+          (reintentar)="onConsultar()"
+        />
+      }
+    </div>
+  </section>
+</section>

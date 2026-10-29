@@ -1,0 +1,127 @@
+<article
+  class="grafico"
+  [class.grafico--actualizando]="cargando() && indicador()"
+  [attr.aria-busy]="cargando()"
+>
+  <header class="grafico__cabecera">
+    <div class="grafico__cabecera-texto">
+      <h2 class="grafico__titulo">{{ titulo() }}</h2>
+      @if (indicador(); as datos) {
+        @if (datos.descripcion) {
+          <p class="grafico__subtitulo">{{ datos.descripcion }}</p>
+        }
+      }
+    </div>
+    @if (indicador(); as datos) {
+      <span class="grafico__total" matTooltip="Magistrados del universo filtrado">
+        <mat-icon>groups</mat-icon>
+        {{ datos.total | number }}
+      </span>
+    }
+    @if (indicador() && !sinDatos()) {
+      <button
+        matIconButton
+        type="button"
+        class="grafico__vista"
+        [matTooltip]="vistaTabla() ? 'Ver gráfico' : 'Ver tabla'"
+        [attr.aria-label]="vistaTabla() ? 'Ver gráfico' : 'Ver tabla'"
+        [attr.aria-pressed]="vistaTabla()"
+        (click)="alternarVista()"
+      >
+        <mat-icon>{{ vistaTabla() ? 'bar_chart' : 'table_rows' }}</mat-icon>
+      </button>
+    }
+  </header>
+
+  @if (cargando() && !indicador()) {
+    <div class="grafico__esqueleto" aria-hidden="true">
+      @for (ancho of anchosEsqueleto; track $index) {
+        <div class="grafico__esqueleto-fila">
+          <span class="grafico__esqueleto-etiqueta"></span>
+          <span class="grafico__esqueleto-barra" [style.width.%]="ancho"></span>
+        </div>
+      }
+    </div>
+    <span class="grafico__sr">Cargando gráfico…</span>
+  } @else if (error(); as mensaje) {
+    <div class="grafico__estado grafico__estado--error" role="alert">
+      <mat-icon>cloud_off</mat-icon>
+      <span>{{ mensaje }}</span>
+      <button matButton="outlined" type="button" [disabled]="cargando()" (click)="reintentar.emit()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+  } @else if (sinDatos()) {
+    <div class="grafico__estado">
+      <mat-icon>filter_alt_off</mat-icon>
+      <span>No hay datos para los filtros seleccionados.</span>
+    </div>
+  } @else {
+    <div class="grafico__series">
+      @for (serie of series(); track serie.serie) {
+        <section class="grafico__serie">
+          @if (series().length > 1) {
+            <h3 class="grafico__serie-titulo">
+              <span>{{ serie.titulo }}</span>
+              <span class="grafico__serie-total">{{ serie.total | number }} {{ serie.unidad }}</span>
+            </h3>
+          }
+
+          @if (vistaTabla()) {
+            <table class="grafico__tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Categoría</th>
+                  <th scope="col" class="grafico__num">Cantidad</th>
+                  <th scope="col" class="grafico__num">%</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (barra of serie.barras; track barra.clave) {
+                  <tr>
+                    <td>{{ barra.etiqueta }}</td>
+                    <td class="grafico__num">{{ barra.cantidad | number }}</td>
+                    <td class="grafico__num">{{ barra.porcentaje | number: '1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Total</th>
+                  <td class="grafico__num">{{ serie.total | number }}</td>
+                  <td class="grafico__num"></td>
+                </tr>
+              </tfoot>
+            </table>
+          } @else {
+            <ul
+              class="grafico__barras"
+              [class.grafico__barras--columnas]="enColumnas()"
+              role="list"
+            >
+              @for (barra of serie.barras; track barra.clave) {
+                <li
+                  class="grafico__fila"
+                  [class.grafico__fila--sin-dato]="barra.sinDato"
+                  [class.grafico__fila--cero]="barra.cantidad === 0"
+                  tabindex="0"
+                  [matTooltip]="textoTooltip(barra, serie)"
+                  matTooltipPosition="above"
+                  [attr.aria-label]="textoTooltip(barra, serie)"
+                >
+                  <span class="grafico__etiqueta" [title]="barra.etiqueta">{{ barra.etiqueta }}</span>
+                  <span class="grafico__pista">
+                    <span class="grafico__barra" [style.width.%]="barra.ancho"></span>
+                  </span>
+                  <span class="grafico__valor">{{ barra.cantidad | number }}</span>
+                  <span class="grafico__porcentaje">{{ barra.porcentaje | number: '1.1-1' }} %</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+  }
+</article>
