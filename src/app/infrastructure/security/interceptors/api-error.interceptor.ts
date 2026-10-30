@@ -12,7 +12,10 @@ import { documentosInstitucionalesEndpoints } from '../../api/inicio-api.constan
 import { fechaValoracionEndpoints } from '../../api/fecha-valoracion-api.constants';
 import { fichaEndpoints } from '../../api/ficha-api.constants';
 import { dashboardEndpoints } from '../../api/dashboard-api.constants';
-import { cuadroAntiguedadEndpoints } from '../../api/reportes-api.constants';
+import {
+  cuadroAntiguedadEndpoints,
+  cuadroMeritosEndpoints,
+} from '../../api/reportes-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
 const RUTAS_AUTH_SIN_MODAL = [
@@ -89,6 +92,11 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     // Cuadro de antigüedad: la pantalla muestra el error de la consulta y de las
     // descargas (estas llegan como blob y se revisan en el adapter).
     coincide: (url) => url.includes(cuadroAntiguedadEndpoints.BASE),
+  },
+  {
+    method: 'GET',
+    // Cuadro de méritos: mismo manejo en pantalla (E400 junto al formulario, N015, descargas).
+    coincide: (url) => url.includes(cuadroMeritosEndpoints.BASE),
   },
   {
     method: 'POST',

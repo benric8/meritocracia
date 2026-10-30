@@ -1,0 +1,142 @@
+@use '../cuadro-reporte';
+
+// --- Filtros ---
+.cuadro__filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.cuadro__error-campo {
+  color: #b42318;
+}
+
+.cuadro__alerta {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: var(--mc-radius);
+
+  mat-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.cuadro__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.cuadro__acciones-busqueda,
+.cuadro__acciones-descarga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  mat-progress-spinner {
+    margin-right: 8px;
+  }
+}
+
+.cuadro__pendiente {
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #b54708;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 999px;
+  cursor: help;
+}
+
+// --- Tabla (Anexo 02) ---
+.cuadro__tabla thead th {
+  min-width: 72px;
+}
+
+.cuadro__separador {
+  margin: 0 6px;
+  color: var(--mc-text-muted);
+}
+
+.cuadro__texto {
+  text-align: left !important;
+}
+
+.cuadro__num {
+  text-align: right !important;
+}
+
+.cuadro__num--negativo {
+  color: #b42318;
+}
+
+.cuadro__col-total {
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.cuadro__cesante {
+  margin-left: 4px;
+  color: var(--mc-text);
+  cursor: help;
+}
+
+.cuadro__suspendido {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  cursor: help;
+  border-bottom: 1px dotted var(--mc-text-muted);
+}
+
+.cuadro__paginador {
+  background: transparent;
+}
+
+.cuadro__notas {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--mc-text-muted);
+  background: #f8fafc;
+  border-left: 3px solid var(--mc-primary-light);
+  border-radius: 0 var(--mc-radius) var(--mc-radius) 0;
+
+  p {
+    margin: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .cuadro__acciones,
+  .cuadro__acciones-busqueda,
+  .cuadro__acciones-descarga {
+    width: 100%;
+  }
+
+  .cuadro__acciones button {
+    flex: 1;
+  }
+}

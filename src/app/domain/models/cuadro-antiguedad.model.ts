@@ -36,9 +36,4 @@ export interface CuadroAntiguedad {
   filas: FilaCuadroAntiguedad[];
 }
 
-export type FormatoDescargaCuadro = 'excel' | 'pdf';
-
-export interface ArchivoDescargado {
-  nombre: string;
-  contenido: Blob;
-}
+export type { ArchivoDescargado, FormatoDescargaCuadro } from './reporte-descarga.model';

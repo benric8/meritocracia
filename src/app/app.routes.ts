@@ -101,6 +101,15 @@ export const routes: Routes = [
                 './presentation/features/reportes/cuadro-antiguedad-supremos/cuadro-antiguedad-supremos'
               ).then((m) => m.CuadroAntiguedadSupremos),
           },
+          // Submenú C: Cuadro de Méritos de Jueces Superiores Titulares (Anexo 02).
+          {
+            path: 'cuadro-meritos-superiores',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import(
+                './presentation/features/reportes/cuadro-meritos-superiores/cuadro-meritos-superiores'
+              ).then((m) => m.CuadroMeritosSuperiores),
+          },
         ],
       }
     ]

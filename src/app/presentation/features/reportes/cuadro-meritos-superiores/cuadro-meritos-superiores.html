@@ -1,0 +1,320 @@
+<section class="cuadro">
+  <header class="cuadro__cabecera">
+    <span class="cuadro__etiqueta-seccion">Reportes · Anexo 02</span>
+    <h1 class="cuadro__titulo">Cuadro de méritos de Jueces Superiores Titulares</h1>
+    <p class="cuadro__subtitulo">
+      Orden de mérito nacional calculado por el sistema. Los filtros no cambian el N° de orden.
+    </p>
+  </header>
+
+  <!-- Filtros: se aplican al pulsar Buscar (o Enter), no en cada tecla -->
+  <form class="cuadro__filtros" (submit)="onBuscar($event)" novalidate aria-label="Filtros del cuadro">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Fecha de valoración</mat-label>
+      <mat-select
+        name="idFechaValoracion"
+        [value]="filtrosFormulario().idFechaValoracion"
+        [disabled]="!fechas().length"
+        (valueChange)="onFiltroCambiado('idFechaValoracion', $event)"
+      >
+        @for (fecha of fechas(); track fecha.id) {
+          <mat-option [value]="fecha.id">
+            {{ etiquetaFecha(fecha) }}
+            @if (fecha.id === idVigente()) {
+              <span class="cuadro__vigente">Vigente</span>
+            }
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Distrito judicial</mat-label>
+      <mat-select
+        name="idDistritoJudicial"
+        [value]="filtrosFormulario().idDistritoJudicial"
+        (valueChange)="onFiltroCambiado('idDistritoJudicial', $event)"
+      >
+        <mat-option value="">Todos</mat-option>
+        @for (distrito of distritos(); track distrito.id) {
+          <mat-option [value]="distrito.id">{{ distrito.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Especialidad</mat-label>
+      <mat-select
+        name="idEspecialidad"
+        [value]="filtrosFormulario().idEspecialidad"
+        (valueChange)="onFiltroCambiado('idEspecialidad', $event)"
+      >
+        <mat-option value="">Todas</mat-option>
+        @for (especialidad of especialidades(); track especialidad.id) {
+          <mat-option [value]="especialidad.id">{{ especialidad.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>DNI</mat-label>
+      <input
+        matInput
+        name="dni"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="8"
+        placeholder="8 dígitos"
+        [value]="filtrosFormulario().dni"
+        [attr.aria-invalid]="intentoBuscar() && !!errorDni()"
+        (input)="onTextoCambiado('dni', $event)"
+      />
+      @if (intentoBuscar() && errorDni(); as mensaje) {
+        <mat-hint class="cuadro__error-campo">{{ mensaje }}</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Apellidos y nombres</mat-label>
+      <input
+        matInput
+        name="apellidosNombres"
+        autocomplete="off"
+        placeholder="Ej.: PEREZ"
+        [attr.maxlength]="nombreMaxLength"
+        [value]="filtrosFormulario().apellidosNombres"
+        (input)="onTextoCambiado('apellidosNombres', $event)"
+      />
+      @if (intentoBuscar() && errorNombre(); as mensaje) {
+        <mat-hint class="cuadro__error-campo">{{ mensaje }}</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Condición</mat-label>
+      <mat-select
+        name="estadoCarrera"
+        [value]="filtrosFormulario().estadoCarrera"
+        (valueChange)="onFiltroCambiado('estadoCarrera', $event)"
+      >
+        <mat-option value="">Todos</mat-option>
+        @for (estado of estadosCarrera; track estado.valor) {
+          <mat-option [value]="estado.valor">{{ estado.etiqueta }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (errorValidacion(); as detalle) {
+      <div class="cuadro__alerta" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ detalle.mensaje }}</span>
+      </div>
+    }
+
+    <div class="cuadro__acciones">
+      <div class="cuadro__acciones-busqueda">
+        <button matButton="filled" type="submit" [disabled]="cargando()">
+          <mat-icon>search</mat-icon>
+          Buscar
+        </button>
+        <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onLimpiar()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Limpiar
+        </button>
+        @if (hayCambiosPendientes()) {
+          <span
+            class="cuadro__pendiente"
+            matTooltip="Las descargas usan los filtros de la última búsqueda"
+          >
+            Cambios sin buscar
+          </span>
+        }
+      </div>
+
+      <div class="cuadro__acciones-descarga">
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="descargasDeshabilitadas()"
+          [attr.aria-busy]="descargando() === 'excel'"
+          (click)="onDescargar('excel')"
+        >
+          @if (descargando() === 'excel') {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon>table_view</mat-icon>
+          }
+          Descargar Excel
+        </button>
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="descargasDeshabilitadas()"
+          [attr.aria-busy]="descargando() === 'pdf'"
+          (click)="onDescargar('pdf')"
+        >
+          @if (descargando() === 'pdf') {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+          }
+          Descargar PDF
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <section class="cuadro__panel" [attr.aria-busy]="cargando()" aria-labelledby="titulo-anexo">
+    @if (errorCuadro(); as detalle) {
+      <div class="cuadro__estado cuadro__estado--error" role="alert">
+        <mat-icon>{{ errorDeFecha() ? 'event_busy' : 'cloud_off' }}</mat-icon>
+        <p>{{ detalle.mensaje }}</p>
+        @if (errorDeFecha()) {
+          <p class="cuadro__estado-ayuda">Elija otra fecha de valoración y pulse Buscar.</p>
+        } @else {
+          <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onReintentar()">
+            <mat-icon>refresh</mat-icon>
+            Reintentar
+          </button>
+        }
+      </div>
+    } @else if (cuadro(); as datos) {
+      <div class="cuadro__resumen">
+        @if (encabezado(); as cabecera) {
+          <h2 id="titulo-anexo" class="cuadro__resumen-fecha">
+            Fecha de valoración: <strong>{{ cabecera.fecha }}</strong>
+            <span class="cuadro__separador" aria-hidden="true">·</span>
+            Puntaje máximo: <strong>{{ cabecera.puntajeMaximo }}</strong>
+          </h2>
+        }
+        @if (filas().length) {
+          <span class="cuadro__resumen-total">
+            <mat-icon>groups</mat-icon>
+            {{ filas().length }} {{ filas().length === 1 ? 'juez' : 'jueces' }}
+          </span>
+        }
+        @if (cargando()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" aria-label="Actualizando" />
+        }
+      </div>
+
+      @if (filas().length) {
+        <div
+          class="cuadro__tabla-contenedor"
+          [class.cuadro__tabla-contenedor--actualizando]="cargando()"
+          tabindex="0"
+          role="region"
+          aria-label="Cuadro de méritos, desplazable horizontalmente"
+        >
+          <table class="cuadro__tabla">
+            <thead>
+              <tr>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--orden">N° ORDEN</th>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--nombre">
+                  APELLIDOS Y NOMBRES
+                </th>
+                <th scope="col" rowspan="2">DISTRITO JUDICIAL</th>
+                <th scope="colgroup" colspan="2" class="cuadro__grupo">ESPECIALIDAD</th>
+                <th scope="col" rowspan="2">I. PRODUCCIÓN JURISDICCIONAL</th>
+                <th scope="col" rowspan="2">II. ANTIGÜEDAD EN EL CARGO</th>
+                <th scope="col" rowspan="2">III. GRADOS ACADÉMICOS Y TÍTULOS</th>
+                <th scope="col" rowspan="2" class="cuadro__fin-grupo">IV. ESTUDIOS AMAG</th>
+                <th scope="colgroup" colspan="8" class="cuadro__grupo">
+                  V. ESTUDIOS DE PERFECCIONAMIENTO
+                </th>
+                <th scope="col" rowspan="2">VI. PUBLICACIONES</th>
+                <th scope="col" rowspan="2">VII. DISTINCIONES Y CONDECORACIONES</th>
+                <th scope="col" rowspan="2">VIII. DOCENCIA UNIVERSITARIA</th>
+                <th scope="col" rowspan="2">IX. DEMÉRITOS (-)</th>
+                <th scope="col" rowspan="2" class="cuadro__fin-grupo cuadro__col-total">
+                  PUNTAJE TOTAL
+                </th>
+                <th scope="colgroup" colspan="3" class="cuadro__grupo">CRITERIOS DE DESEMPATE</th>
+              </tr>
+              <tr>
+                <th scope="col">PRIMERA</th>
+                <th scope="col" class="cuadro__fin-grupo">SEGUNDA</th>
+                <th scope="col">V.1 DOCT. / MAEST. INCONCLUSOS</th>
+                <th scope="col">V.2 PASANTÍAS</th>
+                <th scope="col">V.3 CURSOS (50 h o más)</th>
+                <th scope="col">V.4 EXPOSITOR / PONENTE</th>
+                <th scope="col">V.5 ASISTENCIA A EVENTOS</th>
+                <th scope="col">V.6 OFIMÁTICA</th>
+                <th scope="col">V.7 IDIOMAS</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL</th>
+                <th scope="col">I (Rubros III al IX)</th>
+                <th scope="col">II (Rubro IX)</th>
+                <th scope="col">III (N° Cuadro Antigüedad)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasPagina(); track fila.clave) {
+                <tr>
+                  <td class="cuadro__fija cuadro__fija--orden cuadro__orden">{{ fila.orden }}</td>
+                  <th scope="row" class="cuadro__fija cuadro__fija--nombre">
+                    {{ fila.apellidosNombres }}
+                    @if (fila.cesante) {
+                      <strong class="cuadro__cesante" matTooltip="Cesante">(*)</strong>
+                    }
+                  </th>
+                  <td class="cuadro__texto">{{ fila.distritoJudicial }}</td>
+                  <td class="cuadro__texto">{{ fila.primeraEspecialidad }}</td>
+                  <td class="cuadro__texto cuadro__fin-grupo">{{ fila.segundaEspecialidad }}</td>
+                  <td>
+                    <span class="cuadro__suspendido" [matTooltip]="datos.notaProduccion">
+                      Suspendido
+                    </span>
+                  </td>
+                  @for (celda of fila.puntajes; track celda.campo) {
+                    <td
+                      class="cuadro__num"
+                      [class.cuadro__num--negativo]="celda.negativo"
+                      [class.cuadro__col-total]="celda.total"
+                      [class.cuadro__fin-grupo]="celda.finGrupo"
+                    >
+                      {{ celda.valor }}
+                    </td>
+                  }
+                  <td>{{ fila.criterioIII }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (filas().length > opcionesTamanioPagina[0]) {
+          <mat-paginator
+            class="cuadro__paginador"
+            [length]="filas().length"
+            [pageIndex]="paginaActual()"
+            [pageSize]="tamanioPagina()"
+            [pageSizeOptions]="opcionesTamanioPagina"
+            (page)="onPaginaCambiada($event)"
+            aria-label="Paginación del cuadro de méritos"
+          />
+        }
+      } @else {
+        <div class="cuadro__estado">
+          <mat-icon>person_search</mat-icon>
+          <p>No hay Jueces Superiores Titulares que cumplan los filtros.</p>
+        </div>
+      }
+
+      @if (datos.notaProduccion || datos.notaCesantes) {
+        <div class="cuadro__notas">
+          @if (datos.notaProduccion) {
+            <p>{{ datos.notaProduccion }}</p>
+          }
+          @if (datos.notaCesantes) {
+            <p>{{ datos.notaCesantes }}</p>
+          }
+        </div>
+      }
+    } @else if (cargando()) {
+      <div class="cuadro__estado">
+        <mat-progress-spinner diameter="32" mode="indeterminate" />
+        <p>Cargando cuadro de méritos…</p>
+      </div>
+    }
+  </section>
+</section>

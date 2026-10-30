@@ -1,48 +1,4 @@
-@use '@angular/material' as mat;
-
-$ancho-orden: 56px;
-
-:host {
-  display: block;
-  color: var(--mc-text);
-
-  @include mat.button-overrides(
-    (
-      filled-container-color: var(--mc-primary),
-      filled-label-text-color: #ffffff,
-      outlined-label-text-color: var(--mc-primary),
-      outlined-outline-color: var(--mc-primary),
-    )
-  );
-}
-
-.cuadro {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-// --- Cabecera ---
-.cuadro__etiqueta-seccion {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--mc-primary);
-}
-
-.cuadro__titulo {
-  margin: 2px 0 0;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.cuadro__subtitulo {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: var(--mc-text-muted);
-}
+@use '../cuadro-reporte';
 
 // --- Barra: fecha + descargas ---
 .cuadro__barra {
@@ -62,16 +18,6 @@ $ancho-orden: 56px;
   width: min(100%, 280px);
 }
 
-.cuadro__vigente {
-  margin-left: 8px;
-  padding: 1px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--mc-primary-dark);
-  background: var(--mc-primary-p20);
-  border-radius: 999px;
-}
-
 .cuadro__descargas {
   display: flex;
   flex-wrap: wrap;
@@ -80,142 +26,6 @@ $ancho-orden: 56px;
   mat-progress-spinner {
     margin-right: 8px;
   }
-}
-
-// --- Panel ---
-.cuadro__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-  padding: 18px 20px;
-  background: var(--mc-surface);
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-radius-lg);
-  box-shadow: var(--mc-shadow);
-}
-
-.cuadro__resumen {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-}
-
-.cuadro__resumen-fecha {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.cuadro__resumen-total {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #f1f5f9;
-  border-radius: 999px;
-
-  mat-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
-    color: var(--mc-text-muted);
-  }
-}
-
-// --- Tabla (Anexo 01) ---
-.cuadro__tabla-contenedor {
-  overflow-x: auto;
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-radius);
-  transition: opacity 0.15s ease;
-  scrollbar-width: thin;
-
-  &:focus-visible {
-    outline: 2px solid var(--mc-primary-light);
-    outline-offset: 2px;
-  }
-}
-
-.cuadro__tabla-contenedor--actualizando {
-  opacity: 0.55;
-}
-
-.cuadro__tabla {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-
-  th,
-  td {
-    padding: 8px 10px;
-    text-align: center;
-    white-space: nowrap;
-    background: var(--mc-surface);
-    border-bottom: 1px solid var(--mc-border);
-  }
-
-  thead th {
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--mc-text-muted);
-    white-space: normal;
-    vertical-align: middle;
-    background: #f8fafc;
-  }
-
-  tbody tr:last-child > * {
-    border-bottom: 0;
-  }
-
-  tbody tr:hover > * {
-    background: #f8fafc;
-  }
-}
-
-.cuadro__grupo {
-  color: var(--mc-text) !important;
-  border-right: 1px solid var(--mc-border);
-}
-
-.cuadro__fin-grupo {
-  border-right: 1px solid var(--mc-border);
-}
-
-// Orden y nombre quedan fijos al desplazar horizontalmente.
-.cuadro__fija {
-  position: sticky;
-  z-index: 1;
-}
-
-.cuadro__fija--orden {
-  left: 0;
-  width: $ancho-orden;
-  min-width: $ancho-orden;
-}
-
-.cuadro__fija--nombre {
-  left: $ancho-orden;
-  min-width: 240px;
-  text-align: left !important;
-  border-right: 1px solid var(--mc-border);
-  box-shadow: 4px 0 6px -4px rgba(15, 23, 42, 0.15);
-}
-
-tbody .cuadro__fija--nombre {
-  font-weight: 600;
-  color: var(--mc-text);
-}
-
-.cuadro__orden {
-  font-weight: 700;
-  color: var(--mc-primary);
 }
 
 .cuadro__tiempo {
@@ -239,61 +49,9 @@ tbody .cuadro__fija--nombre {
   border-radius: 0 var(--mc-radius) var(--mc-radius) 0;
 }
 
-// --- Estados ---
-.cuadro__estado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 200px;
-  font-size: 14px;
-  color: var(--mc-text-muted);
-  text-align: center;
-
-  p {
-    margin: 0;
-  }
-
-  > mat-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 36px;
-    color: #cbd5e1;
-  }
-}
-
-.cuadro__estado--error {
-  color: #b42318;
-
-  > mat-icon {
-    color: #f97066;
-  }
-}
-
-.cuadro__estado-ayuda {
-  color: var(--mc-text-muted);
-}
-
 @media (max-width: 600px) {
-  .cuadro__titulo {
-    font-size: 22px;
-  }
-
   .cuadro__descargas,
   .cuadro__descargas button {
     width: 100%;
-  }
-
-  // En pantallas angostas solo el orden queda fijo: el nombre ocuparía todo el ancho.
-  .cuadro__fija--nombre {
-    position: static;
-    min-width: 180px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cuadro__tabla-contenedor {
-    transition: none;
   }
 }
