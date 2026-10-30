@@ -1,0 +1,267 @@
+<section class="cuadro">
+  <header class="cuadro__cabecera">
+    <span class="cuadro__etiqueta-seccion">Reportes · Anexo 03</span>
+    <h1 class="cuadro__titulo">Cuadro de antigüedad de Jueces Superiores Titulares</h1>
+    <p class="cuadro__subtitulo">
+      Orden de precedencia calculado por el sistema, a nivel nacional o por Corte Superior
+    </p>
+  </header>
+
+  <!-- Filtros: se aplican al pulsar Buscar -->
+  <form class="cuadro__filtros" (submit)="onBuscar($event)" novalidate aria-label="Filtros del cuadro">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Fecha de valoración</mat-label>
+      <mat-select
+        name="idFechaValoracion"
+        [value]="filtrosFormulario().idFechaValoracion"
+        [disabled]="!fechas().length"
+        (valueChange)="onFiltroCambiado('idFechaValoracion', $event)"
+      >
+        @for (fecha of fechas(); track fecha.id) {
+          <mat-option [value]="fecha.id">
+            {{ etiquetaFecha(fecha) }}
+            @if (fecha.id === idVigente()) {
+              <span class="cuadro__vigente">Vigente</span>
+            }
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Corte Superior</mat-label>
+      <mat-select
+        name="idDistritoJudicial"
+        [value]="filtrosFormulario().idDistritoJudicial"
+        (valueChange)="onFiltroCambiado('idDistritoJudicial', $event)"
+      >
+        <mat-option value="">Nacional (todas)</mat-option>
+        @for (distrito of distritos(); track distrito.id) {
+          <mat-option [value]="distrito.id">{{ distrito.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="cuadro__acciones">
+      <div class="cuadro__acciones-busqueda">
+        <button matButton="filled" type="submit" [disabled]="cargando()">
+          <mat-icon>search</mat-icon>
+          Buscar
+        </button>
+        <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onLimpiar()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Limpiar
+        </button>
+        @if (hayCambiosPendientes()) {
+          <span
+            class="cuadro__pendiente"
+            matTooltip="Las descargas usan los filtros de la última búsqueda"
+          >
+            Cambios sin buscar
+          </span>
+        }
+      </div>
+
+      <div class="cuadro__acciones-descarga">
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="descargasDeshabilitadas()"
+          [attr.aria-busy]="descargando() === 'excel'"
+          (click)="onDescargar('excel')"
+        >
+          @if (descargando() === 'excel') {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon>table_view</mat-icon>
+          }
+          Descargar Excel
+        </button>
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="descargasDeshabilitadas()"
+          [attr.aria-busy]="descargando() === 'pdf'"
+          (click)="onDescargar('pdf')"
+        >
+          @if (descargando() === 'pdf') {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+          }
+          Descargar PDF
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <section class="cuadro__panel" [attr.aria-busy]="cargando()" aria-labelledby="titulo-anexo">
+    @if (error(); as detalle) {
+      <div class="cuadro__estado cuadro__estado--error" role="alert">
+        <mat-icon>{{ errorDeFecha() ? 'event_busy' : 'cloud_off' }}</mat-icon>
+        <p>{{ detalle.mensaje }}</p>
+        @if (errorDeFecha()) {
+          <p class="cuadro__estado-ayuda">Elija otra fecha de valoración y pulse Buscar.</p>
+        } @else {
+          <button matButton="outlined" type="button" [disabled]="cargando()" (click)="onReintentar()">
+            <mat-icon>refresh</mat-icon>
+            Reintentar
+          </button>
+        }
+      </div>
+    } @else if (cuadro()) {
+      <div class="cuadro__resumen">
+        @if (encabezado(); as cabecera) {
+          <h2 id="titulo-anexo" class="cuadro__resumen-fecha">
+            Fecha de valoración: <strong>{{ cabecera.fecha }}</strong>
+            <span class="cuadro__separador" aria-hidden="true">-</span>
+            {{ cabecera.ambito }}
+          </h2>
+        }
+        @if (filas().length) {
+          <span class="cuadro__resumen-total">
+            <mat-icon>groups</mat-icon>
+            {{ filas().length }} {{ filas().length === 1 ? 'juez' : 'jueces' }}
+          </span>
+        }
+        @if (cargando()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" aria-label="Actualizando" />
+        }
+      </div>
+
+      @if (filas().length) {
+        <div
+          class="cuadro__tabla-contenedor"
+          [class.cuadro__tabla-contenedor--actualizando]="cargando()"
+          tabindex="0"
+          role="region"
+          aria-label="Cuadro de antigüedad, desplazable horizontalmente"
+        >
+          <table class="cuadro__tabla">
+            <thead>
+              <tr>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--orden">ORD</th>
+                <th scope="col" rowspan="2" class="cuadro__fija cuadro__fija--nombre">
+                  APELLIDOS Y NOMBRES
+                </th>
+                <th scope="col" rowspan="2">FECHA DE NACIMIENTO</th>
+                <th scope="col" rowspan="2" class="cuadro__fin-grupo">DISTRITO JUDICIAL (**)</th>
+                <th scope="colgroup" colspan="3" class="cuadro__grupo">TITULARIDAD (T1)</th>
+                <th scope="colgroup" colspan="2" class="cuadro__grupo">REINCORPORACIÓN (R1)</th>
+                <th scope="col" rowspan="2" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="colgroup" colspan="3" class="cuadro__grupo">
+                  JUEZ ESPECIALIZADO (TITULAR)
+                </th>
+                <th scope="colgroup" colspan="4" class="cuadro__grupo">
+                  PROVISIONALIDAD EN EL NIVEL ACTUAL (***)
+                </th>
+                <th scope="colgroup" colspan="2" class="cuadro__grupo">ANTIGÜEDAD COLEGIATURA</th>
+                <th scope="col" rowspan="2">HORA DE JURAMENTO</th>
+              </tr>
+              <tr>
+                <th scope="col">FECHA ACTA DE JURAMENTO</th>
+                <th scope="col">FECHA CESE</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">FECHA DE REINCORP.</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">INICIO</th>
+                <th scope="col">FIN</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">FEC_INICIO</th>
+                <th scope="col">FEC_FIN</th>
+                <th scope="col">Cantidad Períodos</th>
+                <th scope="col" class="cuadro__fin-grupo">TOTAL (aa - mm - dd)</th>
+                <th scope="col">FECHA COLEGIATURA</th>
+                <th scope="col" class="cuadro__fin-grupo">AÑOS COLEG.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasPagina(); track fila.clave) {
+                <tr>
+                  <td class="cuadro__fija cuadro__fija--orden cuadro__orden">
+                    @if (porCorte()) {
+                      <span
+                        class="cuadro__en-curso"
+                        [matTooltip]="'N° ' + fila.ordenNacional + ' a nivel nacional'"
+                        >{{ fila.orden }}</span
+                      >
+                    } @else {
+                      {{ fila.orden }}
+                    }
+                  </td>
+                  <th scope="row" class="cuadro__fija cuadro__fija--nombre">
+                    {{ fila.apellidosNombres }}
+                    @if (fila.cesante) {
+                      <strong class="cuadro__cesante" matTooltip="Cesante">(*)</strong>
+                    }
+                  </th>
+                  <td>{{ fila.fechaNacimiento }}</td>
+                  <td class="cuadro__texto cuadro__fin-grupo">{{ fila.distritoJudicial }}</td>
+                  <td>{{ fila.fechaJuramentoTitular }}</td>
+                  <td>{{ fila.fechaCese }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoTitularidad }}</td>
+                  <td>{{ fila.fechaReincorporacion }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoReincorporacion }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo cuadro__total">
+                    {{ fila.tiempoTotal }}
+                  </td>
+                  <td>{{ fila.inicioJuezEspecializado }}</td>
+                  <td>{{ fila.finJuezEspecializado }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoJuezEspecializado }}</td>
+                  <td>{{ fila.inicioProvisional }}</td>
+                  <td>
+                    @if (fila.provisionalEnCurso) {
+                      <span
+                        class="cuadro__en-curso"
+                        matTooltip="El último periodo provisional sigue abierto"
+                        aria-label="En curso: el último periodo provisional sigue abierto"
+                        >{{ fila.finProvisional }}</span
+                      >
+                    } @else {
+                      {{ fila.finProvisional }}
+                    }
+                  </td>
+                  <td>{{ fila.periodosProvisional }}</td>
+                  <td class="cuadro__tiempo cuadro__fin-grupo">{{ fila.tiempoProvisional }}</td>
+                  <td>{{ fila.fechaColegiatura }}</td>
+                  <td class="cuadro__fin-grupo">{{ fila.aniosColegiatura }}</td>
+                  <td class="cuadro__tiempo">{{ fila.horaJuramentoTitular }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (filas().length > opcionesTamanioPagina[0]) {
+          <mat-paginator
+            class="cuadro__paginador"
+            [length]="filas().length"
+            [pageIndex]="paginaActual()"
+            [pageSize]="tamanioPagina()"
+            [pageSizeOptions]="opcionesTamanioPagina"
+            (page)="onPaginaCambiada($event)"
+            aria-label="Paginación del cuadro de antigüedad"
+          />
+        }
+      } @else {
+        <div class="cuadro__estado">
+          <mat-icon>person_search</mat-icon>
+          <p>No hay Jueces Superiores Titulares para la Corte o la fecha seleccionada.</p>
+        </div>
+      }
+
+      @if (notas().length) {
+        <div class="cuadro__notas">
+          @for (nota of notas(); track $index) {
+            <p>{{ nota }}</p>
+          }
+        </div>
+      }
+    } @else if (cargando()) {
+      <div class="cuadro__estado">
+        <mat-progress-spinner diameter="32" mode="indeterminate" />
+        <p>Cargando cuadro de antigüedad…</p>
+      </div>
+    }
+  </section>
+</section>

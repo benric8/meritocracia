@@ -39,7 +39,7 @@ function toFilaCuadroAntiguedad(dto: FilaCuadroAntiguedadDto, indice: number): F
   };
 }
 
-function toTiempo(dto: TiempoAntiguedadDto | null | undefined): TiempoAntiguedad | null {
+export function toTiempo(dto: TiempoAntiguedadDto | null | undefined): TiempoAntiguedad | null {
   if (!dto) {
     return null;
   }

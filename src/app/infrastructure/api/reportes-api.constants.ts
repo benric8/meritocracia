@@ -9,6 +9,11 @@ export const cuadroAntiguedadEndpoints = {
   /** GET `?fecha_valoracion_id=` → `.xlsx` / `.pdf` (o `GlobalResponse` JSON si falla). */
   descarga: (formato: FormatoDescargaCuadro) =>
     `reportes/cuadro-antiguedad/jueces-supremos/${formato}`,
+  /** GET `?fecha_valoracion_id=&distrito_judicial_id=` → JSON con el cuadro (Anexo 03). */
+  JUECES_SUPERIORES: 'reportes/cuadro-antiguedad/jueces-superiores',
+  /** Mismos filtros → `.xlsx` / `.pdf` (o `GlobalResponse` JSON si falla). */
+  descargaSuperiores: (formato: FormatoDescargaCuadro) =>
+    `reportes/cuadro-antiguedad/jueces-superiores/${formato}`,
 } as const;
 
 export const cuadroMeritosEndpoints = {

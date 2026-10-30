@@ -194,6 +194,97 @@ tbody .cuadro__fija--nombre {
   color: var(--mc-primary);
 }
 
+.cuadro__texto {
+  text-align: left !important;
+}
+
+.cuadro__tiempo {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12.5px;
+}
+
+.cuadro__en-curso {
+  cursor: help;
+  border-bottom: 1px dotted var(--mc-text-muted);
+}
+
+.cuadro__cesante {
+  margin-left: 4px;
+  color: var(--mc-text);
+  cursor: help;
+}
+
+.cuadro__separador {
+  margin: 0 6px;
+  color: var(--mc-text-muted);
+}
+
+.cuadro__paginador {
+  background: transparent;
+}
+
+// --- Filtros (Anexos 02 y 03) ---
+.cuadro__filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.cuadro__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.cuadro__acciones-busqueda,
+.cuadro__acciones-descarga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  mat-progress-spinner {
+    margin-right: 8px;
+  }
+}
+
+.cuadro__pendiente {
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #b54708;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 999px;
+  cursor: help;
+}
+
+// --- Notas al pie ---
+.cuadro__notas {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--mc-text-muted);
+  background: #f8fafc;
+  border-left: 3px solid var(--mc-primary-light);
+  border-radius: 0 var(--mc-radius) var(--mc-radius) 0;
+
+  p {
+    margin: 0;
+  }
+}
+
 // --- Estados ---
 .cuadro__estado {
   display: flex;
@@ -233,6 +324,16 @@ tbody .cuadro__fija--nombre {
 @media (max-width: 600px) {
   .cuadro__titulo {
     font-size: 22px;
+  }
+
+  .cuadro__acciones,
+  .cuadro__acciones-busqueda,
+  .cuadro__acciones-descarga {
+    width: 100%;
+  }
+
+  .cuadro__acciones button {
+    flex: 1;
   }
 
   // En pantallas angostas solo el orden queda fijo: el nombre ocuparía todo el ancho.

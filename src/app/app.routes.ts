@@ -110,6 +110,15 @@ export const routes: Routes = [
                 './presentation/features/reportes/cuadro-meritos-superiores/cuadro-meritos-superiores'
               ).then((m) => m.CuadroMeritosSuperiores),
           },
+          // Submenú D: Cuadro de Antigüedad de Jueces Superiores Titulares (Anexo 03).
+          {
+            path: 'cuadro-antiguedad-superiores',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import(
+                './presentation/features/reportes/cuadro-antiguedad-superiores/cuadro-antiguedad-superiores'
+              ).then((m) => m.CuadroAntiguedadSuperiores),
+          },
         ],
       }
     ]
