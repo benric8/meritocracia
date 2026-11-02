@@ -28,11 +28,9 @@ import {
 } from '../../../../domain/models/cuadro-antiguedad-superiores.model';
 import { DetalleError } from '../../../../domain/models/detalle-error.model';
 import { FechaValoracion } from '../../../../domain/models/fecha-valoracion.model';
-import {
-  ArchivoDescargado,
-  FormatoDescargaCuadro,
-} from '../../../../domain/models/reporte-descarga.model';
+import { FormatoDescargaCuadro } from '../../../../domain/models/reporte-descarga.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
+import { guardarArchivoDescargado } from '../guardar-archivo.util';
 import { formatearFechaCuadro } from '../cuadro-antiguedad-supremos/cuadro-antiguedad.util';
 import { aFilaCuadroAntiguedadSuperioresVista } from './cuadro-antiguedad-superiores.util';
 
@@ -241,7 +239,7 @@ export class CuadroAntiguedadSuperiores implements OnInit {
       )
       .subscribe((resultado) => {
         if (resultado.exito) {
-          this.guardarArchivo(resultado.archivo);
+          guardarArchivoDescargado(resultado.archivo);
           return;
         }
         void this.alertas.error('No se pudo descargar el archivo', resultado.detalle);
@@ -257,14 +255,5 @@ export class CuadroAntiguedadSuperiores implements OnInit {
       ...FILTROS_CUADRO_ANTIGUEDAD_SUPERIORES_VACIOS,
       idFechaValoracion: this.idVigente() ?? '',
     };
-  }
-
-  private guardarArchivo({ nombre, contenido }: ArchivoDescargado): void {
-    const url = URL.createObjectURL(contenido);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = nombre;
-    enlace.click();
-    URL.revokeObjectURL(url);
   }
 }

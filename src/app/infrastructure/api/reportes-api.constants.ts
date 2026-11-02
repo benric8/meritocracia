@@ -16,6 +16,16 @@ export const cuadroAntiguedadEndpoints = {
     `reportes/cuadro-antiguedad/jueces-superiores/${formato}`,
 } as const;
 
+export const fichaValoracionReporteEndpoints = {
+  /** Prefijo común de consulta y descarga (usado por el interceptor de errores). */
+  BASE: 'reportes/ficha-valoracion/',
+  /** GET → JSON con la ficha (Anexo 04). */
+  porId: (idFicha: string) =>
+    `reportes/ficha-valoracion/${encodeURIComponent(idFicha.trim())}`,
+  /** GET → `.pdf` (o `GlobalResponse` JSON si falla). */
+  pdf: (idFicha: string) => `reportes/ficha-valoracion/${encodeURIComponent(idFicha.trim())}/pdf`,
+} as const;
+
 export const cuadroMeritosEndpoints = {
   /** Prefijo común de consulta y descargas (usado por el interceptor de errores). */
   BASE: 'reportes/cuadro-meritos/',

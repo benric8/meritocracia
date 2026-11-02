@@ -5,10 +5,16 @@ import { PeticionPaginada, ResultadoPaginado } from '../models/paginacion.model'
 
 /**
  * Puerto de salida: bandeja de consulta de fichas de valoración (RF006 - Consulta).
- * El listado se limita siempre a las fichas del registrador en sesión.
+ * `listar` se limita siempre a las fichas del registrador en sesión.
  */
 export interface FichasConsultaPort {
   listar(
+    filtros: FiltrosConsultaFichas,
+    paginacion: PeticionPaginada
+  ): Observable<ResultadoPaginado<FichaResumen>>;
+
+  /** Búsqueda de todas las fichas, sin limitar al registrador (Reportes - Anexo 04). */
+  buscarTodas(
     filtros: FiltrosConsultaFichas,
     paginacion: PeticionPaginada
   ): Observable<ResultadoPaginado<FichaResumen>>;

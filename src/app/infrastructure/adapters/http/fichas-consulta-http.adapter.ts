@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 import { tokenNiveles } from '../../../domain/commons/constants';
@@ -41,10 +41,42 @@ export class FichasConsultaHttpAdapter implements FichasConsultaPort {
       return throwError(() => error);
     }
 
-    let params = crearParametrosPaginacion(paginacion).set(
+    const params = this.parametrosBusqueda(filtros, paginacion).set(
       'registrador_id',
       String(registradorId)
     );
+    return this.consultar(params);
+  }
+
+  buscarTodas(
+    filtros: FiltrosConsultaFichas,
+    paginacion: PeticionPaginada
+  ): Observable<ResultadoPaginado<FichaResumen>> {
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+    return this.consultar(this.parametrosBusqueda(filtros, paginacion));
+  }
+
+  private consultar(params: HttpParams): Observable<ResultadoPaginado<FichaResumen>> {
+    return this.http
+      .get<ListarFichasResumenResponse>(`${this.baseUrl}${fichaEndpoints.LISTAR}`, { params })
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          return toResultadoPaginado(respuesta, toFichaResumen);
+        }),
+        mapearAErrorNegocioApi('No se pudo consultar las fichas de valoración.')
+      );
+  }
+
+  private parametrosBusqueda(
+    filtros: FiltrosConsultaFichas,
+    paginacion: PeticionPaginada
+  ): HttpParams {
+    let params = crearParametrosPaginacion(paginacion);
     const dni = filtros.dni.trim();
     const apellidos = filtros.apellidos.trim();
     const nombres = filtros.nombres.trim();
@@ -57,16 +89,7 @@ export class FichasConsultaHttpAdapter implements FichasConsultaPort {
     if (nombres) {
       params = params.set('nombres', nombres);
     }
-
-    return this.http
-      .get<ListarFichasResumenResponse>(`${this.baseUrl}${fichaEndpoints.LISTAR}`, { params })
-      .pipe(
-        map((respuesta) => {
-          assertRespuestaExitosa(respuesta);
-          return toResultadoPaginado(respuesta, toFichaResumen);
-        }),
-        mapearAErrorNegocioApi('No se pudo consultar las fichas de valoración.')
-      );
+    return params;
   }
 
   cambiarEstado(fichaId: string, activa: boolean): Observable<void> {

@@ -49,6 +49,37 @@ app-main-layout .menu-expansion .mat-expansion-panel-body {
   z-index: var(--mc-z-alerta);
 }
 
+// Impresión (p. ej. la Ficha de Valoración de Méritos): solo el área de trabajo,
+// sin menú lateral ni barra superior, y sin el scroll interno del layout.
+@media print {
+  app-main-layout {
+    .sidenav,
+    .header-toolbar {
+      display: none !important;
+    }
+
+    .sidenav-container,
+    .content-container {
+      height: auto !important;
+    }
+
+    .mat-sidenav-container,
+    .mat-sidenav-content {
+      overflow: visible !important;
+    }
+
+    .mat-sidenav-content {
+      margin-left: 0 !important;
+    }
+
+    .main-workspace {
+      padding: 0;
+      overflow: visible;
+      background: #ffffff;
+    }
+  }
+}
+
 // Paneles MatDialog: sin padding del surface; el contenido define su propio layout.
 .mc-dialog-panel .mat-mdc-dialog-surface {
   padding: 0;

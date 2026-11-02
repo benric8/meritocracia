@@ -19,13 +19,13 @@ import { DescargarCuadroAntiguedadUseCase } from '../../../../application/use-ca
 import { ListarFechasValoracionReporteUseCase } from '../../../../application/use-cases/reportes/listar-fechas-valoracion-reporte.use-case';
 import { ObtenerCuadroAntiguedadUseCase } from '../../../../application/use-cases/reportes/obtener-cuadro-antiguedad.use-case';
 import {
-  ArchivoDescargado,
   CuadroAntiguedad,
   FormatoDescargaCuadro,
 } from '../../../../domain/models/cuadro-antiguedad.model';
 import { DetalleError } from '../../../../domain/models/detalle-error.model';
 import { FechaValoracion } from '../../../../domain/models/fecha-valoracion.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
+import { guardarArchivoDescargado } from '../guardar-archivo.util';
 import { aFilaCuadroVista, formatearFechaCuadro } from './cuadro-antiguedad.util';
 
 /** N015: no existe la fecha de valoración enviada o no hay una activa. */
@@ -143,7 +143,7 @@ export class CuadroAntiguedadSupremos implements OnInit {
       )
       .subscribe((resultado) => {
         if (resultado.exito) {
-          this.guardarArchivo(resultado.archivo);
+          guardarArchivoDescargado(resultado.archivo);
           return;
         }
         void this.alertas.error('No se pudo descargar el archivo', resultado.detalle);
@@ -152,14 +152,5 @@ export class CuadroAntiguedadSupremos implements OnInit {
 
   protected etiquetaFecha(fecha: FechaValoracion): string {
     return formatearFechaCuadro(fecha.fechaValoracion);
-  }
-
-  private guardarArchivo({ nombre, contenido }: ArchivoDescargado): void {
-    const url = URL.createObjectURL(contenido);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = nombre;
-    enlace.click();
-    URL.revokeObjectURL(url);
   }
 }

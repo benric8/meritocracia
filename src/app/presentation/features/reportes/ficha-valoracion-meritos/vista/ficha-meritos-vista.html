@@ -1,0 +1,320 @@
+<section class="fm">
+  <!-- Barra fija: las acciones siguen a mano al recorrer una ficha larga -->
+  <header class="fm__cabecera">
+    <button
+      mat-icon-button
+      type="button"
+      class="fm__volver noprint"
+      matTooltip="Volver a la búsqueda"
+      aria-label="Volver a la búsqueda"
+      (click)="volver.emit()"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="fm__cabecera-texto">
+      <span class="fm__eyebrow">Reportes · Anexo 04</span>
+      <h1 class="fm__titulo">Ficha de valoración de méritos</h1>
+      @if (vista(); as v) {
+        <p class="fm__subtitulo">
+          Calificado al <strong>{{ v.calificadoAl }}</strong> · Tabla de Puntaje de la R.A.
+          N° 031-2013-CE-PJ
+        </p>
+      }
+    </div>
+    <div class="fm__acciones noprint">
+      <button matButton="outlined" type="button" [disabled]="!vista()" (click)="onImprimir()">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      <button
+        matButton="filled"
+        type="button"
+        [disabled]="!ficha() || cargando() || descargando()"
+        [attr.aria-busy]="descargando()"
+        (click)="descargarPdf.emit()"
+      >
+        @if (descargando()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>picture_as_pdf</mat-icon>
+        }
+        Descargar PDF
+      </button>
+    </div>
+  </header>
+
+  @if (error(); as detalle) {
+    <div class="fm__card fm__estado fm__estado--error" role="alert">
+      <mat-icon>{{ errorDeFecha() ? 'event_busy' : 'cloud_off' }}</mat-icon>
+      <p>{{ detalle.mensaje }}</p>
+      @if (!errorDeFecha()) {
+        <button matButton="outlined" type="button" (click)="reintentar.emit()">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      }
+    </div>
+  } @else if (vista(); as v) {
+    <!-- Juez y puntaje total -->
+    <section class="fm__resumen">
+      <div class="fm__card fm__juez">
+        <div>
+          <h2 class="fm__nombre">{{ v.nombre }}</h2>
+          <p class="fm__cargo">
+            {{ v.cargo }}
+            @if (v.distrito) {
+              <span class="fm__muted">· {{ v.distrito }}</span>
+            }
+          </p>
+        </div>
+        <dl class="fm__datos">
+          <div>
+            <dt>DNI</dt>
+            <dd class="fm__num">{{ v.dni }}</dd>
+          </div>
+          <div>
+            <dt>Nacimiento</dt>
+            <dd>{{ v.nacimiento }}</dd>
+          </div>
+          <div>
+            <dt>Especialidad</dt>
+            <dd>
+              {{ v.primeraEspecialidad }}
+              @if (v.segundaEspecialidad) {
+                <span class="fm__muted">· {{ v.segundaEspecialidad }}</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Antigüedad en el grado</dt>
+            <dd class="fm__num">{{ v.antiguedadGrado }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="fm__card fm__total">
+        <span class="fm__lbl">Puntaje total</span>
+        <span class="fm__num fm__total-valor ficha__total">{{ v.total }}</span>
+        <span class="fm__num fm__muted">de {{ v.maximo }}</span>
+      </div>
+    </section>
+
+    <h2 class="fm__h2">Factores de evaluación</h2>
+
+    <!-- I. Producción jurisdiccional (suspendido) -->
+    @if (v.produccion; as produccion) {
+      <section class="fm__card fm__factor-cabecera fm__produccion">
+        <span class="fm__roman">I</span>
+        <span class="fm__factor-titulo">{{ produccion.titulo }}</span>
+        <span class="fm__muted fm__nota">{{ produccion.nota || 'Suspendido' }}</span>
+      </section>
+    }
+
+    <!-- II al V -->
+    @for (factor of v.factores; track factor.numero) {
+      <section class="fm__card">
+        <div class="fm__factor-cabecera">
+          <span class="fm__roman">{{ factor.numero }}</span>
+          <h3 class="fm__factor-titulo">{{ factor.titulo }}</h3>
+          <span class="fm__num fm__factor-puntaje">
+            {{ factor.puntaje.valor }}
+            @if (factor.puntaje.maximo) {
+              <span class="fm__max">/ {{ factor.puntaje.maximo }}</span>
+            }
+          </span>
+        </div>
+
+        @if (factor.esAntiguedad) {
+          @if (factor.antiguedad; as antiguedad) {
+            <div class="fm__wrap">
+              <table class="fm__tbl">
+                <thead>
+                  <tr>
+                    <th scope="col">Cargo</th>
+                    <th scope="col">Fecha inicio</th>
+                    <th scope="col">Fecha cese</th>
+                    <th scope="col">Fecha reinicio</th>
+                    <th scope="col">Fecha fin / eval.</th>
+                    <th scope="col" class="fm__r">Tiempo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ antiguedad.cargo }}</td>
+                    <td class="fm__num">{{ antiguedad.fechaInicio }}</td>
+                    <td class="fm__num">{{ antiguedad.fechaCese }}</td>
+                    <td class="fm__num">{{ antiguedad.fechaReincorporacion }}</td>
+                    <td class="fm__num">{{ antiguedad.fechaFin }}</td>
+                    <td class="fm__r fm__num fm__fuerte">{{ antiguedad.tiempo }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <section class="fm__desempate" aria-labelledby="titulo-desempate">
+              <div class="fm__desempate-cabecera">
+                <h4 id="titulo-desempate" class="fm__lbl">Criterios de desempate</h4>
+                <p class="fm__desempate-ayuda">
+                  <mat-icon aria-hidden="true">info_outline</mat-icon>
+                  No suman puntaje. Ante un empate en el puntaje total se aplican en este orden.
+                </p>
+              </div>
+              <ol class="fm__criterios">
+                @for (criterio of antiguedad.criterios; track criterio.paso) {
+                  <li class="fm__criterio">
+                    <span class="fm__criterio-paso" aria-hidden="true">{{ criterio.paso }}</span>
+                    <div class="fm__criterio-texto">
+                      <span class="fm__criterio-titulo">{{ criterio.titulo }}</span>
+                      <span class="fm__num fm__criterio-valor">{{ criterio.valor }}</span>
+                      <span class="fm__criterio-detalle">{{ criterio.detalle }}</span>
+                    </div>
+                  </li>
+                }
+              </ol>
+            </section>
+          } @else {
+            <p class="fm__vacio">Sin ficha de antigüedad registrada.</p>
+          }
+        } @else if (factor.indicadores.length) {
+          <div class="fm__wrap">
+            <table class="fm__tbl">
+              <thead>
+                <tr>
+                  <th scope="col">Indicador</th>
+                  <th scope="col">¿Cuenta?</th>
+                  <th scope="col">Detalle</th>
+                  <th scope="col" class="fm__r">Puntos</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (factor.sinPuntaje === factor.indicadores.length && !muestraSinPuntaje(factor)) {
+                  <tr class="noprint">
+                    <td colspan="4" class="fm__muted">Ningún indicador suma puntaje en este factor.</td>
+                  </tr>
+                }
+                @for (fila of factor.indicadores; track fila.clave) {
+                  <tr
+                    [class.fm__fila-vacia]="fila.vacio"
+                    [class.fm__fila-plegada]="fila.vacio && !muestraSinPuntaje(factor)"
+                  >
+                    <td>{{ fila.descripcion }}</td>
+                    <td>{{ fila.cuenta ? 'Sí' : 'No' }}</td>
+                    <td>{{ fila.detalle }}</td>
+                    <td class="fm__r fm__num" [class.fm__negativo]="fila.puntaje.negativo">
+                      {{ fila.puntaje.valor }}
+                      @if (fila.puntaje.maximo) {
+                        <span class="fm__max">/ {{ fila.puntaje.maximo }}</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (factor.sinPuntaje) {
+            <button
+              type="button"
+              class="fm__plegar noprint"
+              [attr.aria-expanded]="muestraSinPuntaje(factor)"
+              (click)="onAlternarSinPuntaje(factor)"
+            >
+              <mat-icon>{{ muestraSinPuntaje(factor) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              @if (muestraSinPuntaje(factor)) {
+                Ocultar indicadores sin puntaje
+              } @else {
+                Ver {{ factor.sinPuntaje }}
+                {{ factor.sinPuntaje === 1 ? 'indicador' : 'indicadores' }} sin puntaje
+              }
+            </button>
+          }
+        } @else {
+          <p class="fm__vacio">No registra indicadores.</p>
+        }
+      </section>
+    }
+
+    <!-- VI al IX -->
+    @if (v.otros.length) {
+      <section class="fm__otros">
+        @for (otro of v.otros; track otro.numero) {
+          <article
+            class="fm__card fm__otro"
+            [class.fm__otro--demeritos]="otro.esDemeritos && otro.conceptos.length"
+            [attr.aria-label]="otro.numero + '. ' + otro.titulo"
+          >
+            <div class="fm__otro-cabecera">
+              <span class="fm__roman">{{ otro.numero }}</span>
+              <h3 class="fm__otro-titulo">{{ otro.titulo }}</h3>
+            </div>
+
+            <div class="fm__otro-puntaje">
+              <span class="fm__num fm__otro-valor" [class.fm__negativo]="otro.puntaje.negativo">
+                {{ otro.puntaje.valor }}
+                @if (otro.puntaje.maximo) {
+                  <span class="fm__max">/ {{ otro.puntaje.maximo }}</span>
+                }
+              </span>
+              @if (otro.avance !== null) {
+                <span
+                  class="fm__barra"
+                  role="img"
+                  [attr.aria-label]="otro.avance.toFixed(0) + ' % del tope'"
+                >
+                  <span class="fm__barra-relleno" [style.width.%]="otro.avance"></span>
+                </span>
+              }
+            </div>
+
+            @if (otro.conceptos.length) {
+              <dl class="fm__conceptos">
+                @for (concepto of otro.conceptos; track $index) {
+                  <div>
+                    <dt class="fm__concepto-etiqueta">{{ concepto.etiqueta }}</dt>
+                    @if (concepto.valor) {
+                      <dd class="fm__num fm__concepto-valor">{{ concepto.valor }}</dd>
+                    }
+                  </div>
+                }
+              </dl>
+            } @else {
+              <p class="fm__otro-vacio" [class.fm__otro-vacio--ok]="otro.esDemeritos">
+                @if (otro.esDemeritos) {
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                }
+                {{ otro.sinRegistros }}
+              </p>
+            }
+          </article>
+        }
+      </section>
+    }
+
+    <!-- Puntaje total -->
+    <section class="fm__card fm__cierre">
+      <dl class="fm__cierre-desglose">
+        <div>
+          <dt>Rubros II al VIII</dt>
+          <dd class="fm__num">{{ v.positivo }}</dd>
+        </div>
+        <div>
+          <dt>Deméritos (IX)</dt>
+          <dd class="fm__num" [class.fm__negativo]="v.demeritos.negativo">{{ v.demeritos.valor }}</dd>
+        </div>
+        <div>
+          <dt>Producción (I)</dt>
+          <dd>Suspendido</dd>
+        </div>
+      </dl>
+      <div class="fm__cierre-total">
+        <span>Puntaje total</span>
+        <span class="fm__num">
+          {{ v.total }} <span class="fm__max">/ {{ v.maximo }}</span>
+        </span>
+      </div>
+    </section>
+  } @else if (cargando()) {
+    <div class="fm__card fm__estado">
+      <mat-progress-spinner diameter="32" mode="indeterminate" />
+      <p>Cargando la ficha de {{ nombre() }}…</p>
+    </div>
+  }
+</section>

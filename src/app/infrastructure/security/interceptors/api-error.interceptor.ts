@@ -15,6 +15,7 @@ import { dashboardEndpoints } from '../../api/dashboard-api.constants';
 import {
   cuadroAntiguedadEndpoints,
   cuadroMeritosEndpoints,
+  fichaValoracionReporteEndpoints,
 } from '../../api/reportes-api.constants';
 
 /** Auth: la pantalla/flujo propio muestra el error. */
@@ -97,6 +98,11 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     method: 'GET',
     // Cuadro de méritos: mismo manejo en pantalla (E400 junto al formulario, N015, descargas).
     coincide: (url) => url.includes(cuadroMeritosEndpoints.BASE),
+  },
+  {
+    method: 'GET',
+    // Ficha de valoración de méritos: la pantalla muestra N017/N015 y el error del PDF.
+    coincide: (url) => url.includes(fichaValoracionReporteEndpoints.BASE),
   },
   {
     method: 'POST',

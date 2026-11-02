@@ -19,6 +19,7 @@ import { DASHBOARD_RUBROS_PORT } from './domain/ports/dashboard-rubros.port';
 import { CUADRO_ANTIGUEDAD_PORT } from './domain/ports/cuadro-antiguedad.port';
 import { CUADRO_ANTIGUEDAD_SUPERIORES_PORT } from './domain/ports/cuadro-antiguedad-superiores.port';
 import { CUADRO_MERITOS_PORT } from './domain/ports/cuadro-meritos.port';
+import { FICHA_VALORACION_MERITOS_PORT } from './domain/ports/ficha-valoracion-meritos.port';
 import { JUEZ_PORT } from './domain/ports/juez.port';
 import { MAESTROS_PORT } from './domain/ports/maestros.port';
 import { USUARIOS_PORT } from './domain/ports/usuarios.port';
@@ -30,6 +31,7 @@ import { DashboardRubrosHttpAdapter } from './infrastructure/adapters/http/dashb
 import { CuadroAntiguedadHttpAdapter } from './infrastructure/adapters/http/cuadro-antiguedad-http.adapter';
 import { CuadroAntiguedadSuperioresHttpAdapter } from './infrastructure/adapters/http/cuadro-antiguedad-superiores-http.adapter';
 import { CuadroMeritosHttpAdapter } from './infrastructure/adapters/http/cuadro-meritos-http.adapter';
+import { FichaValoracionMeritosHttpAdapter } from './infrastructure/adapters/http/ficha-valoracion-meritos-http.adapter';
 import { FichaHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/ficha-http-grados-titulos-mock.adapter';
 import { MaestrosHttpGradosTitulosMockAdapter } from './infrastructure/adapters/mock/maestros-http-grados-titulos-mock.adapter';
 import { UsuariosHttpAdapter } from './infrastructure/adapters/http/usuarios-http.adapter';
@@ -80,6 +82,7 @@ export const appConfig: ApplicationConfig = {
       provide: CUADRO_ANTIGUEDAD_SUPERIORES_PORT,
       useClass: CuadroAntiguedadSuperioresHttpAdapter,
     },
+    { provide: FICHA_VALORACION_MERITOS_PORT, useClass: FichaValoracionMeritosHttpAdapter },
     // Mocks / híbridos hasta disponer del API completo; sustituir por *HttpAdapter.
     // Rubro D (AMAG): `FichaHttpGradosTitulosMockAdapter` mantiene mock solo para AMAG.
     // SIGA real (GET jueces/siga); edad aún mock.

@@ -119,6 +119,15 @@ export const routes: Routes = [
                 './presentation/features/reportes/cuadro-antiguedad-superiores/cuadro-antiguedad-superiores'
               ).then((m) => m.CuadroAntiguedadSuperiores),
           },
+          // Submenú E: Ficha de Valoración de Méritos (Anexo 04).
+          {
+            path: 'ficha-valoracion-meritos',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import(
+                './presentation/features/reportes/ficha-valoracion-meritos/ficha-valoracion-meritos'
+              ).then((m) => m.FichaValoracionMeritos),
+          },
         ],
       }
     ]

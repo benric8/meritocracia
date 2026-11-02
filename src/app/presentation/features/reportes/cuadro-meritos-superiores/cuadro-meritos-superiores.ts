@@ -32,11 +32,9 @@ import {
 import { ESTADOS_CARRERA_DASHBOARD } from '../../../../domain/models/dashboard-rubros.model';
 import { DetalleError } from '../../../../domain/models/detalle-error.model';
 import { FechaValoracion } from '../../../../domain/models/fecha-valoracion.model';
-import {
-  ArchivoDescargado,
-  FormatoDescargaCuadro,
-} from '../../../../domain/models/reporte-descarga.model';
+import { FormatoDescargaCuadro } from '../../../../domain/models/reporte-descarga.model';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
+import { guardarArchivoDescargado } from '../guardar-archivo.util';
 import { formatearFechaCuadro } from '../cuadro-antiguedad-supremos/cuadro-antiguedad.util';
 import { aFilaCuadroMeritosVista, formatearPuntaje } from './cuadro-meritos.util';
 
@@ -264,7 +262,7 @@ export class CuadroMeritosSuperiores implements OnInit {
       )
       .subscribe((resultado) => {
         if (resultado.exito) {
-          this.guardarArchivo(resultado.archivo);
+          guardarArchivoDescargado(resultado.archivo);
           return;
         }
         void this.alertas.error('No se pudo descargar el archivo', resultado.detalle);
@@ -285,14 +283,5 @@ export class CuadroMeritosSuperiores implements OnInit {
       dni: filtros.dni.trim(),
       apellidosNombres: filtros.apellidosNombres.trim(),
     };
-  }
-
-  private guardarArchivo({ nombre, contenido }: ArchivoDescargado): void {
-    const url = URL.createObjectURL(contenido);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = nombre;
-    enlace.click();
-    URL.revokeObjectURL(url);
   }
 }
