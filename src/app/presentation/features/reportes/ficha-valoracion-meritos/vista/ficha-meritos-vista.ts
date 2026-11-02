@@ -43,6 +43,8 @@ export class FichaMeritosVista {
   readonly volver = output<void>();
   readonly descargarPdf = output<void>();
   readonly reintentar = output<void>();
+  /** Abre la Carpeta Personal de Méritos (Anexo 05) de esta ficha. */
+  readonly verCarpeta = output<void>();
 
   protected readonly vista = computed(() => {
     const ficha = this.ficha();

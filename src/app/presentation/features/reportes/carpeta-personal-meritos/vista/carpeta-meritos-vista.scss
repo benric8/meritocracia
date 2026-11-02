@@ -1,0 +1,461 @@
+// Carpeta Personal de Méritos (Anexo 05) con los tokens de la app (--mc-*):
+// misma cabecera fija, tarjetas y botones que la Ficha de Valoración de Méritos.
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  color: var(--mc-text);
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mc-primary),
+      filled-label-text-color: #ffffff,
+      outlined-label-text-color: var(--mc-primary),
+      outlined-outline-color: var(--mc-primary),
+    )
+  );
+}
+
+// `.main-workspace` (layout) es el contenedor con scroll y tiene 24px de padding:
+// los márgenes negativos llevan la barra al borde para que al fijarse no deje huecos.
+$padding-workspace: 24px;
+// Alto aproximado de la barra fija: el índice no deja el rubro debajo de ella.
+$alto-cabecera: 96px;
+$cabecera-tabla: #334155;
+
+.cp {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// --- Cabecera fija ---
+.cp__cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: (-$padding-workspace) (-$padding-workspace) 0;
+  padding: 16px $padding-workspace 12px;
+  background: var(--mc-background);
+  border-bottom: 1px solid var(--mc-border);
+}
+
+.cp__volver {
+  flex: none;
+  color: var(--mc-primary);
+}
+
+.cp__cabecera-texto {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.cp__eyebrow,
+.cp__lbl {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cp__eyebrow {
+  color: var(--mc-primary);
+}
+
+.cp__titulo {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cp__subtitulo {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mc-text-muted);
+
+  strong {
+    color: var(--mc-text);
+  }
+}
+
+.cp__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  mat-progress-spinner {
+    margin-right: 8px;
+  }
+}
+
+// --- Utilidades ---
+.cp__card {
+  min-width: 0;
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  box-shadow: var(--mc-shadow);
+}
+
+.cp__muted {
+  color: var(--mc-text-muted);
+}
+
+.cp__roman {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mc-primary);
+  background: var(--mc-primary-p20);
+  border-radius: var(--mc-radius);
+}
+
+// --- Juez ---
+.cp__juez {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 24px;
+  padding: 20px 24px;
+}
+
+.cp__juez-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cp__nombre {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cp__lbl {
+  margin: 4px 0 0;
+  padding-top: 12px;
+  color: var(--mc-primary);
+  border-top: 1px solid var(--mc-border);
+}
+
+.cp__datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+
+  dt {
+    font-size: 12px;
+    color: var(--mc-text-muted);
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+
+.cp__foto {
+  width: 120px;
+  height: 145px;
+  margin: 0;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cp__foto-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: #cbd5e1;
+  }
+}
+
+// --- Índice ---
+.cp__indice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cp__indice-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mc-primary);
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mc-primary-p20);
+    border-color: var(--mc-primary-light);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mc-primary);
+    outline-offset: 2px;
+  }
+}
+
+.cp__indice-cuenta {
+  min-width: 22px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+  background: var(--mc-primary);
+  border-radius: 999px;
+}
+
+.cp__indice-item--vacio {
+  color: var(--mc-text-muted);
+
+  .cp__indice-cuenta {
+    color: var(--mc-text-muted);
+    background: #f1f5f9;
+  }
+}
+
+// --- Rubros ---
+.cp__rubro {
+  overflow: hidden;
+  scroll-margin-top: $alto-cabecera;
+}
+
+.cp__rubro-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px 20px;
+}
+
+.cp__rubro-titulo {
+  flex: 1 1 240px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cp__rubro-cuenta {
+  font-size: 13px;
+}
+
+.cp__nota {
+  margin: 0;
+  padding: 14px 20px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--mc-text-muted);
+  text-align: center;
+  border-top: 1px solid var(--mc-border);
+}
+
+.cp__subtitulo-tabla {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 20px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border-top: 1px solid var(--mc-border);
+}
+
+.cp__codigo {
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mc-primary-dark);
+  background: var(--mc-primary-p20);
+  border-radius: 4px;
+}
+
+.cp__wrap {
+  overflow-x: auto;
+  scrollbar-width: thin;
+
+  &:focus-visible {
+    outline: 2px solid var(--mc-primary-light);
+    outline-offset: -2px;
+  }
+}
+
+// Como el anexo: cabecera oscura con texto blanco en mayúsculas y filas con borde fino.
+.cp__tbl {
+  width: 100%;
+  min-width: 640px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 12.5px;
+
+  th {
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    text-align: left;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: $cabecera-tabla;
+  }
+
+  td {
+    padding: 8px 10px;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--mc-border);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover td {
+    background: #f8fafc;
+  }
+
+  .cp__c {
+    text-align: center;
+  }
+}
+
+.cp__sin-registros {
+  font-style: italic;
+  color: var(--mc-text-muted);
+  text-align: center;
+}
+
+// --- Estados ---
+.cp__estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 200px;
+  padding: 24px;
+  font-size: 14px;
+  color: var(--mc-text-muted);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  > mat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 36px;
+  }
+}
+
+.cp__estado--error {
+  color: var(--mc-error);
+}
+
+@media (max-width: 600px) {
+  .cp__titulo {
+    font-size: 18px;
+  }
+
+  // En móvil la barra fija se limita a volver + título; las acciones bajan a su fila.
+  .cp__subtitulo {
+    display: none;
+  }
+
+  .cp__acciones,
+  .cp__acciones button {
+    flex: 1;
+  }
+
+  .cp__juez {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cp__foto {
+    order: -1;
+  }
+}
+
+@media print {
+  .noprint {
+    display: none !important;
+  }
+
+  .cp__cabecera {
+    position: static;
+    margin: 0;
+    padding: 0 0 12px;
+    background: none;
+  }
+
+  .cp__card {
+    box-shadow: none;
+  }
+
+  .cp__rubro {
+    overflow: visible;
+  }
+
+  .cp__tbl {
+    min-width: 0;
+
+    thead {
+      display: table-header-group;
+    }
+
+    th {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    tr {
+      break-inside: avoid;
+    }
+  }
+}

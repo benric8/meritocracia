@@ -26,6 +26,16 @@ export const fichaValoracionReporteEndpoints = {
   pdf: (idFicha: string) => `reportes/ficha-valoracion/${encodeURIComponent(idFicha.trim())}/pdf`,
 } as const;
 
+export const carpetaPersonalEndpoints = {
+  /** Prefijo común de consulta y descarga (usado por el interceptor de errores). */
+  BASE: 'reportes/carpeta-personal/',
+  /** GET → JSON con la carpeta, incluida la foto en Base64 (Anexo 05). */
+  porId: (idFicha: string) =>
+    `reportes/carpeta-personal/${encodeURIComponent(idFicha.trim())}`,
+  /** GET → `.pdf` (o `GlobalResponse` JSON si falla). */
+  pdf: (idFicha: string) => `reportes/carpeta-personal/${encodeURIComponent(idFicha.trim())}/pdf`,
+} as const;
+
 export const cuadroMeritosEndpoints = {
   /** Prefijo común de consulta y descargas (usado por el interceptor de errores). */
   BASE: 'reportes/cuadro-meritos/',

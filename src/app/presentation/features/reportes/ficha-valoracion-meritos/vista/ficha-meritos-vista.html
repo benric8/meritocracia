@@ -22,6 +22,10 @@
       }
     </div>
     <div class="fm__acciones noprint">
+      <button matButton="outlined" type="button" [disabled]="!vista()" (click)="verCarpeta.emit()">
+        <mat-icon>folder_shared</mat-icon>
+        Carpeta personal
+      </button>
       <button matButton="outlined" type="button" [disabled]="!vista()" (click)="onImprimir()">
         <mat-icon>print</mat-icon>
         Imprimir

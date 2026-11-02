@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { BuscarFichasReporteUseCase } from '../../../../application/use-cases/reportes/buscar-fichas-reporte.use-case';
 import { DescargarFichaValoracionMeritosUseCase } from '../../../../application/use-cases/reportes/descargar-ficha-valoracion-meritos.use-case';
@@ -203,5 +204,17 @@ describe('FichaValoracionMeritos', () => {
 
     expect(descargarFicha.ejecutar).toHaveBeenCalledWith('40');
     expect(alertas.error).toHaveBeenCalledOnce();
+  });
+  it('abre la carpeta personal de la misma ficha', async () => {
+    await crear({ exito: true, ficha });
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    boton('Ver ficha').click();
+    await fixture.whenStable();
+
+    boton('Carpeta personal').click();
+
+    expect(navegar).toHaveBeenCalledWith(['/reportes/carpeta-personal-meritos'], {
+      queryParams: { ficha: '40' },
+    });
   });
 });

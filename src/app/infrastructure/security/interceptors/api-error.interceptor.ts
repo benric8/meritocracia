@@ -15,6 +15,7 @@ import { dashboardEndpoints } from '../../api/dashboard-api.constants';
 import {
   cuadroAntiguedadEndpoints,
   cuadroMeritosEndpoints,
+  carpetaPersonalEndpoints,
   fichaValoracionReporteEndpoints,
 } from '../../api/reportes-api.constants';
 
@@ -103,6 +104,11 @@ const MUTACIONES_CON_RESULT: ReadonlyArray<{
     method: 'GET',
     // Ficha de valoración de méritos: la pantalla muestra N017/N015 y el error del PDF.
     coincide: (url) => url.includes(fichaValoracionReporteEndpoints.BASE),
+  },
+  {
+    method: 'GET',
+    // Carpeta personal de méritos: mismo manejo que la ficha (N017/N015 y error del PDF).
+    coincide: (url) => url.includes(carpetaPersonalEndpoints.BASE),
   },
   {
     method: 'POST',

@@ -128,6 +128,15 @@ export const routes: Routes = [
                 './presentation/features/reportes/ficha-valoracion-meritos/ficha-valoracion-meritos'
               ).then((m) => m.FichaValoracionMeritos),
           },
+          // Submenú F: Carpeta Personal de Méritos (Anexo 05).
+          {
+            path: 'carpeta-personal-meritos',
+            canActivate: [rolGuard(['Administrador'])],
+            loadComponent: () =>
+              import(
+                './presentation/features/reportes/carpeta-personal-meritos/carpeta-personal-meritos'
+              ).then((m) => m.CarpetaPersonalMeritos),
+          },
         ],
       }
     ]

@@ -1,0 +1,23 @@
+<!-- La búsqueda queda montada (oculta) para conservar filtros y página al volver. -->
+<div [hidden]="seleccionada()">
+  <app-busqueda-fichas
+    anexo="Anexo 05"
+    titulo="Carpeta personal de méritos"
+    accion="Ver carpeta"
+    icono="folder_shared"
+    (seleccionar)="onVerCarpeta($event)"
+  />
+</div>
+
+@if (seleccionada(); as actual) {
+  <app-carpeta-meritos-vista
+    [carpeta]="carpeta()"
+    [error]="error()"
+    [cargando]="cargando()"
+    [descargando]="descargando()"
+    [nombre]="actual.nombre"
+    (volver)="onVolver()"
+    (descargarPdf)="onDescargarPdf()"
+    (reintentar)="onReintentar()"
+  />
+}

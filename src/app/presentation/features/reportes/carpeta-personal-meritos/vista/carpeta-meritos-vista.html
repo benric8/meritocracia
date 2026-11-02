@@ -1,0 +1,174 @@
+<section class="cp">
+  <!-- Barra fija: las acciones siguen a mano al recorrer una carpeta larga -->
+  <header class="cp__cabecera">
+    <button
+      mat-icon-button
+      type="button"
+      class="cp__volver noprint"
+      matTooltip="Volver a la búsqueda"
+      aria-label="Volver a la búsqueda"
+      (click)="volver.emit()"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="cp__cabecera-texto">
+      <span class="cp__eyebrow">Reportes · Anexo 05</span>
+      <h1 class="cp__titulo">Carpeta personal de méritos del juez</h1>
+      @if (vista(); as v) {
+        <p class="cp__subtitulo">
+          {{ v.nombre }} · Valoración al <strong>{{ v.valoradoAl }}</strong>
+        </p>
+      }
+    </div>
+    <div class="cp__acciones noprint">
+      <button matButton="outlined" type="button" [disabled]="!vista()" (click)="onImprimir()">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      <button
+        matButton="filled"
+        type="button"
+        [disabled]="!carpeta() || cargando() || descargando()"
+        [attr.aria-busy]="descargando()"
+        (click)="descargarPdf.emit()"
+      >
+        @if (descargando()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>picture_as_pdf</mat-icon>
+        }
+        Descargar PDF
+      </button>
+    </div>
+  </header>
+
+  @if (error(); as detalle) {
+    <div class="cp__card cp__estado cp__estado--error" role="alert">
+      <mat-icon>{{ errorDeFecha() ? 'event_busy' : 'cloud_off' }}</mat-icon>
+      <p>{{ detalle.mensaje }}</p>
+      @if (!errorDeFecha()) {
+        <button matButton="outlined" type="button" (click)="reintentar.emit()">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      }
+    </div>
+  } @else if (vista(); as v) {
+    <!-- Datos del juez -->
+    <section class="cp__card cp__juez" aria-labelledby="cp-nombre">
+      <div class="cp__juez-datos">
+        <h2 id="cp-nombre" class="cp__nombre">{{ v.nombre }}</h2>
+        <h3 class="cp__lbl">Datos personales</h3>
+        <dl class="cp__datos">
+          @for (dato of v.personales; track dato.etiqueta) {
+            <div>
+              <dt>{{ dato.etiqueta }}</dt>
+              <dd>{{ dato.valor }}</dd>
+            </div>
+          }
+        </dl>
+        <h3 class="cp__lbl">Datos laborales</h3>
+        <dl class="cp__datos">
+          @for (dato of v.laborales; track dato.etiqueta) {
+            <div>
+              <dt>{{ dato.etiqueta }}</dt>
+              <dd>{{ dato.valor }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+      <figure class="cp__foto">
+        @if (v.foto) {
+          <img [src]="v.foto" [alt]="'Foto de ' + v.nombre" />
+        } @else {
+          <span class="cp__foto-vacia">
+            <mat-icon aria-hidden="true">person</mat-icon>
+            Foto del juez
+          </span>
+        }
+      </figure>
+    </section>
+
+    <!-- Índice de rubros con la cantidad de documentos -->
+    <nav class="cp__indice noprint" aria-label="Rubros de la carpeta">
+      @for (seccion of v.secciones; track seccion.id) {
+        <button
+          type="button"
+          class="cp__indice-item"
+          [class.cp__indice-item--vacio]="!seccion.registros"
+          [matTooltip]="seccion.titulo"
+          (click)="onIrARubro(seccion.id)"
+        >
+          {{ seccion.numero }}
+          <span class="cp__indice-cuenta">{{ seccion.registros }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Rubros I al IX -->
+    @for (seccion of v.secciones; track seccion.id) {
+      <section class="cp__card cp__rubro" [id]="seccion.id" [attr.aria-labelledby]="seccion.id + '-titulo'">
+        <div class="cp__rubro-cabecera">
+          <span class="cp__roman">{{ seccion.numero }}</span>
+          <h3 class="cp__rubro-titulo" [id]="seccion.id + '-titulo'">{{ seccion.titulo }}</h3>
+          @if (seccion.tablas.length) {
+            <span class="cp__muted cp__rubro-cuenta">
+              {{ seccion.registros }} {{ seccion.registros === 1 ? 'documento' : 'documentos' }}
+            </span>
+          }
+        </div>
+
+        @if (seccion.nota) {
+          <p class="cp__nota">{{ seccion.nota }}</p>
+        }
+
+        @for (tabla of seccion.tablas; track $index) {
+          @if (tabla.titulo) {
+            <h4 class="cp__subtitulo-tabla">
+              @if (tabla.codigo) {
+                <span class="cp__codigo">{{ tabla.codigo }}</span>
+              }
+              {{ tabla.titulo }}
+            </h4>
+          }
+          <div class="cp__wrap" tabindex="0" [attr.aria-label]="tabla.titulo || seccion.titulo">
+            <table class="cp__tbl">
+              <colgroup>
+                @for (columna of tabla.columnas; track $index) {
+                  <col [style.width.%]="columna.ancho" />
+                }
+              </colgroup>
+              <thead>
+                <tr>
+                  @for (columna of tabla.columnas; track $index) {
+                    <th scope="col" [class.cp__c]="columna.centrada">{{ columna.titulo }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (fila of tabla.filas; track $index) {
+                  <tr>
+                    @for (valor of fila; track $index) {
+                      <td [class.cp__c]="tabla.columnas[$index].centrada">{{ valor }}</td>
+                    }
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td class="cp__sin-registros" [attr.colspan]="tabla.columnas.length">
+                      Sin registros.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  } @else if (cargando()) {
+    <div class="cp__card cp__estado">
+      <mat-progress-spinner diameter="32" mode="indeterminate" />
+      <p>Cargando la carpeta{{ nombre() ? ' de ' + nombre() : '' }}…</p>
+    </div>
+  }
+</section>
