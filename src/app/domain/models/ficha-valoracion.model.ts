@@ -47,7 +47,7 @@ export type EstadoFicha = 'BORRADOR' | 'REGISTRADA' | 'CERRADA';
 export interface DatosPersonalesJuez {
   dni: string;
   nombreCompleto: string;
-  /** Referencia o data URL de la foto SIGA. */
+  /** Data URL de la foto (SIGA o ficha); vacío si no hay imagen. */
   foto: string;
   fechaNacimiento: string;
   sexo: 'M' | 'F';

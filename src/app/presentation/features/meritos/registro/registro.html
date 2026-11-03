@@ -58,7 +58,7 @@
             } @else {
               <div class="ficha-valoracion__foto-vacia">
                 <mat-icon aria-hidden="true">badge</mat-icon>
-                <small>Busque el DNI</small>
+                <small>{{ identidadCargada() ? 'Sin foto' : 'Busque el DNI' }}</small>
               </div>
             }
           </div>

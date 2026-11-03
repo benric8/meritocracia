@@ -19,7 +19,6 @@ import {
   puntajeRubroDe,
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
-import { environment } from '../../../environments/environment';
 import {
   CrearFichaDataDto,
   CrearFichaRequestDto,
@@ -181,37 +180,6 @@ export function toFichaValoracionDesdeCreacion(
   };
 }
 
-/**
- * Resuelve foto de ficha: URL absoluta, ruta `/upload/...` (origen de urlApi) o base64.
- */
-export function resolverUrlFotoFicha(valor: string | null | undefined): string {
-  const foto = String(valor ?? '').trim();
-  if (!foto) {
-    return '';
-  }
-
-  if (
-    foto.startsWith('data:') ||
-    foto.startsWith('http://') ||
-    foto.startsWith('https://') ||
-    foto.startsWith('blob:')
-  ) {
-    return foto;
-  }
-
-  // JPEG base64 suele empezar con `/9j/`; no confundir con rutas de archivo.
-  if (foto.startsWith('/') && !foto.startsWith('/9j/')) {
-    try {
-      const origen = new URL(environment.urlApi).origin;
-      return `${origen}${foto}`;
-    } catch {
-      return foto;
-    }
-  }
-
-  return normalizarFotoSiga(foto);
-}
-
 function codigoRubroNormalizado(codigo: string): string {
   return codigo.trim().toUpperCase().replace(/\./g, '');
 }
@@ -257,7 +225,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     datosPersonales: {
       dni: String(magistrado?.dni ?? '').trim(),
       nombreCompleto: String(magistrado?.nombreCompleto ?? '').trim(),
-      foto: resolverUrlFotoFicha(magistrado?.foto),
+      foto: normalizarFotoSiga(magistrado?.fotoBase64 ?? ''),
       fechaNacimiento: String(magistrado?.fechaNacimiento ?? '')
         .trim()
         .slice(0, 10),

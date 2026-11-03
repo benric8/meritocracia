@@ -170,6 +170,8 @@ export class Registro implements OnInit {
   private readonly dniResuelto = signal<string>('');
   /** DNI con foto/nombre cargados (SIGA o ficha existente). */
   private readonly dniConsultadoIdentidad = signal<string>('');
+  /** Hay identidad cargada; si no hay foto, el juez no tiene una (no es error). */
+  protected readonly identidadCargada = computed(() => !!this.dniConsultadoIdentidad());
 
   protected readonly etiquetaBotonPrincipal = computed(() => {
     switch (this.modoAccionCabecera()) {

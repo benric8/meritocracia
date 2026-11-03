@@ -57,8 +57,8 @@ export interface MagistradoFichaDto {
   nombreCompleto: string;
   fechaNacimiento: string;
   sexo: string;
-  /** Ruta relativa (`/upload/...`), URL absoluta o base64. */
-  foto: string;
+  /** JPG en Base64 sin prefijo `data:`; `null` si no hay foto o no se pudo obtener. */
+  fotoBase64: string | null;
 }
 
 export interface RegistradoresFichaDto {
