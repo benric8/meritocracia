@@ -2,7 +2,6 @@ import { BaseResponse } from './BaseResponse,dto';
 
 export interface GuardarTitularidadRequestDto {
   distritoJudicialId: number;
-  cargoMagistradoId: number;
   fechaJuramentacion: string;
   horaJuramentacion: string;
   fechaCese: string | null;

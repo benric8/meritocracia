@@ -84,7 +84,6 @@ export function toGuardarTitularidadRequestDto(
 
   return {
     distritoJudicialId: aNumeroId(data.distritoJudicialId, 'Distrito judicial'),
-    cargoMagistradoId: aNumeroId(data.cargoTitularId, 'Cargo de magistrado'),
     fechaJuramentacion: data.fechaJuramentacion.trim().slice(0, 10),
     horaJuramentacion: normalizarHora(data.horaJuramento),
     fechaCese: data.fechaCese?.trim() ? data.fechaCese.trim().slice(0, 10) : null,
