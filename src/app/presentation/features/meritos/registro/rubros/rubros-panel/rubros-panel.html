@@ -40,30 +40,30 @@
               [codigoRubro]="rubro.codigo"
               [fichaId]="fichaId()"
               [soloLectura]="soloLectura()"
-              [rubroEstudiosPosgrado]="rubroEstudiosPosgradoLocal()"
-              [cargandoEstudiosPosgrado]="cargandoRubroE()"
-              [puntajeEstudiosPosgrado]="puntajeEstudiosPosgrado()"
-              [rubroPasantias]="rubroPasantiasLocal()"
-              [cargandoPasantias]="cargandoPasantias()"
-              [puntajePasantias]="puntajePasantias()"
-              [rubroCursosEspecializacion]="rubroCursosEspecializacionLocal()"
-              [cargandoCursosEspecializacion]="cargandoCursosEspecializacion()"
-              [puntajeCursosEspecializacion]="puntajeCursosEspecializacion()"
-              [rubroCertamenesAcademicos]="rubroCertamenesAcademicosLocal()"
-              [cargandoCertamenesAcademicos]="cargandoCertamenesAcademicos()"
-              [puntajeCertamenesAcademicos]="puntajeCertamenesAcademicos()"
-              [rubroAsistenciasEventos]="rubroAsistenciasEventosLocal()"
-              [cargandoAsistenciasEventos]="cargandoAsistenciasEventos()"
-              [puntajeAsistenciasEventos]="puntajeAsistenciasEventos()"
-              [rubroOfimatica]="rubroOfimaticaLocal()"
-              [cargandoOfimatica]="cargandoOfimatica()"
-              [puntajeOfimatica]="puntajeOfimatica()"
-              (puntajeEstudiosPosgradoChange)="onPuntajeEstudiosPosgrado($event)"
-              (puntajePasantiasChange)="onPuntajePasantias($event)"
-              (puntajeCursosEspecializacionChange)="onPuntajeCursosEspecializacion($event)"
-              (puntajeCertamenesAcademicosChange)="onPuntajeCertamenesAcademicos($event)"
-              (puntajeAsistenciasEventosChange)="onPuntajeAsistenciasEventos($event)"
-              (puntajeOfimaticaChange)="onPuntajeOfimatica($event)"
+              [rubroEstudiosPosgrado]="datos('E1')"
+              [cargandoEstudiosPosgrado]="cargando('E1')"
+              [puntajeEstudiosPosgrado]="puntaje('E1')"
+              [rubroPasantias]="datos('E2')"
+              [cargandoPasantias]="cargando('E2')"
+              [puntajePasantias]="puntaje('E2')"
+              [rubroCursosEspecializacion]="datos('E3')"
+              [cargandoCursosEspecializacion]="cargando('E3')"
+              [puntajeCursosEspecializacion]="puntaje('E3')"
+              [rubroCertamenesAcademicos]="datos('E4')"
+              [cargandoCertamenesAcademicos]="cargando('E4')"
+              [puntajeCertamenesAcademicos]="puntaje('E4')"
+              [rubroAsistenciasEventos]="datos('E5')"
+              [cargandoAsistenciasEventos]="cargando('E5')"
+              [puntajeAsistenciasEventos]="puntaje('E5')"
+              [rubroOfimatica]="datos('E6')"
+              [cargandoOfimatica]="cargando('E6')"
+              [puntajeOfimatica]="puntaje('E6')"
+              (puntajeEstudiosPosgradoChange)="onPuntaje('E1', $event)"
+              (puntajePasantiasChange)="onPuntaje('E2', $event)"
+              (puntajeCursosEspecializacionChange)="onPuntaje('E3', $event)"
+              (puntajeCertamenesAcademicosChange)="onPuntaje('E4', $event)"
+              (puntajeAsistenciasEventosChange)="onPuntaje('E5', $event)"
+              (puntajeOfimaticaChange)="onPuntaje('E6', $event)"
               (fichaActualizada)="onFichaActualizada($event)"
             />
           } @else {
@@ -76,10 +76,10 @@
                   [fichaId]="fichaId()"
                   [nivelId]="nivelId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroAntiguedadLocal()"
+                  [rubroInicial]="datos('B')"
                   [fechaValoracion]="fechaValoracion()"
-                  [cargandoDetalle]="cargandoRubroB()"
-                  (puntajeChange)="onPuntajeAntiguedad($event)"
+                  [cargandoDetalle]="cargando('B')"
+                  (puntajeChange)="onPuntaje('B', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -87,9 +87,9 @@
                 <app-rubro-grados-titulos
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroGradosTitulosLocal()"
-                  [cargandoDetalle]="cargandoRubroC()"
-                  (puntajeChange)="onPuntajeGradosTitulos($event)"
+                  [rubroInicial]="datos('C')"
+                  [cargandoDetalle]="cargando('C')"
+                  (puntajeChange)="onPuntaje('C', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -97,9 +97,9 @@
                 <app-rubro-amag
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroAmagLocal()"
-                  [cargandoDetalle]="cargandoRubroD()"
-                  (puntajeChange)="onPuntajeAmag($event)"
+                  [rubroInicial]="datos('D')"
+                  [cargandoDetalle]="cargando('D')"
+                  (puntajeChange)="onPuntaje('D', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -107,9 +107,9 @@
                 <app-rubro-idioma
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroIdiomaLocal()"
-                  [cargandoDetalle]="cargandoRubroF()"
-                  (puntajeChange)="onPuntajeIdioma($event)"
+                  [rubroInicial]="datos('F')"
+                  [cargandoDetalle]="cargando('F')"
+                  (puntajeChange)="onPuntaje('F', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -117,9 +117,9 @@
                 <app-rubro-publicacion-juridica
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroPublicacionJuridicaLocal()"
-                  [cargandoDetalle]="cargandoRubroG()"
-                  (puntajeChange)="onPuntajePublicacionJuridica($event)"
+                  [rubroInicial]="datos('G')"
+                  [cargandoDetalle]="cargando('G')"
+                  (puntajeChange)="onPuntaje('G', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -127,9 +127,9 @@
                 <app-rubro-distincion
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroDistincionLocal()"
-                  [cargandoDetalle]="cargandoRubroH()"
-                  (puntajeChange)="onPuntajeDistincion($event)"
+                  [rubroInicial]="datos('H')"
+                  [cargandoDetalle]="cargando('H')"
+                  (puntajeChange)="onPuntaje('H', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -137,9 +137,9 @@
                 <app-rubro-docencia
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroDocenciaLocal()"
-                  [cargandoDetalle]="cargandoRubroI()"
-                  (puntajeChange)="onPuntajeDocencia($event)"
+                  [rubroInicial]="datos('I')"
+                  [cargandoDetalle]="cargando('I')"
+                  (puntajeChange)="onPuntaje('I', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
@@ -147,9 +147,9 @@
                 <app-rubro-demerito
                   [fichaId]="fichaId()"
                   [soloLectura]="soloLectura()"
-                  [rubroInicial]="rubroDemeritoLocal()"
-                  [cargandoDetalle]="cargandoRubroJ()"
-                  (puntajeChange)="onPuntajeDemerito($event)"
+                  [rubroInicial]="datos('J')"
+                  [cargandoDetalle]="cargando('J')"
+                  (puntajeChange)="onPuntaje('J', $event)"
                   (fichaActualizada)="onFichaActualizada($event)"
                 />
               }
