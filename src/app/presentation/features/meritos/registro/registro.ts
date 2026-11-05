@@ -20,7 +20,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY, debounceTime, distinctUntilChanged, finalize, map, of, switchMap, take } from 'rxjs';
+import {
+  EMPTY,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  forkJoin,
+  map,
+  of,
+  switchMap,
+  take,
+} from 'rxjs';
 import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/use-cases/meritos/actualizar-datos-personales-ficha.use-case';
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
 import { CrearBorradorFichaUseCase } from '../../../../application/use-cases/meritos/crear-borrador-ficha.use-case';
@@ -339,10 +349,15 @@ export class Registro implements OnInit {
           }
 
           if (resultado.tipo === 'NUEVA_CON_PREVIA') {
-            return this.obtenerDatosSiga.ejecutar(dni).pipe(
-              map((siga) => ({
+            // En paralelo: SIGA (nombre y foto) y la ficha anterior (sexo y fecha de nacimiento).
+            return forkJoin({
+              siga: this.obtenerDatosSiga.ejecutar(dni),
+              previa: this.obtenerFicha.ejecutar(resultado.fichaPreviaId),
+            }).pipe(
+              map(({ siga, previa }) => ({
                 tipo: 'NUEVA_CON_PREVIA' as const,
                 siga,
+                previa,
                 dni,
                 fichaPreviaId: resultado.fichaPreviaId,
               }))
@@ -401,9 +416,19 @@ export class Registro implements OnInit {
 
           this.modoAccionCabecera.set('IMPORTAR');
           this.fichaPreviaId.set(evento.fichaPreviaId);
+          const datosPrevios = evento.previa.exito ? evento.previa.ficha.datosPersonales : null;
+          if (datosPrevios) {
+            // Si cambia la fecha de nacimiento, la edad se recalcula sola.
+            this.formulario.patchValue({
+              sexo: datosPrevios.sexo,
+              fechaNacimiento: aDateDesdeIso(datosPrevios.fechaNacimiento),
+            });
+          }
           await this.alertas.exito(
             'Ficha del proceso anterior',
-            'Se encontraron datos del proceso anterior. Complete nivel y datos personales, luego pulse Importar ficha anterior.'
+            datosPrevios
+              ? 'Se cargaron el sexo y la fecha de nacimiento de la ficha del proceso anterior. Seleccione el nivel, revise los datos y pulse Importar ficha anterior.'
+              : 'Se encontraron datos del proceso anterior. Complete nivel y datos personales, luego pulse Importar ficha anterior.'
           );
           return;
         }
