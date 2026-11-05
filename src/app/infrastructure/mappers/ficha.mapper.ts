@@ -1,4 +1,5 @@
 import {
+  ActualizarDatosPersonalesFicha,
   CrearBorradorFicha,
   crearRubroAntiguedadVacio,
   crearRubroAmagVacio,
@@ -20,6 +21,8 @@ import {
   ResultadoResolverFicha,
 } from '../../domain/models/ficha-valoracion.model';
 import {
+  ActualizarFichaDataDto,
+  ActualizarFichaRequestDto,
   CrearFichaDataDto,
   CrearFichaRequestDto,
   FlujoFichaDto,
@@ -133,6 +136,65 @@ export function toCrearFichaRequestDto(
       fechaNacimiento: dp.fechaNacimiento.trim(),
       sexo: dp.sexo,
     },
+  };
+}
+
+/**
+ * Body de PUT /fichas/{id}. La foto solo se envía si cambió respecto a la de la ficha
+ * (`fotoActual`): si se omite, el backend conserva la actual y no la vuelve a subir al SFTP.
+ */
+export function toActualizarFichaRequestDto(
+  peticion: ActualizarDatosPersonalesFicha,
+  usuarioRegistradorId: number,
+  fotoActual: string | null | undefined
+): ActualizarFichaRequestDto {
+  const cargoMagistradoId = Number(peticion.nivelId);
+  if (!Number.isFinite(cargoMagistradoId) || cargoMagistradoId <= 0) {
+    throw new Error('Cargo de magistrado no válido.');
+  }
+
+  const dp = peticion.datosPersonales;
+  const foto = aFotoBase64Pura(dp.foto);
+  const fotoCambio = !!foto && foto !== aFotoBase64Pura(fotoActual);
+
+  return {
+    cargoMagistradoId,
+    usuarioRegistradorId,
+    datosPersonalesJuez: {
+      nombreCompleto: dp.nombreCompleto.trim(),
+      ...(fotoCambio ? { foto } : {}),
+      fechaNacimiento: dp.fechaNacimiento.trim(),
+      sexo: dp.sexo,
+    },
+  };
+}
+
+/** Aplica la respuesta del PUT sobre la ficha en memoria; los rubros se conservan. */
+export function toFichaValoracionDesdeActualizacion(
+  actual: FichaValoracion,
+  data: ActualizarFichaDataDto,
+  peticion: ActualizarDatosPersonalesFicha
+): FichaValoracion {
+  const completado = String(data.completado ?? '0').trim();
+  const puntaje = Number(data.puntaje);
+  const edad = data.edad != null ? Number(data.edad) : null;
+  const dp = peticion.datosPersonales;
+
+  return {
+    ...actual,
+    estado: completado === '1' ? 'REGISTRADA' : 'BORRADOR',
+    nivelId: String(data.idCargoMagistrado ?? peticion.nivelId),
+    nivelNombre: peticion.nivelNombre.trim() || actual.nivelNombre,
+    datosPersonales: {
+      ...actual.datosPersonales,
+      nombreCompleto: dp.nombreCompleto.trim(),
+      foto: dp.foto || actual.datosPersonales.foto,
+      fechaNacimiento: dp.fechaNacimiento.trim(),
+      sexo: dp.sexo,
+      edad: edad != null && Number.isFinite(edad) ? edad : dp.edad,
+    },
+    puntajeTotal: Number.isFinite(puntaje) ? puntaje : actual.puntajeTotal,
+    actualizadoEn: new Date().toISOString(),
   };
 }
 

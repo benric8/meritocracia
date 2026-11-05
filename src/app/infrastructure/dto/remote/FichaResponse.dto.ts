@@ -50,6 +50,36 @@ export interface CrearFichaResponse extends BaseResponse {
   data: CrearFichaDataDto;
 }
 
+/** Body de PUT /fichas/{idFicha}. El DNI y la fecha de valoración no se envían. */
+export interface ActualizarFichaDatosPersonalesJuezRequestDto {
+  nombreCompleto: string;
+  /** Opcional: si no se envía, el backend conserva la foto actual. */
+  foto?: string;
+  fechaNacimiento: string;
+  sexo: string;
+}
+
+export interface ActualizarFichaRequestDto {
+  cargoMagistradoId: number;
+  usuarioRegistradorId: number;
+  datosPersonalesJuez: ActualizarFichaDatosPersonalesJuezRequestDto;
+}
+
+export interface ActualizarFichaDataDto {
+  idFicha: number;
+  idMagistrado: number;
+  idFechaValoracion: number;
+  idCargoMagistrado: number;
+  idRegistradorPrincipal: number;
+  puntaje: number;
+  completado: string;
+  edad: number;
+}
+
+export interface ActualizarFichaResponse extends BaseResponse {
+  data: ActualizarFichaDataDto;
+}
+
 /** Respuesta de GET /fichas/{idFicha}?registrador_id=. */
 export interface MagistradoFichaDto {
   idMagistrado: number;

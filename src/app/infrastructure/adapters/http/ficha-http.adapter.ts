@@ -160,6 +160,7 @@ import {
   ObtenerOfimaticaResponse,
 } from '../../dto/remote/FichaOfimaticaResponse.dto';
 import {
+  ActualizarFichaResponse,
   CrearFichaResponse,
   FlujoFichaDto,
   FlujoFichaResponse,
@@ -233,7 +234,9 @@ import {
 import {
   aplicarPuntajesEnFicha,
   puntajeSubtotalPorCodigo,
+  toActualizarFichaRequestDto,
   toCrearFichaRequestDto,
+  toFichaValoracionDesdeActualizacion,
   toFichaValoracionDesdeCreacion,
   toFichaValoracionDesdeDetalle,
   toPuntajesFicha,
@@ -322,10 +325,46 @@ export class FichaHttpAdapter implements FichaPort {
   }
 
   actualizarDatosPersonales(
-    _fichaId: string,
-    _peticion: ActualizarDatosPersonalesFicha
+    fichaId: string,
+    peticion: ActualizarDatosPersonalesFicha
   ): Observable<FichaValoracion> {
-    return this.noImplementado('actualizar datos personales');
+    try {
+      this.asegurarTokenOpciones();
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    const id = fichaId.trim();
+    const actual = this.asegurarFichaEnMemoria(id);
+
+    let body;
+    try {
+      body = toActualizarFichaRequestDto(
+        peticion,
+        this.obtenerRegistradorId(),
+        actual.datosPersonales.foto
+      );
+    } catch (error) {
+      return throwError(() => error);
+    }
+
+    return this.http
+      .put<ActualizarFichaResponse>(`${this.baseUrl}${fichaEndpoints.porId(id)}`, body)
+      .pipe(
+        map((respuesta) => {
+          assertRespuestaExitosa(respuesta);
+          if (!respuesta.data) {
+            throw new ErrorNegocioApi({
+              mensaje: 'El servidor no devolvió la ficha actualizada.',
+            });
+          }
+          const base = this.fichasEnMemoria.get(id) ?? actual;
+          return this.guardarEnMemoria(
+            toFichaValoracionDesdeActualizacion(base, respuesta.data, peticion)
+          );
+        }),
+        mapearAErrorNegocioApi('No se pudo actualizar la ficha.')
+      );
   }
 
   obtenerPorId(fichaId: string): Observable<FichaValoracion> {
@@ -2811,15 +2850,6 @@ export class FichaHttpAdapter implements FichaPort {
       rubroDistincion: rubro,
       actualizadoEn: new Date().toISOString(),
     });
-  }
-
-  private noImplementado(operacion: string): Observable<FichaValoracion> {
-    return throwError(
-      () =>
-        new ErrorNegocioApi({
-          mensaje: `La operación "${operacion}" aún no está disponible en el API.`,
-        })
-    );
   }
 
   private obtenerRegistradorId(): number {

@@ -7,7 +7,10 @@ export const fichaEndpoints = {
   /** PATCH activar/inactivar: `fichas/{idFicha}/estado`. */
   estado: (idFicha: string | number) =>
     `fichas/${encodeURIComponent(String(idFicha).trim())}/estado`,
-  /** GET ficha completa: `fichas/{idFicha}?registrador_id=`. */
+  /**
+   * GET ficha completa: `fichas/{idFicha}?registrador_id=`.
+   * PUT actualizar cargo y datos personales: `fichas/{idFicha}`.
+   */
   porId: (idFicha: string | number) => `fichas/${encodeURIComponent(String(idFicha).trim())}`,
   /** GET puntajes oficiales: `fichas/{idFicha}/puntajes`. No usa registrador_id. */
   puntajes: (idFicha: string | number) =>

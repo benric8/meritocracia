@@ -7,6 +7,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -208,6 +209,7 @@ export class RubrosPanel {
   private rubroCertamenesCargadoParaFichaId: string | null = null;
   private rubroAsistenciasCargadoParaFichaId: string | null = null;
   private rubroOfimaticaCargadoParaFichaId: string | null = null;
+  private cargoPrevio: { fichaId: string | null; nivelId: string | null } | null = null;
 
   constructor() {
     effect(() => {
@@ -311,6 +313,24 @@ export class RubrosPanel {
         this.rubroOfimaticaLocal.set(inicialOfimatica);
         this.puntajeOfimatica.set(inicialOfimatica?.puntajeTotal ?? 0);
       }
+    });
+
+    // Al cambiar el cargo de la misma ficha, el backend recalcula antigüedad y puntaje.
+    effect(() => {
+      const fichaId = this.fichaId();
+      const nivelId = this.nivelId();
+      untracked(() => {
+        const previo = this.cargoPrevio;
+        this.cargoPrevio = { fichaId, nivelId };
+        if (!fichaId || previo?.fichaId !== fichaId || !previo.nivelId || previo.nivelId === nivelId) {
+          return;
+        }
+        if (this.rubroBCargadoParaFichaId === fichaId) {
+          this.rubroBCargadoParaFichaId = null;
+          this.cargarRubroB(fichaId);
+        }
+        this.refrescarPuntajesOficiales(fichaId);
+      });
     });
   }
 
