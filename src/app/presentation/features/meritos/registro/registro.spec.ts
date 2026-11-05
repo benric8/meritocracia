@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/use-cases/meritos/actualizar-datos-personales-ficha.use-case';
@@ -9,6 +10,7 @@ import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/us
 import { ObtenerFichaUseCase } from '../../../../application/use-cases/meritos/obtener-ficha.use-case';
 import { ResolverFichaDelCicloUseCase } from '../../../../application/use-cases/meritos/resolver-ficha-del-ciclo.use-case';
 import { ALERTAS_PORT } from '../../../../domain/ports/alertas.port';
+import { RubrosMaestroStore } from '../../../../infrastructure/stores/rubros-maestro.store';
 import { Registro } from './registro';
 
 describe('Registro', () => {
@@ -61,6 +63,15 @@ describe('Registro', () => {
         {
           provide: ObtenerFichaUseCase,
           useValue: { ejecutar: () => of({ exito: false, mensaje: 'mock' }) },
+        },
+        {
+          provide: RubrosMaestroStore,
+          useValue: {
+            rubros: signal([]),
+            cargando: signal(false),
+            error: signal(null),
+            asegurarCargado: () => of(true),
+          },
         },
         {
           provide: ALERTAS_PORT,

@@ -29,7 +29,7 @@ import {
   ObtenerFichaDataDto,
 } from '../dto/remote/FichaResponse.dto';
 import { PuntajesFichaDataDto } from '../dto/remote/FichaPuntajesResponse.dto';
-import { normalizarFotoSiga } from './juez.mapper';
+import { fotoSrc } from '../../domain/commons/foto-src';
 
 /**
  * El dominio puede guardar data URL para `<img>`; el API exige solo el base64.
@@ -287,7 +287,7 @@ export function toFichaValoracionDesdeDetalle(data: ObtenerFichaDataDto): FichaV
     datosPersonales: {
       dni: String(magistrado?.dni ?? '').trim(),
       nombreCompleto: String(magistrado?.nombreCompleto ?? '').trim(),
-      foto: normalizarFotoSiga(magistrado?.fotoBase64 ?? ''),
+      foto: fotoSrc(magistrado?.fotoBase64),
       fechaNacimiento: String(magistrado?.fechaNacimiento ?? '')
         .trim()
         .slice(0, 10),

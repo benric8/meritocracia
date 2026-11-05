@@ -27,6 +27,7 @@ import {
   FormularioEstudioAmag,
   FormularioEstudioAmagData,
 } from './formulario-estudio-amag/formulario-estudio-amag';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-amag',
@@ -116,12 +117,10 @@ export class RubroAmagComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar el estudio AMAG', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar el estudio AMAG',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -193,12 +192,7 @@ export class RubroAmagComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar el estudio AMAG'
               : 'No se pudo guardar el estudio AMAG',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

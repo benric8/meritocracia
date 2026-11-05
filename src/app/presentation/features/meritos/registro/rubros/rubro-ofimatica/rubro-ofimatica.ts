@@ -30,6 +30,7 @@ import {
   FormularioOfimatica,
   FormularioOfimaticaData,
 } from './formulario-ofimatica/formulario-ofimatica';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-ofimatica',
@@ -148,11 +149,7 @@ export class RubroOfimaticaComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar el estudio', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo eliminar el estudio', detalleDeResultado(resultado));
           return;
         }
 
@@ -229,11 +226,7 @@ export class RubroOfimaticaComponent implements OnInit {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion ? 'No se pudo actualizar el estudio' : 'No se pudo guardar el estudio',
-            {
-              mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

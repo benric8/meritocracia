@@ -31,6 +31,7 @@ import {
   FormularioDocencia,
   FormularioDocenciaData,
 } from './formulario-docencia/formulario-docencia';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-docencia',
@@ -121,12 +122,7 @@ export class RubroDocenciaComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la docencia', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo eliminar la docencia', detalleDeResultado(resultado));
           return;
         }
 
@@ -201,12 +197,7 @@ export class RubroDocenciaComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar la docencia'
               : 'No se pudo guardar la docencia',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

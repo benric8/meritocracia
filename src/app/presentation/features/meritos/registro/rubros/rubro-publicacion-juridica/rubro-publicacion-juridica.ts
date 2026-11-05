@@ -30,6 +30,7 @@ import {
   FormularioPublicacionJuridicaData,
   PublicacionJuridicaGuardada,
 } from './formulario-publicacion-juridica/formulario-publicacion-juridica';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-publicacion-juridica',
@@ -124,12 +125,10 @@ export class RubroPublicacionJuridicaComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la publicación', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar la publicación',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -213,12 +212,7 @@ export class RubroPublicacionJuridicaComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar la publicación'
               : 'No se pudo guardar la publicación',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

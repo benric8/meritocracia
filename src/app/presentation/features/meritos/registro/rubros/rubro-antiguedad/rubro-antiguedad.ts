@@ -67,6 +67,7 @@ import {
   FormularioProvisionalidadData,
   ProvisionalidadGuardada,
 } from './formulario-provisionalidad/formulario-provisionalidad';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-antiguedad',
@@ -327,12 +328,7 @@ export class RubroAntiguedadComponent implements OnInit {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion ? 'No se pudo actualizar la titularidad' : 'No se pudo guardar la titularidad',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }
@@ -396,12 +392,7 @@ export class RubroAntiguedadComponent implements OnInit {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion ? 'No se pudo actualizar el periodo' : 'No se pudo guardar el periodo',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }
@@ -481,12 +472,10 @@ export class RubroAntiguedadComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la provisionalidad', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar la provisionalidad',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -554,12 +543,10 @@ export class RubroAntiguedadComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la colegiatura', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar la colegiatura',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -616,12 +603,7 @@ export class RubroAntiguedadComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar la provisionalidad'
               : 'No se pudo guardar la provisionalidad',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }
@@ -676,12 +658,7 @@ export class RubroAntiguedadComponent implements OnInit {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion ? 'No se pudo actualizar la colegiatura' : 'No se pudo guardar la colegiatura',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

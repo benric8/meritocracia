@@ -30,6 +30,7 @@ import {
   FormularioEstudioPosgrado,
   FormularioEstudioPosgradoData,
 } from './formulario-estudio-posgrado/formulario-estudio-posgrado';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-estudios-posgrado',
@@ -139,11 +140,7 @@ export class RubroEstudiosPosgradoComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar el semestre', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo eliminar el semestre', detalleDeResultado(resultado));
           return;
         }
 
@@ -223,11 +220,7 @@ export class RubroEstudiosPosgradoComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar el semestre'
               : 'No se pudo guardar el semestre',
-            {
-              mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

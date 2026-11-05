@@ -30,6 +30,7 @@ import {
   FormularioPasantiaData,
   PasantiaGuardada,
 } from './formulario-pasantia/formulario-pasantia';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-pasantias',
@@ -125,11 +126,7 @@ export class RubroPasantiasComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la pasantía', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo eliminar la pasantía', detalleDeResultado(resultado));
           return;
         }
 
@@ -206,11 +203,7 @@ export class RubroPasantiasComponent implements OnInit {
         if (!resultado.exito) {
           void this.alertas.error(
             esActualizacion ? 'No se pudo actualizar la pasantía' : 'No se pudo guardar la pasantía',
-            {
-              mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

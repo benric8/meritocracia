@@ -40,6 +40,7 @@ import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/us
 import { ObtenerFichaUseCase } from '../../../../application/use-cases/meritos/obtener-ficha.use-case';
 import { ResolverFichaDelCicloUseCase } from '../../../../application/use-cases/meritos/resolver-ficha-del-ciclo.use-case';
 import {
+  ActualizarDatosPersonalesFicha,
   EstadoFicha,
   FichaValoracion,
   PuntajesFicha,
@@ -77,6 +78,7 @@ import { formatearFechaCorta } from '../fecha/fecha-valoracion.util';
 import { RubrosMaestroStore } from '../../../../infrastructure/stores/rubros-maestro.store';
 import { RubrosPanel } from './rubros/rubros-panel/rubros-panel';
 import { aDateDesdeIso, formatearPuntaje } from './rubros/rubros.util';
+import { detalleDeResultado } from '../../../../application/errors/detalle-error.mapper';
 
 /** Acción principal de cabecera según el resultado de Buscar. */
 export type ModoAccionCabecera = 'NUEVA' | 'ACTUALIZAR' | 'IMPORTAR' | 'BLOQUEADA';
@@ -318,14 +320,7 @@ export class Registro implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         switchMap((resolucion) => {
           if (!resolucion.exito) {
-            void this.alertas.error('No se pudo resolver la ficha', {
-              mensaje:
-                resolucion.detalle?.mensaje ??
-                resolucion.mensaje ??
-                'Error desconocido.',
-              codigo: resolucion.detalle?.codigo,
-              codigoOperacion: resolucion.detalle?.codigoOperacion,
-            });
+            void this.alertas.error('No se pudo resolver la ficha', detalleDeResultado(resolucion));
             return EMPTY;
           }
 
@@ -391,14 +386,7 @@ export class Registro implements OnInit {
         if (evento.tipo === 'NUEVA' || evento.tipo === 'NUEVA_CON_PREVIA') {
           if (!evento.siga.exito) {
             this.limpiarIdentidad();
-            void this.alertas.error('No se encontró en SIGA', {
-              mensaje:
-                evento.siga.detalle?.mensaje ??
-                evento.siga.mensaje ??
-                'Error desconocido.',
-              codigo: evento.siga.detalle?.codigo,
-              codigoOperacion: evento.siga.detalle?.codigoOperacion,
-            });
+            void this.alertas.error('No se encontró en SIGA', detalleDeResultado(evento.siga));
             return;
           }
 
@@ -441,14 +429,10 @@ export class Registro implements OnInit {
           );
           void this.alertas.error(
             evento.tipo === 'EDITABLE' ? 'Ficha encontrada' : 'Ficha no editable',
-            {
-              mensaje:
-                evento.obtencion.detalle?.mensaje ??
-                evento.obtencion.mensaje ??
-                'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.',
-              codigo: evento.obtencion.detalle?.codigo,
-              codigoOperacion: evento.obtencion.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(
+              evento.obtencion,
+              'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.'
+            )
           );
           return;
         }
@@ -552,12 +536,7 @@ export class Registro implements OnInit {
       )
       .subscribe(async (guardado) => {
         if (!guardado.exito) {
-          void this.alertas.error('No se pudieron guardar los datos', {
-            mensaje:
-              guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
-            codigo: guardado.detalle?.codigo,
-            codigoOperacion: guardado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudieron guardar los datos', detalleDeResultado(guardado));
           return;
         }
         this.aplicarFichaEnUi(guardado.ficha, false);
@@ -583,12 +562,7 @@ export class Registro implements OnInit {
       )
       .subscribe(async (guardado) => {
         if (!guardado.exito) {
-          void this.alertas.error('No se pudo crear la ficha', {
-            mensaje:
-              guardado.detalle?.mensaje ?? guardado.mensaje ?? 'Error desconocido.',
-            codigo: guardado.detalle?.codigo,
-            codigoOperacion: guardado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo crear la ficha', detalleDeResultado(guardado));
           return;
         }
 
@@ -611,33 +585,25 @@ export class Registro implements OnInit {
     fechaValoracionSnapshot: string,
     arrastrarDesde: string | null
   ) {
-    const v = this.formulario.getRawValue();
-    const nivel = this.niveles().find((n) => n.id === v.nivelId);
-    const edadNum = this.edad() ? Number(this.edad()) : null;
-
     return this.crearBorrador.ejecutar({
-      nivelId: v.nivelId,
-      nivelNombre: nivel?.nombre ?? '',
+      ...this.cabeceraDesdeFormulario(),
       fechaValoracionId,
       fechaValoracionSnapshot,
       arrastrarDesdeFichaId: arrastrarDesde,
-      datosPersonales: {
-        dni: v.dni,
-        nombreCompleto: v.nombreCompleto,
-        foto: this.fotoSiga(),
-        fechaNacimiento: v.fechaNacimiento ? aFechaIsoLocal(v.fechaNacimiento) : '',
-        sexo: v.sexo as 'M' | 'F',
-        edad: Number.isFinite(edadNum) ? edadNum : null,
-      },
     });
   }
 
   private persistirActualizacion(fichaId: string) {
+    return this.actualizarDatosPersonales.ejecutar(fichaId, this.cabeceraDesdeFormulario());
+  }
+
+  /** Nivel y datos personales del formulario, comunes a crear y actualizar la ficha. */
+  private cabeceraDesdeFormulario(): ActualizarDatosPersonalesFicha {
     const v = this.formulario.getRawValue();
     const nivel = this.niveles().find((n) => n.id === v.nivelId);
     const edadNum = this.edad() ? Number(this.edad()) : null;
 
-    return this.actualizarDatosPersonales.ejecutar(fichaId, {
+    return {
       nivelId: v.nivelId,
       nivelNombre: nivel?.nombre ?? '',
       datosPersonales: {
@@ -648,8 +614,8 @@ export class Registro implements OnInit {
         sexo: v.sexo as 'M' | 'F',
         edad: Number.isFinite(edadNum) ? edadNum : null,
       },
-    });
-  } 
+    };
+  }
 
   private aplicarFichaEnUi(ficha: FichaValoracion, soloLectura: boolean): void {
     this.fichaId.set(ficha.id);
@@ -722,12 +688,7 @@ export class Registro implements OnInit {
       )
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          await this.alertas.error('No se pudo cargar la ficha', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          await this.alertas.error('No se pudo cargar la ficha', detalleDeResultado(resultado));
           this.volver.emit();
           return;
         }
@@ -1006,11 +967,7 @@ export class Registro implements OnInit {
       .subscribe((resultado) => {
         if (!resultado.exito) {
           this.edad.set('');
-          void this.alertas.error('No se pudo calcular la edad', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo calcular la edad', detalleDeResultado(resultado));
           return;
         }
 

@@ -31,6 +31,7 @@ import {
   FormularioDistincion,
   FormularioDistincionData,
 } from './formulario-distincion/formulario-distincion';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-distincion',
@@ -122,12 +123,10 @@ export class RubroDistincionComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la distinción', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar la distinción',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -207,12 +206,7 @@ export class RubroDistincionComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar la distinción'
               : 'No se pudo guardar la distinción',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

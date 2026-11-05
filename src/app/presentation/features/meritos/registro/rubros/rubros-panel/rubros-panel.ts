@@ -61,6 +61,7 @@ import { RubroGradosTitulosComponent } from '../rubro-grados-titulos/rubro-grado
 import { RubroProduccion } from '../rubro-produccion/rubro-produccion';
 import { RubroAntiguedadComponent } from '../rubro-antiguedad/rubro-antiguedad';
 import { RubroSubrubrosPanel } from '../rubro-subrubros-panel/rubro-subrubros-panel';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubros-panel',
@@ -826,12 +827,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro B', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro B', detalleDeResultado(resultado));
           return;
         }
 
@@ -854,12 +850,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro C', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro C', detalleDeResultado(resultado));
           return;
         }
 
@@ -882,12 +873,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro D', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro D', detalleDeResultado(resultado));
           return;
         }
 
@@ -910,12 +896,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro F', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro F', detalleDeResultado(resultado));
           return;
         }
 
@@ -938,12 +919,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro G', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro G', detalleDeResultado(resultado));
           return;
         }
 
@@ -966,12 +942,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro H', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro H', detalleDeResultado(resultado));
           return;
         }
 
@@ -994,12 +965,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro I', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro I', detalleDeResultado(resultado));
           return;
         }
 
@@ -1022,12 +988,7 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el rubro J', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo cargar el rubro J', detalleDeResultado(resultado));
           return;
         }
 
@@ -1068,12 +1029,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E1', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E1',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -1100,12 +1059,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E2', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E2',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -1132,12 +1089,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E3', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E3',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -1164,12 +1119,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E4', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E4',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -1196,12 +1149,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E5', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E5',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -1228,12 +1179,10 @@ export class RubrosPanel {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo cargar el subrubro E6', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo cargar el subrubro E6',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 

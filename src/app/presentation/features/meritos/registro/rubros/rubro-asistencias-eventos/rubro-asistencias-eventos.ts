@@ -30,6 +30,7 @@ import {
   FormularioAsistenciaEvento,
   FormularioAsistenciaEventoData,
 } from './formulario-asistencia-evento/formulario-asistencia-evento';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-asistencias-eventos',
@@ -151,11 +152,10 @@ export class RubroAsistenciasEventosComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar la asistencia', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar la asistencia',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -240,11 +240,7 @@ export class RubroAsistenciasEventosComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar la asistencia'
               : 'No se pudo guardar la asistencia',
-            {
-              mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

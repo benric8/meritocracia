@@ -31,6 +31,7 @@ import {
   FormularioIdioma,
   FormularioIdiomaData,
 } from './formulario-idioma/formulario-idioma';
+import { detalleDeResultado } from '../../../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-rubro-idioma',
@@ -122,12 +123,10 @@ export class RubroIdiomaComponent implements OnInit {
       .pipe(take(1))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo eliminar el estudio de idioma', {
-            mensaje:
-              resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error(
+            'No se pudo eliminar el estudio de idioma',
+            detalleDeResultado(resultado)
+          );
           return;
         }
 
@@ -207,12 +206,7 @@ export class RubroIdiomaComponent implements OnInit {
             esActualizacion
               ? 'No se pudo actualizar el estudio de idioma'
               : 'No se pudo guardar el estudio de idioma',
-            {
-              mensaje:
-                resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-              codigo: resultado.detalle?.codigo,
-              codigoOperacion: resultado.detalle?.codigoOperacion,
-            }
+            detalleDeResultado(resultado)
           );
           return;
         }

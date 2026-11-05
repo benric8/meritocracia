@@ -1,3 +1,4 @@
+import { fotoSrc } from '../../../../domain/commons/foto-src';
 import {
   CarpetaPersonalMeritos,
   SeccionCarpetaMeritos,
@@ -55,7 +56,7 @@ export interface CarpetaVista {
 export function carpetaVista(carpeta: CarpetaPersonalMeritos): CarpetaVista {
   return {
     nombre: aNombrePropio(carpeta.apellidosNombres) || SIN_DATO,
-    foto: carpeta.fotoBase64 ? `data:image/jpeg;base64,${carpeta.fotoBase64}` : null,
+    foto: fotoSrc(carpeta.fotoBase64) || null,
     valoradoAl: formatearFecha(carpeta.fechaValoracion),
     personales: [
       { etiqueta: 'DNI', valor: dato(carpeta.dni) },

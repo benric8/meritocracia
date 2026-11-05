@@ -1,3 +1,4 @@
+import { fotoSrc } from '../../domain/commons/foto-src';
 import {
   CalculoEdadJuez,
   DatosSigaJuez,
@@ -8,45 +9,6 @@ import {
   DatosSigaJuezDto,
   EdadJuezDto,
 } from '../dto/remote/JuezResponse.dto';
-
-/**
- * Convierte base64 puro (p. ej. `/9j/...` JPEG) a data URL usable en `<img [src]>`.
- */
-export function normalizarFotoSiga(valor: string): string {
-  const foto = valor.replace(/\s/g, '').trim();
-  if (!foto) {
-    return '';
-  }
-
-  if (
-    foto.startsWith('data:') ||
-    foto.startsWith('http://') ||
-    foto.startsWith('https://') ||
-    foto.startsWith('blob:')
-  ) {
-    return foto;
-  }
-
-  const mime = detectarMimeBase64(foto);
-  return `data:${mime};base64,${foto}`;
-}
-
-function detectarMimeBase64(base64: string): string {
-  // JPEG: /9j/  — PNG: iVBOR  — GIF: R0lGO  — WEBP: UklGR
-  if (base64.startsWith('/9j/')) {
-    return 'image/jpeg';
-  }
-  if (base64.startsWith('iVBOR')) {
-    return 'image/png';
-  }
-  if (base64.startsWith('R0lGO')) {
-    return 'image/gif';
-  }
-  if (base64.startsWith('UklGR')) {
-    return 'image/webp';
-  }
-  return 'image/jpeg';
-}
 
 export function toDatosSigaJuez(dto: DatosSigaJuezDto): DatosSigaJuez {
   const nombreCompleto = String(
@@ -61,7 +23,7 @@ export function toDatosSigaJuez(dto: DatosSigaJuezDto): DatosSigaJuez {
 
   return {
     nombreCompleto,
-    foto: normalizarFotoSiga(fotoCruda),
+    foto: fotoSrc(fotoCruda),
   };
 }
 

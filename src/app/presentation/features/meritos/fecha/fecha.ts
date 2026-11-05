@@ -19,6 +19,7 @@ import {
   FormularioNuevaFechaValoracionData,
 } from './formulario-nueva-fecha-valoracion/formulario-nueva-fecha-valoracion';
 import { HistorialFechasValoracion } from './historial-fechas-valoracion/historial-fechas-valoracion';
+import { detalleDeResultado } from '../../../../application/errors/detalle-error.mapper';
 
 @Component({
   selector: 'app-fecha',
@@ -108,11 +109,7 @@ export class Fecha implements OnInit {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo desactivar', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo desactivar', detalleDeResultado(resultado));
           return;
         }
 
@@ -138,11 +135,7 @@ export class Fecha implements OnInit {
       )
       .subscribe((resultado) => {
         if (!resultado.exito) {
-          void this.alertas.error('No se pudo registrar', {
-            mensaje: resultado.detalle?.mensaje ?? resultado.mensaje ?? 'Error desconocido.',
-            codigo: resultado.detalle?.codigo,
-            codigoOperacion: resultado.detalle?.codigoOperacion,
-          });
+          void this.alertas.error('No se pudo registrar', detalleDeResultado(resultado));
           return;
         }
 
