@@ -24,7 +24,12 @@ import {
   RubroPublicacionJuridica,
 } from '../../../../../../domain/models/rubro-publicacion-juridica.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearPuntaje } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   FormularioPublicacionJuridica,
   FormularioPublicacionJuridicaData,
@@ -166,6 +171,9 @@ export class RubroPublicacionJuridicaComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarPublicacion(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -205,7 +213,7 @@ export class RubroPublicacionJuridicaComponent implements OnInit {
 
     this.mutarItems
       .upsertPublicacionJuridica(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

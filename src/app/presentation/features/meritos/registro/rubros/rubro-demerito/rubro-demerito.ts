@@ -21,7 +21,12 @@ import {
   TIPOS_DOCUMENTO_DEMERITO,
 } from '../../../../../../domain/models/rubro-demerito.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearPuntaje } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   DemeritoGuardado,
   FormularioDemerito,
@@ -144,6 +149,9 @@ export class RubroDemeritoComponent {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarDemerito(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -173,7 +181,7 @@ export class RubroDemeritoComponent {
 
     this.mutarItems
       .upsertDemerito(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

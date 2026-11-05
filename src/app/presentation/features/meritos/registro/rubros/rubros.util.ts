@@ -1,3 +1,24 @@
+import { defer, finalize, MonoTypeOperatorFunction } from 'rxjs';
+
+const dialogosGuardando = new WeakSet<object>();
+
+/**
+ * `true` si el diálogo ya tiene un guardado en curso. Evita el doble envío
+ * (y el ítem duplicado) cuando se pulsa Guardar dos veces seguidas.
+ */
+export function dialogoGuardando(ref: object): boolean {
+  return dialogosGuardando.has(ref);
+}
+
+/** Marca el diálogo como ocupado mientras dura la petición; al terminar se puede reintentar. */
+export function mientrasGuardaDialogo<T>(ref: object): MonoTypeOperatorFunction<T> {
+  return (source) =>
+    defer(() => {
+      dialogosGuardando.add(ref);
+      return source.pipe(finalize(() => dialogosGuardando.delete(ref)));
+    });
+}
+
 /** Convierte `Date` local a ISO `YYYY-MM-DD` sin desfase UTC. */
 export function aFechaIsoLocal(fecha: Date): string {
   const anio = fecha.getFullYear();

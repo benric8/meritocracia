@@ -24,7 +24,12 @@ import {
   TipoCursoEspecializacionCatalogo,
 } from '../../../../../../domain/models/rubro-cursos-especializacion.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   CursoEspecializacionGuardado,
   FormularioCursoEspecializacion,
@@ -162,6 +167,9 @@ export class RubroCursosEspecializacionComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarCurso(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -199,7 +207,7 @@ export class RubroCursosEspecializacionComponent implements OnInit {
 
     this.mutarItems
       .upsertCurso(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

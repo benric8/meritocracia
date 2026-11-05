@@ -24,7 +24,12 @@ import {
   RubroCertamenesAcademicos,
 } from '../../../../../../domain/models/rubro-certamenes-academicos.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   CertamenAcademicoGuardado,
   FormularioCertamenAcademico,
@@ -207,6 +212,9 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarCertamen(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -247,7 +255,7 @@ export class RubroCertamenesAcademicosComponent implements OnInit {
 
     this.mutarItems
       .upsertCertamen(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

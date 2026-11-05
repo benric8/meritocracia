@@ -29,6 +29,8 @@ import {
   esIdPersistidoApi,
   formatearFechaCorta,
   formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
 } from '../rubros.util';
 import {
   FormularioGradoTitulo,
@@ -166,6 +168,9 @@ export class RubroGradosTitulosComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarGradoTitulo(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -199,7 +204,7 @@ export class RubroGradosTitulosComponent implements OnInit {
 
     this.mutarItems
       .upsertGradoTitulo(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

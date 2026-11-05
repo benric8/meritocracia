@@ -27,7 +27,9 @@ import {
   finalize,
   forkJoin,
   map,
+  Observable,
   of,
+  Subscription,
   switchMap,
   take,
 } from 'rxjs';
@@ -35,9 +37,15 @@ import { ActualizarDatosPersonalesFichaUseCase } from '../../../../application/u
 import { CalcularEdadJuezUseCase } from '../../../../application/use-cases/meritos/calcular-edad-juez.use-case';
 import { CrearBorradorFichaUseCase } from '../../../../application/use-cases/meritos/crear-borrador-ficha.use-case';
 import { ListarNivelesTitularUseCase } from '../../../../application/use-cases/meritos/listar-niveles-titular.use-case';
-import { ObtenerDatosSigaJuezUseCase } from '../../../../application/use-cases/meritos/obtener-datos-siga-juez.use-case';
+import {
+  ObtenerDatosSigaJuezResultado,
+  ObtenerDatosSigaJuezUseCase,
+} from '../../../../application/use-cases/meritos/obtener-datos-siga-juez.use-case';
 import { ObtenerFechaValoracionVigenteUseCase } from '../../../../application/use-cases/meritos/obtener-fecha-valoracion-vigente.use-case';
-import { ObtenerFichaUseCase } from '../../../../application/use-cases/meritos/obtener-ficha.use-case';
+import {
+  ObtenerFichaResultado,
+  ObtenerFichaUseCase,
+} from '../../../../application/use-cases/meritos/obtener-ficha.use-case';
 import { ResolverFichaDelCicloUseCase } from '../../../../application/use-cases/meritos/resolver-ficha-del-ciclo.use-case';
 import {
   ActualizarDatosPersonalesFicha,
@@ -82,6 +90,18 @@ import { detalleDeResultado } from '../../../../application/errors/detalle-error
 
 /** Acción principal de cabecera según el resultado de Buscar. */
 export type ModoAccionCabecera = 'NUEVA' | 'ACTUALIZAR' | 'IMPORTAR' | 'BLOQUEADA';
+
+/** Datos reunidos por Buscar DNI, según el flujo que resolvió el backend. */
+type EventoBusquedaDni =
+  | { tipo: 'ASIGNADO_A_OTRO' }
+  | { tipo: 'EDITABLE' | 'BLOQUEADA'; fichaId: string; obtencion: ObtenerFichaResultado }
+  | { tipo: 'NUEVA'; siga: ObtenerDatosSigaJuezResultado }
+  | {
+      tipo: 'NUEVA_CON_PREVIA';
+      siga: ObtenerDatosSigaJuezResultado;
+      previa: ObtenerFichaResultado;
+      fichaPreviaId: string;
+    };
 
 @Component({
   selector: 'app-registro',
@@ -182,6 +202,9 @@ export class Registro implements OnInit {
   private readonly dniResuelto = signal<string>('');
   /** DNI con foto/nombre cargados (SIGA o ficha existente). */
   private readonly dniConsultadoIdentidad = signal<string>('');
+  /** Búsqueda de DNI en curso y el DNI que consulta; se cancela si el DNI cambia. */
+  private busquedaDni: Subscription | null = null;
+  private dniEnBusqueda: string | null = null;
   /** Hay identidad cargada; si no hay foto, el juez no tiene una (no es error). */
   protected readonly identidadCargada = computed(() => !!this.dniConsultadoIdentidad());
 
@@ -310,40 +333,49 @@ export class Registro implements OnInit {
     }
 
     const dni = dniControl.value;
-    this.buscandoDni.set(true);
+    this.cancelarBusquedaDni();
     this.resetEstadoTrasCambioDni(false);
+    this.buscandoDni.set(true);
+    this.dniEnBusqueda = dni;
 
-    this.resolverFicha
-      .ejecutar(dni, fechaValoracionId)
+    this.busquedaDni = this.buscarDatosDni$(dni, fechaValoracionId)
       .pipe(
         take(1),
         takeUntilDestroyed(this.destroyRef),
-        switchMap((resolucion) => {
-          if (!resolucion.exito) {
-            void this.alertas.error('No se pudo resolver la ficha', detalleDeResultado(resolucion));
-            return EMPTY;
-          }
+        finalize(() => {
+          this.buscandoDni.set(false);
+          this.dniEnBusqueda = null;
+        })
+      )
+      .subscribe((evento) => {
+        // Defensa adicional: la búsqueda se cancela al cambiar el DNI.
+        if (this.formulario.controls.dni.value === dni) {
+          this.aplicarBusquedaDni(evento, dni);
+        }
+      });
+  }
 
-          const resultado = resolucion.resultado;
+  /** Resuelve el flujo y trae lo que cada caso necesita (SIGA, ficha actual o anterior). */
+  private buscarDatosDni$(dni: string, fechaValoracionId: string): Observable<EventoBusquedaDni> {
+    return this.resolverFicha.ejecutar(dni, fechaValoracionId).pipe(
+      switchMap((resolucion): Observable<EventoBusquedaDni> => {
+        if (!resolucion.exito) {
+          void this.alertas.error('No se pudo resolver la ficha', detalleDeResultado(resolucion));
+          return EMPTY;
+        }
 
-          if (resultado.tipo === 'ASIGNADO_A_OTRO') {
-            return of({
-              tipo: 'ASIGNADO_A_OTRO' as const,
-              fichaId: resultado.fichaId,
-            });
-          }
+        const resultado = resolucion.resultado;
+        switch (resultado.tipo) {
+          case 'ASIGNADO_A_OTRO':
+            return of({ tipo: 'ASIGNADO_A_OTRO' });
 
-          if (resultado.tipo === 'EDITABLE' || resultado.tipo === 'BLOQUEADA') {
+          case 'EDITABLE':
+          case 'BLOQUEADA':
             return this.obtenerFicha.ejecutar(resultado.fichaId).pipe(
-              map((obtencion) => ({
-                tipo: resultado.tipo,
-                fichaId: resultado.fichaId,
-                obtencion,
-              }))
+              map((obtencion) => ({ tipo: resultado.tipo, fichaId: resultado.fichaId, obtencion }))
             );
-          }
 
-          if (resultado.tipo === 'NUEVA_CON_PREVIA') {
+          case 'NUEVA_CON_PREVIA':
             // En paralelo: SIGA (nombre y foto) y la ficha anterior (sexo y fecha de nacimiento).
             return forkJoin({
               siga: this.obtenerDatosSiga.ejecutar(dni),
@@ -353,117 +385,127 @@ export class Registro implements OnInit {
                 tipo: 'NUEVA_CON_PREVIA' as const,
                 siga,
                 previa,
-                dni,
                 fichaPreviaId: resultado.fichaPreviaId,
               }))
             );
-          }
 
-          return this.obtenerDatosSiga.ejecutar(dni).pipe(
-            map((siga) => ({
-              tipo: 'NUEVA' as const,
-              siga,
-              dni,
-            }))
-          );
-        }),
-        finalize(() => this.buscandoDni.set(false))
-      )
-      .subscribe(async (evento) => {
-        if (this.formulario.controls.dni.value !== dni) {
-          return;
+          case 'NUEVA':
+            return this.obtenerDatosSiga
+              .ejecutar(dni)
+              .pipe(map((siga) => ({ tipo: 'NUEVA' as const, siga })));
         }
+      })
+    );
+  }
 
-        if (evento.tipo === 'ASIGNADO_A_OTRO') {
-          this.resetEstadoTrasCambioDni(true);
-          void this.alertas.error('Ficha asignada a otro registrador', {
-            mensaje:
-              'Este magistrado ya tiene una ficha del ciclo vigente asignada a otro registrador. No puede editarla.',
-          });
-          return;
-        }
+  private aplicarBusquedaDni(evento: EventoBusquedaDni, dni: string): void {
+    switch (evento.tipo) {
+      case 'ASIGNADO_A_OTRO':
+        this.resetEstadoTrasCambioDni(true);
+        void this.alertas.error('Ficha asignada a otro registrador', {
+          mensaje:
+            'Este magistrado ya tiene una ficha del ciclo vigente asignada a otro registrador. No puede editarla.',
+        });
+        return;
 
-        if (evento.tipo === 'NUEVA' || evento.tipo === 'NUEVA_CON_PREVIA') {
-          if (!evento.siga.exito) {
-            this.limpiarIdentidad();
-            void this.alertas.error('No se encontró en SIGA', detalleDeResultado(evento.siga));
-            return;
-          }
+      case 'NUEVA':
+      case 'NUEVA_CON_PREVIA':
+        this.aplicarRegistroNuevo(evento, dni);
+        return;
 
-          this.dniResuelto.set(dni);
-          this.dniConsultadoIdentidad.set(dni);
-          this.formulario.controls.nombreCompleto.setValue(evento.siga.datos.nombreCompleto);
-          this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
-          this.fotoSiga.set(evento.siga.datos.foto);
+      case 'EDITABLE':
+      case 'BLOQUEADA':
+        this.aplicarFichaExistente(evento, dni);
+        return;
+    }
+  }
 
-          if (evento.tipo === 'NUEVA') {
-            this.modoAccionCabecera.set('NUEVA');
-            this.fichaPreviaId.set(null);
-            return;
-          }
+  /** NUEVA o NUEVA_CON_PREVIA: identidad desde SIGA y, si hay, datos de la ficha anterior. */
+  private aplicarRegistroNuevo(
+    evento: Extract<EventoBusquedaDni, { tipo: 'NUEVA' | 'NUEVA_CON_PREVIA' }>,
+    dni: string
+  ): void {
+    if (!evento.siga.exito) {
+      this.limpiarIdentidad();
+      void this.alertas.error('No se encontró en SIGA', detalleDeResultado(evento.siga));
+      return;
+    }
 
-          this.modoAccionCabecera.set('IMPORTAR');
-          this.fichaPreviaId.set(evento.fichaPreviaId);
-          const datosPrevios = evento.previa.exito ? evento.previa.ficha.datosPersonales : null;
-          if (datosPrevios) {
-            // Si cambia la fecha de nacimiento, la edad se recalcula sola.
-            this.formulario.patchValue({
-              sexo: datosPrevios.sexo,
-              fechaNacimiento: aDateDesdeIso(datosPrevios.fechaNacimiento),
-            });
-          }
-          await this.alertas.exito(
-            'Ficha del proceso anterior',
-            datosPrevios
-              ? 'Se cargaron el sexo y la fecha de nacimiento de la ficha del proceso anterior. Seleccione el nivel, revise los datos y pulse Importar ficha anterior.'
-              : 'Se encontraron datos del proceso anterior. Complete nivel y datos personales, luego pulse Importar ficha anterior.'
-          );
-          return;
-        }
+    this.dniResuelto.set(dni);
+    this.dniConsultadoIdentidad.set(dni);
+    this.formulario.controls.nombreCompleto.setValue(evento.siga.datos.nombreCompleto);
+    this.formulario.controls.nombreCompleto.disable({ emitEvent: false });
+    this.fotoSiga.set(evento.siga.datos.foto);
 
-        if (!evento.obtencion.exito) {
-          this.dniResuelto.set(dni);
-          this.fichaId.set(evento.fichaId);
-          this.modoAccionCabecera.set(
-            evento.tipo === 'EDITABLE' ? 'ACTUALIZAR' : 'BLOQUEADA'
-          );
-          void this.alertas.error(
-            evento.tipo === 'EDITABLE' ? 'Ficha encontrada' : 'Ficha no editable',
-            detalleDeResultado(
-              evento.obtencion,
-              'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.'
-            )
-          );
-          return;
-        }
+    if (evento.tipo === 'NUEVA') {
+      this.modoAccionCabecera.set('NUEVA');
+      this.fichaPreviaId.set(null);
+      return;
+    }
 
-        const ficha = evento.obtencion.ficha;
-        this.dniResuelto.set(dni);
-
-        if (evento.tipo === 'EDITABLE') {
-          this.modoAccionCabecera.set('ACTUALIZAR');
-          this.fichaPreviaId.set(null);
-          this.aplicarFichaEnUi(ficha, false);
-          await this.alertas.exito(
-            'Registro encontrado',
-            'Se cargó el borrador del proceso actual. Puede actualizar los datos o continuar con los rubros.'
-          );
-          return;
-        }
-
-        if (evento.tipo === 'BLOQUEADA') {
-          this.modoAccionCabecera.set('BLOQUEADA');
-          this.fichaPreviaId.set(null);
-          this.aplicarFichaEnUi(ficha, true);
-          void this.alertas.error('Ficha cerrada', {
-            mensaje:
-              'La ficha del ciclo vigente está completada y se muestra en solo lectura.',
-          });
-        }
+    this.modoAccionCabecera.set('IMPORTAR');
+    this.fichaPreviaId.set(evento.fichaPreviaId);
+    const datosPrevios = evento.previa.exito ? evento.previa.ficha.datosPersonales : null;
+    if (datosPrevios) {
+      // Si cambia la fecha de nacimiento, la edad se recalcula sola.
+      this.formulario.patchValue({
+        sexo: datosPrevios.sexo,
+        fechaNacimiento: aDateDesdeIso(datosPrevios.fechaNacimiento),
       });
+    }
+    void this.alertas.exito(
+      'Ficha del proceso anterior',
+      datosPrevios
+        ? 'Se cargaron el sexo y la fecha de nacimiento de la ficha del proceso anterior. Seleccione el nivel, revise los datos y pulse Importar ficha anterior.'
+        : 'Se encontraron datos del proceso anterior. Complete nivel y datos personales, luego pulse Importar ficha anterior.'
+    );
+  }
+
+  /** EDITABLE o BLOQUEADA: carga la ficha del ciclo vigente. */
+  private aplicarFichaExistente(
+    evento: Extract<EventoBusquedaDni, { tipo: 'EDITABLE' | 'BLOQUEADA' }>,
+    dni: string
+  ): void {
+    const editable = evento.tipo === 'EDITABLE';
+    this.dniResuelto.set(dni);
+
+    if (!evento.obtencion.exito) {
+      this.fichaId.set(evento.fichaId);
+      this.modoAccionCabecera.set(editable ? 'ACTUALIZAR' : 'BLOQUEADA');
+      void this.alertas.error(
+        editable ? 'Ficha encontrada' : 'Ficha no editable',
+        detalleDeResultado(
+          evento.obtencion,
+          'La ficha existe, pero aún no se puede cargar el detalle completo desde el API.'
+        )
+      );
+      return;
+    }
+
+    this.modoAccionCabecera.set(editable ? 'ACTUALIZAR' : 'BLOQUEADA');
+    this.fichaPreviaId.set(null);
+    this.aplicarFichaEnUi(evento.obtencion.ficha, !editable);
+
+    if (editable) {
+      void this.alertas.exito(
+        'Registro encontrado',
+        'Se cargó el borrador del proceso actual. Puede actualizar los datos o continuar con los rubros.'
+      );
+    } else {
+      void this.alertas.error('Ficha cerrada', {
+        mensaje: 'La ficha del ciclo vigente está completada y se muestra en solo lectura.',
+      });
+    }
+  }
+
+  /** Cancela la búsqueda en curso (p. ej. si el usuario cambió el DNI mientras se consultaba). */
+  private cancelarBusquedaDni(): void {
+    this.busquedaDni?.unsubscribe();
+    this.busquedaDni = null;
   }
 
   protected onLimpiarDatosPersonales(): void {
+    this.cancelarBusquedaDni();
     this.formulario.reset({
       dni: '',
       nivelId: '',
@@ -534,14 +576,14 @@ export class Registro implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.guardandoFicha.set(false))
       )
-      .subscribe(async (guardado) => {
+      .subscribe((guardado) => {
         if (!guardado.exito) {
           void this.alertas.error('No se pudieron guardar los datos', detalleDeResultado(guardado));
           return;
         }
         this.aplicarFichaEnUi(guardado.ficha, false);
         this.modoAccionCabecera.set('ACTUALIZAR');
-        await this.alertas.exito(
+        void this.alertas.exito(
           'Datos actualizados',
           'Los datos personales se guardaron correctamente.'
         );
@@ -560,7 +602,7 @@ export class Registro implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.guardandoFicha.set(false))
       )
-      .subscribe(async (guardado) => {
+      .subscribe((guardado) => {
         if (!guardado.exito) {
           void this.alertas.error('No se pudo crear la ficha', detalleDeResultado(guardado));
           return;
@@ -573,7 +615,7 @@ export class Registro implements OnInit {
         const mensaje = arrastrarDesde
           ? 'Ficha importada del proceso anterior. Puede continuar con los rubros.'
           : 'Datos personales guardados. Puede continuar con el rubro B — Antigüedad.';
-        await this.alertas.exito(
+        void this.alertas.exito(
           arrastrarDesde ? 'Ficha importada' : 'Ficha en borrador',
           mensaje
         );
@@ -822,6 +864,10 @@ export class Registro implements OnInit {
 
   /** Si el DNI deja de coincidir con la búsqueda resuelta, limpia el estado. */
   private sincronizarResolucionConDni(dni: string): void {
+    if (this.dniEnBusqueda != null && dni !== this.dniEnBusqueda) {
+      this.cancelarBusquedaDni();
+    }
+
     const resuelto = this.dniResuelto();
     if (!resuelto) {
       return;

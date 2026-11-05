@@ -25,7 +25,12 @@ import {
   RubroIdioma,
 } from '../../../../../../domain/models/rubro-idioma.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearPuntaje } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   EstudioIdiomaGuardado,
   FormularioIdioma,
@@ -165,6 +170,9 @@ export class RubroIdiomaComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarEstudioIdioma(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -199,7 +207,7 @@ export class RubroIdiomaComponent implements OnInit {
 
     this.mutarItems
       .upsertEstudioIdioma(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

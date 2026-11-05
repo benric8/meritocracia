@@ -24,7 +24,12 @@ import {
   RubroOfimatica,
 } from '../../../../../../domain/models/rubro-ofimatica.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   EstudioOfimaticaGuardado,
   FormularioOfimatica,
@@ -185,6 +190,9 @@ export class RubroOfimaticaComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarEstudio(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -221,7 +229,7 @@ export class RubroOfimaticaComponent implements OnInit {
 
     this.mutarItems
       .upsertEstudio(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

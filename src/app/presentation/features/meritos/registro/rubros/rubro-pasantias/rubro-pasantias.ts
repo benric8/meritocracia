@@ -24,7 +24,12 @@ import {
   TipoPasantiaCatalogo,
 } from '../../../../../../domain/models/rubro-pasantias.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   FormularioPasantia,
   FormularioPasantiaData,
@@ -162,6 +167,9 @@ export class RubroPasantiasComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarPasantia(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -198,7 +206,7 @@ export class RubroPasantiasComponent implements OnInit {
 
     this.mutarItems
       .upsertPasantia(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

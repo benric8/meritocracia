@@ -56,6 +56,8 @@ import {
   esIdPersistidoApi,
   formatearFechaCorta,
   formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
 } from '../rubros.util';
 import {
   ColegiaturaGuardada,
@@ -444,6 +446,9 @@ export class RubroAntiguedadComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarProvisionalidad(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -516,6 +521,9 @@ export class RubroAntiguedadComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarColegiatura(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -596,7 +604,7 @@ export class RubroAntiguedadComponent implements OnInit {
 
     this.mutarItems
       .upsertProvisionalidad(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(
@@ -653,7 +661,7 @@ export class RubroAntiguedadComponent implements OnInit {
 
     this.mutarItems
       .upsertColegiatura(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

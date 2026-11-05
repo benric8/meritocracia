@@ -24,7 +24,7 @@ import {
   RubroEstudiosPosgrado,
 } from '../../../../../../domain/models/rubro-estudios-posgrado.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi } from '../rubros.util';
+import { esIdPersistidoApi, dialogoGuardando, mientrasGuardaDialogo } from '../rubros.util';
 import {
   EstudioPosgradoGuardado,
   FormularioEstudioPosgrado,
@@ -178,6 +178,9 @@ export class RubroEstudiosPosgradoComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarEstudio(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -213,7 +216,7 @@ export class RubroEstudiosPosgradoComponent implements OnInit {
 
     this.mutarItems
       .upsertEstudioPosgrado(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

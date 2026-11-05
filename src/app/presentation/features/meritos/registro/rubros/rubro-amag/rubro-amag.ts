@@ -21,7 +21,12 @@ import { CatalogoItem } from '../../../../../../domain/models/catalogo-item.mode
 import { FichaValoracion } from '../../../../../../domain/models/ficha-valoracion.model';
 import { EstudioAmag, RubroAmag } from '../../../../../../domain/models/rubro-amag.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearPuntaje } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   EstudioAmagGuardado,
   FormularioEstudioAmag,
@@ -157,6 +162,9 @@ export class RubroAmagComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarEstudioAmag(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -185,7 +193,7 @@ export class RubroAmagComponent implements OnInit {
 
     this.mutarItems
       .upsertEstudioAmag(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

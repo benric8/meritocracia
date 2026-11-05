@@ -25,7 +25,13 @@ import {
   TIPOS_DOCUMENTO_DOCENCIA,
 } from '../../../../../../domain/models/rubro-docencia.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta, formatearPuntaje } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  formatearPuntaje,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   DocenciaGuardada,
   FormularioDocencia,
@@ -156,6 +162,9 @@ export class RubroDocenciaComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarDocencia(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -190,7 +199,7 @@ export class RubroDocenciaComponent implements OnInit {
 
     this.mutarItems
       .upsertDocencia(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(

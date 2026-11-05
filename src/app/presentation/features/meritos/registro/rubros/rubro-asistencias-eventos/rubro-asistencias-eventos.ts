@@ -24,7 +24,12 @@ import {
   RubroAsistenciasEventos,
 } from '../../../../../../domain/models/rubro-asistencias-eventos.model';
 import { ALERTAS_PORT } from '../../../../../../domain/ports/alertas.port';
-import { esIdPersistidoApi, formatearFechaCorta } from '../rubros.util';
+import {
+  esIdPersistidoApi,
+  formatearFechaCorta,
+  dialogoGuardando,
+  mientrasGuardaDialogo,
+} from '../rubros.util';
 import {
   AsistenciaEventoGuardada,
   FormularioAsistenciaEvento,
@@ -193,6 +198,9 @@ export class RubroAsistenciasEventosComponent implements OnInit {
     });
 
     const sub = ref.componentInstance.guardar.subscribe((item) => {
+      if (dialogoGuardando(ref)) {
+        return;
+      }
       this.onGuardarAsistencia(item, ref);
     });
     ref.afterClosed().subscribe(() => sub.unsubscribe());
@@ -233,7 +241,7 @@ export class RubroAsistenciasEventosComponent implements OnInit {
 
     this.mutarItems
       .upsertAsistencia(fichaId, registro)
-      .pipe(take(1))
+      .pipe(take(1), mientrasGuardaDialogo(ref))
       .subscribe(async (resultado) => {
         if (!resultado.exito) {
           void this.alertas.error(
